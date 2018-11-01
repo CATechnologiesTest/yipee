@@ -1,0 +1,123 @@
+# Generated 2018-11-01T18:00:07.746Z by Yipee.io
+# Application: osyipee
+# Last Modified: 2018-11-01T18:00:07.746Z
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+spec:
+  selector:
+    yipee.io/backend: generated
+  ports:
+  - port: 5000
+    targetPort: 5000
+    name: backend-5000
+    protocol: TCP
+    nodePort: 32005
+  type: NodePort
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ui
+spec:
+  selector:
+    yipee.io/ui: generated
+  ports:
+  - port: 8080
+    targetPort: 80
+    name: ui-8080
+    protocol: TCP
+    nodePort: 32080
+  type: NodePort
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: ui
+  annotations:
+    yipee.io.lastModelUpdate: '2018-11-01T18:00:07.690Z'
+    yipee.io.modelId: e05b7e46-ddff-11e8-84b5-c7905e7047a6
+    yipee.io.contextId: 4ca636d0-1558-11e7-a85d-1ffe418dedb4
+    yipee.io.modelURL: https://app.yipee.io/edit/e05b7e46-ddff-11e8-84b5-c7905e7047a6/4ca636d0-1558-11e7-a85d-1ffe418dedb4
+spec:
+  selector:
+    matchLabels:
+      name: Wheelhouse-CRD
+      component: ui
+      yipee.io/ui: generated
+  rollbackTo:
+    revision: 0
+  template:
+    spec:
+      imagePullSecrets: []
+      containers:
+      - name: k10eh-ui
+        env:
+        - name: API_HOST
+          value: backend:5000
+        - name: CORS_POLICY
+          value: cos.yipee.io|github-isl-01.ca.com
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        imagePullPolicy: Always
+        image: yipee-tools-spoke-cos.ca.com:5000/osyipee-ui
+      restartPolicy: Always
+    metadata:
+      labels:
+        name: Wheelhouse-CRD
+        component: ui
+        yipee.io/ui: generated
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: {}
+  replicas: 1
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: backend
+  annotations:
+    yipee.io.lastModelUpdate: '2018-11-01T18:00:07.690Z'
+    yipee.io.modelId: e05b7e46-ddff-11e8-84b5-c7905e7047a6
+    yipee.io.contextId: 4ca636d0-1558-11e7-a85d-1ffe418dedb4
+    yipee.io.modelURL: https://app.yipee.io/edit/e05b7e46-ddff-11e8-84b5-c7905e7047a6/4ca636d0-1558-11e7-a85d-1ffe418dedb4
+spec:
+  selector:
+    matchLabels:
+      name: Wheelhouse-CRD
+      component: backend
+      yipee.io/backend: generated
+  rollbackTo:
+    revision: 0
+  template:
+    spec:
+      imagePullSecrets: []
+      containers:
+      - name: k10eh-converter
+        ports:
+        - containerPort: 3000
+          protocol: TCP
+        image: yipee-tools-spoke-cos.ca.com:5000/osyipee-converter
+        imagePullPolicy: Always
+      - name: k10eh-api
+        ports:
+        - containerPort: 5000
+          protocol: TCP
+        image: yipee-tools-spoke-cos.ca.com:5000/osyipee-api
+        imagePullPolicy: Always
+      restartPolicy: Always
+    metadata:
+      labels:
+        name: Wheelhouse-CRD
+        component: backend
+        yipee.io/backend: generated
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: {}
+  replicas: 1
