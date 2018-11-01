@@ -1,0 +1,20 @@
+{
+    "app-info": {
+        "name": "SimpleService",
+        "description": "a (very) simple service"
+    },
+    "services": {
+        "simpleservice": {
+            "image": "mysimpleserviceimage",
+            "restart": "always"
+        },
+        "simpleservice2": {
+            "image": "mysimpleserviceimage",
+            "restart": "on-failure"
+        },
+        "simpleservice3": {
+            "image": "mysimpleserviceimage",
+            "restart": "no"
+        }
+    }
+}

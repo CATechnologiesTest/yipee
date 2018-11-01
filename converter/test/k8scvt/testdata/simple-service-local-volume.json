@@ -1,0 +1,20 @@
+{
+    "app-info": {
+        "name": "SimpleService@test.ca",
+        "description": "a (very) simple service"
+    },
+    "services": {
+        "simpleservice": {
+            "image": "mysimpleserviceimage",
+            "restart": "always",
+            "volumes": [
+                "ssdata:/mnt/ssdata"
+            ]
+        }
+    },
+    "volumes": {
+        "ssdata" : {
+            "driver": "local"
+        }
+    }
+}

@@ -1,0 +1,73 @@
+<div class="row">
+  <div class="col-sm-12">
+    <h6 [ngSwitch]="isComponentExpanded">
+      <span id="k8s-controller-controllerlabels-dropdown" class="pointer mb5" (click)="isComponentExpanded = !isComponentExpanded">
+        <clr-icon *ngSwitchCase="false" shape="caret right"></clr-icon>
+        <clr-icon *ngSwitchCase="true" shape="caret down"></clr-icon>
+        Controller Labels
+        <clr-icon *ngIf="form.controls.top_label.invalid" shape="exclamation-circle" class="icon-danger small-icon"></clr-icon>
+      </span>
+      <!-- broken with on push <button [hidden]="!isComponentExpanded" class="btn btn-sm" style="float:right;" (click)="handleOpenBulkEdit()">Bulk Edit</button> -->
+    </h6>
+  </div>
+</div>
+<div class="row" [hidden]="!isComponentExpanded">
+  <div [formGroup]="form" class="pt10">
+    <div class="col-xs-11 offset-xs-1">
+      <table class="table table-noborder mv0">
+        <thead>
+          <tr>
+            <th style="text-align: left; width: 50%;">
+              <button style="border: none;">Name</button>
+            </th>
+            <th style="text-align: left; width: 50%;">
+              <button style="border: none;">Value</button>
+            </th>
+            <th>
+              <clr-icon shape="plus-circle" class="is-highlight" (click)="handleAddTopLabel()"></clr-icon>
+            </th>
+          </tr>
+        </thead>
+        <tbody formArrayName="top_label">
+          <tr *ngFor="let label of topLabel; let i = index" [formGroupName]="i">
+            <td>
+              <label class="table-input" [ngClass]="topLabel[i].controls.key.invalid ? 'tooltip tooltip-validation tooltip-bottom-right invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+                <input placeholder="Required" maxlength="128" class="table-input" type="text" formControlName="key">
+                <span class="tooltip-content">
+                  <span *ngIf="topLabel[i].controls.key.errors?.required === true">Name is required
+                    <br/>
+                  </span>
+                  <span *ngIf="topLabel[i].controls.key.errors?.lowercaseAlphaNumericDashPeriodSlash === true">Name may only contain lowercase letters, numbers, dashes, slashes, and periods
+                    <br/>
+                  </span>
+                  <span *ngIf="topLabel[i].controls.key.errors?.containsDoublePeriod === true">Name cannot have 2 periods in a row
+                    <br/>
+                  </span>
+                  <span *ngIf="topLabel[i].controls.key.errors?.containsDoubleDash === true">Name cannot have 2 dashes in a row
+                    <br/>
+                  </span>
+                </span>
+              </label>
+            </td>
+            <td>
+              <label class="table-input" [ngClass]="topLabel[i].controls.value.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+                <input placeholder="Required" maxlength="128" class="table-input" type="text" formControlName="value">
+                <span class="tooltip-content">
+                  <span *ngIf="topLabel[i].controls.value.errors?.required === true">Value is required
+                    <br/>
+                  </span>
+                  <span *ngIf="topLabel[i].controls.value.errors?.alphaNumericDashPeriod === true">Value may only contain letters, numbers, dashes, and periods
+                    <br/>
+                  </span>
+                </span>
+              </label>
+            </td>
+            <td>
+              <clr-icon shape="minus-circle" class="is-highlight" (click)="handleRemoveTopLabel(i)"></clr-icon>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

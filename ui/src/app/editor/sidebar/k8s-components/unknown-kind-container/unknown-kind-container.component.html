@@ -1,0 +1,29 @@
+<div class="container">
+    <form [formGroup]="form" class="form compact">
+        <label id="k8s-unknownkind-name-label" class="mb10 fw600 black" style="width: 5rem;">{{ form.value.name }}</label>
+
+        <div class="textarea-wrapper">
+            <textarea type="textarea" formControlName="body" maxlength="4112" style="min-height:300px;">
+            </textarea>
+        </div>
+
+        <div class="alert alert-danger mb10" *ngIf="error.name && error.message || this.form.errors?.duplicateNameOfKindValidator == true">
+            <div class="alert-items">
+                <div class="alert-item static">
+                    <div class="alert-icon-wrapper">
+                        <clr-icon class="alert-icon" shape="exclamation-circle"></clr-icon>
+                    </div>
+                    <span class="alert-text">
+                        <span *ngIf="error.name && error.message"><strong>{{ error.name }}:</strong> {{ error.message }} <br/></span>
+                        <span *ngIf="this.form.errors?.duplicateNameOfKindValidator == true">
+                            <strong>Duplicate Name:</strong>
+                            Name must be unique, a similiar Kubernetes "Kind" already exists with this name
+                        </span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+    </form>
+
+</div>

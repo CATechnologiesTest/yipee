@@ -1,0 +1,170 @@
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: "2018-06-14T22:47:13Z"
+  generation: 6
+  resourceVersion: foo
+  selfLink: bar
+  uid: 921f1b4f-fc8b-4f81-b330-d66a34991ab1
+  name: mongo
+  labels:
+    name: mongo
+    app: mongo
+spec:
+  ports:
+  - port: 27017
+    name: web
+  selector:
+    name: foo.bar-mongo
+    app: mongo
+  type: NodePort
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: "2018-06-14T22:47:13Z"
+  name: mongo2
+  labels:
+    name: mongo
+    app: mongo
+spec:
+  ports:
+  - port: 27017
+    name: web
+  selector:
+    name: foo.bar-mongo
+    app: mongo
+  type: NodePort
+
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+#  creationTimestamp: Tue, 15 Mar 2016 14:48:04 -0700
+  creationTimestamp: null
+  deletionTimestamp: null
+  name: mongo
+  namespace: default
+spec:
+  serviceName: "mongo"
+  updateStrategy:
+    type: OnDelete
+  podManagementPolicy: Parallel
+  replicas: 3
+  selector:
+    matchLabels:
+      name: foo.bar-mongo
+      squanch: baz.quux-mongo
+      app: mongo
+  template:
+    metadata:
+      labels:
+        name: foo.bar-mongo
+        squanch: baz.quux-mongo
+        app: mongo
+    spec:
+      imagePullSecrets:
+        - name: itsasecret
+      terminationGracePeriodSeconds: 8
+      containers:
+      - name: mongodb
+        image: mongo:3.4.1
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", "echo Hello from the postStart handler > /usr/share/message"]
+          preStop:
+            exec:
+              command: ["/usr/sbin/nginx", "-s", "quit"]
+        command:
+        - mongod
+        - --replSet
+        - rs0
+        ports:
+        - containerPort: 27017
+          name: web
+      # This container initializes the mongodb, then sleeps.
+      - name: init-mongo
+        image: mongo:3.4.1
+        command:
+        - bash
+        - /config/init.sh
+        volumeMounts:
+        - name: config
+          mountPath: /config
+          readOnly: true
+        - name: myvc
+          readOnly: true
+          mountPath: /stuff
+      volumes:
+      - name: config
+        configMap:
+          name: "mongo-init"
+          items:
+            - key: yowza
+              path: yowzapath
+            - key: wanda
+              path: wandaapath
+  volumeClaimTemplates:
+    - metadata:
+        name: myvc
+      spec:
+        volumeMode: Block
+        accessModes:
+          - ReadWriteMany
+          - ReadOnlyMany
+        resources:
+          requests:
+            storage: 1Gi
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: "2018-06-14T22:47:13Z"
+  name: mongo3
+  labels:
+    name: mongo
+    app: mongo
+spec:
+  ports:
+  - port: 27017
+    name: web
+  selector:
+    name: foo.bar-mongo
+    app: cjapp
+  type: NodePort
+---
+
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: quality
+spec:
+  schedule: "*/1 * * * *"
+  startingDeadlineSeconds: 10
+  concurrencyPolicy: Forbid
+  suspend: false
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      completions: 2
+      parallelism: 2
+      backoffLimit: 3
+      activeDeadlineSeconds: 100
+      template:
+        metadata:
+          labels:
+            name: foo.bar-mongo
+            app: cjapp
+        spec:
+          containers:
+          - name: hello
+            image: busybox
+            args:
+            - /bin/sh
+            - -c
+            - date; echo Hello from the Kubernetes cluster
+          restartPolicy: OnFailure

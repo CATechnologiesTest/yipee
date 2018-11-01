@@ -1,0 +1,8 @@
+fooDY:
+  bar:
+  - baz: 5
+  - quux: true
+  ports: xyz
+  env:
+  - name: {{.Values.foo0FooDY1Env2_name_anumber_3Name4}}
+    value: {{.Values.foo0FooDY1Env2_name_anumber_3Value4}}

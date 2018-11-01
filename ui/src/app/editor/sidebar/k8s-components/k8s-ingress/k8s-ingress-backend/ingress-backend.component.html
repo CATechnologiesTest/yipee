@@ -1,0 +1,50 @@
+<div class="row">
+  <div class="col-sm-12">
+    <h6 [ngSwitch]="isComponentExpanded">
+      <span id="k8s-ingress-backend-dropdown" class="pointer mb5" (click)="isComponentExpanded = !isComponentExpanded">
+        <clr-icon *ngSwitchCase="false" shape="caret right"></clr-icon>
+        <clr-icon *ngSwitchCase="true" shape="caret down"></clr-icon>
+        Default Backend
+        <clr-icon *ngIf="form.controls.backend_service_id.invalid || form.controls.backend_service_port.invalid" shape="exclamation-circle"
+          class="icon-danger small-icon"></clr-icon>
+      </span>
+    </h6>
+  </div>
+</div>
+<div [formGroup]="form" class="row" *ngIf="isComponentExpanded">
+  <div class="col-sm-12">
+    <div class="pl30 form compact">
+      <div style="padding-left: 4rem;" class="form-group">
+        <label id="k8s-ingress-service-label" style="width: 4rem;">Service</label>
+        <div class="select">
+          <select formControlName="backend_service_id">
+            <option>
+              -- Select a service --
+            </option>
+            <option *ngFor="let option of serviceOptions" [value]="option.value">
+              {{ option.name }}
+            </option>
+          </select>
+        </div>
+        <label class="table-input" style="width: 1rem;" [ngClass]="form.controls.backend_service_id.invalid ? 'tooltip tooltip-validation tooltip-bottom-right invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+        </label>
+      </div>
+      <span>
+        <div style="padding-left: 4rem;" class="form-group">
+          <label id="k8s-ingress-port-label" style="width: 4rem;">Port</label>
+          <label class="table-input" style="width: 4rem;" [ngClass]="form.controls.backend_service_port.invalid ? 'tooltip tooltip-validation tooltip-bottom-right invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+            <input placeholder="Required" class="table-input" type="number" formControlName="backend_service_port" min="0">
+            <span class="tooltip-content">
+              <span *ngIf="form.controls.backend_service_port.errors?.required === true">A port is required for the service
+                <br/>
+              </span>
+              <span *ngIf="form.controls.backend_service_port.errors?.numericPortRangeIncludesZero === true">Port must be from 0 to 65535
+                <br/>
+              </span>
+            </span>
+          </label>
+        </div>
+      </span>
+    </div>
+  </div>
+</div>

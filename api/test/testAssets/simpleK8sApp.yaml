@@ -1,0 +1,42 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: one
+spec:
+  selector:
+    matchLabels:
+      name: dummy
+      component: one
+  rollbackTo:
+    revision: 0
+  template:
+    spec:
+      containers:
+      - name: one
+        image: one
+        volumeMounts:
+        - mountPath: /foo
+          name: vol1
+      volumes:
+      - name: vol1
+        persistentVolumeClaim:
+          claimName: vol1-claim
+    metadata:
+      labels:
+        name: dummy
+        component: one
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  replicas: 1
+  revisionHistoryLimit: 2
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: vol1-claim
+spec:
+  volumeName: vol1
+  accessModes: [ReadWriteOnce]

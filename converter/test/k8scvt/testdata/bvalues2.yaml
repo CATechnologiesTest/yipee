@@ -1,0 +1,8 @@
+deploymentOne0Spec1Selector2MatchLabels3Name4: "boogest"
+deploymentOne0Spec1Selector2MatchLabels3Component4: "one"
+deploymentOne0Spec1Selector2MatchLabels3A4: "yow"
+deploymentOne0Spec1Template2Spec3Containers4_name_one_5Env6_name_gurb_7Name8: "gurb"
+deploymentOne0Spec1Template2Spec3Containers4_name_one_5Env6_name_gurb_7Value8: "brug"
+deploymentOne0Spec1Template2Metadata3Labels4Name5: "boogest"
+deploymentOne0Spec1Template2Metadata3Labels4Component5: "one"
+deploymentOne0Spec1Template2Metadata3Labels4A5: "yow"

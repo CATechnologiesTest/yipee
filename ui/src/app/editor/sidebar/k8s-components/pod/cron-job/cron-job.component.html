@@ -1,0 +1,136 @@
+<form [formGroup]="form">
+
+  <!-- cron job - back off limit -->
+  <div style="padding-left: 8rem;" class="form-group">
+    <label id="k8s-cron-job-backoff-limit-label" style="width: 8rem;">
+      Backoff Limit
+    </label>
+    <label class="table-input" [ngClass]="form.controls.backoffLimit.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+      <input placeholder="Required" maxlength="128" type="number" formControlName="backoffLimit">
+      <span class="tooltip-content">
+        <span *ngIf="this.form.controls.backoffLimit.errors?.required == true">Backoff Limit is required
+          <br/>
+        </span>
+        <span *ngIf="this.form.controls.backoffLimit.errors?.numericOneOrGreater == true">Backoff Limit must be 1 or greater
+          <br/>
+        </span>
+      </span>
+    </label>
+  </div>
+  <!-- END cron job - back off limit -->
+
+  <!-- cron job - active deadline seconds -->
+  <div style="padding-left: 8rem;" class="form-group">
+    <label id="k8s-cron-job-active-deadline-seconds-label" style="width: 8rem;">
+      Active Deadline Seconds
+    </label>
+    <label class="table-input" [ngClass]="form.controls.activeDeadlineSeconds.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+      <input placeholder="Required" maxlength="128" type="number" formControlName="activeDeadlineSeconds">
+      <span class="tooltip-content">
+        <span *ngIf="this.form.controls.activeDeadlineSeconds.errors?.required == true">Active Deadline Seconds is required
+          <br/>
+        </span>
+        <span *ngIf="this.form.controls.activeDeadlineSeconds.errors?.numericOneOrGreater == true">Active Deadline Seconds must be 1 or greater
+          <br/>
+        </span>
+      </span>
+    </label>
+  </div>
+  <!-- END cron job - active deadline seconds -->
+
+  <!-- cron job - starting deadline seconds -->
+  <div style="padding-left: 8rem;" class="form-group">
+    <label id="k8s-cron-job-starting-deadline-seconds-label" style="width: 8rem;">
+      Starting Deadline Seconds
+    </label>
+    <label class="table-input" [ngClass]="form.controls.startingDeadlineSeconds.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+      <input maxlength="128" type="number" formControlName="startingDeadlineSeconds">
+      <span class="tooltip-content">
+        <span *ngIf="this.form.controls.startingDeadlineSeconds.errors?.numericOneOrGreater == true">Starting Deadline Seconds must be 1 or greater
+          <br/>
+        </span>
+      </span>
+    </label>
+  </div>
+  <!-- END cron job - starting deadline seconds  -->
+
+  <!-- cron job - completions -->
+  <div style="padding-left: 8rem;" class="form-group">
+    <label id="k8s-cron-job-completions-label" style="width: 8rem;">
+      Completions
+    </label>
+    <label class="table-input" [ngClass]="form.controls.completions.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+      <input maxlength="128" type="number" formControlName="completions">
+      <span class="tooltip-content">
+        <span *ngIf="this.form.controls.completions.errors?.numericOneOrGreater == true">Starting Deadline Seconds must be 1 or greater
+          <br/>
+        </span>
+      </span>
+    </label>
+  </div>
+  <!-- END cron job - completions -->
+
+  <!-- cron job - parallelism -->
+  <div style="padding-left: 8rem;" class="form-group">
+    <label id="k8s-cron-job-parallelism-label" style="width: 8rem;">
+      Parallelism
+    </label>
+    <label class="table-input" [ngClass]="form.controls.parallelism.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+      <input maxlength="128" type="number" formControlName="parallelism">
+      <span class="tooltip-content">
+        <span *ngIf="this.form.controls.parallelism.errors?.numericOneOrGreater == true">Parallelism must be 1 or greater
+          <br/>
+        </span>
+      </span>
+    </label>
+  </div>
+  <!-- END cron job - parallelism -->
+
+  <!-- cron job - concurrencyPolicy -->
+  <div style="padding-left: 8rem;" class="form-group">
+    <label id="k8s-cron-job-concurrency-policy-label" style="width: 8rem;">Concurrency Policy</label>
+    <div class="select">
+      <select formControlName="concurrencyPolicy">
+        <option *ngFor="let option of concurrencyPolicyOptions" [value]="option.value">
+          {{ option.name }}
+        </option>
+      </select>
+    </div>
+  </div>
+  <!-- END cron job - concurrencyPolicy -->
+
+  <!-- cron job - schedule -->
+  <div style="padding-left: 8rem;" class="form-group">
+    <label id="k8s-cron-job-schedule-label" style="width: 8rem;">
+      Schedule
+    </label>
+    <label class="table-input" [ngClass]="form.controls.schedule.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+      <input placeholder="Required" maxlength="128" type="text" formControlName="schedule">
+      <span class="tooltip-content">
+        <span *ngIf="this.form.controls.schedule.errors?.required == true">Schedule is required
+          <br/>
+        </span>
+        <span *ngIf="this.form.controls.schedule.errors?.cronTimeValidator == true">Schedule must be in CRON format.
+          <br/>
+        </span>
+      </span>
+    </label>
+  </div>
+  <!-- END cron job - schedule -->
+
+  <!-- cron job - restart -->
+  <div style="padding-left: 8rem;" class="form-group">
+    <label id="k8s-cron-job-restart-label" style="width: 5rem;">
+      Restart
+    </label>
+    <div class="select">
+      <select formControlName="restart">
+        <option *ngFor="let option of restartOptions" [value]="option.value">
+            {{ option.name }}
+        </option>
+      </select>
+    </div>
+  </div>
+  <!-- END cron job - restart -->
+
+</form>

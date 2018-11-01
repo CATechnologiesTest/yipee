@@ -1,0 +1,6 @@
+deploymentJoomla0Metadata1Uid2: "10d4ebd2-5919-11e8-a3f9-db2dd23490af"
+deploymentJoomla0Spec1Template2Spec3Containers4_name_joomla_5Env6_name_JOOMLA_PASSWORD_7ValueFrom8ConfigMapKeyRef9Key10: "JOOM_PASS"
+deploymentJoomla0Spec1Template2Spec3Containers4_name_joomla_5Env6_name_MARIADB_HOST_7Value8: "mariadb"
+deploymentJoomla0Spec1Template2Spec3Containers4_name_joomla_5Env6_name_MARIADB_PASSWORD_7ValueFrom8ConfigMapKeyRef9Key10: "MARIA_PASS"
+deploymentJoomla0Spec1Template2Spec3Containers4_name_joomla_5Env6_name_MARIADB_PORT_7Value8: "3306"
+deploymentJoomla0Spec1Template2Spec3Containers4_name_joomla_5Ports6: '[{"containerPort":80,"protocol":"TCP"},{"containerPort":443,"protocol":"TCP"}]'

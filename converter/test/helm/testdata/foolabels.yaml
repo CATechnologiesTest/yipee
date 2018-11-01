@@ -1,0 +1,11 @@
+fooDY:
+  bar:
+  - baz: 5
+  - quux: true
+  ports: xyz
+  env:
+  - name: anumber
+    value: "1.23"
+  labels:
+    x: {{.Values.foo0FooDY1Labels2X3}}
+    y: {{.Values.foo0FooDY1Labels2Y3}}

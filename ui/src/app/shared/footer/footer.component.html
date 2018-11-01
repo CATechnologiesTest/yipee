@@ -1,0 +1,9 @@
+<div class="footer">
+  <span>
+    {{ version }}
+  </span>
+  <app-disclaimer-modal
+    [show]="disclaimer"
+    (onClose)="disclaimer=false">
+  </app-disclaimer-modal>
+</div>

@@ -1,0 +1,9 @@
+
+version: '2'
+
+services:
+  one:
+    image: fake
+    ports:
+      - 5000
+      - 7000

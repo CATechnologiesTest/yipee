@@ -1,0 +1,17 @@
+<form [formGroup]="form">
+
+    <!-- daemonSet - revisionHistoryLimit -->
+    <div style="padding-left: 7rem;" class="form-group">
+        <label id="k8s-daemonset-revision-history-limit-label" style="width: 7rem;">
+            Revision History Limit
+        </label>
+        <label class="table-input" [ngClass]="form.controls.revisionHistoryLimit.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+            <input placeholder="Optional" formControlName="revisionHistoryLimit" type="number">
+            <span class="tooltip-content">
+                <span *ngIf="this.form.controls.revisionHistoryLimit.errors?.numericZeroOrGreater == true">Revision History Limit must be a number 0 or greater</span>
+            </span>
+        </label>
+    </div>
+    <!-- END daemonSet - revisionHistoryLimit -->
+
+</form>

@@ -1,0 +1,36 @@
+<clr-modal #newIngressModal [(clrModalOpen)]="show" [clrModalClosable]="false">
+  <h3 class="modal-title align-left">New Ingress</h3>
+  <div style="padding-bottom: 72px;" class="modal-body align-left">
+    <form class="form compact" [formGroup]="form">
+      <div class="form-group">
+        <label>Name</label>
+        <label aria-haspopup="true" role="tooltip" [ngClass]="(errors.nameTooltipErrors.length > 0) ? 'tooltip tooltip-validation tooltip-bottom-left invalid width-inherit' : 'tooltip tooltip-validation tooltip-top-left width-inherit'">
+          <input id="k8s-new-ingress-name-input" maxlength="253" type="text" formControlName="name" (input)="checkFormValidity()" autofocus>
+          <span class="tooltip-content">
+            <div *ngFor="let error of errors.nameTooltipErrors; let i = index">
+              {{error}}.
+            </div>
+          </span>
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label>Description</label>
+        <label aria-haspopup="true" role="tooltip" [ngClass]="(errors.descriptionTooltipErrors.length > 0) ? 'tooltip tooltip-validation tooltip-bottom-left invalid width-inherit' : 'tooltip tooltip-validation tooltip-top-left width-inherit'">
+          <input id="k8s-new-ingress-description-input" type="text" formControlName="description" (input)="checkFormValidity()" size="36">
+          <span class="tooltip-content">
+            <div *ngFor="let error of errors.descriptionTooltipErrors; let i = index">
+              {{error}}.
+            </div>
+          </span>
+        </label>
+      </div>
+
+
+    </form>
+  </div>
+  <div style="padding-top: 0px;" class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="cancel()">Cancel</button>
+    <button type="button" class="btn btn-primary" (click)="create()" [disabled]="!form.valid">Create</button>
+  </div>
+</clr-modal>

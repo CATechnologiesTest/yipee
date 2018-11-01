@@ -1,0 +1,125 @@
+<div class="container">
+
+  <form [formGroup]="form" class="form compact">
+    <label class="mb10 fw600 black" style="width: 5rem;">Service</label>
+    <!-- service name -->
+    <div style="padding-left: 4rem;" class="form-group">
+      <label style="width: 4rem;">
+        Name
+      </label>
+      <label class="table-input" [ngClass]="form.controls.name.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+        <input maxlength="253" class="table-input" placeholder="Required" formControlName="name" type="text">
+        <span class="tooltip-content">
+          <span *ngIf="this.form.controls.name.errors?.required == true">Name is Required
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.maxLength253 === true">Name must be 253 characters or less
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.lowercaseAlphaNumericDashPeriod === true">Name may only contain lowercase letters, numbers, dashes, and periods
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.startsWithDash === true">Name may not begin with a dash
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.endsWithDash === true">Name may not end with a dash
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.startsWithPeriod === true">Name may not begin with a period
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.endsWithPeriod === true">Name may not end with a period
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.duplicateNameValidator == true">Name must be unique, a service already exists with this name</span>
+        </span>
+      </label>
+    </div>
+    <!-- END service name -->
+
+    <!-- service type -->
+    <div style="padding-left: 4rem;" class="form-group">
+      <label id="k8s-service-type-label" style="width: 4rem;">Type</label>
+      <div style="margin-right: 35px;" class="select">
+        <select formControlName="service_type">
+          <option *ngFor="let option of serviceTypeOptions" [value]="option.value">
+            {{ option.name }}
+          </option>
+        </select>
+      </div>
+      <div class="mr0" *ngIf="form.errors?.serviceTypePortMappingValidator === true" [ngClass]="form.errors?.serviceTypePortMappingValidator === true ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+      </div>
+      <div class="error-text" *ngIf="form.errors?.serviceTypePortMappingValidator === true">
+        Service Port required for {{ form.value.service_type }}
+      </div>
+    </div>
+    <!-- END service type -->
+
+    <!-- cluster ip -->
+    <div *ngIf="this.form.controls.service_type.value !== 'ExternalName'" style="padding-left: 4rem;" class="form-group">
+      <label id="k8s-service-clusterip-label" style="width: 4rem;">Cluster IP</label>
+      <label class="table-input" [ngClass]="form.controls.cluster_ip.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+        <input class="table-input" placeholder="Optional" formControlName="cluster_ip" type="text">
+        <span class="tooltip-content">
+          <span *ngIf="this.form.controls.cluster_ip.errors?.clusterIpAddressField == true">Cluster IP must have a valid ip address or "None".
+            <br/>
+          </span>
+        </span>
+      </label>
+    </div>
+    <!-- END cluster ip -->
+
+    <!-- external name -->
+    <div *ngIf="this.form.controls.service_type.value === 'ExternalName'" style="padding-left: 4rem;" class="form-group">
+      <label id="k8s-service-externalname-label" style="width: 4rem;">External Name</label>
+      <label class="table-input" [ngClass]="form.controls.external_name.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+        <input class="table-input" placeholder="Required" formControlName="external_name" type="text">
+        <span class="tooltip-content">
+          <span *ngIf="this.form.controls.external_name.errors?.required == true">External name is required.
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.external_name.errors?.dnsValidator == true">External name must have a valid DNS address.
+            <br/>
+          </span>
+        </span>
+      </label>
+    </div>
+    <!-- END external name -->
+
+  </form>
+
+  <div *ngIf="this.form.controls.service_type.value !== 'ExternalName'">
+    <k8s-annotations
+    id="k8s-annotations-dropdown"
+    [form]="form"
+    [expandedByDefault]="true"
+    (addAnnotation)="addAnnotation()"
+    (removeAnnotation)="removeAnnotation($event)"
+    (toggleSortKey)="sortAnnotations($event, 'key')"
+    (toggleSortValue)="sortAnnotations($event, 'value')"
+    (toggleBulkEdit)="showBulkAnnotationDialog = !showBulkAnnotationDialog">
+    </k8s-annotations>
+
+    <k8s-service-selector id="k8s-service-selectors-dropdown" [form]="form" [expandedByDefault]="true" (addSelector)="addSelector()"
+      (removeSelector)="removeSelector($event)" (toggleSortKey)="sortSelector($event, 'key')" (toggleSortValue)="sortSelector($event, 'value')"
+      (toggleBulkEdit)="showBulkSelectorDialog = !showBulkSelectorDialog">
+    </k8s-service-selector>
+
+    <k8s-service-container-ports [expandedByDefault]="true" [form]="form">
+    </k8s-service-container-ports>
+
+    <k8s-service-service-ports [expandedByDefault]="true" [form]="form" (addServicePortMapping)="addServicePortMapping()" (removeServicePortMapping)="removeServicePortMapping($event)">
+    </k8s-service-service-ports>
+  </div>
+
+  <app-bulk-name-value-edit [show]="showBulkSelectorDialog" [title]="'Bulk Edit Selectors'" [subtitle]="'Edit the existing list of selectors for this service.'"
+    [body]="'Selectors should be name value pairs separated by = with each entry on a separate line.'" (onCancel)="showBulkSelectorDialog = !showBulkSelectorDialog"
+    (onReplace)="handleBulkSelectorReplace($event)" (onAppend)="handleBulkSelectorAppend($event)">
+  </app-bulk-name-value-edit>
+
+  <app-bulk-name-value-edit [show]="showBulkAnnotationDialog" [title]="'Bulk Edit Annotations'" [subtitle]="'Edit the existing list of annotations for this service.'"
+    [body]="'Annotations should be name value pairs separated by = with each entry on a separate line.'" (onCancel)="showBulkAnnotationDialog = !showBulkAnnotationDialog"
+    (onReplace)="handleBulkAnnotationReplace($event)" (onAppend)="handleBulkAnnotationAppend($event)">
+  </app-bulk-name-value-edit>
+
+</div>

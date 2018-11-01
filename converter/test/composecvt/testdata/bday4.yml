@@ -1,0 +1,104 @@
+version: '3'
+
+networks:
+  backend:
+    driver: overlay
+
+volumes:
+  # persistent volume for redmine uploads
+  redmine_files:
+    driver: convoy
+  # persistent volume for redmine public
+  redmine_public:
+    driver: convoy
+  # persistent volume for mysql databases
+  mysql_data:
+
+services:
+  redmine:
+    # use redmine:latest image from docker hub
+    image: bday4-4:5000/redmine:1.0
+    build: redmine
+    # setup redmine environment
+    # see https://hub.docker.com/_/redmine/
+    environment:
+      - REDMINE_DB_MYSQL=bday_db
+      - REDMINE_DB_USERNAME=redmine
+      - REDMINE_DB_PASSWORD=r3dmin3
+    depends_on:
+      - db
+    # use persinstent volume for file uploads
+    # make public folder accessable for nginx
+    volumes:
+      - redmine_files:/usr/src/redmine/files
+      - redmine_public:/usr/src/redmine/public
+    networks:
+      - backend
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/ || exit 1"]
+      interval: 1m
+      timeout: 10s
+      retries: 3
+
+  nginx:
+    # build nginx with Dockerfile in ./nginx
+    # see https://hub.docker.com/_/nginx/
+    image: bday4-4:5000/nginx:1.0
+    build: nginx
+    # map localhost:80 to nginx:80
+    ports:
+      - 80:80
+    depends_on:
+      - redmine
+    # access public volume from redmine
+    volumes:
+      - redmine_public:/usr/src/redmine/public
+    networks:
+      - backend
+    depends_on:
+      - redmine
+    deploy:
+      mode: global
+      #replicas: 3
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost/ || exit 1"]
+      interval: 1m
+      timeout: 10s
+      retries: 3
+
+  db:
+    # use mysql 5 image from docker hub
+    image: birthday_mysql:1.0
+    build: mysql
+    # setup mysql environment
+    # see https://hub.docker.com/_/mysql/
+    environment:
+      - MYSQL_ROOT_PASSWORD=s3cr3t
+      - MYSQL_DATABASE=redmine
+      - MYSQL_USER=redmine
+      - MYSQL_PASSWORD=r3dmin3
+    networks:
+      - backend
+    # use persinstent volume for DBs
+    volumes:
+      - mysql_data:/var/lib/mysql
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+          - node.hostname == bday4-1
+    stop_grace_period: 30s
+

@@ -1,0 +1,10 @@
+<clr-modal #deleteModal [(clrModalOpen)]="show" [clrModalClosable]="false">
+  <h3 class="modal-title">Confirm Delete</h3>
+  <div class="modal-body">
+    <p>Confirm delete of {{objectType}} <b>{{objectName}}</b>.</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="cancelDelete()">Cancel</button>
+    <button type="button" class="btn btn-primary" (click)="deleteObject()">Delete</button>
+  </div>
+</clr-modal>

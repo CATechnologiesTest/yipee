@@ -1,0 +1,22 @@
+version: '2'
+
+services:
+  one:
+    image: one
+    build: ./builddir
+
+  two:
+    image: two
+    build:
+      context: ./builddir
+
+  three:
+    image: three
+    build:
+      context: ./builddir
+      dockerfile: AlternateFile.yml
+      args:
+        one: 1
+      cache_from:
+        - image1:0.5
+        - image2:1.1

@@ -1,0 +1,122 @@
+<div class="editor-page" (window:mousemove)="resizeMove($event)" (window:mouseup)="resizeStop($event)">
+
+  <div *ngIf="ui.loading && !ui.error">
+    <div class="editor-content spinner-container">
+      <span class="spinner">
+        Loading...
+      </span>
+    </div>
+  </div>
+
+  <div *ngIf="!ui.loading && !ui.error">
+    <app-canvas></app-canvas>
+    <div class="canvas-paper"></div>
+    <div class="editor-description">
+      <div class="editor-text">
+        <span class="txt" style="font-weight: bold;">{{editorService.metadata.name}}</span>
+        <span class="txt small-txt">{{editorService.metadata.author}}</span>
+      </div>
+    </div>
+    <div class="canvas-navigator"></div>
+    <div class="splitter" (mousedown)="startResize($event)"></div>
+    <div class="sidebar-area">
+      <div class="sidebar-toolbar">
+        <app-toolbar>
+          <clr-dropdown>
+            <button clrDropdownTrigger type="button" style="min-width: 0px; padding-left: 0px; padding-right: 0px;" class="btn btn-icon-link btn-link">
+              <clr-icon shape="bars" size="24"></clr-icon>
+            </button>
+            &nbsp;
+            <clr-dropdown-menu *clrIfOpen>
+              <clr-dropdown>
+                <h4 class="dropdown-header">Model</h4>
+                <button type="button" clrDropdownTrigger>Download</button>
+                <clr-dropdown-menu>
+                  <button clrDropdownItem type="button" (click)="editorService.downloadKubernetes();">Kubernetes File</button>
+                  <button clrDropdownItem type="button" (click)="editorService.downloadKubernetesArchive()">Kubernetes Archive</button>
+                  <button clrDropdownItem type="button" (click)="editorService.downloadHelm()">Helm Chart</button>
+                </clr-dropdown-menu>
+                <h4 class="dropdown-header">Canvas</h4>
+                <button clrDropdownItem type="button" (click)="onLayout()">Layout</button>
+              </clr-dropdown>
+            </clr-dropdown-menu>
+          </clr-dropdown>
+          <div class="flex-right">
+            <button id="editor-sidebar-download-live-button" type="button" class="btn btn-icon" (click)="editorService.downloadCurrentModel();">
+              <label for="download-model" title="Download Model">
+                <clr-icon shape="download" style="cursor: pointer;"></clr-icon>
+              </label>
+            </button>
+            <div class="btn-group" style="margin-top: .25rem;">
+              <div class="radio btn btn-icon">
+                <input type="radio" name="view-options" id="view-app" [checked]="viewType === 'app'" (change)="doChangeView('app')">
+                <label for="view-app" title="Application">
+                  <clr-icon shape="application" class="is-solid"></clr-icon>
+                </label>
+              </div>
+              <div class="radio btn btn-icon">
+                <input type="radio" name="view-options" id="view-nerd" [checked]="viewType === 'nerd'" (change)="doChangeView('nerd')">
+                <label for="view-nerd" title="Nerd Mode">
+                  <clr-icon shape="user" class="is-solid"></clr-icon>
+                </label>
+              </div>
+            </div>
+            <button type="button" class="btn btn-icon" title="Close" (click)="onClose()">
+              <clr-icon shape="times-circle" class="is-solid"></clr-icon>
+            </button>
+          </div>
+        </app-toolbar>
+      </div>
+      <div class="sidebar-content">
+        <app-sidebar></app-sidebar>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!ui.error">
+  </div>
+
+  <div class="editor-header">
+    <app-header [title]="editorService.editMode === 'k8s' ? 'Kubernetes' : ''"></app-header>
+  </div>
+
+  <div class="editor-footer">
+    <app-footer></app-footer>
+  </div>
+
+  <div *ngIf="editorService.fatalText.length > 0">
+    <clr-alerts>
+      <clr-alert *ngFor="let alert of editorService.fatalText" [clrAlertType]="'danger'" [clrAlertAppLevel]="true" [clrAlertClosable]="false">
+        <div class="alert-item">
+          <span class="alert-text">
+            {{alert}}
+          </span>
+          <div class="alert-actions">
+            <button class="btn alert-action" (click)="fatalExit()">Return to Catalog</button>
+          </div>
+        </div>
+      </clr-alert>
+    </clr-alerts>
+  </div>
+
+  <div *ngIf="editorService.alertText.length > 0 || editorService.infoText.length > 0">
+    <clr-alerts>
+      <clr-alert *ngFor="let alert of editorService.alertText" [clrAlertType]="'danger'" [clrAlertAppLevel]="true" (clrAlertClosedChange)="onAlertClose(alert)">
+        <div class="alert-item">
+          <span class="alert-text">
+            {{alert}}
+          </span>
+        </div>
+      </clr-alert>
+      <clr-alert *ngFor="let alert of editorService.infoText" [clrAlertType]="'info'" [clrAlertAppLevel]="true" (clrAlertClosedChange)="onInfoClose(alert)">
+        <div class="alert-item">
+          <span class="alert-text">
+            {{alert}}
+          </span>
+        </div>
+      </clr-alert>
+    </clr-alerts>
+  </div>
+
+</div>
+

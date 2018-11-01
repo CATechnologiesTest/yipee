@@ -1,0 +1,297 @@
+  {
+    "_id": "1ec8aee2-52ce-11e7-921b-db67635b8aa0",
+    "repo": "yipee-store",
+    "branch": "jacje06@github|E@NO@ENT|jacje06",
+    "path": "/jacje06@github/E@NO@ENT/jacje06/whyeyepea.yipee",
+    "name": "whyeyepea",
+    "author": "Goldenrod Clampdown",
+    "username": "jacje06",
+    "containers": [
+      "auth",
+      "backend",
+      "composecvt",
+      "kubecvt",
+      "oscvt",
+      "pgserver",
+      "secret_scanner",
+      "ui",
+      "yipee_validator"
+    ],
+    "sha": "cd6bd128fbda0b16a81a56a61dc65a0ab1853077",
+    "downloads": 0,
+    "likes": 0,
+    "canvasdata": "{\"containers\":{\"backend\":{\"top\":450,\"left\":500,\"description\":\"\",\"type\":\"default\",\"typeConversionHistory\":{\"default\":true}},\"composecvt\":{\"top\":450,\"left\":250,\"description\":\"\",\"type\":\"default\",\"typeConversionHistory\":{\"default\":true}},\"kubecvt\":{\"top\":300,\"left\":500,\"description\":\"\",\"type\":\"default\",\"typeConversionHistory\":{\"default\":true}},\"oscvt\":{\"top\":450,\"left\":750,\"description\":\"\",\"type\":\"default\",\"typeConversionHistory\":{\"default\":true}},\"yipee_validator\":{\"top\":600,\"left\":500,\"description\":\"\",\"type\":\"default\",\"typeConversionHistory\":{\"default\":true}},\"pgserver\":{\"top\":450,\"left\":0,\"description\":\"\",\"type\":\"default\",\"tag\":\"9.5.5-alpine\",\"typeConversionHistory\":{\"default\":true}},\"auth\":{\"top\":300,\"left\":0,\"description\":\"\",\"type\":\"default\",\"typeConversionHistory\":{\"default\":true}},\"secret_scanner\":{\"top\":600,\"left\":250,\"description\":\"\",\"type\":\"default\",\"typeConversionHistory\":{\"default\":true}},\"ui\":{\"top\":150,\"left\":500,\"description\":\"\",\"type\":\"default\",\"typeConversionHistory\":{\"default\":true}}},\"volumes\":{}}",
+    "logodata": null,
+    "revcount": 3,
+    "ownerorg": "2276017a-52ab-11e7-9090-eb333d0c2497",
+    "fullname": "jacje06@github/e@no@ent/jacje06/whyeyepea.yipee",
+    "orgname": "jacje06",
+    "hasLogo": false,
+    "isPrivate": true,
+    "dateCreated": "2017-06-16T19:58:09.107552+00:00",
+    "id": "1ec8aee2-52ce-11e7-921b-db67635b8aa0",
+    "yipeeFile": {
+      "app-info": {
+        "description": "[insert app description here]",
+        "logo": "[insert name of app logo image here]",
+        "name": "whyeyepea"
+      },
+      "networks": {},
+      "services": {
+        "auth": {
+          "annotations": {
+            "description": "[insert description of service here]"
+          },
+          "depends_on": [
+            "pgserver"
+          ],
+          "environment": [
+            "YIPEE_TEAM_OWNER=emema03",
+            "POSTGRES_USER=postgres",
+            "POSTGRES_HOST=pgserver",
+            "POSTGRES_SSL=disable",
+            "POSTGRES_DB=postgres"
+          ],
+          "image": "yipee-tools-spoke-cos.ca.com:5000/yipee-auth",
+          "networks": {
+            "default": {
+              "aliases": []
+            }
+          },
+          "ports": [
+            "8128:8128"
+          ],
+          "restart": "always",
+          "volumes": []
+        },
+        "backend": {
+          "annotations": {
+            "description": "[insert description of service here]",
+            "externalenv": [
+              {
+                "description": "[insert description of environment variable here]",
+                "reference": "environment[16]",
+                "varname": "CALLBACK_HOST"
+              },
+              {
+                "description": "[insert description of environment variable here]",
+                "reference": "environment[4]",
+                "varname": "CLIENT_ID"
+              },
+              {
+                "description": "[insert description of environment variable here]",
+                "reference": "environment[7]",
+                "varname": "ACCESS_TOKEN"
+              },
+              {
+                "description": "[insert description of environment variable here]",
+                "reference": "environment[12]",
+                "varname": "CLIENT_SECRET"
+              }
+            ]
+          },
+          "depends_on": [
+            "composecvt",
+            "kubecvt",
+            "oscvt",
+            "yipee_validator",
+            "pgserver",
+            "auth",
+            "secret_scanner"
+          ],
+          "environment": [
+            "ACCESS_TOKEN=${ACCESS_TOKEN}",
+            "SCANNER_URL=http://secret_scanner:9092",
+            "CALLBACK_HOST=${CALLBACK_HOST}",
+            "OPENSHIFT_URL=http://oscvt:9090",
+            "CLIENT_ID=${CLIENT_ID}",
+            "LOG_LEVEL=debug",
+            "CLIENT_SECRET=${CLIENT_SECRET}",
+            "CHARGIFY_KEY=tBYZ3OTzGgfZXKZlkdyFhp40wROocyOdFF2SONeVCs",
+            "PG_PORT=5432",
+            "DOKKEN_URL=http://backend:3000",
+            "ANALYTICS_KEY=YR06TJcgikCk4QvTJ0r7vhT4xLEMXuJV",
+            "PG_HOST=pgserver",
+            "GITHUB_HOST=github-isl-01.ca.com",
+            "YIPEE_ORG=jacje06",
+            "KUBERNETES_URL=http://kubecvt:9090",
+            "YIPEE_STORE_REPO=yipee-store",
+            "YIPEE_TEAM_OWNER=emema03",
+            "CHARGIFY_HOST=yipee-io2.chargify.com",
+            "PG_DB=postgres",
+            "PG_USER=postgres",
+            "CONTAINER_URL=http://composecvt:9090",
+            "YIPEE_VALIDATOR_URL=http://yipee_validator:9099"
+          ],
+          "hold_for_compose": {
+            "extra_hosts": []
+          },
+          "image": "yipee-tools-spoke-cos.ca.com:5000/dokken",
+          "networks": {
+            "default": {
+              "aliases": []
+            }
+          },
+          "ports": [
+            "5000:3000"
+          ],
+          "restart": "always",
+          "volumes": []
+        },
+        "composecvt": {
+          "annotations": {
+            "description": "[insert description of service here]"
+          },
+          "hold_for_compose": {
+            "extra_hosts": []
+          },
+          "image": "yipee-tools-spoke-cos.ca.com:5000/yipee-cvt-compose-svc",
+          "networks": {
+            "default": {
+              "aliases": []
+            }
+          },
+          "ports": [
+            "9090:9090"
+          ],
+          "restart": "always",
+          "volumes": []
+        },
+        "kubecvt": {
+          "annotations": {
+            "description": "[insert description of service here]"
+          },
+          "hold_for_compose": {
+            "extra_hosts": []
+          },
+          "image": "yipee-tools-spoke-cos.ca.com:5000/yipee-cvt-kubernetes-svc",
+          "networks": {
+            "default": {
+              "aliases": []
+            }
+          },
+          "ports": [
+            "9091:9090"
+          ],
+          "restart": "always",
+          "volumes": []
+        },
+        "oscvt": {
+          "annotations": {
+            "description": "[insert description of service here]"
+          },
+          "hold_for_compose": {
+            "extra_hosts": []
+          },
+          "image": "yipee-tools-spoke-cos.ca.com:5000/yipee-cvt-openshift-svc",
+          "networks": {
+            "default": {
+              "aliases": []
+            }
+          },
+          "ports": [
+            "9092:9090"
+          ],
+          "restart": "always",
+          "volumes": []
+        },
+        "pgserver": {
+          "annotations": {
+            "description": "[insert description of service here]"
+          },
+          "image": "postgres:9.5.5-alpine",
+          "networks": {
+            "default": {
+              "aliases": []
+            }
+          },
+          "restart": "always",
+          "volumes": []
+        },
+        "secret_scanner": {
+          "annotations": {
+            "description": "[insert description of service here]"
+          },
+          "image": "yipee-tools-spoke-cos.ca.com:5000/yipee-secret-scanner",
+          "networks": {
+            "default": {
+              "aliases": []
+            }
+          },
+          "restart": "always",
+          "volumes": []
+        },
+        "ui": {
+          "annotations": {
+            "description": "[insert description of service here]"
+          },
+          "depends_on": [
+            "backend"
+          ],
+          "environment": [
+            "API_HOST=backend:3000",
+            "CORS_POLICY=cos.yipee.io|github-isl-01.ca.com"
+          ],
+          "hold_for_compose": {
+            "extra_hosts": []
+          },
+          "image": "yipee-tools-spoke-cos.ca.com:5000/zebra",
+          "networks": {
+            "default": {
+              "aliases": []
+            }
+          },
+          "ports": [
+            "8080:80"
+          ],
+          "restart": "always",
+          "volumes": []
+        },
+        "yipee_validator": {
+          "annotations": {
+            "description": "[insert description of service here]"
+          },
+          "image": "yipee-tools-spoke-cos.ca.com:5000/yipee-validation-svc",
+          "networks": {
+            "default": {
+              "aliases": []
+            }
+          },
+          "ports": [
+            "9099:9099"
+          ],
+          "restart": "always",
+          "volumes": []
+        },
+        "new_service": {
+          "annotations": {
+              "description": "[insert description of service here]"
+          },
+          "entrypoint": [
+              "/bin/bash",
+              "-c",
+              "$@"
+          ],
+          "command": [
+              "ls",
+              "-l",
+              "/tmp"
+          ],
+          "image": "yipee-tools-spoke-cos.ca.com:5000/yipee-newsvc",
+          "networks": {
+            "default": {
+              "aliases": []
+            }
+          },
+          "ports": [
+            "9099:9099"
+          ],
+          "restart": "always",
+          "volumes": [
+            "foo:/bar:ro"
+          ]
+        }
+      },
+      "volumes": {}
+    }
+  }

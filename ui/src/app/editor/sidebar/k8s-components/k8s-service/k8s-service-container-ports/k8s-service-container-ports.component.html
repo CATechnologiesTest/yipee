@@ -1,0 +1,64 @@
+<div class="row">
+  <div class="col-sm-12">
+    <h6 [ngSwitch]="isComponentExpanded">
+      <span id="k8s-service-container-ports-dropdown" class="pointer mb5" (click)="isComponentExpanded = !isComponentExpanded">
+        <clr-icon *ngSwitchCase="false" shape="caret right"></clr-icon>
+        <clr-icon *ngSwitchCase="true" shape="caret down"></clr-icon>
+        Container Ports
+        <clr-icon *ngIf="form.controls.port_mapping.invalid" shape="exclamation-circle" class="icon-danger small-icon"></clr-icon>
+      </span>
+    </h6>
+  </div>
+</div>
+<div class="row" [hidden]="!isComponentExpanded">
+  <div class="col-xs-11 offset-xs-1">
+    <div [formGroup]="form" class="pt10">
+      <table formArrayName="port_mapping" class="table table-noborder mv0">
+        <thead>
+          <tr>
+            <th style="text-align: left; width: 50%;">
+              <button style="border: none;">Target Port/Name</button>
+            </th>
+            <th style="text-align: left; width: 10%">
+              <button style="border: none;">Protocol</button>
+            </th>
+            <th style="text-align: left; width: 40%;">
+              <button style="border: none;">Container</button>
+            </th>
+            <th>
+              &nbsp;
+            </th>
+          </tr>
+        </thead>
+        <tbody *ngFor="let item of port_mappings; let i = index" [formGroupName]="i">
+          <tr>
+            <td>
+              <label class="table-input">
+                <input class="table-input" type="text" formControlName="internal">
+              </label>
+            </td>
+            <td>
+              <label class="table-input">
+                <div class="select">
+                  <select formControlName="protocol">
+                    <option *ngFor="let option of protocolOptions" [value]="option.value">
+                      {{ option.name }}
+                    </option>
+                  </select>
+                </div>
+              </label>
+            </td>
+            <td>
+              <label class="table-input">
+                <input class="table-input" type="text" formControlName="container_name">
+              </label>
+            </td>
+            <td>
+              &nbsp;
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

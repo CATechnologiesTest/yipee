@@ -1,0 +1,112 @@
+{
+  "secrets": {},
+  "volumes": {
+    "php_data": {
+      "driver": "local",
+      "driver_opts": {}
+    },
+    "apache_data": {
+      "driver": "local",
+      "driver_opts": {}
+    },
+    "joomla_data": {
+      "driver": "local",
+      "driver_opts": {}
+    },
+    "mariadb_data": {
+      "driver": "local",
+      "driver_opts": {}
+    }
+  },
+  "app-info": {
+    "logo": "[insert name of app logo image here]",
+    "name": "aa",
+    "readme": "",
+    "description": "[insert app description here]"
+  },
+  "networks": {},
+  "services": {
+    "joomla": {
+      "image": "bitnami/joomla:latest",
+      "ports": [
+        "443:443",
+        "80:80"
+      ],
+      "secrets": [],
+      "volumes": [
+        "joomla_data:/bitnami/joomla",
+        "apache_data:/bitnami/apache",
+        "php_data:/bitnami/php"
+      ],
+      "networks": {
+        "default": {}
+      },
+      "depends_on": [
+        "mariadb"
+      ],
+      "annotations": {
+        "description": "[insert description of service here]",
+        "externalenv": [
+          {
+            "varname": "MARIADB_ROOT_PASSWORD",
+            "reference": "environment[4]",
+            "description": "[insert description of environment variable here]"
+          },
+          {
+            "varname": "JOOMLA_PASSWORD",
+            "reference": "environment[1]",
+            "description": "[insert description of environment variable here]"
+          }
+        ]
+      },
+      "environment": [
+        "JOOMLA_EMAIL=user@example.com",
+        "JOOMLA_PASSWORD=${JOOMLA_PASSWORD}",
+        "JOOMLA_USERNAME=user",
+        "MARIADB_HOST=mariadb",
+        "MARIADB_PASSWORD=${MARIADB_ROOT_PASSWORD}",
+        "MARIADB_PORT=3306"
+      ]
+    },
+    "mariadb": {
+      "image": "bitnami/mariadb:10.1.26-r2",
+      "ports": [
+        "3306:3306"
+      ],
+      "secrets": [],
+      "volumes": [
+        "mariadb_data:/bitnami/mariadb"
+      ],
+      "networks": {
+        "default": {}
+      },
+      "annotations": {
+        "description": "[insert description of service here]",
+        "externalenv": [
+          {
+            "varname": "MARIADB_PASSWORD",
+            "reference": "environment[2]",
+            "description": "[insert description of environment variable here]"
+          },
+          {
+            "varname": "MARIADB_DATABASE",
+            "reference": "environment[1]",
+            "description": "[insert description of environment variable here]"
+          },
+          {
+            "varname": "MARIADB_ROOT_PASSWORD",
+            "reference": "environment[4]",
+            "description": "[insert description of environment variable here]"
+          }
+        ]
+      },
+      "environment": [
+        "ALLOW_EMPTY_PASSWORD=yes",
+        "MARIADB_DATABASE=${MARIADB_DATABASE}",
+        "MARIADB_PASSWORD=${MARIADB_PASSWORD}",
+        "MARIADB_PORT=3306",
+        "MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}"
+      ]
+    }
+  }
+}

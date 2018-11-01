@@ -1,0 +1,20 @@
+<clr-modal #saveModal [(clrModalOpen)]="show" [clrModalClosable]="false">
+  <h3 class="modal-title">{{ title }}</h3>
+  <div class="modal-body">
+    <p>
+      {{ subtitle }}
+    </p>
+    <p>
+      {{ body }}
+    </p>
+    <form>
+      <textarea autofocus name="content" style="overflow-y:auto; height: 450px;" id="textbox" class="form-control" [(ngModel)]="content">
+      </textarea>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="handleCancel()">Cancel</button>
+    <button type="button" class="btn btn-primary" (click)="handleReplace()">Replace</button>
+    <button type="button" class="btn btn-primary" (click)="handleAppend()">Append</button>
+  </div>
+</clr-modal>

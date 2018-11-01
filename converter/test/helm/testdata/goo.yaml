@@ -1,0 +1,9 @@
+gooDY:
+  metadata:
+    annotations:
+      yowza: urp
+  gar:
+  - gaz: {{int .Values.goo0GooDY1Gar2Gaz3Gaz4}}
+  - guux: {{.Values.goo0GooDY1Gar2Guux3Guux4}}
+  ganda: {{.Values.goo0GooDY1Ganda2}}
+  gramkowitz: {{float .Values.goo0GooDY1Gramkowitz2}}

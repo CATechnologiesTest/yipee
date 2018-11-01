@@ -1,0 +1,40 @@
+chart1_111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111/Chart.yaml:
+
+name: chart1_111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
+version: 0.0.1
+
+---
+chart1_111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111/values.yaml:
+
+foo0Foo1Bar2Baz3Baz4: "5"
+foo0Foo1Bar2Quux3Quux4: true
+foo0Foo1GOoWanda2: "xyz"
+foo0Foo1Framkowitz2: "1.23"
+foo0GOoWanda1: "zyx"
+fooG0Oo1Gar2Gaz3Gaz4: "5"
+fooG0Oo1Gar2Guux3Guux4: true
+fooG0Oo1Ganda2: "xyz"
+fooG0Oo1Gramkowitz2: "1.23"
+fooG0OoWanda1: "wicked"
+
+---
+chart1_111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111/templates/foo.yaml:
+
+foo:
+  bar:
+  - baz: {{int .Values.foo0Foo1Bar2Baz3Baz4}}
+  - quux: {{.Values.foo0Foo1Bar2Quux3Quux4}}
+  gOoWanda: {{.Values.foo0Foo1GOoWanda2}}
+  framkowitz: {{float .Values.foo0Foo1Framkowitz2}}
+gOoWanda: {{.Values.foo0GOoWanda1}}
+
+---
+chart1_111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111/templates/fooG.yaml:
+
+oo:
+  gar:
+  - gaz: {{int .Values.fooG0Oo1Gar2Gaz3Gaz4}}
+  - guux: {{.Values.fooG0Oo1Gar2Guux3Guux4}}
+  ganda: {{.Values.fooG0Oo1Ganda2}}
+  gramkowitz: {{float .Values.fooG0Oo1Gramkowitz2}}
+ooWanda: {{.Values.fooG0OoWanda1}}

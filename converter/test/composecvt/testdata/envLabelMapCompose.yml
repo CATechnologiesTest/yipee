@@ -1,0 +1,13 @@
+version: '2'
+
+services:
+  svc-with-env-map:
+    image: test/env-map-image
+    environment:
+      FIRSTVAR: hello
+      NUMVAR: 666
+      BADVAR:
+    labels:
+      com.ca.label1: first
+      com.ca.label2: second
+      com.ca.label3:

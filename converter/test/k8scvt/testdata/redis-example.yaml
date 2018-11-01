@@ -1,0 +1,93 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+spec:
+  ports:
+  - port: 6379
+    name: peer
+  clusterIP: None
+  selector:
+    app: redis
+
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: redis
+spec:
+  replicas: 3
+  serviceName: redis
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      partition: 6
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - command: [sh, -c, source /redis-config/init.sh ]
+        image: redis:3.2.7-alpine
+        name: redis
+        ports:
+        - containerPort: 6379
+          name: redis
+        volumeMounts:
+        - mountPath: /redis-config
+          name: config
+        - mountPath: /redis-data
+          name: data
+      - command: [sh, -c, source /redis-config/sentinel.sh]
+        image: redis:3.2.7-alpine
+        name: sentinel
+        volumeMounts:
+        - mountPath: /redis-config
+          name: config
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: redis-config
+        name: config
+      - emptyDir: {}
+        name: data
+
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: redis2
+spec:
+  replicas: 3
+  serviceName: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - command: [sh, -c, source /redis2-config/init.sh ]
+        image: redis:3.2.7-alpine
+        name: redis2
+        ports:
+        - containerPort: 6379
+          name: redis
+        volumeMounts:
+        - mountPath: /redis-config
+          name: config
+        - mountPath: /redis-data
+          name: data
+      - command: [sh, -c, source /redis2-config/sentinel.sh]
+        image: redis:3.2.7-alpine
+        name: sentinel2
+        volumeMounts:
+        - mountPath: /redis2-config
+          name: config
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: redis2-config
+        name: config
+      - emptyDir: {}
+        name: data

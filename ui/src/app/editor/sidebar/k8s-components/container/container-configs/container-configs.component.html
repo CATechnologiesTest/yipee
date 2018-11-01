@@ -1,0 +1,82 @@
+<div class="row">
+  <div class="col-sm-12">
+    <h6 [ngSwitch]="isComponentExpanded">
+      <span id="k8s-container-configs-dropdown" class="pointer mb5" (click)="isComponentExpanded = !isComponentExpanded">
+        <clr-icon *ngSwitchCase="false" shape="caret right"></clr-icon>
+        <clr-icon *ngSwitchCase="true" shape="caret down"></clr-icon>
+        Config Maps
+        <clr-icon *ngIf="form.controls.config_ref.invalid" shape="exclamation-circle" class="icon-danger small-icon"></clr-icon>
+      </span>
+    </h6>
+  </div>
+</div>
+<div class="row" [hidden]="!isComponentExpanded">
+  <div [formGroup]="form" class="pt10">
+    <div class="col-xs-11 offset-xs-1">
+      <table class="table table-noborder mv0">
+        <thead>
+          <tr>
+            <th style="text-align: left; width: 50%;">
+              <button style="border: none;">Name</button>
+            </th>
+            <th style="text-align: left; width: 50%;">
+              <button style="border: none;">Path</button>
+            </th>
+            <th>
+              <clr-icon *ngIf="configOptions.length > 0" shape="plus-circle" class="is-highlight" (click)="handleAddConfigRef()"></clr-icon>
+            </th>
+          </tr>
+        </thead>
+        <tbody formArrayName="config_ref">
+          <tr *ngFor="let configRef of config_ref; let i = index" [formGroupName]="i">
+            <td>
+              <label class="table-input">
+                <div class="select">
+                  <select formControlName="config">
+                    <option *ngFor="let option of configOptions" [value]="option.value">
+                      {{ option.name }}
+                    </option>
+                  </select>
+                </div>
+              </label>
+            </td>
+            <td>
+              <label class="table-input" [ngClass]="config_ref[i].controls.path.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+                <input class="table-input" type="text" formControlName="path">
+                <span class="tooltip-content">
+                  <span *ngIf="config_ref[i].controls.path.errors?.required === true">A path is required for a config map reference
+                    <br/>
+                  </span>
+                  <span *ngIf="config_ref[i].controls.path.errors?.alphaNumericUnderscoreDashForwardSlashPeriod === true">A path may only container letters, numbers, underscores, dashes, forward slashes, and periods
+                    <br/>
+                  </span>
+                  <span *ngIf="config_ref[i].controls.path.errors?.startsWithDash === true">A path cannot start with a dash
+                    <br/>
+                  </span>
+                  <span *ngIf="config_ref[i].controls.path.errors?.endsWithDash === true">A path cannot end with a dash
+                    <br/>
+                  </span>
+                  <span *ngIf="config_ref[i].controls.path.errors?.startsWithUnderscore === true">A path cannot start with an underscore
+                    <br/>
+                  </span>
+                  <span *ngIf="config_ref[i].controls.path.errors?.endsWithUnderscore === true">A path cannot end with an underscore
+                    <br/>
+                  </span>
+                  <span *ngIf="config_ref[i].controls.path.errors?.containsDoubleDash === true">A path cannot have two or more consecutive dashes
+                    <br/>
+                  </span>
+                  <span *ngIf="config_ref[i].controls.path.errors?.containsDoubleUnderscore === true">A path cannot have two or more consecutive underscores
+                    <br/>
+                  </span>
+                </span>
+              </label>
+            </td>
+            <td>
+              <clr-icon shape="minus-circle" class="is-highlight" (click)="handleRemoveConfigRef(i)"></clr-icon>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

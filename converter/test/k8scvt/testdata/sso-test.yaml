@@ -1,0 +1,1259 @@
+---
+# jolly-tuatara-casso-policy-store
+# Template knowledge and server files used by Admin Pod initContainers
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: jolly-tuatara-casso-policy-store
+  namespace: prod
+  labels:
+    # The "heritage" label is used to track which tool deployed a given chart.
+    # It is useful for admins who want to see what releases a particular tool
+    # is responsible for.
+    heritage: Tiller
+    # The "release" convention makes it easy to tie a release to all of the
+    # Kubernetes resources that were created as part of that release.
+    release: jolly-tuatara
+    # This makes it easy to audit chart usage.
+    chart: casso-14.00.00
+    app: jolly-tuatara-casso
+  annotations:
+    "helm.sh/hook": pre-install
+data:
+  # When the config map is mounted as a volume, these will be created as files.
+  sso-policy-store.dxc: |-
+    # Create the knowledge file for the DSA
+    set dsa "sso-policy-store" =
+    {
+      prefix              = <o sso>
+      dsa-name            = <o sso><cn sso-policy-store>
+      dsa-password        = "secret"
+      address             = tcp "0.0.0.0" port 10389, ipv4 "0.0.0.0" port 10389
+      disp-psap           = DISP
+      snmp-port           = 10389
+      console-port        = 10390
+      remote-console-port = 10395
+      auth-levels         = anonymous, clear-password
+      dsa-flags           = no-service-while-recovering, multi-write
+      trust-flags         = allow-check-password
+    };
+  sso-policy-store.dxi: |-
+    # schema
+    source "../schema/sso-policy-store.dxg";
+
+    # knowledge
+    clear dsas;
+    source "../knowledge/sso-policy-store.dxg";
+
+    # ssl
+    #source "../ssld/sso-policy-store-cert.dxc";
+    set ignore-name-bindings = true;
+
+    # logging
+    source "../logging/sso-policy-store.dxc";
+
+    # size limits
+    set max-users = 1000;
+    set max-op-size = 4000;
+    set multi-write-queue = 20000;
+
+    # time limits
+    set max-bind-time = none;
+    set bind-idle-time = 3600;
+    set max-op-time = 600;
+    set credits = 5;
+    set max-local-ops = 1000;
+
+    # grid configuration
+    set dxgrid-db-location = "data";
+    set dxgrid-db-size = 200;
+    set cache-index = all-attributes;
+    set lookup-cache = true;
+    set multi-write-disp-recovery = true;
+  sso-policy-store-logging.dxc: |-
+    # DSA trace log - Used for debugging
+    set trace-log = "logs/$s_trace.log";
+    # Set trace to error for production systems, dsa level is appropriate for debugging only
+    # See documentation for other trace settings
+    set trace = error;
+
+    # Daily warning, statistics, diagnostic & summary logs
+    set warn-log = "logs/$s_warn.log";
+    set stats-log = "logs/$s_stats.log";
+    set diag-log = "logs/$s_diag.log";
+    set summary-log = "logs/$s_summary.log";
+  sso-policy-store.ldif: |-
+    # DO NOT EDIT - SKELETON LDIF
+    # entry-id: 1
+    dn: ou=Netegrity,o=sso
+    ou: Netegrity
+    objectClass: organizationalUnit
+    objectClass: top
+
+    # entry-id: 2
+    dn: ou=SiteMinder,ou=Netegrity,o=sso
+    ou: SiteMinder
+    objectClass: organizationalUnit
+    objectClass: top
+
+    # entry-id: 3
+    dn: ou=PolicySvr4,ou=SiteMinder,ou=Netegrity,o=sso
+    ou: PolicySvr4
+    objectClass: organizationalUnit
+    objectClass: top
+
+    # entry-id: 4
+    dn: ou=XPS,ou=PolicySvr4,ou=SiteMinder,ou=Netegrity,o=sso
+    ou: XPS
+    objectClass: top
+    objectClass: organizationalUnit
+
+    # entry-id: 6
+    dn: cn=Administrator,o=sso
+    objectClass: inetOrgPerson
+    objectClass: organizationalPerson
+    objectClass: person
+    objectClass: top
+    cn: Administrator
+    sn: sso
+    userPassword: POLICY_STORE_USER_PASSWORD
+---
+# jolly-tuatara-casso-registry-key
+# Credentials for private registry
+kind: Secret
+apiVersion: v1
+metadata:
+  name: jolly-tuatara-casso-registry-key
+  namespace: prod
+  labels:
+    # The "heritage" label is used to track which tool deployed a given chart.
+    # It is useful for admins who want to see what releases a particular tool
+    # is responsible for.
+    heritage: Tiller
+    # The "release" convention makes it easy to tie a release to all of the
+    # Kubernetes resources that were created as part of that release.
+    release: jolly-tuatara
+    # This makes it easy to audit chart usage.
+    chart: casso-14.00.00
+    app: jolly-tuatara-casso
+  annotations:
+    "helm.sh/hook": pre-install
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: eyJhdXRocyI6IHsiaXNsLWRzZGMuY2EuY29tOjUwMDEiOiB7ImF1dGgiOiAiY21WcGRHOHdNVHBCUzBOd05WcHROMmhUTjFaaVYzVkZla2cxYW5wdmFIQm5ZMFJwZVVOaWQwNTFiMU5NU0U1b04xUlJiVmR2YjNCVFIwZExVazFTYWpKMldUTTJUV3RIVVhCV1prTndSM2hSIn19fQ==
+---
+# jolly-tuatara-casso
+# Secrets for CA Single Sign-On
+kind: Secret
+apiVersion: v1
+metadata:
+  name: jolly-tuatara-casso
+  namespace: prod
+  labels:
+    # The "heritage" label is used to track which tool deployed a given chart.
+    # It is useful for admins who want to see what releases a particular tool
+    # is responsible for.
+    heritage: Tiller
+    # The "release" convention makes it easy to tie a release to all of the
+    # Kubernetes resources that were created as part of that release.
+    release: jolly-tuatara
+    # This makes it easy to audit chart usage.
+    chart: casso-14.00.00
+    app: jolly-tuatara-casso
+  annotations:
+    "helm.sh/hook": pre-install
+type: Opaque
+data:
+  superUserPassword: Q0FkZW1vMTIz
+  policyStoreUserPassword: Q0FkZW1vMTIz
+  policyStoreEncryptionKey: Q0FkZW1vMTIz
+  agSharedSecret: NGo3eHd5VGdMR2thWmJlMk9SQjEzNUI1TGtLS1lVRElaVHV3cVRLQUU5MVU3enVJZmtGeUFCOXlUMUxCSUVjSzBkUWRVWGJMOHNqYm1MNWRFVVBDY0dpeDJzMkxReFhCYmtsWUc4WFk0NGx6c2tjZU9uVXMza201bGxCd2ZTNlk=
+  importPassphrase: Q0FkZW1vMTIz
+MANIFEST:
+
+---
+# Source: casso/templates/service-admin.yaml
+## Admin Service
+kind: Service
+apiVersion: v1
+metadata:
+  name: jolly-tuatara-casso-admin
+  namespace: prod
+  annotations:
+    description: "Service for the Admin Server"
+  labels:
+    app: jolly-tuatara-casso
+    chart: casso-14.00.00
+    heritage: Tiller
+    release: jolly-tuatara
+spec:
+  type: ClusterIP
+  ports:
+  - name: adminuihttp
+    port: 8080
+    targetPort: 8080
+  - name: adminuihttps
+    port: 8443
+    targetPort: 8443
+  - name: proxyuihttp
+    port: 9080
+    targetPort: 9080
+  - name: proxyuihttps
+    port: 9443
+    targetPort: 9443
+  selector:
+      app: jolly-tuatara-casso
+      release: jolly-tuatara
+      ca.com/sso-pod: admin
+      ca.com/sso-role: admin
+---
+# Source: casso/templates/service-ag-worker.yaml
+# Access Gateway Worker Service
+kind: Service
+apiVersion: v1
+metadata:
+  name: jolly-tuatara-casso-ag-worker
+  namespace: prod
+  annotations:
+    description: "Service for the Access Gateway Worker"
+  labels:
+    app: jolly-tuatara-casso
+    chart: casso-14.00.00
+    heritage: Tiller
+    release: jolly-tuatara
+spec:
+  type: NodePort
+  ports:
+  - name: http
+    port: 6080
+    nodePort: 31090
+    targetPort: 6080
+  - name: https
+    port: 6443
+    nodePort: 31353
+    targetPort: 6443
+  - name: proxyhttp
+    port: 9080
+    nodePort: 32080
+    targetPort: 7080
+  - name: proxyhttps
+    port: 9443
+    nodePort: 32443
+    targetPort: 7443
+  selector:
+      app: jolly-tuatara-casso
+      release: jolly-tuatara
+      ca.com/sso-pod: access-gateway
+      ca.com/sso-role: worker
+---
+# Source: casso/templates/service-policy-store.yaml
+# Policy Store Service
+kind: Service
+apiVersion: v1
+metadata:
+  name: jolly-tuatara-casso-policy-store
+  namespace: prod
+  annotations:
+    description: "Service for the Embedded Policy Store"
+  labels:
+    app: jolly-tuatara-casso
+    chart: casso-14.00.00
+    heritage: Tiller
+    release: jolly-tuatara
+spec:
+  type: ClusterIP
+  ports:
+  - name: ldap
+    port: 10389
+    targetPort: 10389
+  # Only create the selector for embedded Policy Store service
+  # For an external Policy Store service, we create an
+  # external endpoint instead so don't want to create the selector
+  selector:
+      app: jolly-tuatara-casso
+      release: jolly-tuatara
+      ca.com/sso-pod: admin
+      ca.com/sso-role: admin
+---
+# Source: casso/templates/service-ps-worker.yaml
+## Worker Policy Server Service
+kind: Service
+apiVersion: v1
+metadata:
+  name: jolly-tuatara-casso-ps-worker
+  namespace: prod
+  annotations:
+    description: "Service for the Worker Policy Server"
+  labels:
+    app: jolly-tuatara-casso
+    chart: casso-14.00.00
+    heritage: Tiller
+    release: jolly-tuatara
+spec:
+  type: NodePort
+  ports:
+  - name: accnt
+    port: 44441
+    nodePort: 31341
+    targetPort: 44441
+  - name: authn
+    port: 44442
+    nodePort: 31342
+    targetPort: 44442
+  - name: az
+    port: 44443
+    nodePort: 31343
+    targetPort: 44443
+  selector:
+      app: jolly-tuatara-casso
+      release: jolly-tuatara
+      ca.com/sso-pod: policy-server
+      ca.com/sso-role: worker
+---
+# Source: casso/templates/statefulset-admin.yaml
+## Admin Server StatefulSet (includes Admin Policy Server, Admin UI Policy Store and Acces Gateway UI containers in the pod)
+## StatefulSet requires a headless service
+kind: Service
+apiVersion: v1
+metadata:
+  name: jolly-tuatara-casso-admin-headless
+  labels:
+    # The "heritage" label is used to track which tool deployed a given chart.
+    # It is useful for admins who want to see what releases a particular tool
+    # is responsible for.
+    heritage: Tiller
+    # The "release" convention makes it easy to tie a release to all of the
+    # Kubernetes resources that were created as part of that release.
+    release: jolly-tuatara
+    # This makes it easy to audit chart usage.
+    chart: casso-14.00.00
+    app: jolly-tuatara-casso
+spec:
+  ports:
+  - name: admin
+    port: 80
+  - name: ssh
+    port: 222
+  clusterIP: None
+  selector:
+    app: jolly-tuatara-casso
+    release: jolly-tuatara
+    ca.com/sso-pod: admin
+    ca.com/sso-role: admin
+---
+# Source: casso/templates/deployment-ag-worker.yaml
+## Worker Access Gateway Deployment (includes Access Gateway Worker container in the pod)
+kind: Deployment
+apiVersion: apps/v1beta1
+metadata:
+  name: jolly-tuatara-casso-ag-worker
+  namespace: prod
+  labels:
+    # The "heritage" label is used to track which tool deployed a given chart.
+    # It is useful for admins who want to see what releases a particular tool
+    # is responsible for.
+    heritage: Tiller
+    # The "release" convention makes it easy to tie a release to all of the
+    # Kubernetes resources that were created as part of that release.
+    release: jolly-tuatara
+    # This makes it easy to audit chart usage.
+    chart: casso-14.00.00
+    app: jolly-tuatara-casso
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jolly-tuatara-casso
+      release: jolly-tuatara
+      ca.com/sso-pod: access-gateway
+      ca.com/sso-role: worker
+  template:
+    metadata:
+      labels:
+        app: jolly-tuatara-casso
+        release: jolly-tuatara
+        ca.com/sso-pod: access-gateway
+        ca.com/sso-role: worker
+    spec:
+      initContainers:
+      - name: entropy
+        image: isl-dsdc.ca.com:5001/casso/entropy:01.00.00.0001
+        securityContext:
+          privileged: true
+      - name: config-retriever
+        image: isl-dsdc.ca.com:5001/casso/config-retriever:01.00.01.1000
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: TYPE
+          value: ""
+        - name: SOURCE
+          value: ""
+        - name: SOURCE_DIR
+          value: "ag-worker"
+        - name: DESTINATION
+          value: "/configuration"
+        volumeMounts:
+        - name: ag-worker-config
+          mountPath: /configuration
+      containers:
+      - name: access-gateway
+        image: isl-dsdc.ca.com:5001/casso/access-gateway:14.00.00.0016
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: CONTAINER_LABEL
+          value: "access-gateway"
+        - name: ROLE
+          value: "worker"
+        - name: CONFIGURATION
+          value: "/configuration"
+        - name: DEPLOYMENT_FULLNAME
+          value: jolly-tuatara-casso
+        - name: NETE_SPS_INSTANCE
+          value: "default"
+        - name: PUBLIC_HOST_NAME
+          value: "cassonone.ca.local"
+        - name: POLICY_SERVER_SERVICE
+          value: jolly-tuatara-casso-ps-worker
+        - name: "AG_SHARED_SECRET"
+          valueFrom:
+            secretKeyRef:
+              name: jolly-tuatara-casso
+              key: agSharedSecret
+        - name: TRUSTED_HOST_NAME
+          value: "spstrustedhost"
+        - name: AGENT_NAME
+          value: "agproxyui-agent"
+        - name: "AGENT_CONFIG_OBJ"
+          value: "AGPROXYUI-AGENTCONFIG"
+        - name: HOST_CONFIG_OBJ
+          value: "hostconfig-clusterservice"
+        - name: CA_SM_PS_FIPS140
+          value: "COMPAT"
+        - name: TOMCAT_USER
+          value: "nobody"
+        - name: APACHE_ADMIN_EMAIL
+          value: "admin@somewhere.com"
+        - name: APACHE_HTTP_PORT
+          value: "6080"
+        - name: APACHE_SSL_PORT
+          value: "6443"
+        - name: APACHE_TRACE_ENABLED
+          value: "YES"
+          value: jolly-tuatara-casso-ag-worker.ca.local,access-gateway.ca.local,site1.*ca.local
+        - name: VIRTUAL_HOST_NAMES
+          value: cassonone.ca.local,access-gateway.ca.local,site1.*ca.local
+        - name: ENABLE_WEB_AGENT
+          value: "YES"
+        - name: ENABLE_FED_GATEWAY
+          value: "NO"
+        - name: TOMCAT_HTTP_PORT
+          value: "9080"
+        - name: TOMCAT_SSL_PORT
+          value: "9443"
+        ports:
+        # Access Gateway ports
+        -  containerPort: 7080
+        -  containerPort: 7443
+        -  containerPort: 6080
+        -  containerPort: 6443
+        volumeMounts:
+        - name: ag-worker-config
+          mountPath: /configuration
+        - name: access-gateway-logs
+          mountPath: /opt/CA/secure-proxy/proxy-engine/logs
+      - name: access-gateway-server-log
+        image: isl-dsdc.ca.com:5001/casso/log-collector:01.00.01.1000
+        imagePullPolicy: IfNotPresent
+        args: [/bin/bash, -c, 'tail -n+1 -F /opt/CA/secure-proxy/proxy-engine/logs/server.log']
+        volumeMounts:
+        - name: access-gateway-logs
+          mountPath: /opt/CA/secure-proxy/proxy-engine/logs
+      - name: access-gateway-sps-log
+        image: isl-dsdc.ca.com:5001/casso/log-collector:01.00.01.1000
+        imagePullPolicy: IfNotPresent
+        args: [/bin/bash, -c, 'tail -n+1 -F /opt/CA/secure-proxy/proxy-engine/logs/sps.log']
+        volumeMounts:
+        - name: access-gateway-logs
+          mountPath: /opt/CA/secure-proxy/proxy-engine/logs
+      imagePullSecrets:
+      - name: jolly-tuatara-casso-registry-key
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      volumes:
+      - name: ag-worker-config
+        emptyDir: {}
+      - name: access-gateway-logs
+        emptyDir: {}
+---
+# Source: casso/templates/deployment-ps-worker.yaml
+## Worker Policy Server Deployment (includes Policy Server Worker container in the pod)
+kind: Deployment
+apiVersion: apps/v1beta1
+metadata:
+  name: jolly-tuatara-casso-ps-worker
+  namespace: prod
+  labels:
+    # The "heritage" label is used to track which tool deployed a given chart.
+    # It is useful for admins who want to see what releases a particular tool
+    # is responsible for.
+    heritage: Tiller
+    # The "release" convention makes it easy to tie a release to all of the
+    # Kubernetes resources that were created as part of that release.
+    release: jolly-tuatara
+    # This makes it easy to audit chart usage.
+    chart: casso-14.00.00
+    app: jolly-tuatara-casso
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jolly-tuatara-casso
+      release: jolly-tuatara
+      ca.com/sso-pod: policy-server
+      ca.com/sso-role: worker
+  template:
+    metadata:
+      labels:
+        app: jolly-tuatara-casso
+        release: jolly-tuatara
+        ca.com/sso-pod: policy-server
+        ca.com/sso-role: worker
+    spec:
+      initContainers:
+      - name: entropy
+        image: isl-dsdc.ca.com:5001/casso/entropy:01.00.00.0001
+        securityContext:
+          privileged: true
+      - name: config-retriever
+        image: isl-dsdc.ca.com:5001/casso/config-retriever:01.00.01.1000
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: TYPE
+          value: ""
+        - name: SOURCE
+          value: ""
+        - name: SOURCE_DIR
+          value: "ps-worker"
+        - name: DESTINATION
+          value: "/configuration"
+        volumeMounts:
+        - name: ps-worker-config
+          mountPath: /configuration
+      containers:
+      - name: policy-server
+        image: isl-dsdc.ca.com:5001/casso/policy-server:14.00.00.0016
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: CONTAINER_LABEL
+          value: "policy-server"
+        - name: ROLE
+          value: "worker"
+        - name: CONFIGURATION
+          value: "/configuration"
+        - name: DEPLOYMENT_FULLNAME
+          value: jolly-tuatara-casso
+        - name: CA_SM_PS_FIPS140
+          value: "COMPAT"
+        - name: POLICY_STORE_ENCRYPTION_KEY
+          valueFrom:
+            secretKeyRef:
+              name: jolly-tuatara-casso
+              key: policyStoreEncryptionKey
+        - name: POLICY_STORE_VERSION
+          value: "14.00.00"
+        - name: POLICY_STORE_TYPE
+          # Embedded Policy Store is always of type LDAP
+          value: "LDAP"
+        - name: POLICY_STORE_SERVICE
+          value: jolly-tuatara-casso-policy-store
+        - name: POLICY_STORE_PORT
+          value: "10389"
+        - name: POLICY_STORE_ROOT_DN
+          value: "o=sso"
+        - name: POLICY_STORE_USER_DN
+          value: "cn=Administrator,o=sso"
+        - name: POLICY_STORE_USER_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: jolly-tuatara-casso
+              key: policyStoreUserPassword
+        - name: POLICY_STORE_SSL_ENABLED
+          value: "0"
+        - name: CA_SM_PS_RUN_PSMON
+          value: "false"
+        - name: CA_SM_PS_USE_APS
+          value: "false"
+        ports:
+        # Accounting port
+        - containerPort: 44441
+        # Authentication port
+        - containerPort: 44442
+        # Authorization port
+        - containerPort: 44443
+        livenessProbe:
+          tcpSocket:
+            port: 44443
+          initialDelaySeconds: 120
+          timeoutSeconds: 5
+          failureThreshold: 6
+          periodSeconds: 5
+        readinessProbe:
+          tcpSocket:
+            port: 44443
+          initialDelaySeconds: 30
+          periodSeconds: 5
+        lifecycle:
+          preStop:
+            exec:
+              # SIGTERM triggers a quick exit; gracefully terminate instead
+              command: ["/usr/bin/bash", "-c", "${PS_HOME}/stop-all"]
+        volumeMounts:
+        - name: ps-worker-config
+          mountPath: /configuration
+        - name: policy-server-logs
+          mountPath: /opt/CA/siteminder/log
+      - name: policy-server-log
+        image: isl-dsdc.ca.com:5001/casso/log-collector:01.00.01.1000
+        imagePullPolicy: IfNotPresent
+        args: [/bin/bash, -c, 'tail -n+1 -F /opt/CA/siteminder/log/smps.log']
+        volumeMounts:
+        - name: policy-server-logs
+          mountPath: /opt/CA/siteminder/log
+      imagePullSecrets:
+      - name: jolly-tuatara-casso-registry-key
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      volumes:
+      - name: ps-worker-config
+        emptyDir: {}
+      - name: policy-server-logs
+        emptyDir: {}
+---
+# Source: casso/templates/statefulset-admin.yaml
+kind: StatefulSet
+apiVersion: apps/v1beta1
+metadata:
+  name: jolly-tuatara-casso-admin
+  namespace: prod
+  labels:
+    # The "heritage" label is used to track which tool deployed a given chart.
+    # It is useful for admins who want to see what releases a particular tool
+    # is responsible for.
+    heritage: Tiller
+    # The "release" convention makes it easy to tie a release to all of the
+    # Kubernetes resources that were created as part of that release.
+    release: jolly-tuatara
+    # This makes it easy to audit chart usage.
+    chart: casso-14.00.00
+    app: jolly-tuatara-casso
+spec:
+  serviceName: jolly-tuatara-casso-admin-headless
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jolly-tuatara-casso
+      release: jolly-tuatara
+      ca.com/sso-pod: admin
+      ca.com/sso-role: admin
+  template:
+    metadata:
+      labels:
+        app: jolly-tuatara-casso
+        release: jolly-tuatara
+        ca.com/sso-pod: admin
+        ca.com/sso-role: admin
+    spec:
+      securityContext:
+        fsGroup: 1000
+      initContainers:
+      - name: entropy
+        image: isl-dsdc.ca.com:5001/casso/entropy:01.00.00.0001
+        securityContext:
+          privileged: true
+      - name: config-retriever
+        image: isl-dsdc.ca.com:5001/casso/config-retriever:01.00.01.1000
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: TYPE
+          value: ""
+        - name: SOURCE
+          value: ""
+        - name: SOURCE_DIR
+          value: "admin"
+        - name: DESTINATION
+          value: "/configuration"
+        volumeMounts:
+        - name: admin-config
+          mountPath: /configuration
+      # Add ssh keys to policy-store container needed for DXgrid replication
+      - name: init-policy-store
+        image: isl-dsdc.ca.com:5001/casso/policy-store:14.00.00.0011
+        imagePullPolicy: IfNotPresent
+        command:
+        - bash
+        - "-c"
+        - |
+          # Exit the script on error and print output
+          set -ex
+
+          # Get POD0 and POD1 DNS Names
+          POD0_DNS_NAME=jolly-tuatara-casso-admin-0.jolly-tuatara-casso-admin-headless.prod.svc.cluster.local
+          POD1_DNS_NAME=jolly-tuatara-casso-admin-1.jolly-tuatara-casso-admin-headless.prod.svc.cluster.local
+
+          # Get the ordinal value of this pod
+          [[ `hostname` =~ -([0-9]+)$ ]] || exit 1
+          ordinal=${BASH_REMATCH[1]}
+
+          # Clear the sourcing of the knowledge files in the emptyDir knowledge share (ignore error returned if it does not exist)
+          if [ -f /mnt/knowledge/sso-policy-store.dxg ]; then
+              rm /mnt/knowledge/sso-policy-store.dxg 2>/dev/null
+          fi
+
+          START=0
+          END=$ordinal
+
+          # What data do we need - is it a new deployment (POD 0) that loads from LDIF or a scaled/recovering pod that relies on an online backup?
+          if [ $ordinal -eq 0 ]; then
+              # Is this POD0 in a recovering state - i.e. does POD1 exist?
+              set +e
+              PING_RESULT=`ping -c 3 ${POD1_DNS_NAME} /dev/null 2>&1`
+              set -e
+              if [[ ${PING_RESULT} == *"unknown host"* ]]; then
+                  # POD1 does not exist - assume that this is a new deployment
+                  # Copy the skeleton LDIF to the ordinal 0 pod so that it can be loaded by the entrypoint (if no custom LDIF is provided to override the skeleton version)
+                  cp /mnt/policy-store-config-map/sso-policy-store.ldif /mnt/ldif/sso-policy-store.ldif
+                  # Copy the generic knowledge dxc file from the configmap, rename it to include the ordinal and update the contents with the pod DNS address
+                  cp /mnt/policy-store-config-map/sso-policy-store.dxc /mnt/knowledge/sso-policy-store-0.dxc
+                  sed -i -e "s/sso-policy-store/sso-policy-store-0/g" /mnt/knowledge/sso-policy-store-0.dxc
+                  sed -i -e "s/0.0.0.0/${POD0_DNS_NAME}/g" /mnt/knowledge/sso-policy-store-0.dxc
+                  # Source the knowledge file in the group file
+                  echo "source \"sso-policy-store-0.dxc\";" >> /mnt/knowledge/sso-policy-store.dxg
+              else
+                  # Get an online backup of the running Policy Store on ordinal 1
+                  chmod 400 /home/dsa/.ssh/id_rsa
+                  ssh -p 222 -i "/home/dsa/.ssh/id_rsa" -o "StrictHostKeyChecking=no" -o "UserKnownHostsFile=/dev/null" dsa@${POD1_DNS_NAME} "$DXHOME/bin/dxserver onlinebackup sso-policy-store-1; exit;"
+                  # Copy the online backup from POD1 to POD0
+                  chmod 400 /home/dsa/.ssh/id_rsa
+                  scp -P 222 -i "/home/dsa/.ssh/id_rsa" -o "StrictHostKeyChecking=no" -o "UserKnownHostsFile=/dev/null" dsa@${POD1_DNS_NAME}:$DXHOME/data/sso-policy-store-1.zdb /mnt/data/
+                  mv /mnt/data/sso-policy-store-1.zdb /mnt/data/sso-policy-store-0.db
+                  # Copy the knowledge dxc/dxg files from POD 1
+                  chmod 400 /home/dsa/.ssh/id_rsa
+                  scp -P 222 -i "/home/dsa/.ssh/id_rsa" -o "StrictHostKeyChecking=no" -o "UserKnownHostsFile=/dev/null" dsa@${POD1_DNS_NAME}:$DXHOME/config/knowledge/*.* /mnt/knowledge/
+              fi
+              # Copy the servers dxi file and rename it for POD0
+              cp /mnt/policy-store-config-map/sso-policy-store.dxi /mnt/servers/sso-policy-store-0.dxi
+          else
+              # New scaled or recovering pod (not POD0)
+              # Get an online backup of the running Policy Store on ordinal 0
+              chmod 400 /home/dsa/.ssh/id_rsa
+              ssh -p 222 -i "/home/dsa/.ssh/id_rsa" -o "StrictHostKeyChecking=no" -o "UserKnownHostsFile=/dev/null" dsa@${POD0_DNS_NAME} "$DXHOME/bin/dxserver onlinebackup sso-policy-store-0; exit;"
+              # Copy the online backup from POD0 to this pod
+              # chmod 400 /home/dsa/.ssh/id_rsa
+              scp -P 222 -i "/home/dsa/.ssh/id_rsa" -o "StrictHostKeyChecking=no" -o "UserKnownHostsFile=/dev/null" dsa@${POD0_DNS_NAME}:$DXHOME/data/sso-policy-store-0.zdb /mnt/data/
+              mv /mnt/data/sso-policy-store-0.zdb /mnt/data/sso-policy-store-$ordinal.db
+              # Copy the knowledge dxc/dxg files from POD 0
+              chmod 400 /home/dsa/.ssh/id_rsa
+              scp -P 222 -i "/home/dsa/.ssh/id_rsa" -o "StrictHostKeyChecking=no" -o "UserKnownHostsFile=/dev/null" dsa@${POD0_DNS_NAME}:$DXHOME/config/knowledge/*.* /mnt/knowledge/
+              # Copy the generic knowledge dxc file from the configmap, rename it to include the ordinal and update the contents with the pod DNS address
+              cp /mnt/policy-store-config-map/sso-policy-store.dxc /mnt/knowledge/sso-policy-store-$ordinal.dxc
+              sed -i -e "s/sso-policy-store/sso-policy-store-$ordinal/g" /mnt/knowledge/sso-policy-store-$ordinal.dxc
+              POD_DNS_NAME=jolly-tuatara-casso-admin-$ordinal.jolly-tuatara-casso-admin-headless.prod.svc.cluster.local
+              sed -i -e "s/0.0.0.0/${POD_DNS_NAME}/g" /mnt/knowledge/sso-policy-store-$ordinal.dxc
+              # Source the knowledge file in the group file
+              echo "source \"sso-policy-store-$ordinal.dxc\";" >> /mnt/knowledge/sso-policy-store.dxg
+              # Copy the servers dxi file and rename it to include the ordinal
+              cp /mnt/policy-store-config-map/sso-policy-store.dxi /mnt/servers/sso-policy-store-$ordinal.dxi
+          fi
+
+          # Copy the logging dxc file and rename it for POD0
+          cp /mnt/policy-store-config-map/sso-policy-store-logging.dxc /mnt/logging/sso-policy-store.dxc
+
+          # Update each Pods knowledge with a dsxerver init
+          for (( i=$START; i<=$END -1; i++ ))
+          do
+              # Copy the knowledge dxc/dxg files to all pods
+              PODI_DNS_NAME=jolly-tuatara-casso-admin-$i.jolly-tuatara-casso-admin-headless.prod.svc.cluster.local
+              chmod 400 /home/dsa/.ssh/id_rsa
+              scp -P 222 -i "/home/dsa/.ssh/id_rsa" -o "StrictHostKeyChecking=no" -o "UserKnownHostsFile=/dev/null" /mnt/knowledge/*.* dsa@${PODI_DNS_NAME}:$DXHOME/config/knowledge/
+              # Update the knowledge without restarting
+              chmod 400 /home/dsa/.ssh/id_rsa
+              # TODO - need CA Directory team to provide dxdisp in the dxserver docker image so that we call that before doing dxserver init on each DSA to update DISP timestamp
+              # Replace the following ssh commnad with this commented out one when CA Directory team provide this capability
+              # ssh -p 222 -o "StrictHostKeyChecking=no" -o "UserKnownHostsFile=/dev/null" dsa@${PODI_DNS_NAME} "$DXHOME/bin/dxdisp sso-policy-store-$i; $DXHOME/bin/dxserver init sso-policy-store-$i; exit;"
+              ssh -p 222 -i "/home/dsa/.ssh/id_rsa" -o "StrictHostKeyChecking=no" -o "UserKnownHostsFile=/dev/null" dsa@${PODI_DNS_NAME} "$DXHOME/bin/dxserver init sso-policy-store-$i; exit;"
+          done
+        volumeMounts:
+        - name: policy-store-ldif
+          mountPath: /mnt/ldif
+        - name: policy-store-config-knowledge
+          mountPath: /mnt/knowledge
+        - name: policy-store-config-servers
+          mountPath: /mnt/servers
+        - name: policy-store-config-logging
+          mountPath: /mnt/logging
+        - name: policy-store-config-map
+          mountPath: /mnt/policy-store-config-map
+      containers:
+      - name: policy-server
+        image: isl-dsdc.ca.com:5001/casso/policy-server:14.00.00.0016
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: CONTAINER_LABEL
+          value: "policy-server"
+        - name: ROLE
+          value: "admin"
+        - name: CONFIGURATION
+          value: "/configuration"
+        - name: DEPLOYMENT_FULLNAME
+          value: jolly-tuatara-casso
+        - name: CA_SM_PS_FIPS140
+          value: "COMPAT"
+        - name: POLICY_STORE_ENCRYPTION_KEY
+          valueFrom:
+            secretKeyRef:
+              name: jolly-tuatara-casso
+              key: policyStoreEncryptionKey
+        - name: SUPERUSER_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: jolly-tuatara-casso
+              key: superUserPassword
+        - name: IMPORT_PASSPHRASE
+          valueFrom:
+            secretKeyRef:
+              name: jolly-tuatara-casso
+              key: importPassphrase
+        - name: GENERATE_AG_OBJECTS
+          value: "true"
+        - name: AG_SHARED_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: jolly-tuatara-casso
+              key: agSharedSecret
+        - name: POLICY_STORE_VERSION
+          value: "14.00.00"
+        - name: POLICY_STORE_TYPE
+          # Embedded Policy Store is always of type LDAP
+          value: "LDAP"
+        - name: ADMIN_USER_DIRECTORY_SERVICE
+          value: jolly-tuatara-casso-admin-headless.prod.svc.cluster.local
+          # For the admin policy store, pass in the DNS extension and allow the entrypoint.sh script to prefix the stateful set hostname
+        - name: POLICY_STORE_SERVICE
+          value:  jolly-tuatara-casso-admin-headless.prod.svc.cluster.local
+        - name: POLICY_STORE_PORT
+          value: "10389"
+        - name: POLICY_STORE_ROOT_DN
+          value: "o=sso"
+        - name: POLICY_STORE_USER_DN
+          value: "cn=Administrator,o=sso"
+        - name: POLICY_STORE_USER_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: jolly-tuatara-casso
+              key: policyStoreUserPassword
+        - name: POLICY_STORE_SSL_ENABLED
+          value: "0"
+        - name: WORKER_POLICY_SERVER_SERVICE
+          value: jolly-tuatara-casso-ps-worker
+        - name: EXTERNAL_WORKER_PS_SERVICE_NAME1
+          value: ""
+        - name: EXTERNAL_WORKER_PS_SERVICE_NAME2
+          value: ""
+        - name: WORKER_PS_ACCT_PORT
+          value: "44441"
+        - name: WORKER_PS_AUTHN_PORT
+          value: "44442"
+        - name: WORKER_PS_AUTHZ_PORT
+          value: "44443"
+        - name: CA_SM_PS_RUN_PSMON
+          value: "false"
+        - name: CA_SM_PS_USE_APS
+          value: "false"
+        ports:
+        # Accounting port
+        - containerPort: 44441
+        # Authentication port
+        - containerPort: 44442
+        # Authorization port
+        - containerPort: 44443
+        readinessProbe:
+          tcpSocket:
+            port: 44443
+          initialDelaySeconds: 30
+          periodSeconds: 5
+        lifecycle:
+          preStop:
+            exec:
+              # SIGTERM triggers a quick exit; gracefully terminate instead
+              command: ["/usr/bin/bash", "-c", "${PS_HOME}/stop-all"]
+        volumeMounts:
+        - name: admin-config
+          mountPath: /configuration
+        - name: policy-server-logs
+          mountPath: /opt/CA/siteminder/log
+        - name: policy-server-interprocess-communication
+          mountPath: "/tmp"
+      - name: admin-ui
+        image: isl-dsdc.ca.com:5001/casso/admin-ui:14.00.00.0016
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: CONTAINER_LABEL
+          value: "admin-ui"
+        - name: CONFIGURATION
+          value: "/configuration"
+        - name: ADMIN_UI_SERVER_SERVICE
+          value: cassonone.ca.local
+        - name: SUPERUSER_NAME
+          value: "siteminder"
+        - name: SUPERUSER_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: jolly-tuatara-casso
+              key: superUserPassword
+        - name: POLICY_SERVER_SERVICE
+          value: "localhost"
+        ports:
+        # Admin UI ports
+        -  containerPort: 8080
+        -  containerPort: 8443
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 40
+          timeoutSeconds: 3
+          periodSeconds: 5
+        volumeMounts:
+        - name: admin-config
+          mountPath: /configuration
+      - name: policy-store
+        image: isl-dsdc.ca.com:5001/casso/policy-store:14.00.00.0011
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: CONTAINER_LABEL
+          value: "policy-store"
+        - name: CONFIGURATION
+          value: "/configuration"
+        - name: POLICY_STORE_USER_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: jolly-tuatara-casso
+              key: policyStoreUserPassword
+        ports:
+        # LDAP DSA port
+        - containerPort: 10389
+        # SSH port
+        - containerPort: 222
+        livenessProbe:
+          tcpSocket:
+            port: 10389
+          initialDelaySeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 6
+        readinessProbe:
+          tcpSocket:
+            port: 10389
+          initialDelaySeconds: 10
+          timeoutSeconds: 3
+          periodSeconds: 5
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - bash
+              - "-c"
+              - |
+                # Exit the script on error and print output
+                set -ex
+
+                # Get the ordinal value of this pod
+                [[ `hostname` =~ -([0-9]+)$ ]] || exit 1
+                ordinal=${BASH_REMATCH[1]}
+
+                # Update each Pods knowledge with a dsxerver init
+                # Use the knowledge folder as a "scratch space" as it is of no use to this pod now
+                #rm /opt/CA/Directory/dxserver/config/knowledge/*.*
+                #morePods=true;
+                #i=0;
+                #LAST=0
+                #while [[ $morePods ]];
+                #do
+                #    if [[ i != $ordinal ]]; then
+                #        POD_DNS_NAME=jolly-tuatara-casso-admin-$i.jolly-tuatara-casso-admin-headless.prod.svc.cluster.local
+                        # Is this POD running?
+                #        set +e
+                #        PING_RESULT=`ping -c 3 ${POD_DNS_NAME} /dev/null 2>&1`
+                #        set -e
+                #        if [[ ${PING_RESULT} == *"unknown host"* ]]; then
+                            # Assume we got to the last one
+                #            morePods=false;
+                #        else
+                            # Copy the generic knowledge dxc file from the configmap, rename it to include the ordinal and update the contents with the pod DNS address
+                #            cp /mnt/policy-store-config-map/sso-policy-store.dxc /opt/CA/Directory/dxserver/config/knowledge/sso-policy-store-$i.dxc
+                #            sed -i -e "s/sso-policy-store/sso-policy-store-$i/g" /opt/CA/Directory/dxserver/config/knowledge/sso-policy-store-$i.dxc
+                #            sed -i -e "s/0.0.0.0/${POD_DNS_NAME}/g" /opt/CA/Directory/dxserver/config/knowledge/sso-policy-store-$i.dxc
+                            # Source the knowledge file in the group file
+                #            echo "source \"sso-policy-store-$i.dxc\";" >> /mnt/knowledge/sso-policy-store.dxg
+                #            LAST=$i
+                #        fi
+                #    fi
+                #    i++
+                #done
+
+                #START=0
+                #END=$LAST
+                #for (( j=$START; j<=$END -1; j++ ))
+                #do
+                #    if [[ j != $ordinal ]]; then
+                        # Copy the knowledge dxc/dxg files to all pods
+                #        PODJ_DNS_NAME=jolly-tuatara-casso-admin-$j.jolly-tuatara-casso-admin-headless.prod.svc.cluster.local
+                #        chmod 400 /home/dsa/.ssh/id_rsa
+                #        scp -P 222 -o "StrictHostKeyChecking=no" -o "UserKnownHostsFile=/dev/null" /opt/CA/Directory/knowledge/*.* dsa@${PODJ_DNS_NAME}:$DXHOME/config/knowledge/
+                #        chmod 400 /home/dsa/.ssh/id_rsa
+                        # Update the knowledge without restarting
+                #        ssh -p 222 -o "StrictHostKeyChecking=no" -o "UserKnownHostsFile=/dev/null" dsa@${PODJ_DNS_NAME} "sleep 1; $DXHOME/bin/dxserver init; sleep 2; exit;"
+                #    fi
+                #done
+
+                # Ensure the Policy Store exits gracefully after the Admin Policy Server exits
+                /initialization/_helpers/stop_policy_store.sh
+        volumeMounts:
+        - name: admin-config
+          mountPath: /configuration
+        - name: policy-store-ldif
+          mountPath: /configuration/policy-store/data
+        - name: policy-store-data
+          mountPath: /opt/CA/Directory/dxserver/data
+        - name: policy-store-config-knowledge
+          mountPath: /opt/CA/Directory/dxserver/config/knowledge
+        - name: policy-store-config-servers
+          mountPath: /opt/CA/Directory/dxserver/config/servers
+        - name: policy-store-config-logging
+          mountPath: /opt/CA/Directory/dxserver/config/logging
+        - name: policy-store-config-map
+          mountPath: /mnt/policy-store-config-map
+        - name: policy-store-logs
+          mountPath: /opt/CA/Directory/dxserver/logs
+        - name: policy-server-interprocess-communication
+          mountPath: "/tmp"
+      - name: access-gateway
+        image: isl-dsdc.ca.com:5001/casso/access-gateway:14.00.00.0016
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: CONTAINER_LABEL
+          value: "access-gateway"
+        - name: CONFIGURATION
+          value: "/configuration"
+        - name: DEPLOYMENT_FULLNAME
+          value: jolly-tuatara-casso
+        - name: NETE_SPS_INSTANCE
+          value: "default"
+        - name: PUBLIC_HOST_NAME
+          value: "cassonone.ca.local"
+        - name: POLICY_SERVER_SERVICE
+          value: "localhost"
+        - name: "AG_SHARED_SECRET"
+          valueFrom:
+            secretKeyRef:
+              name: jolly-tuatara-casso
+              key: agSharedSecret
+        - name: TRUSTED_HOST_NAME
+          value: "spstrustedhost"
+        - name: AGENT_NAME
+          value: "agproxyui-agent"
+        - name: "AGENT_CONFIG_OBJ"
+          value: "AGPROXYUI-AGENTCONFIG"
+        - name: HOST_CONFIG_OBJ
+          value: "hostconfig-clusterservice"
+        - name: CA_SM_PS_FIPS140
+          value: "COMPAT"
+        - name: TOMCAT_USER
+          value: "nobody"
+        - name: APACHE_ADMIN_EMAIL
+          value: "admin@somewhere.com"
+        - name: APACHE_HTTP_PORT
+          value: "6080"
+        - name: APACHE_SSL_PORT
+          value: "6443"
+        - name: APACHE_TRACE_ENABLED
+          value: "YES"
+          value: jolly-tuatara-casso-admin.ca.local,access-gateway.ca.local,site1.*ca.local
+        - name: VIRTUAL_HOST_NAMES
+          value: cassonone.ca.local,access-gateway.ca.local,site1.*ca.local
+        - name: ENABLE_WEB_AGENT
+          value: "YES"
+        - name: ENABLE_FED_GATEWAY
+          value: "NO"
+        - name: TOMCAT_HTTP_PORT
+          value: "9080"
+        - name: TOMCAT_SSL_PORT
+          value: "9443"
+        ports:
+        # Access Gateway ports
+        -  containerPort: 9080
+        -  containerPort: 9443
+        volumeMounts:
+        - name: admin-config
+          mountPath: /configuration
+        - name: access-gateway-logs
+          mountPath: /opt/CA/secure-proxy/proxy-engine/logs
+      - name: policy-server-log
+        image: isl-dsdc.ca.com:5001/casso/log-collector:01.00.01.1000
+        imagePullPolicy: IfNotPresent
+        args: [/bin/bash, -c, 'tail -n+1 -F /opt/CA/siteminder/log/smps.log']
+        volumeMounts:
+        - name: policy-server-logs
+          mountPath: /opt/CA/siteminder/log
+      - name: access-gateway-proxyui-log
+        image: isl-dsdc.ca.com:5001/casso/log-collector:01.00.01.1000
+        imagePullPolicy: IfNotPresent
+        args: [/bin/bash, -c, 'tail -n+1 -F /opt/CA/secure-proxy/proxy-engine/logs/proxyui.log']
+        volumeMounts:
+        - name: access-gateway-logs
+          mountPath: /opt/CA/secure-proxy/proxy-engine/logs
+      - name: access-gateway-server-log
+        image: isl-dsdc.ca.com:5001/casso/log-collector:01.00.01.1000
+        imagePullPolicy: IfNotPresent
+        args: [/bin/bash, -c, 'tail -n+1 -F /opt/CA/secure-proxy/proxy-engine/logs/server.log']
+        volumeMounts:
+        - name: access-gateway-logs
+          mountPath: /opt/CA/secure-proxy/proxy-engine/logs
+      - name: access-gateway-sps-log
+        image: isl-dsdc.ca.com:5001/casso/log-collector:01.00.01.1000
+        imagePullPolicy: IfNotPresent
+        args: [/bin/bash, -c, 'tail -n+1 -F /opt/CA/secure-proxy/proxy-engine/logs/sps.log']
+        volumeMounts:
+        - name: access-gateway-logs
+          mountPath: /opt/CA/secure-proxy/proxy-engine/logs
+      - name: policy-store-alarm-log
+        image: isl-dsdc.ca.com:5001/casso/log-collector:01.00.01.1000
+        imagePullPolicy: IfNotPresent
+        args: [/bin/bash, -c, 'tail -n+1 -F /opt/CA/Directory/dxserver/logs/*_alarm.log']
+        volumeMounts:
+        - name: policy-store-logs
+          mountPath: /opt/CA/Directory/dxserver/logs
+      - name: policy-store-trace-log
+        image: isl-dsdc.ca.com:5001/casso/log-collector:01.00.01.1000
+        imagePullPolicy: IfNotPresent
+        args: [/bin/bash, -c, 'tail -n+1 -F /opt/CA/Directory/dxserver/logs/*_trace.log']
+        volumeMounts:
+        - name: policy-store-logs
+          mountPath: /opt/CA/Directory/dxserver/logs
+      - name: policy-store-alert-log
+        image: isl-dsdc.ca.com:5001/casso/log-collector:01.00.01.1000
+        imagePullPolicy: IfNotPresent
+        args: [/bin/bash, -c, 'tail -n+1 -F /opt/CA/Directory/dxserver/logs/*_alert.log']
+        volumeMounts:
+        - name: policy-store-logs
+          mountPath: /opt/CA/Directory/dxserver/logs
+      - name: policy-store-warn-log
+        image: isl-dsdc.ca.com:5001/casso/log-collector:01.00.01.1000
+        imagePullPolicy: IfNotPresent
+        args: [/bin/bash, -c, 'tail -n+1 -F /opt/CA/Directory/dxserver/logs/*_warn.log']
+        volumeMounts:
+        - name: policy-store-logs
+          mountPath: /opt/CA/Directory/dxserver/logs
+      - name: policy-store-stats-log
+        image: isl-dsdc.ca.com:5001/casso/log-collector:01.00.01.1000
+        imagePullPolicy: IfNotPresent
+        args: [/bin/bash, -c, 'tail -n+1 -F /opt/CA/Directory/dxserver/logs/*_stats.log']
+        volumeMounts:
+        - name: policy-store-logs
+          mountPath: /opt/CA/Directory/dxserver/logs
+      - name: policy-store-diag-log
+        image: isl-dsdc.ca.com:5001/casso/log-collector:01.00.01.1000
+        imagePullPolicy: IfNotPresent
+        args: [/bin/bash, -c, 'tail -n+1 -F /opt/CA/Directory/dxserver/logs/*_diag.log']
+        volumeMounts:
+        - name: policy-store-logs
+          mountPath: /opt/CA/Directory/dxserver/logs
+      - name: policy-store-summary-log
+        image: isl-dsdc.ca.com:5001/casso/log-collector:01.00.01.1000
+        imagePullPolicy: IfNotPresent
+        args: [/bin/bash, -c, 'tail -n+1 -F /opt/CA/Directory/dxserver/logs/*_summary.log']
+        volumeMounts:
+        - name: policy-store-logs
+          mountPath: /opt/CA/Directory/dxserver/logs
+      imagePullSecrets:
+      - name: jolly-tuatara-casso-registry-key
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      volumes:
+      - name: admin-config
+        emptyDir: {}
+      - name: policy-server-logs
+        emptyDir: {}
+      - name: policy-server-interprocess-communication
+        emptyDir: {}
+      - name: policy-store-logs
+        emptyDir: {}
+      - name: access-gateway-logs
+        emptyDir: {}
+      - name: policy-store-ldif
+        emptyDir: {}
+      - name: policy-store-config-knowledge
+        emptyDir: {}
+      - name: policy-store-config-servers
+        emptyDir: {}
+      - name: policy-store-config-logging
+        emptyDir: {}
+      - name: policy-store-config-map
+        configMap:
+          name: jolly-tuatara-casso-policy-store
+      - name: policy-store-data
+        emptyDir: {}
+---
+# Source: casso/templates/ingress.yaml
+kind: Ingress
+apiVersion: extensions/v1beta1
+metadata:
+  name: jolly-tuatara-casso
+  namespace: prod
+  labels:
+    # The "heritage" label is used to track which tool deployed a given chart.
+    # It is useful for an admin who wants to see what releases a particular tool
+    # is responsible for.
+    heritage: Tiller
+    # The "release" convention makes it easy to tie a release to all of the
+    # Kubernetes resources that were created as part of that release
+    release: jolly-tuatara
+    # This makes it easy to audit chart usage.
+    chart: casso-14.00.00
+    app: jolly-tuatara-casso
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  backend:
+    serviceName: default-http-backend
+    servicePort: 80
+  rules:
+  - host: cassonone.ca.local
+    http:
+      paths:
+        # Default base url to Admin UI
+        - path: /
+          backend:
+            serviceName: jolly-tuatara-casso-admin
+            servicePort: 8080
+        - path: /adminui
+          backend:
+            serviceName: jolly-tuatara-casso-admin
+            servicePort: 8080
+        - path: /iam/siteminder/console
+          backend:
+            serviceName: jolly-tuatara-casso-admin
+            servicePort: 8080
+        - path: /castylesr5.1.1/
+          backend:
+            serviceName: jolly-tuatara-casso-admin
+            servicePort: 8080
+        - path: /proxyui
+          backend:
+            serviceName: jolly-tuatara-casso-admin
+            servicePort: 9080
+        - path: /castylesr5.1.3/
+          backend:
+            serviceName: jolly-tuatara-casso-admin
+            servicePort: 9080

@@ -1,0 +1,102 @@
+<div class="row">
+  <div class="col-sm-12">
+    <h6 [ngSwitch]="isComponentExpanded">
+      <span id="k8s-ingress-rule-dropdown" class="pointer mb5" (click)="isComponentExpanded = !isComponentExpanded">
+        <clr-icon *ngSwitchCase="false" shape="caret right"></clr-icon>
+        <clr-icon *ngSwitchCase="true" shape="caret down"></clr-icon>
+        Rules
+        <clr-icon *ngIf="form.controls.rule.invalid" shape="exclamation-circle" class="icon-danger small-icon"></clr-icon>
+      </span>
+    </h6>
+  </div>
+</div>
+<div [hidden]="!isComponentExpanded">
+  <div [formGroup]="form" class="pt10">
+    <div class="col-xs-11 offset-xs-1">
+      <table formArrayName="rule" class="table table-noborder mv0">
+        <thead>
+          <tr>
+            <th style="text-align: left; width: 90%">
+              <label style="border: none; font-weight: bold; font-size: small;">Rule</label>
+            </th>
+            <th style="width: 10%;">
+              <clr-icon shape="plus-circle" class="is-highlight" (click)="handleAddRule()"></clr-icon>
+            </th>
+          </tr>
+        </thead>
+        <tbody *ngFor="let object of rule; let i = index" [formGroupName]="i">
+          <tr>
+            <td style="text-align: left; width: 90%">
+              <div class="form-group">
+                <label>Host</label>
+                <input placeholder="Optional" maxlength="128" type="text" formControlName="host">
+              </div>
+            </td>
+            <td style="width: 10%">
+              <clr-icon shape="minus-circle" class="is-highlight" (click)="handleRemoveRule(i)"></clr-icon>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <table formArrayName="paths" class="table mv0 col-xs-11 offset-xs-1">
+                <thead>
+                  <tr>
+                    <th style="text-align: left; width: 30%;">
+                      <label style="border: none; font-weight: bold; font-size: small;">Path</label>
+                    </th>
+                    <th style="text-align: left; width: 30%;">
+                      <label style="border: none; font-weight: bold; font-size: small;">Service</label>
+                    </th>
+                    <th style="text-align: left; width: 30%;">
+                      <label style="border: none; font-weight: bold; font-size: small;">Port</label>
+                    </th>
+                    <th style="width: 10%;">
+                      <clr-icon shape="plus-circle" class="is-highlight" (click)="handleAddPath(i)"></clr-icon>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody *ngFor="let path of rule[i].value.paths; let j = index; trackBy: trackPath" [formGroupName]="j">
+                  <tr>
+                    <td style="width: 30%">
+                      <input placeholder="Optional" maxlength="128" class="table-input" type="text" formControlName="path">
+                    </td>
+                    <td style="width: 30%">
+                      <label class="table-input" [ngClass]="rule[i].controls.paths.controls[j].controls.service.invalid ? 'tooltip tooltip-validation tooltip-bottom-right invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+                        <div class="select">
+                          <select formControlName="service">
+                            <option [value]="">
+                              -- Select a service --
+                            </option>
+                            <option *ngFor="let option of serviceOptions" [value]="option.value">
+                              {{ option.name }}
+                            </option>
+                          </select>
+                        </div>
+                      </label>
+                    </td>
+                    <td style="width: 30%">
+                      <label class="table-input" [ngClass]="rule[i].controls.paths.controls[j].controls.port.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+                        <input placeholder="Required" maxlength="128" class="table-input" type="number" formControlName="port">
+                        <span class="tooltip-content">
+                          <span *ngIf="rule[i].controls.paths.controls[j].controls.port.errors?.required === true">Port is required
+                            <br/>
+                          </span>
+                          <span *ngIf="rule[i].controls.paths.controls[j].controls.port.errors?.numericPortRangeIncludesZero === true">Must be a valid port number
+                            <br/>
+                          </span>
+                        </span>
+                      </label>
+                    </td>
+                    <td style="width: 10%">
+                      <clr-icon shape="minus-circle" class="is-highlight" (click)="handleRemovePath(i, j)"></clr-icon>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

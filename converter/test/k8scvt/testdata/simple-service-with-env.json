@@ -1,0 +1,16 @@
+{
+    "app-info": {
+        "name": "SimpleService",
+        "description": "a (very) simple service"
+    },
+    "services": {
+        "simpleservice": {
+            "image": "mysimpleserviceimage",
+            "environment": [
+                "FOO=BAR",
+                "ENVVARS=TESTED"
+            ],
+            "restart": "always"
+        }
+    }
+}

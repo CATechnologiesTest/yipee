@@ -1,0 +1,213 @@
+version: '2'
+
+services:
+  jenkinscert:
+    image: yipee-tools-spoke-cos.ca.com:5000/tools-ca-com/gencert
+    volumes:
+      - jenkins_certs:/certificates
+    environment:
+      - SERVER=devenv.*hostname-or-ip*.com
+      - SUBJECT=/C=US/ST=New York/L=Islandia/O=Yipee Dev
+      - SERVER=${SERVER}${Second_2}${third_3}
+      - SUBJECT=${SUBJECT}${subject_followup}
+    restart: "no"
+
+  artifactory:
+    image: jfrog-docker-reg2.bintray.io/jfrog/artifactory-oss
+    ports:
+      # - "80:80"
+      - "8081:8081"
+      # - "443:443"
+    volumes:
+      - artifactory_data:/var/opt/jfrog/artifactory/data
+      - artifactory_logs:/var/opt/jfrog/artifactory/logs
+      - artifactory_backup:/var/opt/jfrog/artifactory/backup
+      - artifactory_etc:/var/opt/jfrog/artifactory/etc
+    networks:
+      - frontend
+      - backend
+    restart: always
+
+  jenkins:
+    # customized jenkins with our desired plugins, and with knowledge
+    # of our autobuild user and our cert generator
+    depends_on:
+      - jenkinscert
+    image: yipee-tools-spoke-cos.ca.com:5000/tools-ca-com/spoke-jenkins
+    ports:
+      - "8443:8443"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - jenkins_certs:/certs:ro
+      - keyshare:/keyshare
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - frontend
+      - backend
+    environment:
+      - DEVENV_WAITFILE=/certs/server.pem
+      - DEVENV_SHAREKEY=/keyshare
+      - JENKINS_OPTS=--httpPort=-1 --httpsPort=8443 --httpsCertificate=/certs/server.pem --httpsPrivateKey=/certs/server.key
+    restart: always
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: "127.0.0.1:24224"
+
+  git-cache:
+    image: yipee-tools-spoke-cos.ca.com:5000/tools-ca-com/centos7-git_cache
+    ports:
+      # Note port specs as strings, per this from compose file reference:
+      # YAML will parse numbers in the format xx:yy as sexagesimal (base 60).
+      # For this reason, we recommend always explicitly specifying your
+      # port mappings as strings.
+      - "8483:443"
+      - "8088:8081"
+      # - "8161:161"
+      # - "8162:162"
+      - "8022:22"
+    volumes:
+      - git_cache:/var/lib/git_cache
+      - keyshare:/keyshare
+    networks:
+      - frontend
+      - backend
+    restart: always
+
+  docker-registry:
+    image: yipee-tools-spoke-cos.ca.com:5000/tools-ca-com/docker-registry
+    ports:
+      - "5000:5000"
+    environment:
+      - REGISTRY_HTTP_TLS_CERTIFICATE=/certs/server.pem
+      - REGISTRY_HTTP_TLS_KEY=/certs/server.key
+    volumes:
+      - jenkins_certs:/certs:ro
+      - registry_data:/var/lib/registry
+    networks:
+      - frontend
+      - backend
+    restart: always
+
+  add-repo:
+    image: yipee-tools-spoke-cos.ca.com:5000/tools-ca-com/add-repo
+    environment:
+      - GIT_REPO
+    volumes:
+      - git_cache:/var/lib/add-repo
+    networks:
+      - backend
+
+  extra-service:
+    image: test/extra-service
+    build: ./dir
+
+    cap_add:
+      - ALL
+    cap_drop:
+      - NET_ADMIN
+      - SYS_ADMIN
+    cgroup_parent: m-executor-abcd
+    container_name: my-web-container
+    devices:
+      - "/dev/ttyUSB0:/dev/ttyUSB0"
+      - "/dev/ttyUSB1:/dev/ttyUSB1"
+    dns:
+      - 8.8.8.8
+      - 9.9.9.9
+    dns_search: example.com
+    tmpfs:
+      - /run
+      - /tmp
+    entrypoint:
+      - php
+      - -d
+      - zend_extension=/usr/local/lib/php/extensions/no-debug-non-zts-20100525/xdebug.so
+      - -d
+      - memory_limit=-1
+      - vendor/bin/phpunit
+    env_file: .env
+    expose:
+      - "3000"
+      - "8000"
+    extends:
+      file: common.yml
+      service: webapp
+    external_links:
+     - redis_1
+     - project_db_1:mysql
+     - project_db_1:postgresql
+    extra_hosts:
+     - "somehost:162.242.195.82"
+     - "otherhost:50.31.209.229"
+    labels:
+      - "com.example.description=Accounting webapp"
+      - "com.example.department=Finance"
+      - "com.example.label-with-empty-value"
+    links:
+     - db
+     - db:database
+     - redis
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "tcp://192.168.0.42:123"
+    network_mode: "none"
+    pid: "host"
+    security_opt:
+      - label:user:USER
+      - label:role:ROLE
+    stop_signal: SIGUSR1
+    stop_grace_period: 1m30s
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 20000
+        hard: 40000
+    volumes_from:
+     - service_name
+     - service_name:ro
+     - container:container_name
+     - container:container_name:rw
+    volume_driver: booger
+    cpu_shares: 73
+    cpu_quota: 50000
+    cpuset: 0,1
+
+    user: postgresql
+    working_dir: /code
+
+    domainname: foo.com
+    hostname: foo
+    ipc: host
+    mac_address: 02:42:ac:11:65:43
+
+    mem_limit: 1000000000
+    memswap_limit: 2000000000
+    privileged: true
+
+    read_only: true
+    shm_size: 64M
+    stdin_open: true
+    tty: true
+
+volumes:
+  keyshare:
+  artifactory_data:
+  artifactory_logs:
+  artifactory_backup:
+  artifactory_etc:
+  jenkins_home:
+  jenkins_certs:
+  git_cache:
+    driver: ${NFS_DRIVER}
+    driver_opts:
+      server: myserver
+      path: /foo/bar
+  registry_data:
+
+networks:
+  frontend:
+    driver: bridge
+  backend:

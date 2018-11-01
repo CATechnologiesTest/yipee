@@ -1,0 +1,152 @@
+<div class="container mb15">
+    
+  <div [formGroup]="form" class="form compact">
+          <label class="mb10 fw600 black" style="width: 5rem;">{{!this.container.isInitContainer() == true ? 'Container': 'Init Container'}}</label>
+     
+    <!-- container name -->
+    <div style="padding-left: 4rem;" class="form-group">
+      <label style="width: 4rem;">Name</label>
+      <label class="table-input" [ngClass]="form.controls.name.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+        <input maxlength="253" class="table-input" placeholder="Required" type="text" formControlName="name">
+        <span class="tooltip-content">
+          <span *ngIf="this.form.controls.name.errors?.required == true">Name is Required
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.maxLength253 === true">Name must be 253 characters or less
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.lowercaseAlphaNumericDashPeriod === true">Name may only contain lowercase letters, numbers, dashes, and periods
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.startsWithDash === true">Name may not begin with a dash
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.endsWithDash === true">Name may not end with a dash
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.startsWithPeriod === true">Name may not begin with a period
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.endsWithPeriod === true">Name may not end with a period
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.duplicateNameValidator == true">Name must be unique, a container already exists with this name.</span>
+        </span>
+      </label>
+    </div>
+    <!-- END container name -->
+
+    <!-- container description -->
+    <div style="padding-left: 4rem;" class="form-group">
+      <label style="width: 4rem;">Description</label>
+      <div class="textarea-wrapper">
+        <textarea type="textarea" formControlName="description" maxlength="256" width="100%"></textarea>
+      </div>
+    </div>
+    <!-- END container description -->
+
+    <div style="padding-left: 4rem;" class="form-group">
+      <label id="k8s-container-image-label" style="width: 4rem;">Image</label>
+      <label class="table-input" [ngClass]="form.controls.image.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+        <input class="table-input" type="text" formControlName="image">
+        <span class="tooltip-content">
+          <span *ngIf="this.form.controls.image.errors?.required == true">Image is Required
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.image.errors?.containsSpace === true">Image must not contain a space
+            <br/>
+          </span>
+        </span>
+      </label>
+    </div>
+
+  </div>
+
+  <k8s-container-environment-variables
+    [expandedByDefault]="false"
+    [form]="form"
+    (addEnvironmentVar)="addEnvironmentVar()"
+    (removeEnvironmentVar)="removeEnvironmentVar($event)"
+    (addConfigMapRef)="addConfigMapRef()"
+    (removeConfigMapRef)="removeConfigMapRef($event)"
+    (addEnvSecretRef)="addEnvSecretRef()"
+    (removeEnvSecretRef)="removeEnvSecretRef($event)"
+    (addFieldRef)="addFieldRef()"
+    (removeFieldRef)="removeFieldRef($event)"
+    (addResourceFieldRef)="addResourceFieldRef()"
+    (removeResourceFieldRef)="removeResourceFieldRef($event)"
+    (toggleBulkEdit)="handleToggleBulkEnvAdd()"
+    (toggleSortKey)="sortEnvironmentVar($event, 'key')"
+    (toggleSortValue)="sortEnvironmentVar($event, 'value')">
+  </k8s-container-environment-variables>
+
+  <k8s-container-secrets
+    [expandedByDefault]="false"
+    [form]="form"
+    [secretOptions]="container.secret_volume_map"
+    (addSecretRef)="addSecretRef()"
+    (removeSecretRef)="removeSecretRef($event)">
+  </k8s-container-secrets>
+
+  <k8s-container-configs
+    [expandedByDefault]="false"
+    [form]="form"
+    [configOptions]="container.config_map"
+    (addConfigRef)="addConfigRef()"
+    (removeConfigRef)="removeConfigRef($event)">
+  </k8s-container-configs>
+
+  <k8s-container-ports
+    [expandedByDefault]="false"
+    [form]="form"
+    (addPortMapping)="addPortMapping()"
+    (removePortMapping)="removePortMapping($event)">
+  </k8s-container-ports>
+
+  <k8s-container-volumes
+    [expandedByDefault]="false"
+    [form]="form"
+    [volumeRefs]="container.volume_ref"
+    [accessModeOptions]="accessModeOptions">
+  </k8s-container-volumes>
+
+  <k8s-container-empty-dirs
+    id="k8s-container-empty-dirs-dropdown"
+    [expandedByDefault]="false"
+    [form]="form"
+    [volumeRefs]="container.empty_dir_ref">
+  </k8s-container-empty-dirs>
+
+  <k8s-container-host-paths
+    id="k8s-container-host-paths-dropdown"
+    [expandedByDefault]="false"
+    [form]="form"
+    [volumeRefs]="container.host_path_ref">
+  </k8s-container-host-paths>
+
+  <k8s-container-liveness-probe
+    [expandedByDefault]="false"
+    [form]="form"
+    (addHealthCmd)="addLivenessProbeHealthCmd()"
+    (removeHealthCmd)="removeLivenessProbeHealthCmd($event)"
+    (addHttpHeader)="addProbeHttpHeader('livenessProbe')"
+    (removeHttpHeader)="removeProbeHttpHeader('livenessProbe', $event)">
+  </k8s-container-liveness-probe>
+
+  <k8s-container-readiness-probe *ngIf="!this.container.isInitContainer() == true"
+    [expandedByDefault]="false"
+    [form]="form"
+    (addHealthCmd)="addReadinessProbeHealthCmd()"
+    (removeHealthCmd)="removeReadinessProbeHealthCmd($event)"
+    (addHttpHeader)="addProbeHttpHeader('readinessProbe')"
+    (removeHttpHeader)="removeProbeHttpHeader('readinessProbe', $event)">
+  </k8s-container-readiness-probe>
+
+  <k8s-container-advanced id="k8s-container-advanced" [expandedByDefault]="false" [form]="form">
+  </k8s-container-advanced>
+
+  <app-env-bulk-add-modal [show]="showBulkEnvDialog" [content]="bulkEnvVars" (onCancel)="handleToggleBulkEnvAdd()" (onReplace)="handleBulkEnvReplace($event)"
+    (onAppend)="handleBulkEnvAppend($event)">
+  </app-env-bulk-add-modal>
+
+</div>

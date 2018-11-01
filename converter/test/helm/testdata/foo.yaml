@@ -1,0 +1,6 @@
+fooDY:
+  bar:
+  - baz: {{int .Values.foo0FooDY1Bar2Baz3Baz4}}
+  - quux: {{.Values.foo0FooDY1Bar2Quux3Quux4}}
+  wanda: {{.Values.foo0FooDY1Wanda2}}
+  framkowitz: {{float .Values.foo0FooDY1Framkowitz2}}

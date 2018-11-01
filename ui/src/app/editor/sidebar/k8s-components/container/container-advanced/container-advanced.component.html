@@ -1,0 +1,62 @@
+<div class="row">
+  <div class="col-sm-12">
+    <h6 class="pointer" (click)="isComponentExpanded = !isComponentExpanded" [ngSwitch]="isComponentExpanded">
+      <clr-icon *ngSwitchCase="false" shape="caret right"></clr-icon>
+      <clr-icon *ngSwitchCase="true" shape="caret down"></clr-icon>
+      Advanced
+      <clr-icon *ngIf="form?.controls.entrypoint.invalid || form?.controls.image_pull_policy.invalid || form?.controls.command.invalid" shape="exclamation-circle" class="icon-danger small-icon mb5"></clr-icon>
+    </h6>
+  </div>
+</div>
+<div class="row" [hidden]="!isComponentExpanded">
+  <div class="col-xs-11 offset-xs-1">
+    <div [formGroup]="form" class="form compact">
+      <div style="padding-left: 4rem;" class="form-group">
+        <label id="k8s-container-arguments-label" style="width: 4rem;">Arguments</label>
+        <label class="w-100" [ngClass]="form?.controls.command.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+          <input class="w-100" type="text" formControlName="command">
+          <span class="tooltip-content">
+            <span *ngIf="form?.controls.command.errors?.maxLength4096 === true">Arguments must be 4096 characters or less<br/></span>
+          </span>
+        </label>
+      </div>
+      <div style="padding-left: 4rem;" class="form-group">
+        <label id="k8s-container-command-label" style="width: 4rem;">Command</label>
+        <label class="w-100" [ngClass]="form?.controls.entrypoint.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+          <input class="w-100" type="text" formControlName="entrypoint">
+          <span class="tooltip-content">
+            <span *ngIf="form?.controls.entrypoint.errors?.maxLength4096 === true">Command must be 4096 characters or less<br/></span>
+          </span>
+        </label>
+      </div>
+      <div style="padding-left: 4rem;" class="form-group">
+        <label id="k8s-container-imagepullpolicy-label" style="width: 4rem;">Image Pull</label>
+        <div class="select">
+          <select formControlName="image_pull_policy">
+            <option *ngFor="let option of imagePullPolicyOptions" [value]="option.value">
+                {{ option.name }}
+            </option>
+          </select>
+        </div>
+      </div>
+      <div style="padding-left: 4rem;" class="form-group">
+        <label id="k8s-container-poststart-label" style="width: 4rem;">Post Start</label>
+        <label class="w-100" [ngClass]="form?.controls.post_start.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+          <input class="w-100" type="text" formControlName="post_start">
+          <span class="tooltip-content">
+            <span *ngIf="form?.controls.post_start.errors?.maxLength4096 === true">Post start must be 4096 characters or less<br/></span>
+          </span>
+        </label>
+      </div>
+      <div style="padding-left: 4rem;" class="form-group">
+        <label id="k8s-container-prestop-label" style="width: 4rem;">Pre Stop</label>
+        <label class="w-100" [ngClass]="form?.controls.pre_stop.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+          <input class="w-100" type="text" formControlName="pre_stop">
+          <span class="tooltip-content">
+            <span *ngIf="form?.controls.pre_stop.errors?.maxLength4096 === true">Pre start must be 4096 characters or less<br/></span>
+          </span>
+        </label>
+      </div>
+    </div>
+  </div>
+</div>

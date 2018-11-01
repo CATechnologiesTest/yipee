@@ -1,0 +1,2 @@
+#!/bin/sh
+base64 --decode $1 | tar xvzf -

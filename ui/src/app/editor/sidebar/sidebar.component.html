@@ -1,0 +1,106 @@
+<!-- **************** -->
+<!-- k8s mode sidebar -->
+<!-- **************** -->
+<div *ngIf="editorMode === 'k8s'" [hidden]="viewType !== 'app'">
+  <app-sidebar-panel>
+      <app-sidebar-group [isDefault]="'true'" [key]="'appinfo'">
+        <k8s-info-container
+          [k8sFile]="k8sFile">
+        </k8s-info-container>
+      </app-sidebar-group>
+
+      <!-- k8s unknown kind component -->
+      <span *ngFor="let unknownKind of k8sFile.unknownKinds">
+        <app-sidebar-group [key]="unknownKind.id">
+          <k8s-unknown-kind-container
+            [unknownKind]="unknownKind">
+          </k8s-unknown-kind-container>
+        </app-sidebar-group>
+      </span>
+      <!-- END k8s unknown kind component -->
+
+      <!-- k8s container component -->
+      <span *ngFor="let container of k8sFile.containers">
+        <app-sidebar-group [key]="container.id">
+          <k8s-container-container
+            [container]="container">
+            <!-- there is no content projection enabled for this component -->
+          </k8s-container-container>
+        </app-sidebar-group>
+      </span>
+      <!-- END k8s container component -->
+
+      <!-- k8s pod component -->
+      <span *ngFor="let pod of k8sFile.containerGroups">
+        <app-sidebar-group [key]="pod.id">
+          <k8s-pod-container
+            [pod]="pod">
+            <!-- there is no content projection enabled for this component -->
+          </k8s-pod-container>
+        </app-sidebar-group>
+      </span>
+      <!-- END k8s pod component -->
+
+      <!-- k8s volume component -->
+      <span *ngFor="let volume of k8sFile.volumes">
+        <app-sidebar-group [key]="volume.id">
+          <k8s-volume-container
+            [volume]="volume">
+            <!-- there is no content projection enabled for this component -->
+          </k8s-volume-container>
+        </app-sidebar-group>
+      </span>
+      <!-- END k8s volume component -->
+
+      <!-- k8s empty dir component -->
+      <span *ngFor="let empty_dir of k8sFile.empty_dirs">
+        <app-sidebar-group [key]="empty_dir.id">
+          <k8s-empty-dir
+            [emptydir]="empty_dir">
+          </k8s-empty-dir>
+        </app-sidebar-group>
+      </span>
+      <!-- END k8s empty dir component -->
+
+      <!-- k8s host path component -->
+      <span *ngFor="let host_path of k8sFile.host_paths">
+        <app-sidebar-group [key]="host_path.id">
+          <k8s-host-path
+            [hostPath]="host_path">
+          </k8s-host-path>
+        </app-sidebar-group>
+      </span>
+      <!-- END k8s host path component -->
+
+      <!-- k8s service component -->
+      <span *ngFor="let service of k8sFile.services">
+        <app-sidebar-group [key]="service.id">
+          <k8s-service-container
+            [service]="service">
+            <!-- there is no content projection enabled for this component -->
+          </k8s-service-container>
+        </app-sidebar-group>
+      </span>
+      <!-- END k8s service component -->
+
+      <!-- k8s ingress component -->
+      <span *ngFor="let ingress of k8sFile.ingress">
+        <app-sidebar-group [key]="ingress.id">
+          <k8s-ingress-container
+            [ingress]="ingress">
+            <!-- there is no content projection enabled for this component -->
+          </k8s-ingress-container>
+        </app-sidebar-group>
+      </span>
+      <!-- END k8s ingress component -->
+
+  </app-sidebar-panel>
+</div>
+<!-- ******************** -->
+<!-- end k8s mode sidebar -->
+<!-- ******************** -->
+
+
+<div *ngIf="viewType === 'nerd'">
+  <nerdmode-container [id]="metadata.id"></nerdmode-container>
+</div>

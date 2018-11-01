@@ -1,0 +1,11 @@
+
+<clr-modal #disclaimerModal [(clrModalOpen)]="show" [clrModalClosable]="false">
+  <h3 class="modal-title align-left">Disclaimer</h3>
+  <div class="modal-body align-left">
+    <p>This site may contain content provided by third parties (the “Third Party Content”). The Third Party Content is provided to you as a convenience in the hope that it will be helpful, however CA does not warrant, support or endorse the Third Party Content.
+      Your use of the Third Party Content shall be at your own risk.</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="closeDisclaimer()">Close</button>
+  </div>
+</clr-modal>

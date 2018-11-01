@@ -1,0 +1,138 @@
+apiVersion: "extensions/v1beta1"
+kind: Deployment
+metadata:
+  name: mysql
+  labels:
+    name: mysql
+    app: demo
+spec:
+  selector:
+    matchLabels:
+      name: mysql
+      component: mysql
+      app: demo
+  template:
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:latest
+          ports:
+            - containerPort: 3306
+              name: mysql
+              protocol: TCP
+          env:
+            - name: "MYSQL_ROOT_PASSWORD"
+              value: "password"
+      restartPolicy: Always
+    metadata:
+      labels:
+        name: mysql
+        component: mysql
+        app: demo
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: "50%"
+      maxUnavailable: 1
+  rollbackTo:
+    revision: 0
+  replicas: 1
+  revisionHistoryLimit: 2
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  labels:
+    name: mysql
+    app: demo
+spec:
+  ports:
+  - port: 3306
+    name: mysql
+    targetPort: 3306
+  selector:
+    name: mysql
+    app: demo
+
+---
+apiVersion: "extensions/v1beta1"
+kind: Deployment
+metadata:
+  name: web
+  labels:
+    name: web
+    app: demo
+spec:
+  selector:
+    matchLabels:
+      name: web
+      component: web
+      app: demo
+  template:
+    spec:
+      containers:
+      - name: redis
+        image: redis
+        ports:
+        - containerPort: 6379
+          name: redis
+          protocol: TCP
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "125m"
+      - name: python
+        image: janakiramm/py-red
+        env:
+        - name: "REDIS_HOST"
+          value: "localhost"
+        - name: POD_FIELD_EXAMPLE
+          valueFrom:
+            fieldRef:
+              apiVersion: "extensions/v1beta1"
+              fieldPath: spec.restartPolicy
+        - name: CONTAINER_FIELD_EXAMPLE
+          valueFrom:
+            resourceFieldRef:
+              containerName: redis
+              resource: requests.memory
+        ports:
+        - containerPort: 5000
+          name: http
+          protocol: TCP
+      restartPolicy: Always
+    metadata:
+      labels:
+        name: web
+        component: web
+        app: demo
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  rollbackTo:
+    revision: 0
+  replicas: 2
+  revisionHistoryLimit: 2
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+  labels:
+    name: web
+    app: demo
+spec:
+  selector:
+    name: web
+  type: NodePort
+  ports:
+   - port: 80
+     name: http
+     targetPort: 5000
+     protocol: TCP
+

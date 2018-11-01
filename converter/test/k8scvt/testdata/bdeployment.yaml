@@ -1,0 +1,26 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: one
+spec:
+  selector:
+    matchLabels:
+      name: {{.Values.deploymentOne0Spec1Selector2MatchLabels3Name4}}
+      component: {{.Values.deploymentOne0Spec1Selector2MatchLabels3Component4}}
+  rollbackTo:
+    revision: {{int .Values.deploymentOne0Spec1RollbackTo2Revision3}}
+  template:
+    spec:
+      containers:
+      - name: {{.Values.deploymentOne0Spec1Template2Spec3Containers4_name_one_5Name6}}
+        image: {{.Values.deploymentOne0Spec1Template2Spec3Containers4_name_one_5Image6}}
+    metadata:
+      labels:
+        name: {{.Values.deploymentOne0Spec1Template2Metadata3Labels4Name5}}
+        component: {{.Values.deploymentOne0Spec1Template2Metadata3Labels4Component5}}
+  strategy:
+    type: {{.Values.deploymentOne0Spec1Strategy2Type3}}
+    rollingUpdate:
+      maxSurge: {{int .Values.deploymentOne0Spec1Strategy2RollingUpdate3MaxSurge4}}
+      maxUnavailable: {{int .Values.deploymentOne0Spec1Strategy2RollingUpdate3MaxUnavailable4}}
+  replicas: {{int .Values.deploymentOne0Spec1Replicas2}}

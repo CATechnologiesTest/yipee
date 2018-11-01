@@ -1,0 +1,76 @@
+<div class="container">
+
+  <form [formGroup]="form" class="form compact">
+    <label class="mb10 fw600 black" style="width: 5rem;">Ingress</label>
+    <!-- ingress name -->
+    <div style="padding-left: 4rem;" class="form-group">
+      <label style="width: 4rem;">
+        Name
+      </label>
+      <label class="table-input" [ngClass]="form.controls.name.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+        <input maxlength="253" class="table-input" placeholder="Required" formControlName="name" type="text">
+        <span class="tooltip-content">
+          <span *ngIf="this.form.controls.name.errors?.required == true">Name is Required
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.maxLength253 === true">Name must be 253 characters or less
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.lowercaseAlphaNumericDashPeriod === true">Name may only contain lowercase letters, numbers, dashes, and periods
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.startsWithDash === true">Name may not begin with a dash
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.endsWithDash === true">Name may not end with a dash
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.startsWithPeriod === true">Name may not begin with a period
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.endsWithPeriod === true">Name may not end with a period
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.duplicateNameValidator == true">Name must be unique, a service already exists with this name</span>
+        </span>
+      </label>
+    </div>
+    <!-- END ingress name -->
+
+    <!-- ingress description -->
+    <div style="padding-left: 4rem;" class="form-group">
+      <label style="width: 4rem;">Description</label>
+      <div class="textarea-wrapper">
+        <textarea type="textarea" formControlName="description" maxlength="256" width="100%"></textarea>
+      </div>
+    </div>
+    <!-- END ingress description -->
+
+  </form>
+
+  <!-- ingress backend -->
+  <k8s-ingress-backend [form]="form" [expandedByDefault]="true" [serviceOptions]="ingress.service_name_map" [ingress]="ingress">
+  </k8s-ingress-backend>
+  <!-- END ingress backend -->
+
+  <!-- ingress labels -->
+  <k8s-ingress-labels [form]="form" [expandedByDefault]="false" (addLabel)="addLabel()" (removeLabel)="removeLabel($event)">
+  </k8s-ingress-labels>
+  <!-- END ingress labels -->
+
+  <!-- ingress annotations -->
+  <k8s-ingress-annotations [form]="form" [expandedByDefault]="false" (addAnnotation)="addAnnotation()" (removeAnnotation)="removeAnnotation($event)">
+  </k8s-ingress-annotations>
+  <!-- END ingress annotations -->
+
+  <!-- ingress tls -->
+  <k8s-ingress-tls [form]="form" [expandedByDefault]="false" (addTLS)="addTLS()" (removeTLS)="removeTLS($event)" [serviceOptions]="ingress.service_name_map">
+  </k8s-ingress-tls>
+  <!-- END ingress tls -->
+
+  <!-- ingress rule -->
+  <k8s-ingress-rule [form]="form" [expandedByDefault]="false" (addRule)="addRule()" (removeRule)="removeRule($event)" (addPath)="addNewPath($event)" (removePath)="removePath($event)" [serviceOptions]="ingress.service_name_map" [ingress]="ingress">
+  </k8s-ingress-rule>
+  <!-- END ingress rule -->
+
+</div>

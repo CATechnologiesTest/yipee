@@ -1,0 +1,13 @@
+{
+    "app-info": {
+        "name": "SimpleService",
+        "description": "a (very) simple service"
+    },
+    "services": {
+        "simpleservice": {
+            "image": "mysimpleserviceimage",
+            "command": "sh -c 'echo $FOO'",
+            "restart": "always"
+        }
+    }
+}

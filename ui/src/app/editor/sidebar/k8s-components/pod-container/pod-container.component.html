@@ -1,0 +1,148 @@
+<div class="container">
+  <form [formGroup]="form" class="form compact">
+    <div style="padding-left: 5rem;" class="form-group">
+      <label class="mb10 fw600" style="width: 5rem;">{{ pod.controller_type }}</label>
+      <div *ngIf="externalErrors.length === 0 && this.form.invalid === true">
+        <clr-icon shape="exclamation-circle" class="is-error" size="24"></clr-icon>
+      </div>
+      <div *ngIf="externalErrors.length > 0">
+        <span role="tooltip" aria-haspopup="true" class="tooltip tooltip-md tooltip-bottom-right">
+          <clr-icon shape="exclamation-circle" class="is-error" size="24"></clr-icon>
+          <span class="tooltip-content">
+            <span *ngFor="let error of externalErrors">
+              {{error}}
+            </span>
+          </span>
+        </span>
+      </div>
+      <div *ngIf="externalErrors.length === 0">
+        <span>&nbsp;</span>
+      </div>
+    </div>
+    <!-- pod name -->
+    <div style="padding-left: 5rem;" class="form-group">
+      <label style="width: 5rem;">Name</label>
+      <label class="table-input" [ngClass]="form.controls.name.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+        <input maxlength="253" class="table-input" placeholder="Required" formControlName="name" type="text">
+        <span class="tooltip-content">
+          <span *ngIf="this.form.controls.name.errors?.required == true">Name is Required
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.maxLength253 === true">Name must be 253 characters or less
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.lowercaseAlphaNumericDashPeriod === true">Name may only contain lowercase letters, numbers, dashes, and periods
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.startsWithDash === true">Name may not begin with a dash
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.endsWithDash === true">Name may not end with a dash
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.startsWithPeriod === true">Name may not begin with a period
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.endsWithPeriod === true">Name may not end with a period
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.duplicateNameValidator == true">Name must be unique, a controller already exists with this name</span>
+        </span>
+      </label>
+    </div>
+    <!-- END pod name -->
+
+    <!-- pod description -->
+    <div style="padding-left: 5rem;" class="form-group">
+      <label style="width: 5rem;">
+        Description
+      </label>
+      <div class="textarea-wrapper">
+        <textarea type="textarea" formControlName="description" maxlength="256" width="100%"></textarea>
+      </div>
+    </div>
+    <!-- END pod descirption -->
+
+    <!-- pod replicas -->
+    <div style="padding-left: 5rem;" class="form-group" *ngIf="pod.controller_type !== 'CronJob' && pod.controller_type !== 'DaemonSet'">
+      <label id="k8s-controller-replicas-label" style="width: 5rem;">
+        Replicas
+      </label>
+      <label class="table-input" [ngClass]="form.controls.replicas.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+        <input placeholder="Required" maxlength="128" type="number" formControlName="replicas">
+        <span class="tooltip-content">
+          <span *ngIf="this.form.controls.replicas.errors?.required == true">Value is required
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.replicas.errors?.numericOneOrGreater == true">Value must be 1 or greater
+            <br/>
+          </span>
+        </span>
+      </label>
+    </div>
+    <!-- END pod replicas -->
+
+    <!-- service account name -->
+    <div style="padding-left: 7rem;" class="form-group">
+        <label id="k8s-service-account-name-label" style="width: 7rem;">
+          Service Account Name
+        </label>
+        <label class="table-input" [ngClass]="form.controls.service_account_name.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+          <input placeholder="Optional" maxlength="128" type="text" formControlName="service_account_name">
+          <span class="tooltip-content">
+            <span *ngIf="this.form.controls.service_account_name.errors?.lowercaseAlphaNumericDashPeriod == true">Service Account Name may only contain lowercase letters, numbers, dashes, and periods
+              <br/>
+            </span>
+          </span>
+        </label>
+      </div>
+      <!-- END service account name -->
+
+    <!-- form portion for statefulSet controller_typed pods -->
+    <k8s-stateful-set *ngIf="pod.controller_type === 'StatefulSet'" [form]="form" [serviceNameOptions]="service_name_options">
+    </k8s-stateful-set>
+
+    <!-- form portion for deployment controller_typed pods -->
+    <k8s-deployment *ngIf="pod.controller_type === 'Deployment'" [form]="form">
+    </k8s-deployment>
+
+    <!-- form portion for cron job controller_typed pods -->
+    <k8s-cron-job *ngIf="pod.controller_type === 'CronJob'" [form]="form">
+    </k8s-cron-job>
+
+    <!-- form portion for cron job controller_typed pods -->
+    <k8s-daemon-set *ngIf="pod.controller_type === 'DaemonSet'" [form]="form">
+    </k8s-daemon-set>
+
+  </form>
+
+  <k8s-pod-labels *ngIf="pod.controller_type !== 'CronJob'" [form]="form" [expandedByDefault]="false" (addLabel)="addLabel()"
+    (removeLabel)="removeLabel($event)" (toggleBulkEdit)="showBulkLabelDialog = !showBulkLabelDialog">
+  </k8s-pod-labels>
+
+  <k8s-pod-top-labels *ngIf="pod.controller_type !== 'CronJob'" [form]="form" [expandedByDefault]="false" (addTopLabel)="addTopLabel()"
+    (removeTopLabel)="removeTopLabel($event)" (toggleBulkEdit)="showBulkTopLabelDialog = !showBulkTopLabelDialog">
+  </k8s-pod-top-labels>
+
+  <k8s-pod-extra-hosts *ngIf="pod.controller_type !== 'CronJob'" [form]="form" [expandedByDefault]="false" (addExtraHost)="addExtraHost()"
+    (removeExtraHost)="removeExtraHost($event)">
+  </k8s-pod-extra-hosts>
+
+  <k8s-pod-image-pull-secrets [form]="form" [expandedByDefault]="false" (addImagePullSecret)="addImagePullSecret()"
+    (removeImagePullSecret)="removeImagePullSecret($event)">
+  </k8s-pod-image-pull-secrets>
+
+  <app-bulk-name-value-edit *ngIf="pod.controller_type !== 'CronJob'" [show]="showBulkLabelDialog" [title]="'Bulk Edit Labels'"
+    [subtitle]="'Edit the existing list of labels for this pod.'" [body]="'Labels should be name value pairs separated by = with each entry on a separate line.'"
+    (onCancel)="showBulkLabelDialog = !showBulkLabelDialog" (onReplace)="handleBulkLabelReplace($event)" (onAppend)="handleBulkLabelAppend($event)">
+  </app-bulk-name-value-edit>
+
+  <app-bulk-name-value-edit *ngIf="pod.controller_type !== 'CronJob'" [show]="showBulkTopLabelDialog" [title]="'Bulk Edit Container Labels'"
+    [subtitle]="'Edit the existing list of container labels for this pod.'" [body]="'Container Labels should be name value pairs separated by = with each entry on a separate line.'"
+    (onCancel)="showBulkTopLabelDialog = !showBulkTopLabelDialog" (onReplace)="handleBulkTopLabelReplace($event)" (onAppend)="handleBulkTopLabelAppend($event)">
+  </app-bulk-name-value-edit>
+
+  <k8s-init-containers *ngIf="pod.controller_type !== 'CronJob'" [containerGroup]="pod" [expandedByDefault]="false" (changeInitOrder)="handleInitReorder($event)">
+  </k8s-init-containers>
+
+</div>

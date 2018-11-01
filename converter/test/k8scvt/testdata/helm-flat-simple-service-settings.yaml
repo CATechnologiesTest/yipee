@@ -1,0 +1,184 @@
+Chart.yaml:
+
+name: null
+version: 0.0.1
+
+---
+values.yaml:
+
+serviceMysql0Spec1Ports2_name_mysql_3Port4: "3306"
+serviceMysql0Spec1Ports2_name_mysql_3TargetPort4: "3306"
+serviceMysql0Spec1Ports2_name_mysql_3Name4: "mysql"
+serviceMysql0Spec1Ports2_name_mysql_3Protocol4: "TCP"
+serviceWeb0Spec1Ports2_name_http_3Port4: "80"
+serviceWeb0Spec1Ports2_name_http_3TargetPort4: "5000"
+serviceWeb0Spec1Ports2_name_http_3Name4: "http"
+serviceWeb0Spec1Ports2_name_http_3Protocol4: "TCP"
+deploymentMysql0Spec1Template2Spec3Containers4_name_mysql_5Ports6_name_mysql_7ContainerPort8: "3306"
+deploymentMysql0Spec1Template2Spec3Containers4_name_mysql_5Ports6_name_mysql_7Protocol8: "TCP"
+deploymentMysql0Spec1Template2Spec3Containers4_name_mysql_5Ports6_name_mysql_7Name8: "mysql"
+deploymentMysql0Spec1Template2Spec3Containers4_name_mysql_5Env6_name_MYSQL_ROOT_PASSWORD_7Name8: "MYSQL_ROOT_PASSWORD"
+deploymentMysql0Spec1Template2Spec3Containers4_name_mysql_5Env6_name_MYSQL_ROOT_PASSWORD_7Value8: "password"
+deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Ports6_name_http_7ContainerPort8: "5000"
+deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Ports6_name_http_7Protocol8: "TCP"
+deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Ports6_name_http_7Name8: "http"
+deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Env6_name_CONTAINER_FIELD_EXAMPLE_7Name8: "CONTAINER_FIELD_EXAMPLE"
+deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Env6_name_CONTAINER_FIELD_EXAMPLE_7ValueFrom8ResourceFieldRef9ContainerName10: "redis"
+deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Env6_name_CONTAINER_FIELD_EXAMPLE_7ValueFrom8ResourceFieldRef9Resource10: "requests.memory"
+deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Env6_name_POD_FIELD_EXAMPLE_7Name8: "POD_FIELD_EXAMPLE"
+deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Env6_name_POD_FIELD_EXAMPLE_7ValueFrom8FieldRef9ApiVersion10: "extensions/v1beta1"
+deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Env6_name_POD_FIELD_EXAMPLE_7ValueFrom8FieldRef9FieldPath10: "spec.restartPolicy"
+deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Env6_name_REDIS_HOST_7Name8: "REDIS_HOST"
+deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Env6_name_REDIS_HOST_7Value8: "localhost"
+deploymentWeb0Spec1Template2Spec3Containers4_name_redis_5Ports6_name_redis_7ContainerPort8: "6379"
+deploymentWeb0Spec1Template2Spec3Containers4_name_redis_5Ports6_name_redis_7Protocol8: "TCP"
+deploymentWeb0Spec1Template2Spec3Containers4_name_redis_5Ports6_name_redis_7Name8: "redis"
+
+---
+templates/ServiceMysql.yaml:
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  labels:
+    name: mysql
+    app: demo
+spec:
+  selector:
+    name: mysql
+    app: demo
+  ports:
+  - port: {{int .Values.serviceMysql0Spec1Ports2_name_mysql_3Port4}}
+    targetPort: {{int .Values.serviceMysql0Spec1Ports2_name_mysql_3TargetPort4}}
+    name: {{.Values.serviceMysql0Spec1Ports2_name_mysql_3Name4}}
+    protocol: {{.Values.serviceMysql0Spec1Ports2_name_mysql_3Protocol4}}
+  type: ClusterIP
+
+---
+templates/ServiceWeb.yaml:
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+  labels:
+    name: web
+    app: demo
+spec:
+  selector:
+    name: web
+  ports:
+  - port: {{int .Values.serviceWeb0Spec1Ports2_name_http_3Port4}}
+    targetPort: {{int .Values.serviceWeb0Spec1Ports2_name_http_3TargetPort4}}
+    name: {{.Values.serviceWeb0Spec1Ports2_name_http_3Name4}}
+    protocol: {{.Values.serviceWeb0Spec1Ports2_name_http_3Protocol4}}
+  type: NodePort
+
+---
+templates/DeploymentMysql.yaml:
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mysql
+  labels:
+    app: demo
+    name: mysql
+spec:
+  selector:
+    matchLabels:
+      name: mysql
+      component: mysql
+      app: demo
+  rollbackTo:
+    revision: 0
+  template:
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:latest
+        ports:
+        - containerPort: {{int .Values.deploymentMysql0Spec1Template2Spec3Containers4_name_mysql_5Ports6_name_mysql_7ContainerPort8}}
+          protocol: {{.Values.deploymentMysql0Spec1Template2Spec3Containers4_name_mysql_5Ports6_name_mysql_7Protocol8}}
+          name: {{.Values.deploymentMysql0Spec1Template2Spec3Containers4_name_mysql_5Ports6_name_mysql_7Name8}}
+        env:
+        - name: {{.Values.deploymentMysql0Spec1Template2Spec3Containers4_name_mysql_5Env6_name_MYSQL_ROOT_PASSWORD_7Name8}}
+          value: {{.Values.deploymentMysql0Spec1Template2Spec3Containers4_name_mysql_5Env6_name_MYSQL_ROOT_PASSWORD_7Value8}}
+      restartPolicy: Always
+    metadata:
+      labels:
+        name: mysql
+        component: mysql
+        app: demo
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 1
+  replicas: 1
+  revisionHistoryLimit: 2
+
+---
+templates/DeploymentWeb.yaml:
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: web
+  labels:
+    app: demo
+    name: web
+spec:
+  selector:
+    matchLabels:
+      name: web
+      component: web
+      app: demo
+  rollbackTo:
+    revision: 0
+  template:
+    spec:
+      containers:
+      - name: python
+        image: janakiramm/py-red
+        ports:
+        - containerPort: {{int .Values.deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Ports6_name_http_7ContainerPort8}}
+          protocol: {{.Values.deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Ports6_name_http_7Protocol8}}
+          name: {{.Values.deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Ports6_name_http_7Name8}}
+        env:
+        - name: {{.Values.deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Env6_name_CONTAINER_FIELD_EXAMPLE_7Name8}}
+          valueFrom:
+            resourceFieldRef:
+              containerName: {{.Values.deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Env6_name_CONTAINER_FIELD_EXAMPLE_7ValueFrom8ResourceFieldRef9ContainerName10}}
+              resource: {{.Values.deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Env6_name_CONTAINER_FIELD_EXAMPLE_7ValueFrom8ResourceFieldRef9Resource10}}
+        - name: {{.Values.deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Env6_name_POD_FIELD_EXAMPLE_7Name8}}
+          valueFrom:
+            fieldRef:
+              apiVersion: {{.Values.deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Env6_name_POD_FIELD_EXAMPLE_7ValueFrom8FieldRef9ApiVersion10}}
+              fieldPath: {{.Values.deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Env6_name_POD_FIELD_EXAMPLE_7ValueFrom8FieldRef9FieldPath10}}
+        - name: {{.Values.deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Env6_name_REDIS_HOST_7Name8}}
+          value: {{.Values.deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Env6_name_REDIS_HOST_7Value8}}
+      - name: redis
+        image: redis
+        ports:
+        - containerPort: {{int .Values.deploymentWeb0Spec1Template2Spec3Containers4_name_redis_5Ports6_name_redis_7ContainerPort8}}
+          protocol: {{.Values.deploymentWeb0Spec1Template2Spec3Containers4_name_redis_5Ports6_name_redis_7Protocol8}}
+          name: {{.Values.deploymentWeb0Spec1Template2Spec3Containers4_name_redis_5Ports6_name_redis_7Name8}}
+        resources:
+          requests:
+            memory: 32Mi
+            cpu: 125m
+      restartPolicy: Always
+    metadata:
+      labels:
+        name: web
+        component: web
+        app: demo
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  replicas: 2
+  revisionHistoryLimit: 2

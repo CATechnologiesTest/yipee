@@ -1,0 +1,183 @@
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: simpleservice
+  annotations:
+    first: a daemonset annotation
+    ds2: more daemonset
+    yipee.io.lastModelUpdate: 'bogus non date'
+    yipee.io.modelId: 'non-guid modelid'
+    yipee.io.modelURL: https://app.yipee.io/catalog
+spec:
+  revisionHistoryLimit: 2
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      name: SimpleService
+      component: simpleservice
+  template:
+    metadata:
+      labels:
+        name: SimpleService
+        component: simpleservice
+      annotations:
+        tag: ds template anno
+        tag2: just a string
+    spec:
+      containers:
+      - image: mysimpleserviceimage
+        name: simpleservice
+      restartPolicy: Always
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: simpleservice2
+  annotations:
+    atag: deployment annotation
+spec:
+  replicas: 3
+  revisionHistoryLimit: 2
+  rollbackTo:
+    revision: 0
+  selector:
+    matchLabels:
+      name: SimpleService
+      component: simpleservice2
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name: SimpleService
+        component: simpleservice2
+      annotations:
+        tag: deployment template
+        stringtag: simple deployment
+    spec:
+      containers:
+      - image: mysimpleserviceimage
+        name: simpleservice2
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo
+  labels:
+    name: mongo
+    app: mongo
+  annotations:
+    tag1: service anno
+    tag2: more service
+    yipee.io.lastModelUpdate: 'bogus non date'
+    yipee.io.modelId: 'non-guid modelid'
+    yipee.io.modelURL: https://app.yipee.io/catalog
+spec:
+  ports:
+  - port: 27017
+    name: web
+  selector:
+    name: mongo
+    app: mongo
+  type: NodePort
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo2
+  labels:
+    name: mongo
+    app: mongo
+  annotations:
+    tag: second service
+    tag2: "10"
+    tag3: "true"
+spec:
+  ports:
+  - port: 27017
+    name: web
+  selector:
+    name: mongo
+    app: mongo
+  type: NodePort
+
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: mongo
+  annotations:
+    anno1: statefulset anno
+    anno2: ss top-level string anno
+    yipee.io.lastModelUpdate: 'bogus non date'
+    yipee.io.modelId: 'non-guid modelid'
+    yipee.io.modelURL: https://app.yipee.io/catalog
+spec:
+  serviceName: "mongo"
+  updateStrategy:
+    type: OnDelete
+  podManagementPolicy: Parallel
+  replicas: 3
+  selector:
+    matchLabels:
+      name: mongo
+      app: mongo
+  template:
+    metadata:
+      labels:
+        name: mongo
+        app: mongo
+      annotations:
+        anno1: mongo statefulset template anno1
+        anno2: more ss template stuff
+    spec:
+      imagePullSecrets:
+        - name: itsasecret
+      terminationGracePeriodSeconds: 8
+      containers:
+      - name: mongodb
+        image: mongo:3.4.1
+        command:
+        - mongod
+        - --replSet
+        - rs0
+        ports:
+        - containerPort: 27017
+          name: web
+      # This container initializes the mongodb, then sleeps.
+      - name: init-mongo
+        image: mongo:3.4.1
+        command:
+        - bash
+        - /config/init.sh
+        volumeMounts:
+        - name: config
+          mountPath: /config
+          readOnly: true
+        - name: myvc
+          readOnly: true
+          mountPath: /stuff
+      volumes:
+      - name: config
+        configMap:
+          name: "mongo-init"
+  volumeClaimTemplates:
+    - metadata:
+        name: myvc
+      spec:
+        volumeMode: Block
+        accessModes:
+          - ReadWriteMany
+          - ReadOnlyMany
+        resources:
+          requests:
+            storage: 1Gi

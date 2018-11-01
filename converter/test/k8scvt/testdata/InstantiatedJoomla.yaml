@@ -1,0 +1,74 @@
+---
+# Source: joomla2/templates/DeploymentJoomla.yaml
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: joomla
+  uid: 10d4ebd2-5919-11e8-a3f9-db2dd23490ae
+  annotations:
+    yipeeIoLastModelUpdate: 2018-09-21T20:23:31.847Z
+    yipeeIoModelId: 10d4ebd2-5919-11e8-a3f9-db2dd23490ad
+    yipeeIoContextId: 6e0a6206-1558-11e7-a0fe-e7a448f880d1
+    yipeeIoModelURL: https://app.yipee.io/editor/10d4ebd2-5919-11e8-a3f9-db2dd23490ad/6e0a6206-1558-11e7-a0fe-e7a448f880d1
+spec:
+  selector:
+    matchLabels:
+      name: joomla-kubernetes
+      component: joomla
+  rollbackTo:
+    revision: 0
+  template:
+    spec:
+      imagePullSecrets: []
+      containers:
+      - volumeMounts:
+        - mountPath: /bitnami/apache
+          name: apache-data
+        - mountPath: /bitnami/joomla
+          name: joomla-data
+        - mountPath: /bitnami/php
+          name: php-data
+        name: joomla
+        env:
+        - name: JOOMLA_EMAIL
+          value: user@example.com
+        - name: JOOMLA_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              key: JOOM_PASSWORD
+              name: joomlaconfig
+        - name: JOOMLA_USERNAME
+          value: root
+        - name: MARIADB_HOST
+          value: mariadb2
+        - name: MARIADB_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              key: MARIA_PASSWORD
+              name: joomlaconfig
+        - name: MARIADB_PORT
+          value: 4306
+        ports: [{"containerPort":443,"protocol":"TCP"},{"containerPort":1776,"protocol":"TCP"},{"containerPort":80,"protocol":"TCP"}]
+        image: bitnami/joomla:latest
+      volumes:
+      - name: php-data
+        persistentVolumeClaim:
+          claimName: php-data-claim
+      - name: apache-data
+        persistentVolumeClaim:
+          claimName: apache-data-claim
+      - name: joomla-data
+        persistentVolumeClaim:
+          claimName: joomla-data-claim
+      restartPolicy: Always
+    metadata:
+      labels:
+        name: joomla-kubernetes
+        component: joomla
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  replicas: 1
+  revisionHistoryLimit: 2

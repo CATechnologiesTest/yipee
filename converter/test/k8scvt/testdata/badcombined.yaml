@@ -1,0 +1,15 @@
+%a=b
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mysql-data
+spec:
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: 300Mi
+  hostPath:
+    path: /var/yipee/volumes/mysql-data
+---
+%x=y

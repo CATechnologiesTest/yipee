@@ -1,0 +1,44 @@
+<clr-modal #newServiceModal [(clrModalOpen)]="show" [clrModalClosable]="false">
+  <h3 class="modal-title align-left">New Container</h3>
+  <div class="modal-body align-left">
+    <form class="form compact" [formGroup]="form">
+      <div class="form-group">
+        <label>Name</label>
+        <label aria-haspopup="true" role="tooltip" [ngClass]="(errors.nameTooltipErrors.length > 0) ? 'tooltip tooltip-validation tooltip-bottom-left invalid width-inherit' : 'tooltip tooltip-validation tooltip-top-left width-inherit'">
+          <input id="k8s-new-container-name-input" maxlength="253" type="text" formControlName="name" (input)="checkFormValidity()" autofocus>
+          <span class="tooltip-content">
+            <div *ngFor="let error of errors.nameTooltipErrors; let i = index">
+              {{error}}.
+            </div>
+          </span>
+        </label>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <label aria-haspopup="true" role="tooltip" [ngClass]="(errors.descriptionTooltipErrors.length > 0) ? 'tooltip tooltip-validation tooltip-bottom-left invalid width-inherit' : 'tooltip tooltip-validation tooltip-top-left width-inherit'">
+          <input id="k8s-new-container-description-input" type="text" formControlName="description" (input)="checkFormValidity()" size="36">
+          <span class="tooltip-content">
+            <div *ngFor="let error of errors.descriptionTooltipErrors; let i = index">
+              {{error}}.
+            </div>
+          </span>
+        </label>
+      </div>
+      <div class="form-group">
+        <label>Image</label>
+        <label aria-haspopup="true" role="tooltip" [ngClass]="(errors.imageTooltipErrors.length > 0) ? 'tooltip tooltip-validation tooltip-top-left invalid width-inherit' : 'tooltip tooltip-validation tooltip-top-left width-inherit'">
+          <input id="k8s-new-container-image-input" type="text" formControlName="image" (input)="checkFormValidity()" size="36" placeholder="repository:port/org/image:tag">
+          <span class="tooltip-content">
+            <div *ngFor="let error of errors.imageTooltipErrors; let i = index">
+              {{error}}.
+            </div>
+          </span>
+        </label>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="cancel()">Cancel</button>
+    <button type="button" class="btn btn-primary" (click)="create()" [disabled]="!form.valid">Create</button>
+  </div>
+</clr-modal>

@@ -1,0 +1,47 @@
+<div class="row">
+  <div class="col-sm-12">
+    <h6 [ngSwitch]="isComponentExpanded">
+      <span id="k8s-controller-hostaliases-dropdown" class="pointer mb5" (click)="isComponentExpanded = !isComponentExpanded">
+        <clr-icon *ngSwitchCase="false" shape="caret right"></clr-icon>
+        <clr-icon *ngSwitchCase="true" shape="caret down"></clr-icon>
+        Host Aliases
+        <clr-icon *ngIf="form.controls.extra_hosts.invalid" shape="exclamation-circle" class="icon-danger small-icon"></clr-icon>
+      </span>
+    </h6>
+  </div>
+</div>
+<div class="row" [hidden]="!isComponentExpanded">
+  <div [formGroup]="form" class="pt10">
+    <div class="col-xs-11 offset-xs-1">
+      <table class="table table-noborder mv0">
+        <thead>
+          <tr>
+            <th style="text-align: left; width: 100%;">
+              <button style="border: none;">Host</button>
+            </th>
+            <th>
+              <clr-icon shape="plus-circle" class="is-highlight" (click)="handleAddExtraHost()"></clr-icon>
+            </th>
+          </tr>
+        </thead>
+        <tbody formArrayName="extra_hosts">
+          <tr *ngFor="let extraHost of extra_hosts; let i = index">
+            <td>
+              <label class="table-input" [ngClass]="extra_hosts[i].invalid ? 'tooltip tooltip-validation tooltip-top-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+                <input class="table-input" maxlength="128" type="text" formControlName="{{i}}">
+                <span class="tooltip-content">
+                  <span *ngIf="extra_hosts[i].errors?.required == true">Host is required
+                    <br/>
+                  </span>
+                </span>
+              </label>
+            </td>
+            <td>
+              <clr-icon shape="minus-circle" class="is-highlight" (click)="handleRemoveExtraHost(i)"></clr-icon>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

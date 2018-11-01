@@ -1,0 +1,23 @@
+{
+    "app-info": {
+        "name": "SimpleService",
+        "description": "a (very) simple service"
+    },
+    "services": {
+        "simpleservice": {
+            "image": "mysimpleserviceimage",
+            "restart": "always",
+            "deploy": {
+                "mode": "allnodes"
+            }
+        },
+        "simpleservice2": {
+            "image": "mysimpleserviceimage",
+            "restart": "always",
+            "deploy": {
+                "mode": "replicated",
+                "count": 3
+            }
+        }
+    }
+}

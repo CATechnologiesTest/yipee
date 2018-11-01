@@ -1,0 +1,443 @@
+<div class="row">
+  <div class="col-sm-12">
+    <h6 [ngSwitch]="isComponentExpanded">
+      <span id="k8s-container-envvars-dropdown" class="pointer mb5" (click)="isComponentExpanded = !isComponentExpanded">
+        <clr-icon *ngSwitchCase="false" shape="caret right"></clr-icon>
+        <clr-icon *ngSwitchCase="true" shape="caret down"></clr-icon>
+        Environment Variables
+        <clr-icon *ngIf="form.controls.environment_var.invalid || form.controls.config_map_ref.invalid || form.controls.env_secret_ref.invalid || form.controls.env_field_ref.invalid || form.controls.env_resource_field_ref.invalid" shape="exclamation-circle" class="icon-danger small-icon"></clr-icon>
+      </span>
+      <button [hidden]="!isComponentExpanded" class="btn btn-sm" style="float:right;" (click)="handleOpenBulkEdit()">Bulk Edit</button>
+    </h6>
+  </div>
+</div>
+<div class="row" [hidden]="!isComponentExpanded">
+  <div [formGroup]="form" class="pt10">
+
+    <!-- environment variables table -->
+    <div class="col-xs-11 offset-xs-1">
+      <table class="table table-noborder mv0">
+        <thead>
+          <tr>
+            <th style="text-align: left; width: 50%;">
+              <button style="border: none;" (click)="handleToggleSortKey()">Name</button>
+              <clr-icon *ngIf="isKeySortedAscending === undefined || !isKeySortedAscending" shape="arrow" size="12"></clr-icon>
+              <clr-icon *ngIf="isKeySortedAscending === undefined || isKeySortedAscending" shape="arrow" size="12" flip="vertical"></clr-icon>
+            </th>
+            <th style="text-align: left; width: 50%;">
+              <button style="border: none;" (click)="handleToggleSortValue()">Value</button>
+              <clr-icon *ngIf="isValueSortedAscending === undefined || !isValueSortedAscending" shape="arrow" size="12"></clr-icon>
+              <clr-icon *ngIf="isValueSortedAscending === undefined || isValueSortedAscending" shape="arrow" size="12" flip="vertical"></clr-icon>
+            </th>
+            <th>
+              <clr-icon shape="plus-circle" class="is-highlight" (click)="handleAddEnvironmentVar()"></clr-icon>
+            </th>
+          </tr>
+        </thead>
+        <tbody formArrayName="environment_var">
+          <tr *ngFor="let environmentVar of environment_var; let i = index" [formGroupName]="i">
+            <td>
+              <label class="table-input" [ngClass]="environment_var[i].controls.key.invalid ? 'tooltip tooltip-validation tooltip-bottom-right invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+                <input placeholder="Required" class="table-input" type="text" formControlName="key">
+                <span class="tooltip-content">
+                  <span *ngIf="environment_var[i].controls.key.errors?.required === true">Name is required
+                    <br/>
+                  </span>
+                  <span *ngIf="environment_var[i].controls.key.errors?.alphaNumericUnderscorePeriodColon === true">Name may only contain letters, numbers, underscores, periods, and colons
+                    <br/>
+                  </span>
+                  <span *ngIf="environment_var[i].controls.key.errors?.duplicateK8sEnvVarNameValidator === true">Name must be unique, an environment variable, config map ref., secret ref., field ref., or resource field ref. already exists with this name
+                    <br/>
+                  </span>
+                </span>
+              </label>
+            </td>
+            <td>
+              <label class="table-input" [ngClass]="environment_var[i].controls.value.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+                <input class="table-input" type="text" formControlName="value">
+                <span class="tooltip-content">
+                  <span *ngIf="environment_var[i].controls.value.errors?.containsMoneySymbol === true">Value should not contain $ (kubernetes does not support $ environment variable values)
+                    <br/>
+                  </span>
+                </span>
+              </label>
+            </td>
+            <td>
+              <clr-icon shape="minus-circle" class="is-highlight" (click)="handleRemoveEnvironmentVar(i)"></clr-icon>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- ENd environment variables table -->
+
+    <!-- config map refs table -->
+    <div class="col-xs-11 offset-xs-1">
+      <h6>
+        <span id="k8s-container-livenessprobe-probecommand-label">
+          ConfigMap References
+        </span>
+      </h6>
+      <table class="table table-noborder mv0">
+        <thead>
+          <tr>
+            <th class="ta-l" style="width: 30%;">
+              Name
+            </th>
+            <th class="ta-l" style="width: 30%;">
+              Config Map
+            </th>
+            <th class="ta-l" style="width: 30%;">
+              Key
+            </th>
+            <th class="ta-r" style="width: 10%;">
+              <clr-icon shape="plus-circle" class="is-highlight" (click)="handleAddConfigMapRef()"></clr-icon>
+            </th>
+          </tr>
+        </thead>
+        <tbody formArrayName="config_map_ref">
+          <tr *ngFor="let configMapRef of config_map_ref; let i = index" [formGroupName]="i">
+            <td>
+              <label class="table-input" [ngClass]="config_map_ref[i].controls.key.invalid ? 'tooltip tooltip-validation tooltip-bottom-right invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+                <input placeholder="Required" class="table-input" type="text" formControlName="key">
+                <span class="tooltip-content">
+                  <span *ngIf="config_map_ref[i].controls.key.errors?.required === true">Name is required
+                    <br/>
+                  </span>
+                  <span *ngIf="config_map_ref[i].controls.key.errors?.alphaNumericUnderscorePeriodColon === true">Name may only contain letters, numbers, underscores, periods, and colons
+                    <br/>
+                  </span>
+                  <span *ngIf="config_map_ref[i].controls.key.errors?.duplicateK8sEnvVarNameValidator === true">Name must be unique, an environment variable, config map ref., secret ref., field ref., or resource field ref. already exists with this name
+                    <br/>
+                  </span>
+                </span>
+              </label>
+            </td>
+            <td>
+              <label class="table-input" [ngClass]="config_map_ref[i].controls.config_name.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+                <input maxlength="253" class="table-input" placeholder="Required" type="text" formControlName="config_name">
+                <span class="tooltip-content">
+                  <span *ngIf="config_map_ref[i].controls.config_name.errors?.required == true">Config map ref name is Required
+                    <br/>
+                  </span>
+                  <span *ngIf="config_map_ref[i].controls.config_name.errors?.maxLength253 === true">Config map ref name must be 253 characters or less
+                    <br/>
+                  </span>
+                  <span *ngIf="config_map_ref[i].controls.config_name.errors?.lowercaseAlphaNumericDashPeriod === true">Config map ref name may only contain lowercase letters, numbers, dashes, and periods
+                    <br/>
+                  </span>
+                  <span *ngIf="config_map_ref[i].controls.config_name.errors?.startsWithDash === true">Config map ref name may not begin with a dash
+                    <br/>
+                  </span>
+                  <span *ngIf="config_map_ref[i].controls.config_name.errors?.endsWithDash === true">Config map ref name may not end with a dash
+                    <br/>
+                  </span>
+                  <span *ngIf="config_map_ref[i].controls.config_name.errors?.startsWithPeriod === true">Config map ref name may not begin with a period
+                    <br/>
+                  </span>
+                  <span *ngIf="config_map_ref[i].controls.config_name.errors?.endsWithPeriod === true">Config map ref name may not end with a period
+                    <br/>
+                  </span>
+                  <span *ngIf="config_map_ref[i].controls.config_name.errors?.duplicateNameValidator == true">Config map ref name must be unique, a container already exists with this name.</span>
+                </span>
+              </label>
+            </td>
+            <td>
+              <label class="table-input" [ngClass]="config_map_ref[i].controls.config_key.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+                <input placeholder="Required" class="table-input" type="text" formControlName="config_key">
+                <span class="tooltip-content">
+                  <span *ngIf="config_map_ref[i].controls.config_key.errors?.required === true">Config map ref key is required
+                    <br/>
+                  </span>
+                  <span *ngIf="config_map_ref[i].controls.config_key.errors?.alphaNumericUnderscorePeriodColon === true">Config map ref key may only contain letters, numbers, underscores, periods, and colons
+                    <br/>
+                  </span>
+                </span>
+              </label>
+            </td>
+            <td class="ta-r">
+              <clr-icon shape="minus-circle" class="is-highlight" (click)="handleRemoveConfigMapRef(i)"></clr-icon>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- END config map refs table -->
+
+    <!-- secret refs table -->
+    <div class="col-xs-11 offset-xs-1">
+      <h6>
+        <span id="k8s-container-livenessprobe-probecommand-label">
+          Secret References
+        </span>
+      </h6>
+      <table class="table table-noborder mv0">
+        <thead>
+          <tr>
+            <th class="ta-l" style="width: 30%;">
+              Name
+            </th>
+            <th class="ta-l" style="width: 30%;">
+              Secret
+            </th>
+            <th class="ta-l" style="width: 30%;">
+              Key
+            </th>
+            <th class="ta-r" style="width: 10%;">
+              <clr-icon shape="plus-circle" class="is-highlight" (click)="handleAddEnvSecretRef()"></clr-icon>
+            </th>
+          </tr>
+        </thead>
+        <tbody formArrayName="env_secret_ref">
+          <tr *ngFor="let envSecretRef of env_secret_ref; let i = index" [formGroupName]="i">
+            <td>
+              <label class="table-input" [ngClass]="env_secret_ref[i].controls.key.invalid ? 'tooltip tooltip-validation tooltip-bottom-right invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+                <input placeholder="Required" class="table-input" type="text" formControlName="key">
+                <span class="tooltip-content">
+                  <span *ngIf="env_secret_ref[i].controls.key.errors?.required === true">Name is required
+                    <br/>
+                  </span>
+                  <span *ngIf="env_secret_ref[i].controls.key.errors?.alphaNumericUnderscorePeriodColon === true">Name may only contain letters, numbers, underscores, periods, and colons
+                    <br/>
+                  </span>
+                  <span *ngIf="env_secret_ref[i].controls.key.errors?.duplicateK8sEnvVarNameValidator === true">Name must be unique, an environment variable, config map ref., secret ref., field ref., or resource field ref. already exists with this name
+                    <br/>
+                  </span>
+                </span>
+              </label>
+            </td>
+            <td>
+              <label class="table-input" [ngClass]="env_secret_ref[i].controls.secret_name.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+                <input maxlength="253" class="table-input" placeholder="Required" type="text" formControlName="secret_name">
+                <span class="tooltip-content">
+                  <span *ngIf="env_secret_ref[i].controls.secret_name.errors?.required == true">Secret ref name is Required
+                    <br/>
+                  </span>
+                  <span *ngIf="env_secret_ref[i].controls.secret_name.errors?.maxLength253 === true">Secret ref name must be 253 characters or less
+                    <br/>
+                  </span>
+                  <span *ngIf="env_secret_ref[i].controls.secret_name.errors?.lowercaseAlphaNumericDashPeriod === true">Secret ref name may only contain lowercase letters, numbers, dashes, and periods
+                    <br/>
+                  </span>
+                  <span *ngIf="env_secret_ref[i].controls.secret_name.errors?.startsWithDash === true">Secret ref name may not begin with a dash
+                    <br/>
+                  </span>
+                  <span *ngIf="env_secret_ref[i].controls.secret_name.errors?.endsWithDash === true">Secret ref name may not end with a dash
+                    <br/>
+                  </span>
+                  <span *ngIf="env_secret_ref[i].controls.secret_name.errors?.startsWithPeriod === true">Secret ref name may not begin with a period
+                    <br/>
+                  </span>
+                  <span *ngIf="env_secret_ref[i].controls.secret_name.errors?.endsWithPeriod === true">Secret ref name may not end with a period
+                    <br/>
+                  </span>
+                </span>
+              </label>
+            </td>
+            <td>
+              <label class="table-input" [ngClass]="env_secret_ref[i].controls.secret_key.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+                <input placeholder="Required" class="table-input" type="text" formControlName="secret_key">
+                <span class="tooltip-content">
+                  <span *ngIf="env_secret_ref[i].controls.secret_key.errors?.required === true">Secret ref key is required
+                    <br/>
+                  </span>
+                  <span *ngIf="env_secret_ref[i].controls.secret_key.errors?.alphaNumericUnderscorePeriodColon === true">Secret ref key may only contain letters, numbers, underscores, periods, and colons;
+                    <br/>
+                  </span>
+                </span>
+              </label>
+            </td>
+            <td class="ta-r">
+              <clr-icon shape="minus-circle" class="is-highlight" (click)="handleRemoveEnvSecretRef(i)"></clr-icon>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- END secret refs table -->
+
+    <!-- field refs table -->
+    <div class="col-xs-11 offset-xs-1">
+      <h6>
+        <span id="k8s-container-envvars-fieldref-label">
+          Field References
+        </span>
+      </h6>
+      <table class="table table-noborder mv0">
+        <thead>
+          <tr>
+            <th class="ta-l" style="width: 30%;">
+              Name
+            </th>
+            <th class="ta-l" style="width: 30%;">
+              API Version
+            </th>
+            <th class="ta-l" style="width: 30%;">
+              Field Path
+            </th>
+            <th class="ta-r" style="width: 10%;">
+              <clr-icon shape="plus-circle" class="is-highlight" (click)="handleAddFieldRef()"></clr-icon>
+            </th>
+          </tr>
+        </thead>
+        <tbody formArrayName="env_field_ref">
+          <tr *ngFor="let envFieldRef of env_field_ref; let i = index" [formGroupName]="i">
+            <td>
+              <label class="table-input" [ngClass]="env_field_ref[i].controls.key.invalid ? 'tooltip tooltip-validation tooltip-bottom-right invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+                <input placeholder="Required" class="table-input" type="text" formControlName="key">
+                <span class="tooltip-content">
+                  <span *ngIf="env_field_ref[i].controls.key.errors?.required === true">Name is required
+                    <br/>
+                  </span>
+                  <span *ngIf="env_field_ref[i].controls.key.errors?.alphaNumericUnderscorePeriodColon === true">Name may only contain letters, numbers, underscores, periods, and colons
+                    <br/>
+                  </span>
+                  <span *ngIf="env_field_ref[i].controls.key.errors?.duplicateK8sEnvVarNameValidator === true">Name must be unique, an environment variable, config map ref., secret ref., field ref., or resource field ref. already exists with this name
+                      <br/>
+                    </span>
+                </span>
+              </label>
+            </td>
+            <td>
+              <label class="table-input" [ngClass]="env_field_ref[i].controls.apiVersion.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+                <input maxlength="253" class="table-input" placeholder="Required" type="text" formControlName="apiVersion">
+                <span class="tooltip-content">
+                  <span *ngIf="env_field_ref[i].controls.apiVersion.errors?.required == true">API Version is Required
+                    <br/>
+                  </span>
+                  <span *ngIf="env_field_ref[i].controls.apiVersion.errors?.fieldRefVersionValidator == true">API Version format must be lowercase v followed by a number
+                    <br/>
+                  </span>
+                </span>
+              </label>
+            </td>
+            <td>
+              <label class="table-input" [ngClass]="env_field_ref[i].controls.fieldPath.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+                <div class="select">
+                  <select formControlName="fieldPath">
+                    <option [value]="">
+                      -- Select a path --
+                    </option>
+                    <option *ngFor="let option of fieldRefOptions" [value]="option.value">
+                      {{ option.name }}
+                    </option>
+                  </select>
+                </div>
+              </label>
+            </td>
+            <td class="ta-r">
+              <clr-icon shape="minus-circle" class="is-highlight" (click)="handleRemoveFieldRef(i)"></clr-icon>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- END field refs table -->
+
+    <!-- resource field refs table -->
+    <div class="col-xs-11 offset-xs-1">
+      <h6>
+        <span id="k8s-container-envvars-fieldref-label">
+          Resource Field References
+        </span>
+      </h6>
+      <table class="table table-noborder mv0">
+        <thead>
+          <tr>
+            <th class="ta-l" style="width: 20%;">
+              Name
+            </th>
+            <th class="ta-l" style="width: 25%;">
+              Container Name
+            </th>
+            <th class="ta-l" style="width: 22.5%;">
+              Divisor
+            </th>
+            <th class="ta-l" style="width: 22.5%;">
+              Resource
+            </th>
+            <th class="ta-r" style="width: 10%;">
+              <clr-icon shape="plus-circle" class="is-highlight" (click)="handleAddResourceFieldRef()"></clr-icon>
+            </th>
+          </tr>
+        </thead>
+        <tbody formArrayName="env_resource_field_ref">
+          <tr *ngFor="let envFieldRef of env_resource_field_ref; let i = index" [formGroupName]="i">
+            <td>
+              <label class="table-input" [ngClass]="env_resource_field_ref[i].controls.key.invalid ? 'tooltip tooltip-validation tooltip-bottom-right invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+                <input placeholder="Required" class="table-input" type="text" formControlName="key">
+                <span class="tooltip-content">
+                  <span *ngIf="env_resource_field_ref[i].controls.key.errors?.required === true">Name is required
+                    <br/>
+                  </span>
+                  <span *ngIf="env_resource_field_ref[i].controls.key.errors?.alphaNumericUnderscorePeriodColon === true">Name may only contain letters, numbers, underscores, periods, and colons
+                    <br/>
+                  </span>
+                  <span *ngIf="env_resource_field_ref[i].controls.key.errors?.duplicateK8sEnvVarNameValidator === true">Name must be unique, an environment variable, config map ref., secret ref., field ref., or resource field ref. already exists with this name
+                      <br/>
+                    </span>
+                </span>
+              </label>
+            </td>
+            <td>
+              <label class="table-input" [ngClass]="env_resource_field_ref[i].controls.containerName.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+                <input maxlength="253" class="table-input" placeholder="Optional" type="text" formControlName="containerName">
+                <span class="tooltip-content">
+                  <span *ngIf="env_resource_field_ref[i].controls.containerName.errors?.maxLength253 == true">Container name may only contain 253 characters
+                    <br/>
+                  </span>
+                  <span *ngIf="env_resource_field_ref[i].controls.containerName.errors?.lowercaseAlphaNumericDashPeriod === true">Container name may only contain lowercase letters, numbers, dashes, and periods
+                    <br/>
+                  </span>
+                  <span *ngIf="env_resource_field_ref[i].controls.containerName.errors?.startsWithDash === true">Container name may not begin with a dash
+                    <br/>
+                  </span>
+                  <span *ngIf="env_resource_field_ref[i].controls.containerName.errors?.endsWithDash === true">Container name may not end with a dash
+                    <br/>
+                  </span>
+                  <span *ngIf="env_resource_field_ref[i].controls.containerName.errors?.startsWithPeriod === true">Container name may not begin with a period
+                    <br/>
+                  </span>
+                  <span *ngIf="env_resource_field_ref[i].controls.containerName.errors?.endsWithPeriod === true">Container name may not end with a period
+                  </span>
+                </span>
+              </label>
+            </td>
+            <td>
+              <label class="table-input" [ngClass]="env_resource_field_ref[i].controls.divisor.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+                <input maxlength="253" class="table-input" placeholder="Required" type="number" formControlName="divisor">
+                <span class="tooltip-content">
+                  <span *ngIf="env_resource_field_ref[i].controls.divisor.errors?.required == true">A Divisor number is Required
+                    <br/>
+                  </span>
+                  <span *ngIf="env_resource_field_ref[i].controls.divisor.errors?.numericOnly === true">Divisor may only contain numbers
+                    <br/>
+                  </span>
+                </span>
+              </label>
+            </td>
+            <td>
+              <label class="table-input" [ngClass]="env_resource_field_ref[i].controls.resource.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+                <div class="select">
+                  <select formControlName="resource">
+                    <option [value]="">
+                      -- Select a resource --
+                    </option>
+                    <option *ngFor="let option of resourceFieldRefOptions" [value]="option.value">
+                      {{ option.name }}
+                    </option>
+                  </select>
+                </div>
+              </label>
+            </td>
+            <td class="ta-r">
+              <clr-icon shape="minus-circle" class="is-highlight" (click)="handleRemoveResourceFieldRef(i)"></clr-icon>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- END resource field refs table -->
+
+  </div>
+</div>

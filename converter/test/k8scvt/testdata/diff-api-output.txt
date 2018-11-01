@@ -1,0 +1,92 @@
+'child' added:
+
+elements
+ (metadata/name:joomla)
+  spec
+   template
+    spec
+     containers
+      (name:joomla)
+       ports
+        (containerPort:1776)
+
+---
+
+'child' modified field:
+
+elements
+ (metadata/name:joomla)
+  spec
+   template
+    spec
+     containers
+      (name:joomla)
+       env
+        (name:MARIADB_PORT)
+         value
+
+from "3306" to: "4306"
+
+---
+
+'child' modified field:
+
+elements
+ (metadata/name:joomla)
+  spec
+   template
+    spec
+     containers
+      (name:joomla)
+       env
+        (name:MARIADB_HOST)
+         value
+
+from "mariadb" to: "mariadb2"
+
+---
+
+'child' modified field:
+
+elements
+ (metadata/name:joomla)
+  spec
+   template
+    spec
+     containers
+      (name:joomla)
+       env
+        (name:JOOMLA_PASSWORD)
+         valueFrom
+          configMapKeyRef
+           key
+
+from "JOOM_PASS" to: "JOOM_PASSWORD"
+
+---
+
+'child' modified field:
+
+elements
+ (metadata/name:joomla)
+  spec
+   template
+    spec
+     containers
+      (name:joomla)
+       env
+        (name:MARIADB_PASSWORD)
+         valueFrom
+          configMapKeyRef
+           key
+
+from "MARIA_PASS" to: "MARIA_PASSWORD"
+
+---
+
+'child' modified field:
+
+name
+
+from "parent" to: "child"
+

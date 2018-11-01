@@ -1,0 +1,115 @@
+<div class="row">
+  <div class="col-sm-12">
+    <h6 [ngSwitch]="isComponentExpanded">
+      <span id="k8s-service-service-ports-dropdown" class="pointer mb5" (click)="isComponentExpanded = !isComponentExpanded">
+        <clr-icon *ngSwitchCase="false" shape="caret right"></clr-icon>
+        <clr-icon *ngSwitchCase="true" shape="caret down"></clr-icon>
+        Service Ports
+        <clr-icon *ngIf="form.controls.service_port_mapping.invalid" shape="exclamation-circle" class="icon-danger small-icon"></clr-icon>
+      </span>
+    </h6>
+  </div>
+</div>
+<div class="row" [hidden]="!isComponentExpanded">
+  <div [formGroup]="form" class="pt10">
+    <div class="col-xs-11 offset-xs-1">
+      <table formArrayName="service_port_mapping" class="table table-noborder mv0">
+        <thead>
+          <tr>
+            <th style="text-align: left; width: 20%;">
+              <button style="border: none;">Port</button>
+            </th>
+            <th style="text-align: left; width: 20%;">
+              <button style="border: none;">Target Port</button>
+            </th>
+            <th style="text-align: left; width: 20%;">
+              <button style="border: none;">Node Port</button>
+            </th>
+            <th style="text-align: left; width: 30%;">
+              <button style="border: none;">Name</button>
+            </th>
+            <th style="text-align: left; width: 10%;">
+              <button style="border: none;">Protocol</button>
+            </th>
+            <th>
+              <clr-icon shape="plus-circle" class="is-highlight" (click)="handleAddMapping()"></clr-icon>
+            </th>
+          </tr>
+        </thead>
+        <tbody *ngFor="let item of service_port_mappings; let i = index" [formGroupName]="i">
+          <tr>
+            <td>
+              <label class="table-input" [ngClass]="service_port_mappings[i].controls.external.invalid ? 'tooltip tooltip-validation tooltip-bottom-right invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+                <input class="table-input" placeholder="Required" class="table-input" type="text" formControlName="external">
+                <span class="tooltip-content">
+                  <span *ngIf="service_port_mappings[i].controls.external.errors?.required === true">Port is Required
+                    <br/>
+                  </span>
+                  <span *ngIf="service_port_mappings[i].controls.external.errors?.numericOnly === true">Port must be a number
+                    <br/>
+                  </span>
+                  <span *ngIf="service_port_mappings[i].controls.external.errors?.numericPortRange === true">Port must be from 1 to 65535
+                    <br/>
+                  </span>
+                </span>
+              </label>
+            </td>
+            <td>
+              <label class="table-input" [ngClass]="service_port_mappings[i].controls.internal.invalid ? 'tooltip tooltip-validation tooltip-bottom-right invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+                <input class="table-input" placeholder="Required" type="text" formControlName="internal">
+                <span class="tooltip-content">
+                  <span *ngIf="service_port_mappings[i].controls.internal.errors?.required === true">Port is Required
+                    <br/>
+                  </span>
+                </span>
+              </label>
+            </td>
+            <td>
+              <label class="table-input" [ngClass]="service_port_mappings[i].controls.node_port.invalid ? 'tooltip tooltip-validation tooltip-bottom-right invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+                <input class="table-input" placeholder="Optional" type="number" formControlName="node_port">
+                <span class="tooltip-content">
+                  <span *ngIf="service_port_mappings[i].controls.node_port.errors?.numericOnly === true">Port must be a number
+                    <br/>
+                  </span>
+                  <span *ngIf="service_port_mappings[i].controls.node_port.errors?.numericPortRange === true">Port must be from 1 to 65535
+                    <br/>
+                  </span>
+                </span>
+              </label>
+            </td>
+            <td>
+              <label class="table-input" [ngClass]="service_port_mappings[i].controls.name.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+                <input class="table-input" maxlength="63" type="text" formControlName="name">
+                <span class="tooltip-content">
+                  <span *ngIf="service_port_mappings[i].controls.name.errors?.alphaNumericUnderscoreDashPeriod === true">Name must only contain letters, numbers, underscores, dashes, and periods
+                    <br/>
+                  </span>
+                  <span *ngIf="service_port_mappings[i].controls.name.errors?.required === true">Name is Required if more than one entry
+                    <br/>
+                  </span>
+                  <span *ngIf="service_port_mappings[i].controls.name.errors?.maxLengthDNSLabel === true">Name must be 63 characters or less
+                    <br/>
+                  </span>
+                </span>
+              </label>
+            </td>
+            <td>
+              <label class="table-input">
+                <div class="select">
+                  <select formControlName="protocol">
+                    <option *ngFor="let option of protocolOptions" [value]="option.value">
+                      {{ option.name }}
+                    </option>
+                  </select>
+                </div>
+              </label>
+            </td>
+            <td>
+              <clr-icon *ngIf="portsDisabled !== true" shape="minus-circle" class="is-highlight" (click)="handleRemoveMapping(i)"></clr-icon>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

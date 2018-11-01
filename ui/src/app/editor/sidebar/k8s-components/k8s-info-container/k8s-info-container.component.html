@@ -1,0 +1,115 @@
+<div class="container mb15">
+  <form [formGroup]="form" class="form compact">
+
+    <!-- application name -->
+    <div style="padding-left: 4rem;" class="form-group">
+      <label style="width: 4rem;">
+        Name
+      </label>
+      <label class="w-100" [ngClass]="form.controls.name.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+        <input class="w-100" placeholder="Required" formControlName="name" type="text">
+        <span class="tooltip-content">
+          <span *ngIf="this.form.controls.name.errors?.required == true">Name is Required
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.maxLength64 === true">Name must be 63 characters or less
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.alphaNumericUnderscoreDash === true">Name may only contain letters, numbers, underscores, and dashes
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.startsWithDash === true">Name may not begin with a dash
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.endsWithDash === true">Name may not end with a dash
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.forbiddenName === true">Name must be unique, a model already exists with this name
+            <br/>
+          </span>
+        </span>
+      </label>
+    </div>
+    <!-- END application name -->
+
+    <!-- application namespace -->
+    <div style="padding-left: 4rem;" class="form-group">
+      <label style="width: 4rem;">
+        Namespace
+      </label>
+      <label class="w-100" [ngClass]="form.controls.namespace.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+        <input class="w-100" formControlName="namespace" type="text">
+        <span class="tooltip-content">
+          <span *ngIf="this.form.controls.namespace.errors?.maxLength64 === true">Namespace must be 63 characters or less
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.namespace.errors?.alphaNumericUnderscoreDash === true">Namespace may only contain letters, numbers, underscores, and dashes
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.namespace.errors?.startsWithDash === true">Namespace may not begin with a dash
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.namespace.errors?.endsWithDash === true">Namespace may not end with a dash
+            <br/>
+          </span>
+        </span>
+      </label>
+    </div>
+    <!-- END application namespace -->
+
+    <!-- application description -->
+    <div style="padding-left: 4rem;" class="form-group">
+      <label style="width: 4rem;">
+        Description
+      </label>
+      <div class="textarea-wrapper">
+        <textarea type="textarea" formControlName="description" maxlength="256" width="100%"></textarea>
+      </div>
+    </div>
+    <!-- END application description -->
+
+    <!-- Readme -->
+    <div style="padding-left: 4rem;" class="form-group">
+      <label style="width: 4rem;"></label>
+      <div>
+        <label>
+          <button id="k8s-info-readme-button" class="btn btn-sm" type="button" (click)="showReadme()">Edit Readme</button>
+        </label>
+        <label>
+          <button id="k8s-info-share-button" class="btn btn-sm" type="button" (click)="shareModel()">Share Model</button>
+        </label>
+      </div>
+    </div>
+    <!-- End Readme -->
+
+    <!-- read-only application id -->
+    <div style="padding-left: 4rem;" class="form-group">
+      <label id="k8s-info-id-label" style="width: 4rem;">ID</label>
+      <input [value]="form.controls.id.value" type="text" readonly size="64" />
+    </div>
+    <!-- END read-only application id -->
+
+    <!-- Secrets -->
+    <k8s-secrets [form]="form" 
+    [expandedByDefault]="true" 
+    (addSecretVolume)="addSecretVolume()" 
+    (removeSecretVolume)="removeSecretVolume($event)" 
+    (addSecretVolumeSecret)="addNewSecretVolumeSecret($event)" 
+    (removeSecretVolumeSecret)="removeSecretVolumeSecret($event)">
+    </k8s-secrets>
+    <!-- End Secrets -->
+
+    <!-- Configmap -->
+    <k8s-configmap [form]="form" [expandedByDefault]="true" (addConfigmap)="addConfigmap()" (removeConfigmap)="removeConfigmap($event)">
+    </k8s-configmap>
+    <!-- End Configmap -->
+
+    <!-- helm settings -->
+    <k8s-helm
+      [form]="form"
+      [expandedByDefault]="false">
+    </k8s-helm>
+    <!-- END helm settings -->
+
+  </form>
+</div>

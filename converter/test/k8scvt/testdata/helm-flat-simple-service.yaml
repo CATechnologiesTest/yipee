@@ -1,0 +1,231 @@
+Chart.yaml:
+
+name: null
+version: 0.0.1
+
+---
+values.yaml:
+
+serviceMysql0Metadata1Labels2Name3: "mysql"
+serviceMysql0Metadata1Labels2App3: "demo"
+serviceMysql0Spec1Selector2Name3: "mysql"
+serviceMysql0Spec1Selector2App3: "demo"
+serviceMysql0Spec1Ports2_name_mysql_3Port4: "3306"
+serviceMysql0Spec1Ports2_name_mysql_3TargetPort4: "3306"
+serviceMysql0Spec1Ports2_name_mysql_3Name4: "mysql"
+serviceMysql0Spec1Ports2_name_mysql_3Protocol4: "TCP"
+serviceMysql0Spec1Type2: "ClusterIP"
+serviceWeb0Metadata1Labels2Name3: "web"
+serviceWeb0Metadata1Labels2App3: "demo"
+serviceWeb0Spec1Selector2Name3: "web"
+serviceWeb0Spec1Ports2_name_http_3Port4: "80"
+serviceWeb0Spec1Ports2_name_http_3TargetPort4: "5000"
+serviceWeb0Spec1Ports2_name_http_3Name4: "http"
+serviceWeb0Spec1Ports2_name_http_3Protocol4: "TCP"
+serviceWeb0Spec1Type2: "NodePort"
+deploymentMysql0Metadata1Labels2App3: "demo"
+deploymentMysql0Metadata1Labels2Name3: "mysql"
+deploymentMysql0Spec1Selector2MatchLabels3Name4: "mysql"
+deploymentMysql0Spec1Selector2MatchLabels3Component4: "mysql"
+deploymentMysql0Spec1Selector2MatchLabels3App4: "demo"
+deploymentMysql0Spec1RollbackTo2Revision3: "0"
+deploymentMysql0Spec1Template2Spec3Containers4_name_mysql_5Name6: "mysql"
+deploymentMysql0Spec1Template2Spec3Containers4_name_mysql_5Image6: "mysql:latest"
+deploymentMysql0Spec1Template2Spec3Containers4_name_mysql_5Ports6_name_mysql_7ContainerPort8: "3306"
+deploymentMysql0Spec1Template2Spec3Containers4_name_mysql_5Ports6_name_mysql_7Protocol8: "TCP"
+deploymentMysql0Spec1Template2Spec3Containers4_name_mysql_5Ports6_name_mysql_7Name8: "mysql"
+deploymentMysql0Spec1Template2Spec3Containers4_name_mysql_5Env6_name_MYSQL_ROOT_PASSWORD_7Name8: "MYSQL_ROOT_PASSWORD"
+deploymentMysql0Spec1Template2Spec3Containers4_name_mysql_5Env6_name_MYSQL_ROOT_PASSWORD_7Value8: "password"
+deploymentMysql0Spec1Template2Spec3RestartPolicy4: "Always"
+deploymentMysql0Spec1Template2Metadata3Labels4Name5: "mysql"
+deploymentMysql0Spec1Template2Metadata3Labels4Component5: "mysql"
+deploymentMysql0Spec1Template2Metadata3Labels4App5: "demo"
+deploymentMysql0Spec1Strategy2Type3: "RollingUpdate"
+deploymentMysql0Spec1Strategy2RollingUpdate3MaxSurge4: "50%"
+deploymentMysql0Spec1Strategy2RollingUpdate3MaxUnavailable4: "1"
+deploymentMysql0Spec1Replicas2: "1"
+deploymentMysql0Spec1RevisionHistoryLimit2: "2"
+deploymentWeb0Metadata1Labels2App3: "demo"
+deploymentWeb0Metadata1Labels2Name3: "web"
+deploymentWeb0Spec1Selector2MatchLabels3Name4: "web"
+deploymentWeb0Spec1Selector2MatchLabels3Component4: "web"
+deploymentWeb0Spec1Selector2MatchLabels3App4: "demo"
+deploymentWeb0Spec1RollbackTo2Revision3: "0"
+deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Name6: "python"
+deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Image6: "janakiramm/py-red"
+deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Ports6_name_http_7ContainerPort8: "5000"
+deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Ports6_name_http_7Protocol8: "TCP"
+deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Ports6_name_http_7Name8: "http"
+deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Env6_name_CONTAINER_FIELD_EXAMPLE_7Name8: "CONTAINER_FIELD_EXAMPLE"
+deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Env6_name_CONTAINER_FIELD_EXAMPLE_7ValueFrom8ResourceFieldRef9ContainerName10: "redis"
+deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Env6_name_CONTAINER_FIELD_EXAMPLE_7ValueFrom8ResourceFieldRef9Resource10: "requests.memory"
+deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Env6_name_POD_FIELD_EXAMPLE_7Name8: "POD_FIELD_EXAMPLE"
+deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Env6_name_POD_FIELD_EXAMPLE_7ValueFrom8FieldRef9ApiVersion10: "extensions/v1beta1"
+deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Env6_name_POD_FIELD_EXAMPLE_7ValueFrom8FieldRef9FieldPath10: "spec.restartPolicy"
+deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Env6_name_REDIS_HOST_7Name8: "REDIS_HOST"
+deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Env6_name_REDIS_HOST_7Value8: "localhost"
+deploymentWeb0Spec1Template2Spec3Containers4_name_redis_5Name6: "redis"
+deploymentWeb0Spec1Template2Spec3Containers4_name_redis_5Image6: "redis"
+deploymentWeb0Spec1Template2Spec3Containers4_name_redis_5Ports6_name_redis_7ContainerPort8: "6379"
+deploymentWeb0Spec1Template2Spec3Containers4_name_redis_5Ports6_name_redis_7Protocol8: "TCP"
+deploymentWeb0Spec1Template2Spec3Containers4_name_redis_5Ports6_name_redis_7Name8: "redis"
+deploymentWeb0Spec1Template2Spec3Containers4_name_redis_5Resources6Requests7Memory8: "32Mi"
+deploymentWeb0Spec1Template2Spec3Containers4_name_redis_5Resources6Requests7Cpu8: "125m"
+deploymentWeb0Spec1Template2Spec3RestartPolicy4: "Always"
+deploymentWeb0Spec1Template2Metadata3Labels4Name5: "web"
+deploymentWeb0Spec1Template2Metadata3Labels4Component5: "web"
+deploymentWeb0Spec1Template2Metadata3Labels4App5: "demo"
+deploymentWeb0Spec1Strategy2Type3: "RollingUpdate"
+deploymentWeb0Spec1Strategy2RollingUpdate3MaxSurge4: "1"
+deploymentWeb0Spec1Strategy2RollingUpdate3MaxUnavailable4: "1"
+deploymentWeb0Spec1Replicas2: "2"
+deploymentWeb0Spec1RevisionHistoryLimit2: "2"
+
+---
+templates/ServiceMysql.yaml:
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  labels:
+    name: {{.Values.serviceMysql0Metadata1Labels2Name3}}
+    app: {{.Values.serviceMysql0Metadata1Labels2App3}}
+spec:
+  selector:
+    name: {{.Values.serviceMysql0Spec1Selector2Name3}}
+    app: {{.Values.serviceMysql0Spec1Selector2App3}}
+  ports:
+  - port: {{int .Values.serviceMysql0Spec1Ports2_name_mysql_3Port4}}
+    targetPort: {{int .Values.serviceMysql0Spec1Ports2_name_mysql_3TargetPort4}}
+    name: {{.Values.serviceMysql0Spec1Ports2_name_mysql_3Name4}}
+    protocol: {{.Values.serviceMysql0Spec1Ports2_name_mysql_3Protocol4}}
+  type: {{.Values.serviceMysql0Spec1Type2}}
+
+---
+templates/ServiceWeb.yaml:
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+  labels:
+    name: {{.Values.serviceWeb0Metadata1Labels2Name3}}
+    app: {{.Values.serviceWeb0Metadata1Labels2App3}}
+spec:
+  selector:
+    name: {{.Values.serviceWeb0Spec1Selector2Name3}}
+  ports:
+  - port: {{int .Values.serviceWeb0Spec1Ports2_name_http_3Port4}}
+    targetPort: {{int .Values.serviceWeb0Spec1Ports2_name_http_3TargetPort4}}
+    name: {{.Values.serviceWeb0Spec1Ports2_name_http_3Name4}}
+    protocol: {{.Values.serviceWeb0Spec1Ports2_name_http_3Protocol4}}
+  type: {{.Values.serviceWeb0Spec1Type2}}
+
+---
+templates/DeploymentMysql.yaml:
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mysql
+  labels:
+    app: {{.Values.deploymentMysql0Metadata1Labels2App3}}
+    name: {{.Values.deploymentMysql0Metadata1Labels2Name3}}
+spec:
+  selector:
+    matchLabels:
+      name: {{.Values.deploymentMysql0Spec1Selector2MatchLabels3Name4}}
+      component: {{.Values.deploymentMysql0Spec1Selector2MatchLabels3Component4}}
+      app: {{.Values.deploymentMysql0Spec1Selector2MatchLabels3App4}}
+  rollbackTo:
+    revision: {{int .Values.deploymentMysql0Spec1RollbackTo2Revision3}}
+  template:
+    spec:
+      containers:
+      - name: {{.Values.deploymentMysql0Spec1Template2Spec3Containers4_name_mysql_5Name6}}
+        image: {{.Values.deploymentMysql0Spec1Template2Spec3Containers4_name_mysql_5Image6}}
+        ports:
+        - containerPort: {{int .Values.deploymentMysql0Spec1Template2Spec3Containers4_name_mysql_5Ports6_name_mysql_7ContainerPort8}}
+          protocol: {{.Values.deploymentMysql0Spec1Template2Spec3Containers4_name_mysql_5Ports6_name_mysql_7Protocol8}}
+          name: {{.Values.deploymentMysql0Spec1Template2Spec3Containers4_name_mysql_5Ports6_name_mysql_7Name8}}
+        env:
+        - name: {{.Values.deploymentMysql0Spec1Template2Spec3Containers4_name_mysql_5Env6_name_MYSQL_ROOT_PASSWORD_7Name8}}
+          value: {{.Values.deploymentMysql0Spec1Template2Spec3Containers4_name_mysql_5Env6_name_MYSQL_ROOT_PASSWORD_7Value8}}
+      restartPolicy: {{.Values.deploymentMysql0Spec1Template2Spec3RestartPolicy4}}
+    metadata:
+      labels:
+        name: {{.Values.deploymentMysql0Spec1Template2Metadata3Labels4Name5}}
+        component: {{.Values.deploymentMysql0Spec1Template2Metadata3Labels4Component5}}
+        app: {{.Values.deploymentMysql0Spec1Template2Metadata3Labels4App5}}
+  strategy:
+    type: {{.Values.deploymentMysql0Spec1Strategy2Type3}}
+    rollingUpdate:
+      maxSurge: {{.Values.deploymentMysql0Spec1Strategy2RollingUpdate3MaxSurge4}}
+      maxUnavailable: {{int .Values.deploymentMysql0Spec1Strategy2RollingUpdate3MaxUnavailable4}}
+  replicas: {{int .Values.deploymentMysql0Spec1Replicas2}}
+  revisionHistoryLimit: {{int .Values.deploymentMysql0Spec1RevisionHistoryLimit2}}
+
+---
+templates/DeploymentWeb.yaml:
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: web
+  labels:
+    app: {{.Values.deploymentWeb0Metadata1Labels2App3}}
+    name: {{.Values.deploymentWeb0Metadata1Labels2Name3}}
+spec:
+  selector:
+    matchLabels:
+      name: {{.Values.deploymentWeb0Spec1Selector2MatchLabels3Name4}}
+      component: {{.Values.deploymentWeb0Spec1Selector2MatchLabels3Component4}}
+      app: {{.Values.deploymentWeb0Spec1Selector2MatchLabels3App4}}
+  rollbackTo:
+    revision: {{int .Values.deploymentWeb0Spec1RollbackTo2Revision3}}
+  template:
+    spec:
+      containers:
+      - name: {{.Values.deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Name6}}
+        image: {{.Values.deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Image6}}
+        ports:
+        - containerPort: {{int .Values.deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Ports6_name_http_7ContainerPort8}}
+          protocol: {{.Values.deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Ports6_name_http_7Protocol8}}
+          name: {{.Values.deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Ports6_name_http_7Name8}}
+        env:
+        - name: {{.Values.deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Env6_name_CONTAINER_FIELD_EXAMPLE_7Name8}}
+          valueFrom:
+            resourceFieldRef:
+              containerName: {{.Values.deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Env6_name_CONTAINER_FIELD_EXAMPLE_7ValueFrom8ResourceFieldRef9ContainerName10}}
+              resource: {{.Values.deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Env6_name_CONTAINER_FIELD_EXAMPLE_7ValueFrom8ResourceFieldRef9Resource10}}
+        - name: {{.Values.deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Env6_name_POD_FIELD_EXAMPLE_7Name8}}
+          valueFrom:
+            fieldRef:
+              apiVersion: {{.Values.deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Env6_name_POD_FIELD_EXAMPLE_7ValueFrom8FieldRef9ApiVersion10}}
+              fieldPath: {{.Values.deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Env6_name_POD_FIELD_EXAMPLE_7ValueFrom8FieldRef9FieldPath10}}
+        - name: {{.Values.deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Env6_name_REDIS_HOST_7Name8}}
+          value: {{.Values.deploymentWeb0Spec1Template2Spec3Containers4_name_python_5Env6_name_REDIS_HOST_7Value8}}
+      - name: {{.Values.deploymentWeb0Spec1Template2Spec3Containers4_name_redis_5Name6}}
+        image: {{.Values.deploymentWeb0Spec1Template2Spec3Containers4_name_redis_5Image6}}
+        ports:
+        - containerPort: {{int .Values.deploymentWeb0Spec1Template2Spec3Containers4_name_redis_5Ports6_name_redis_7ContainerPort8}}
+          protocol: {{.Values.deploymentWeb0Spec1Template2Spec3Containers4_name_redis_5Ports6_name_redis_7Protocol8}}
+          name: {{.Values.deploymentWeb0Spec1Template2Spec3Containers4_name_redis_5Ports6_name_redis_7Name8}}
+        resources:
+          requests:
+            memory: {{.Values.deploymentWeb0Spec1Template2Spec3Containers4_name_redis_5Resources6Requests7Memory8}}
+            cpu: {{.Values.deploymentWeb0Spec1Template2Spec3Containers4_name_redis_5Resources6Requests7Cpu8}}
+      restartPolicy: {{.Values.deploymentWeb0Spec1Template2Spec3RestartPolicy4}}
+    metadata:
+      labels:
+        name: {{.Values.deploymentWeb0Spec1Template2Metadata3Labels4Name5}}
+        component: {{.Values.deploymentWeb0Spec1Template2Metadata3Labels4Component5}}
+        app: {{.Values.deploymentWeb0Spec1Template2Metadata3Labels4App5}}
+  strategy:
+    type: {{.Values.deploymentWeb0Spec1Strategy2Type3}}
+    rollingUpdate:
+      maxSurge: {{int .Values.deploymentWeb0Spec1Strategy2RollingUpdate3MaxSurge4}}
+      maxUnavailable: {{int .Values.deploymentWeb0Spec1Strategy2RollingUpdate3MaxUnavailable4}}
+  replicas: {{int .Values.deploymentWeb0Spec1Replicas2}}
+  revisionHistoryLimit: {{int .Values.deploymentWeb0Spec1RevisionHistoryLimit2}}

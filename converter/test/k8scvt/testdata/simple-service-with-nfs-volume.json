@@ -1,0 +1,23 @@
+{
+    "app-info": {
+        "name": "SimpleService",
+        "description": "a (very) simple service"
+    },
+    "services": {
+        "simpleservice": {
+            "image": "mysimpleserviceimage",
+            "restart": "always",
+            "volumes": [
+                "ssdata:/mnt/ssdata"
+            ]
+        }
+    },
+    "volumes": {
+        "ssdata" : {
+            "driver": "nfs",
+            "driver_opts": {
+                "share": "mynfsserver.com:/vol/ssdata"
+            }
+        }
+    }
+}

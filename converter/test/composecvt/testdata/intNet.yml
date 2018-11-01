@@ -1,0 +1,10 @@
+version: '2'
+services:
+  one:
+    image: some/image
+    networks:
+    - net1
+
+networks:
+  net1:
+    internal: true

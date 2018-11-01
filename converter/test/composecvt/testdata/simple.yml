@@ -1,0 +1,65 @@
+version: '2'
+services:
+  one:
+    image: image1
+    environment:
+      - UP=DOWN
+      - LAST=FIRST
+      - NOVALUE
+    labels:
+      one: valone
+      two: valtwo
+
+    networks:
+      - front
+      - back
+    ports:
+      - "8080:80"
+      - "8443:443"
+    volumes:
+      - vol1:/mnt
+    # XXX: invalid restart value will cause other (spurious)
+    # validation errors (e.g., environment or networks may report as invalid)
+    # restart: maybe
+    restart: "no"
+  two:
+    image: image2
+    build: ./dir
+    depends_on:
+      - one
+    environment:
+      one: valone
+      two: valtwo
+    labels:
+      - "com.example.description=Accounting webapp"
+      - "com.example.department=Finance"
+      - "com.example.label-with-empty-value"
+    networks:
+      front:
+        aliases:
+          - public
+          - visible
+      back:
+        aliases:
+          - private
+  extras:
+    image: extragoo
+    extends:
+      file: common.yml
+      service: webapp
+    cgroup_parent: m-executor-abcd
+    devices: ['/dev/ttyUSB0:/dev/ttyUSB0', '/dev/ttyUSB1:/dev/ttyUSB1']
+    cap_drop: [NET_ADMIN, SYS_ADMIN]
+    build:
+      context: ./dir
+      dockerfile: Dockerfile-alternate
+      args:
+        buildno: 1
+
+networks:
+  front:
+  back:
+volumes:
+  vol1:
+
+

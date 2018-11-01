@@ -1,0 +1,112 @@
+.editor-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+.editor-description {
+  position: absolute;
+  top: 120px;
+  left: 10px;
+  right: 440px;
+  display: flex;
+  flex-direction: row;
+  pointer-events: none;
+}
+
+.editor-icon {
+  height: 50px;
+  width: 50px;
+  margin-right: 10px;
+}
+
+.txt {
+  line-height: normal;
+}
+
+.small-txt {
+  font-size: 10px;
+}
+
+.editor-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.editor-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.sidebar-area {
+  position: absolute;
+  top: 60px;
+  width: 550px;
+  right: 0;
+  bottom: 44px;
+  overflow: hidden;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-toolbar {
+  order: 1;
+  flex-shrink: 0;
+  background: white;
+}
+
+.sidebar-content {
+  order: 2;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+.splitter {
+  position: absolute;
+  top: 60px;
+  width: 10px;
+  right: 550px;
+  bottom: 44px;
+  background: grey;
+  cursor: col-resize;
+}
+
+.canvas-paper {
+  position: absolute;
+  left: 0;
+  right: 560px;
+  top: 108px;
+  bottom: 44px;
+  overflow: scroll;
+  box-sizing: border-box;
+}
+
+.spinner-container {
+  padding-top: 150px;
+  text-align: center;
+}
+
+.flex-left {
+  justify-content: flex-start;
+  display: flex;
+  flex: auto;
+  flex-direction: row;
+}
+
+.flex-center {
+  justify-content: center;
+  display: flex;
+  flex: auto;
+  flex-direction: row;
+}
+
+.flex-right {
+  justify-content: flex-end;
+  display: flex;
+  flex: auto;
+  flex-direction: row;
+}

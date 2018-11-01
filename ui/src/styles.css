@@ -1,0 +1,351 @@
+.marker-arrowhead-group {
+    display: none;
+}
+
+
+/* have to fix clarity alerts pager */
+
+.alerts-pager {
+    position: relative;
+    background: grey;
+}
+
+.joint-navigator.joint-theme-default>.joint-paper {
+    box-shadow: 0px 0px 0px white;
+}
+
+.joint-selection.joint-theme-default .selection-box {
+    border: 2px solid blue;
+    border-radius: 10px;
+    margin: 0px 0px 0px 0px;
+    padding: 0px 0px 0px 0px;
+    box-sizing: border-box;
+}
+
+.joint-selection.joint-theme-default .selection-wrapper {
+    border: 0px solid grey;
+    border-radius: 10px;
+    margin: 0px 0px 0px 0px;
+    padding: 0px 0px 0px 0px;
+    box-sizing: border-box;
+}
+
+.joint-selection.joint-theme-default .box {
+    display: none;
+}
+
+.joint-halo.joint-theme-default .box {
+    display: none;
+}
+
+.joint-halo.joint-theme-default .handle.remove {
+    background-image: url("/assets/images/delete.svg");
+}
+
+.joint-halo.joint-theme-default .handle.link {
+    background-image: url("/assets/images/connect.svg");
+}
+
+.joint-halo.joint-theme-default .handle.clone {
+    background-image: url("/assets/images/clone.svg");
+}
+
+.joint-paper.joint-theme-default .joint-highlight-stroke {
+    border: 2px solid blue;
+    border-radius: 10px;
+    margin: 0px 0px 0px 0px;
+    padding: 0px 0px 0px 0px;
+    box-sizing: border-box;
+}
+
+.yipee-highlight-connection {
+    opacity: 0.5;
+}
+
+.joint-element {
+    stroke: #DADDDF;
+}
+
+.w-100 {
+    width: 100%;
+}
+
+.w-50 {
+    width: 50% !important;
+}
+
+.p5 {
+    padding: 5px;
+}
+
+.pv5 {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.pl10 {
+    padding-left: 10px !important;
+}
+
+.pl30 {
+    padding-left: 30px;
+}
+
+.pv10 {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.pt10 {
+    padding-top: 10px;
+}
+
+.m0 {
+    margin: 0px !important;
+}
+
+.m1 {
+    margin: 1px !important;
+}
+
+.mv0 {
+    margin-top: 0px !important;
+    margin-bottom: 0px !important;
+}
+
+.mb5 {
+    margin-bottom: 5px !important;
+}
+
+.mr0 {
+    margin-right: 0px !important;
+}
+
+.mb10 {
+    margin-bottom: 10px !important;
+}
+
+.mb15 {
+    margin-bottom: 15px !important;
+}
+
+.mt0 {
+    margin-top: 0px !important;
+}
+
+.mt5 {
+    margin-top: 5px !important;
+}
+
+.mt10 {
+    margin-top: 10px !important;
+}
+
+.mt12 {
+    margin-top: 12px !important;
+}
+
+.mt15 {
+    margin-top: 15px !important;
+}
+
+.mb15 {
+    margin-bottom: 15px !important;
+}
+
+.mt24 {
+    margin-top: 24px !important;
+}
+
+.ta-r {
+    text-align: right !important;
+}
+
+.ta-l {
+    text-align: left !important;
+}
+
+.ta-c {
+    text-align: center;
+}
+
+.error {
+    font-size: 12px;
+    color: darkred;
+}
+
+.warning {
+    color: #e62700 !important;
+}
+
+.well {
+    border: 1px solid #ccc;
+    border-radius: .125rem;
+    background-color: #fff;
+    color: #565656;
+    margin: 0;
+    margin-top: 1rem;
+    max-width: 100%;
+    width: 100%;
+}
+
+.no-min-width {
+    min-width: none !important;
+}
+
+.pointer {
+    cursor: pointer;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.fw-b {
+    font-weight: 900 !important;
+}
+
+
+/* sidepanel table */
+
+.table-input {
+    border: none;
+    width: 100%;
+}
+
+.table th,
+.table td {
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+}
+
+.icon-danger {
+    color: #c92100;
+}
+
+.small-icon {
+    height: 1rem;
+    width: 1rem;
+}
+
+.inherit-width {
+    width: inherit !important;
+}
+
+.sidebar-container {
+  padding-left: 0px;
+  padding-right: 12px;
+}
+
+.textarea-wrapper {
+  display: block;
+  width: 100%;
+}
+
+.mh300 {
+    min-height: 300px;
+}
+
+.fw600 {
+    font-weight: 600;
+}
+
+.black {
+    color: #000000;
+}
+
+.bold {
+    font-weight: 900;
+}
+
+
+
+
+
+
+
+
+#paper-html-elements {
+    position: relative;
+    border: 1px solid gray;
+    display: inline-block;
+    background: transparent;
+    overflow: hidden;
+  }
+  #paper-html-elements svg {
+    background: transparent;
+  }
+  #paper-html-elements svg .link {
+    z-index: 2;
+  }
+  .html-element {
+    position: absolute;
+    background: #3498DB;
+    /* Make sure events are propagated to the JointJS element so, e.g. dragging works.*/
+    pointer-events: none;
+    -webkit-user-select: none;
+    border-radius: 4px;
+    border: 2px solid #2980B9;
+    box-shadow: inset 0 0 5px black, 2px 2px 1px gray;
+    padding: 5px;
+    box-sizing: border-box;
+    z-index: 2;
+  }
+  .html-element select,
+  .html-element input,
+  .html-element button {
+    /* Enable interacting with inputs only. */
+    pointer-events: auto;
+  }
+  .html-element button.delete {
+    color: white;
+    border: none;
+    background-color: #C0392B;
+    border-radius: 20px;
+    width: 15px;
+    height: 15px;
+    line-height: 15px;
+    text-align: middle;
+    position: absolute;
+    top: -15px;
+    left: -15px;
+    padding: 0;
+    margin: 0;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .html-element button.delete:hover {
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+  }
+  .html-element select {
+    position: absolute;
+    right: 2px;
+    bottom: 28px;
+  }
+  .html-element input {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border: none;
+    color: #333;
+    padding: 5px;
+    height: 16px;
+  }
+  .html-element label {
+    color: #333;
+    text-shadow: 1px 0 0 lightgray;
+    font-weight: bold;
+  }
+  .html-element span {
+    position: absolute;
+    top: 2px;
+    right: 9px;
+    color: white;
+    font-size: 10px;
+  }
+  

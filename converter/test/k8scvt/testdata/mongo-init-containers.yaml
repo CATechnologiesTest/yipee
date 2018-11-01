@@ -1,0 +1,131 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo
+  labels:
+    name: mongo
+    app: mongo
+spec:
+  ports:
+  - port: 27017
+    name: web
+  selector:
+    name: mongo
+    app: mongo
+  type: NodePort
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo2
+  labels:
+    name: mongo
+    app: mongo
+spec:
+  ports:
+  - port: 27017
+    name: web
+  selector:
+    name: mongo
+    app: mongo
+  type: NodePort
+
+---
+
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: mongo
+  labels:
+    ge: fa
+spec:
+  serviceName: "mongo"
+  updateStrategy:
+    type: OnDelete
+  podManagementPolicy: Parallel
+  replicas: 3
+  selector:
+    matchLabels:
+      name: mongo
+      app: mongo
+  template:
+    metadata:
+      labels:
+        name: mongo
+        app: mongo
+    spec:
+      initContainers:
+      # This container initializes the mongodb, then sleeps.
+      - name: init-mongo
+        image: mongo:3.4.1
+        command:
+        - bash
+        - /config/init.sh
+        volumeMounts:
+        - name: config
+          mountPath: /config
+          readOnly: true
+        - name: myvc
+          readOnly: true
+          mountPath: /stuff
+        - name: mysecret
+          readOnly: true
+          mountPath: /secretypath
+        - name: mysecret2
+          readOnly: true
+          mountPath: /secretypath2
+        command:
+        - mongodyow
+        - --replSet
+        - rs0
+        args: ["foo"]
+        ports:
+        - name: foo
+          containerPort: 80
+        env:
+        - name: ONE
+          value: '1'
+        - name: TWO
+          valueFrom:
+            configMapKeyRef:
+              name: my-config-map
+              key: TWO
+      imagePullSecrets:
+        - name: itsasecret
+      terminationGracePeriodSeconds: 8
+      containers:
+      - name: mongodb
+        image: mongo:3.4.1
+        command:
+        - mongod
+        - --replSet
+        - rs0
+        ports:
+        - containerPort: 27017
+          name: web
+        args: ["foo"]
+      volumes:
+      - name: config
+        configMap:
+          name: "mongo-init"
+      - name: mysecret
+        secret:
+          secretName: itsasecret
+      - name: mysecret2
+        secret:
+          items:
+            - key: Secret1
+              mode: 0444
+              path: secrets/SikhRhett
+          secretName: itsasecret2
+  volumeClaimTemplates:
+    - metadata:
+        name: myvc
+      spec:
+        accessModes:
+          - ReadWriteMany
+          - ReadOnlyMany
+        resources:
+          requests:
+            storage: 1Gi

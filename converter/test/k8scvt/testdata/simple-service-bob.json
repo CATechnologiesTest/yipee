@@ -1,0 +1,218 @@
+{
+    "app-info": {
+        "id": "3d8c3790-8b79-4b24-b9ee-1bc9d53e53b9",
+        "logo": "[insert name of app logo image here]",
+        "name": "bobk",
+        "description": "[insert app description here]",
+        "ui": {
+            "canvas": {
+            }
+        },
+        "readme": ""
+    },
+    "volumes": {
+        "redis-vol": {
+            "id": "a70981d8-7d65-446e-bbe8-097734e686b6",
+            "hold_for_compose": {
+            },
+            "annotations": {
+                "description": "",
+                "ui": {
+                    "canvas": {
+                        "position": {
+                            "x": 260,
+                            "y": 400
+                        }
+                    }
+                }
+            }
+        },
+        "mysql-vol": {
+            "id": "fe1a58de-0bcb-4f7f-96fd-a7eb19fd07fb",
+            "hold_for_compose": {
+            },
+            "annotations": {
+                "description": "",
+                "ui": {
+                    "canvas": {
+                        "position": {
+                            "x": 100,
+                            "y": 550
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "networks": {
+        "backend": {
+            "id": "acf01930-507a-4961-81f5-0580427e5d8f",
+            "hold_for_compose": {
+            },
+            "annotations": {
+                "ui": {
+                    "canvas": {
+                        "position": {
+                            "x": 335,
+                            "y": 550
+                        }
+                    }
+                },
+                "description": ""
+            }
+        }
+    },
+    "services": {
+        "uwsgi-nginx-flask": {
+            "restart": "always",
+            "depends_on": [
+                "redis"
+            ],
+            "volumes": [],
+            "networks": {
+                "backend": {
+                    "aliases": [],
+                    "id": "d946e34e-3b6a-4f83-8abf-bd2fcc9e1425"
+                }
+            },
+            "ports": [
+                "5555:5000/tcp"
+            ],
+            "id": "271162ac-14a5-4113-8558-a77aefedc363",
+            "image": "goats",
+            "annotations": {
+                "description": "",
+                "ui": {
+                    "canvas": {
+                        "position": {
+                            "x": 312.5,
+                            "y": 100
+                        }
+                    }
+                }
+            },
+            "environment": [
+                "REDIS_HOST=redis"
+            ]
+        },
+        "mysql": {
+            "volumes": [
+                "mysql-vol:/opt/db"
+            ],
+            "networks": {
+                "backend": {
+                    "aliases": [],
+                    "id": "85853d5a-bbc7-43f7-8ce7-7b601c703452"
+                }
+            },
+            "id": "15eecea5-e996-487b-9e51-84c83dabe372",
+            "image": "mysql:latest",
+            "annotations": {
+                "description": "",
+                "ui": {
+                    "canvas": {
+                        "position": {
+                            "x": 110,
+                            "y": 400
+                        }
+                    }
+                }
+            },
+            "environment": [
+                "MYSQL_DATABASE=mysql",
+                "MYSQL_PASSWORD=redis",
+                "MYSQL_ROOT_PASSWORD=password",
+                "MYSQL_USER=redisuser"
+            ]
+        },
+        "redis": {
+            "depends_on": [
+                "mysql"
+            ],
+            "volumes": [
+                "redis-vol:/var/lib/mysql"
+            ],
+            "networks": {
+                "backend": {
+                    "aliases": [],
+                    "id": "f750ae58-4a29-4810-bd7e-7ffa0223290e"
+                }
+            },
+            "ports": [
+                "6379:6379/tcp"
+            ],
+            "id": "056a32ff-babb-4a24-a85f-16a204fa415d",
+            "image": "redis:latest",
+            "annotations": {
+                "ui": {
+                    "canvas": {
+                        "position": {
+                            "x": 260,
+                            "y": 250
+                        }
+                    }
+                },
+                "description": "",
+            },
+            "environment": [
+                "REDIS_DB_HOST=mysql:3306",
+                "REDIS_DB_PASSWORD=redis",
+                "REDIS_DB_USER=redisuser"
+            ]
+        }
+    },
+    "hold_for_k8s": [
+        {
+            "type": "extra-volume-info",
+            "volume-id": "fe1a58de-0bcb-4f7f-96fd-a7eb19fd07fb",
+            "data": {
+                "volume-mode": "Filesystem",
+                "access-modes": [
+                    "ReadWriteOnce"
+                ],
+                "storage-class": "",
+                "storage": "",
+                "selector": {
+                    "matchLabels": {
+                    }
+                }
+            }
+        },
+        {
+            "type": "extra-volume-info",
+            "volume-id": "a70981d8-7d65-446e-bbe8-097734e686b6",
+            "data": {
+                "volume-mode": "Filesystem",
+                "access-modes": [
+                    "ReadWriteOnce"
+                ],
+                "storage-class": "",
+                "storage": "",
+                "selector": {
+                    "matchLabels": {
+                    }
+                }
+            }
+        },
+        {
+            "type": "extra-port-info",
+            "container-references": true,
+            "name": "redis-6379",
+            "svc-port-name": "redis-6379",
+            "svc-id": "",
+            "internal": "6379",
+            "external": "6379",
+            "svc-name": "redis"
+        },
+        {
+            "type": "extra-port-info",
+            "container-references": true,
+            "name": "",
+            "svc-port-name": "",
+            "svc-id": null,
+            "internal": "5000",
+            "external": "5555",
+            "svc-name": "uwsgi-nginx-flask"
+        }
+    ]
+}

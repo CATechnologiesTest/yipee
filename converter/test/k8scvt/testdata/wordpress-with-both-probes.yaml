@@ -1,0 +1,200 @@
+# Generated 2018-04-25T16:35:56.889Z by Yipee.io
+# Application: wordpress
+# Last Modified: 2018-04-25T16:35:56.889Z
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: wpdata-claim
+spec:
+  volumeName: wpdata
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  volumeMode: Filesystem
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+spec:
+  selector:
+    app: wordpress
+    component: db
+  ports:
+  - port: 3306
+    targetPort: 3306
+    name: db
+    protocol: TCP
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wordpress
+spec:
+  selector:
+    app: wordpress
+    component: wordpress
+  ports:
+  - port: 8080
+    targetPort: 80
+    name: wordpress
+    protocol: TCP
+    nodePort: 32680
+  type: NodePort
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: db
+spec:
+  selector:
+    matchLabels:
+      name: wordpress
+      component: db
+      app: wordpress
+  rollbackTo:
+    revision: 0
+  template:
+    spec:
+      containers:
+      - volumeMounts:
+        - mountPath: /var/lib/mysql
+          name: wpdata
+        - mountPath: /mnt/run
+          name: secrets
+          readOnly: true
+        name: mysql
+        env:
+        - name: MYSQL_DATABASE
+          value: wpdb
+        - name: MYSQL_PASSWORD_FILE
+          value: /secrets/db_password
+        - name: MYSQL_RANDOM_ROOT_PASSWORD
+          value: 'yes'
+        - name: MYSQL_USER
+          value: wpdbuser
+        ports:
+        - containerPort: 3306
+          protocol: TCP
+          name: mysql
+        livenessProbe:
+          failureThreshold: 5
+          exec:
+            command:
+            - ps -ef | grep mysqld
+          periodSeconds: 5
+          timeoutSeconds: 5
+        readinessProbe:
+          failureThreshold: 5
+          exec:
+            command:
+            - ps -ef | grep mysqld
+          periodSeconds: 5
+          timeoutSeconds: 5
+        image: mysql:latest
+      volumes:
+      - name: secrets
+        secret:
+          items:
+          - key: db_password
+            path: secrets/db_password
+            mode: 420
+          secretName: secret
+      - name: wpdata
+        persistentVolumeClaim:
+          claimName: wpdata-claim
+    metadata:
+      labels:
+        name: wordpress
+        component: db
+        app: wordpress
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  replicas: 1
+  revisionHistoryLimit: 2
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: wp-deployment
+spec:
+  selector:
+    matchLabels:
+      name: wordpress
+      component: wordpress
+      app: wordpress
+  rollbackTo:
+    revision: 0
+  template:
+    spec:
+      containers:
+      - name: wordpress
+        ports:
+        - containerPort: 80
+          protocol: TCP
+          name: wordpress
+        image: wordpress:latest
+        livenessProbe:
+          failureThreshold: 5
+          httpGet:
+            path: /
+            port: 8443
+            scheme: HTTPS
+            httpHeaders:
+              - name: accept
+                value: application/json
+          periodSeconds: 5
+          timeoutSeconds: 5
+        readinessProbe:
+          failureThreshold: 5
+          exec:
+            command:
+            - sh
+            - -c
+            - "ps -ef | grep apache"
+          periodSeconds: 5
+          timeoutSeconds: 5
+        volumeMounts:
+        - mountPath: /mnt/run
+          name: secrets
+          readOnly: true
+        env:
+        - name: WORDPRESS_DB_HOST
+          value: db
+        - name: WORDPRESS_DB_NAME
+          value: wpdb
+        - name: WORDPRESS_DB_PASSWORD_FILE
+          value: /secrets/db_password
+        - name: WORDPRESS_DB_USER
+          value: wpdbuser
+      volumes:
+      - name: secrets
+        secret:
+          items:
+          - key: db_password
+            path: secrets/db_password
+            mode: 420
+          secretName: secret
+    metadata:
+      labels:
+        name: wordpress
+        component: wordpress
+        app: wordpress
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  replicas: 1
+  revisionHistoryLimit: 2

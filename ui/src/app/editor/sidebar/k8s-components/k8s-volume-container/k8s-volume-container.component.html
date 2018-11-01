@@ -1,0 +1,142 @@
+<div class="container">
+  <form [formGroup]="form" class="form compact mh300">
+    <label class="mb10 fw600 black" >{{!this.volume.is_template == true ? 'Persistent Volume Claim' : 'Persistent Volume Claim Template'}}</label>
+    <!-- volume name -->
+    <div style="padding-left: 4rem;" class="form-group">
+      <label style="width: 4rem;">
+        Name
+      </label>
+      <label class="table-input" [ngClass]="form.controls.name.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+        <input maxlength="253" class="table-input" placeholder="Required" formControlName="name" type="text">
+        <span class="tooltip-content">
+          <span *ngIf="this.form.controls.name.errors?.required == true">Name is Required
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.maxLength253 === true">Name must be 253 characters or less
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.lowercaseAlphaNumericDashPeriod === true">Name may only contain lowercase letters, numbers, dashes, and periods
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.startsWithDash === true">Name may not begin with a dash
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.endsWithDash === true">Name may not end with a dash
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.startsWithPeriod === true">Name may not begin with a period
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.endsWithPeriod === true">Name may not end with a period
+            <br/>
+          </span>
+          <span *ngIf="this.form.controls.name.errors?.duplicateNameValidator == true">Name must be unique, a volume already exists with this name</span>
+        </span>
+      </label>
+    </div>
+    <!-- END volume name -->
+
+    <!-- volume description -->
+    <div style="padding-left: 4rem;" class="form-group">
+      <label style="width: 4rem;">
+        Description
+      </label>
+      <div class="textarea-wrapper">
+        <textarea type="textarea" formControlName="description" maxlength="256" width="100%"></textarea>
+      </div>
+    </div>
+    <!-- END volume description -->
+
+    <!-- volume access mode -->
+    <div style="padding-left: 4rem;" class="form-group">
+      <label class="table-input">
+        <label id="k8s-volume-accessmodes-label" style="width: 4rem;">
+          <span>
+            Access Modes
+          </span>
+        </label>
+      </label>
+      <label class="table-input">
+        <label class="table-input" [ngClass]="this.form.get('access_modes_ReadOnlyMany').invalid ? 'tooltip tooltip-validation tooltip-top-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+          <span role="tooltip" aria-haspopup="true" class="tooltip tooltip-md tooltip-top-right">
+            <input type="checkbox" id="ReadOnlyMany" formControlName="access_modes_ReadOnlyMany">
+            <span *ngIf="this.volume.access_modes.length === 0" class="tooltip-content" style="background: #c92100; color: white;">At least one access mode must be checked</span>
+          </span>
+          <label for="ReadOnlyMany" style="margin-top:0px;margin-bottom:0px;">
+            Read Only Many
+          </label>
+          <br/>
+          <span class="tooltip-content">At least one access mode must be checked
+            <span *ngIf="this.form.get('access_modes_ReadOnlyMany').errors?.noneChecked === true">At least one access mode must be checked
+              <br/>
+            </span>
+          </span>
+          <span role="tooltip" aria-haspopup="true" class="tooltip tooltip-md tooltip-top-right">
+            <input type="checkbox" id="ReadWriteOnce" formControlName="access_modes_ReadWriteOnce">
+            <span *ngIf="this.volume.access_modes.length === 0" class="tooltip-content" style="background: #c92100; color: white;">At least one access mode must be checked</span>
+          </span>
+          <label for="ReadWriteOnce" style="margin-top:0px;margin-bottom:0px;">
+            Read Write Once
+          </label>
+          <br/>
+          <span role="tooltip" aria-haspopup="true" class="tooltip tooltip-md tooltip-top-right">
+            <input type="checkbox" id="ReadWriteMany" formControlName="access_modes_ReadWriteMany">
+            <span *ngIf="this.volume.access_modes.length === 0" class="tooltip-content" style="background: #c92100; color: white;">At least one access mode must be checked</span>
+          </span>
+          <label for="ReadWriteMany" style="margin-top:0px;margin-bottom:0px;">
+            Read Write Many
+          </label>
+        </label>
+      </label>
+    </div>
+    <!-- END volume access mode -->
+
+    <!-- volume volume mode -->
+    <div style="padding-left: 4rem;" class="form-group">
+      <label id="k8s-volume-volumemode-label" style="width: 4rem;margin-top:10px;">
+        Volume Mode
+      </label>
+      <label>
+        <div class="select">
+          <select formControlName="volume_mode">
+            <option *ngFor="let option of volumeModeOptions" [value]="option.value">
+              {{ option.name }}
+            </option>
+          </select>
+        </div>
+      </label>
+    </div>
+    <!-- END volume volume mode -->
+
+    <!-- storage_class -->
+    <div style="padding-left: 4rem;" class="form-group">
+      <label id="k8s-volume-storageclass-label" style="width: 4rem;margin-top:10px;">
+        Storage Class
+      </label>
+      <label class="table-input">
+        <input class="table-input" formControlName="storage_class" type="text">
+      </label>
+    </div>
+    <!-- END storage_class -->
+
+    <!-- storage -->
+    <div style="padding-left: 4rem;" class="form-group">
+      <label id="k8s-volume-storage-label" style="width: 4rem;margin-top:10px;">
+        Storage
+      </label>
+      <label class="table-input" [ngClass]="form.controls.storage.invalid ? 'tooltip tooltip-validation tooltip-top-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+        <input placeholder="Required" class="table-input" type="text" formControlName="storage">
+        <span class="tooltip-content">
+          <span *ngIf="form.controls.storage.errors?.required === true">Storage is required
+            <br/>
+          </span>
+          <span *ngIf="form.controls.storage.errors?.volumeStorageValidator === true">Storage value must match standard Kubernetes notation, a number followed by (E, P, T, G, M, K, or Ei, Pi, Ti, Gi, Mi, Ki)"
+            <br/>
+          </span>
+        </span>
+      </label>
+    </div>
+    <!-- END storage -->
+
+  </form>
+</div>

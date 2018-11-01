@@ -1,0 +1,10 @@
+<clr-modal #saveModal [(clrModalOpen)]="show" [clrModalClosable]="false">
+  <h3 class="modal-title">Close Application</h3>
+  <div class="modal-body">
+    <p>Errors exist in application <b>{{metadata?.name}}</b>, you can either Cancel the operation and fix the errors or Exit back to the catalog and lose your changes.</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="cancelClose()">Cancel</button>
+    <button type="button" class="btn btn-primary" (click)="ignoreChanges()">Exit</button>
+  </div>
+</clr-modal>

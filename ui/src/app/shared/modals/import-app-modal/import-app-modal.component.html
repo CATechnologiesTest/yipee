@@ -1,0 +1,95 @@
+<clr-modal #importAppModal [clrModalClosable]="false" [(clrModalOpen)]="show" [clrModalSize]="'lg'" [clrModalHeight]="'lg'">
+  <h3 class="modal-title">Import Application</h3>
+  <div class="modal-body">
+    <div *ngIf="alertText.length > 0">
+      <div class="alert alert-danger">
+        <div class="alert-items">
+          <div class="alert-item static">
+            <div class="alert-icon-wrapper">
+              <clr-icon class="alert-icon" shape="exclamation-circle"></clr-icon>
+            </div>
+            <span class="alert-text">
+              <ul>
+                <li *ngFor="let alert of alertText">
+                  {{ alert }}
+                </li>
+              </ul>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <form [formGroup]="importApplicationForm" autocomplete="off" class="form-block">
+      <div class="form-group">
+        <label for="applicationName">Application Name</label>
+        <input name="applicationName" class="text-field form-control" placeholder="Application Name" formControlName="applicationName"
+          type="text" id="applicationName" required autofocus/>
+        <div *ngIf="importApplicationForm.controls.applicationName.invalid && (importApplicationForm.controls.applicationName.dirty || importApplicationForm.controls.applicationName.touched)"
+          class="alert alert-danger">
+          <div *ngIf="importApplicationForm.controls.applicationName.errors.required">
+            Name is required.
+          </div>
+          <div *ngIf="importApplicationForm.controls.applicationName.errors.maxlength">
+            Name must be less than 65 characters long.
+          </div>
+          <div *ngIf="importApplicationForm.controls.applicationName.errors.forbiddenName">
+            Name cannot be the same as another app you own.
+          </div>
+          <div *ngIf="importApplicationForm.controls.applicationName.errors.firstCharAlphaNumeric && !importApplicationForm.controls.applicationName.errors.required">
+            The first character must be a letter or number.
+          </div>
+          <div *ngIf="importApplicationForm.controls.applicationName.errors.alphaNumeric && !importApplicationForm.controls.applicationName.errors.firstCharAlphaNumeric && !importApplicationForm.controls.applicationName.errors.required">
+            Name can only contain letters, numbers, "_", and "-".
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <div>
+      <label style="font-size: .54167rem;">Accepted File Types:</label>
+    </div>
+    <div class="pl20">
+      <label class="pl5 bold" >Docker Compose/Swarm</label>
+      <p class="pl20 mt0 mb10 fs13">
+        Yipee.io supports importing a Docker Compose/Swarm file and converts it into a Kubernetes application.
+      </p>
+    </div>
+    <div class="pl20">
+      <label class="pl5 bold" >Kubernetes
+      </label>
+      <br/>
+      <label class="pl20 mt0 mb10 fs13">File Format:</label>
+      <label class="pl20 mt0 mb10 fs13">
+        <clr-icon shape="check" style="color:#48960C"></clr-icon>
+        Combined yaml files (.yml, .yaml)
+      </label>
+      <label class="pl20 mt0 mb10 fs13">
+        <clr-icon shape="check" style="color:#48960C"></clr-icon>
+        Compressed Tar Archive (.tgz, .tar.gz, etc.)
+      </label>
+      <p class="pl20 mt0 mb10 fs13">
+        Yipee.io imports a Kubernetes configuration file as a Kubernetes mode application, which allows use of Kubernetes-specific
+        objects and settings. Kubernetes mode applications can be exported as Kubernetes, OpenShift, or Helm. A Kubernetes
+        mode application cannot be converted to a Compatible mode application.
+      </p>
+    </div>
+
+    <p class="notice">
+      An imported file should not contain passwords or other sensitive data. Yipee.io does not currently encrypt or otherwise mask
+      sensitive data in Yipee apps or in exported files.
+    </p>
+  </div>
+
+  <div class="modal-footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-12 ta-r">
+          <button type="button" class="btn btn-primary" (click)="cancelImportApp()">Cancel</button>
+          <button type="button" [disabled]="importApplicationForm.controls.applicationName.invalid" class="btn btn-primary" (click)="selectFile()">
+            <clr-icon shape="upload"></clr-icon>Choose a file</button>
+          <input type="file" id="uploadFile" style="display: none;" (change)="fileSelected($event)">
+        </div>
+      </div>
+    </div>
+  </div>
+</clr-modal>

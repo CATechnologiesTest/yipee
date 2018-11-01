@@ -1,0 +1,23 @@
+version: "2"
+services:
+  nodejs:
+    depends_on:
+      - converter
+    image: node:8.12.0-alpine
+    command:
+      - sh
+      - -c
+      - npm install && sleep 5 && npm test
+    environment:
+      - RETURN_ERRORS_FOR_TESTING=${RETURN_ERRORS_FOR_TESTING}
+      - CVT_URL=http://converter:3000
+    volumes:
+      - ./:/data
+    working_dir: /data
+    restart: "no"
+
+  converter:
+    # image: yipee-tools-spoke-cos.ca.com:5000/k10eh-converter
+    # Using the image we built from ../converter in this repo
+    image: yipee-development/k10ehlive-converter
+    restart: always

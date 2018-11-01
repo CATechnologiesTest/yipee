@@ -1,0 +1,20 @@
+version: '3'
+services:
+  svc1:
+    image: image1
+    logging:
+      badkey: whatever
+
+  svc2:
+    image: image2
+    logging:
+      driver: syslog
+      options:
+      - up=down
+
+  svc3:
+    image: image3
+    logging:
+      driver: syslog
+      options:
+        key1: val1

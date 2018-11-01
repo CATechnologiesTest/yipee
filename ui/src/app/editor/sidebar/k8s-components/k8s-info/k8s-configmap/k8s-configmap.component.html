@@ -1,0 +1,94 @@
+<div class="row">
+  <div class="col-sm-12">
+    <h6 [ngSwitch]="isComponentExpanded">
+      <span id="k8s-info-configmaps-dropdown" class="pointer mb5" (click)="isComponentExpanded = !isComponentExpanded">
+        <clr-icon *ngSwitchCase="false" shape="caret right"></clr-icon>
+        <clr-icon *ngSwitchCase="true" shape="caret down"></clr-icon>
+        Config Maps
+        <clr-icon *ngIf="form.controls.configs.invalid" shape="exclamation-circle" class="icon-danger small-icon"></clr-icon>
+      </span>
+    </h6>
+  </div>
+</div>
+<div class="row" [hidden]="!isComponentExpanded">
+  <div [formGroup]="form" class="pt10 row">
+    <div class="col-xs-11 offset-xs-1">
+      <table class="table table-noborder mv0">
+        <thead>
+          <tr>
+            <th style="text-align: left; width: 33%;">
+              <button style="border: none;">Name</button>
+            </th>
+            <th style="text-align: left; width: 33%;">
+              <button style="border: none;">Map Name</button>
+            </th>
+            <th style="text-align: left; width: 33%;">
+              <button style="border: none;">Default Mode</button>
+            </th>
+            <th>
+              <clr-icon shape="plus-circle" class="is-highlight" (click)="handleAddConfigmap()"></clr-icon>
+            </th>
+          </tr>
+        </thead>
+        <tbody formArrayName="configs">
+          <tr *ngFor="let configmap of configmaps; let i = index" [formGroupName]="i">
+            <td>
+              <label class="table-input" [ngClass]="configmaps[i].controls.name.invalid ? 'tooltip tooltip-validation tooltip-top-right invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+                <input placeholder="Required" class="table-input" size="128" type="text" formControlName="name">
+                <span class="tooltip-content">
+                  <span *ngIf="configmaps[i].controls.name.errors?.required === true">Name is required
+                    <br/>
+                  </span>
+                  <span *ngIf="configmaps[i].controls.name.errors?.alphaNumericUnderscoreDashPeriod === true">Name may only contain letters, numbers, underscores, dashes, and periods
+                    <br/>
+                  </span>
+                  <span *ngIf="configmaps[i].controls.name.errors?.containsDoubleDash === true">A name cannot have two or more consecutive dashes
+                    <br/>
+                  </span>
+                  <span *ngIf="configmaps[i].controls.name.errors?.containsDoublePeriod === true">A name cannot have two or more consecutive periods
+                    <br/>
+                  </span>
+                  <span *ngIf="configmaps[i].controls.name.errors?.containsDoubleUnderscore === true">A name cannot have two or more consecutive underscores
+                    <br/>
+                  </span>
+                  <span *ngIf="configmaps[i].controls.name.errors?.startsWithDash === true">Name cannot start with a dash
+                    <br/>
+                  </span>
+                  <span *ngIf="configmaps[i].controls.name.errors?.startsWithUnderscore === true">Name cannot start with an underscore
+                    <br/>
+                  </span>
+                  <span *ngIf="configmaps[i].controls.name.errors?.endsWithDash === true">Name cannot end with a dash
+                    <br/>
+                  </span>
+                  <span *ngIf="configmaps[i].controls.name.errors?.endsWithUnderscore === true">Name cannot end with an underscore
+                    <br/>
+                  </span>
+                </span>
+              </label>
+            </td>
+            <td>
+              <label class="table-input" [ngClass]="configmaps[i].controls.map_name.invalid ? 'tooltip tooltip-validation tooltip-top-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+                <input class="table-input" size="128" type="text" formControlName="map_name">
+                <span class="tooltip-content">
+                  <span *ngIf="configmaps[i].controls.map_name.errors?.required === true">Map name is required
+                    <br/>
+                  </span>
+                </span>
+              </label>
+            </td>
+            <td>
+              <label class="table-input" [ngClass]="configmaps[i].controls.default_mode.invalid ? 'tooltip tooltip-validation tooltip-top-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+                <input class="table-input" maxlength="3" size="128" type="number" formControlName="default_mode">
+                <span class="tooltip-content">
+                </span>
+              </label>
+            </td>
+            <td>
+              <clr-icon shape="minus-circle" class="is-highlight" (click)="handleRemoveConfigmap(i)"></clr-icon>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

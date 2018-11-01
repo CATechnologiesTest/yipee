@@ -1,0 +1,31 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: one
+spec:
+  selector:
+    matchLabels:
+      name: {{.Values.deploymentOne0Spec1Selector2MatchLabels3Name4}}
+      component: {{.Values.deploymentOne0Spec1Selector2MatchLabels3Component4}}
+      a: {{.Values.deploymentOne0Spec1Selector2MatchLabels3A4}}
+  rollbackTo:
+    revision: 0
+  template:
+    spec:
+      containers:
+      - name: one
+        image: fakeimage
+        env:
+        - name: {{.Values.deploymentOne0Spec1Template2Spec3Containers4_name_one_5Env6_name_gurb_7Name8}}
+          value: {{.Values.deploymentOne0Spec1Template2Spec3Containers4_name_one_5Env6_name_gurb_7Value8}}
+    metadata:
+      labels:
+        name: {{.Values.deploymentOne0Spec1Template2Metadata3Labels4Name5}}
+        component: {{.Values.deploymentOne0Spec1Template2Metadata3Labels4Component5}}
+        a: {{.Values.deploymentOne0Spec1Template2Metadata3Labels4A5}}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  replicas: 1

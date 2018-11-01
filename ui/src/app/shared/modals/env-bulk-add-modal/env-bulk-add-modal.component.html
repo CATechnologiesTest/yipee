@@ -1,0 +1,19 @@
+<clr-modal #saveModal [(clrModalOpen)]="show" [clrModalClosable]="false">
+  <h3 class="modal-title">Bulk Edit Environment Variables</h3>
+  <div class="modal-body">
+    <p>
+      Edit the existing list of environment variables for this service.</p>
+    <p>
+      Environment variables should be name value pairs separated by
+      <b>=</b> with each entry on a separate line.
+    </p>
+    <form>
+      <textarea autofocus name="content" style="overflow-y:auto; height: 450px;" id="textbox" class="form-control" [(ngModel)]="content">
+      </textarea>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="handleCancel()">Cancel</button>
+    <button type="button" class="btn btn-primary" (click)="handleReplace()">OK</button>
+  </div>
+</clr-modal>

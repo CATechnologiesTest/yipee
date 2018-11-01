@@ -1,0 +1,35 @@
+<clr-modal #newVolumeModal [(clrModalOpen)]="show" [clrModalClosable]="false">
+  <h3 class="modal-title align-left">New Service</h3>
+  <div style="padding-bottom: 72px;" class="modal-body align-left">
+    <form class="form compact" [formGroup]="form">
+      <div class="form-group">
+        <label>Name</label>
+        <label aria-haspopup="true" role="tooltip" [ngClass]="(errors.nameTooltipErrors.length > 0) ? 'tooltip tooltip-validation tooltip-bottom-left invalid width-inherit' : 'tooltip tooltip-validation tooltip-top-left width-inherit'">
+          <input id="k8s-new-service-name-input" maxlength="253" type="text" formControlName="name" (input)="checkFormValidity()" autofocus>
+          <span class="tooltip-content">
+            <div *ngFor="let error of errors.nameTooltipErrors; let i = index">
+              {{error}}.
+            </div>
+          </span>
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label id="k8s-new-statefulset-servicetype-label">Type</label>
+        <div class="select">
+          <select formControlName="service_type">
+            <option *ngFor="let option of serviceTypeOptions" [value]="option.value">
+              {{ option.name }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+
+    </form>
+  </div>
+  <div style="padding-top: 0px;" class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="cancel()">Cancel</button>
+    <button type="button" class="btn btn-primary" (click)="create()" [disabled]="!form.valid">Create</button>
+  </div>
+</clr-modal>

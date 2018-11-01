@@ -1,0 +1,54 @@
+<clr-modal #newVolumeModal [(clrModalOpen)]="show" [clrModalClosable]="false">
+  <h3 class="modal-title align-left">New Host Path Volume</h3>
+  <div style="padding-bottom: 72px;" class="modal-body align-left">
+    <form class="form compact" [formGroup]="form">
+      <div class="form-group">
+        <label>Name</label>
+        <label aria-haspopup="true" role="tooltip" [ngClass]="(errors.nameTooltipErrors.length > 0) ? 'tooltip tooltip-validation tooltip-bottom-left invalid width-inherit' : 'tooltip tooltip-validation tooltip-top-left width-inherit'">
+          <input id="k8s-new-hostpath-name-input" maxlength="253" type="text" formControlName="name" (input)="checkFormValidity()" autofocus>
+          <span class="tooltip-content">
+            <div *ngFor="let error of errors.nameTooltipErrors; let i = index">
+              {{error}}.
+            </div>
+          </span>
+        </label>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <label aria-haspopup="true" role="tooltip" [ngClass]="(errors.descriptionTooltipErrors.length > 0) ? 'tooltip tooltip-validation tooltip-bottom-left invalid width-inherit' : 'tooltip tooltip-validation tooltip-top-left width-inherit'">
+          <input id="k8s-new-hostpath-description-input" type="text" formControlName="description" (input)="checkFormValidity()" size="36">
+          <span class="tooltip-content">
+            <div *ngFor="let error of errors.descriptionTooltipErrors; let i = index">
+              {{error}}.
+            </div>
+          </span>
+        </label>
+      </div>
+      <div class="form-group">
+        <label id="k8s-new-hostpath-host-path-type-label">Host Path Type</label>
+        <div class="select">
+          <select formControlName="host_path_type">
+            <option *ngFor="let option of hostPathTypeOptions" [value]="option.value">
+              {{ option.name }}
+            </option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Host Path</label>
+        <label aria-haspopup="true" role="tooltip" [ngClass]="(errors.hostPathTooltipErrors.length > 0) ? 'tooltip tooltip-validation tooltip-bottom-left invalid width-inherit' : 'tooltip tooltip-validation tooltip-top-left width-inherit'">
+          <input id="k8s-new-hostpath-host-path-input" type="text" formControlName="host_path" (input)="checkFormValidity()" size="36">
+          <span class="tooltip-content">
+            <div *ngFor="let error of errors.hostPathTooltipErrors; let i = index">
+              {{error}}.
+            </div>
+          </span>
+        </label>
+      </div>
+    </form>
+  </div>
+  <div style="padding-top: 0px;" class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="cancel()">Cancel</button>
+    <button type="button" class="btn btn-primary" (click)="create()" [disabled]="!form.valid">Create</button>
+  </div>
+</clr-modal>

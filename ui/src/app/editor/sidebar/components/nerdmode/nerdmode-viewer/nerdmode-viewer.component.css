@@ -1,0 +1,21 @@
+.menu{
+    background-color: #dddddd;
+}
+.tc {
+    text-align: center;
+}
+.code {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+.pb20 {
+    padding-bottom: 20px;
+}
+.loading-spinner {
+    padding-bottom: 50px;
+    padding-top: 100px;
+}
+.nerdmode-btn {
+    font-size: 12px;
+    margin-right: 12px;
+}

@@ -1,0 +1,30 @@
+{
+    "name": "k10eh-api",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "start": "node ./app",
+        "test": "nyc --reporter=text mocha"
+    },
+    "dependencies": {
+        "body-parser": "1.18.3",
+        "bunyan": "1.8.12",
+        "byline": "5.0.0",
+        "cors": "2.8.4",
+        "express": "4.16.3",
+        "primus": "7.2.3",
+        "request": "2.88.0",
+        "uuid": "3.3.2",
+        "ws": "6.1.0",
+        "yamljs": "0.3.0"
+    },
+    "devDependencies": {
+        "nyc": "13.0.1",
+        "chai": "4.2.0",
+        "chai-as-promised": "7.1.1",
+        "chai-http": "4.2.0",
+        "mocha": "5.2.0",
+        "nock": "10.0.1",
+        "tar": "4.4.6"
+    }
+}

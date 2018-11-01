@@ -1,0 +1,120 @@
+<div class="canvas-container">
+
+  <!-- ************** -->
+  <!-- canvas toolbar -->
+  <!-- ************** -->
+  <div class="canvas-header" [ngClass]="{'blue': editorService.editMode === 'k8s'}">
+    <app-toolbar>
+      <div *ngIf="editorService.editMode === 'k8s'" class="flex-left">
+        <clr-dropdown>
+          <button clrDropdownTrigger id="k8s-new-controller-button" [disabled]="this.editorService.readOnly" style="margin-top: 6px; margin-left: 12px; margin-right: 4px;"
+            type="button" class="btn btn-icon white" title="New controller">
+            <img src="./assets/images/workload.svg" class="clr-icon">
+            <clr-icon shape="caret down"></clr-icon>
+          </button>
+          &nbsp;
+          <clr-dropdown-menu *clrIfOpen>
+            <button clrDropdownItem type="button" (click)="showNewK8sDeploymentDialog = true">Deployment</button>
+            <button clrDropdownItem type="button" (click)="showNewK8sStatefulSetDialog = true">Stateful Set</button>
+            <button clrDropdownItem type="button" (click)="showNewK8sDaemonSetDialog = true">Daemon Set</button>
+            <button clrDropdownItem type="button" (click)="showNewK8sCRONJobDialog = true">Cron Job</button>
+          </clr-dropdown-menu>
+        </clr-dropdown>
+        <clr-dropdown>
+          <button clrDropdownTrigger id="k8s-new-container-button" [disabled]="this.editorService.readOnly" style="margin-top: 6px; margin-left: 0px; margin-right: 4px;"
+            type="button" class="btn btn-icon white" title="New container">
+            <img src="./assets/images/container.svg" class="clr-icon">
+            <clr-icon shape="caret down"></clr-icon>
+          </button>
+          &nbsp;
+          <clr-dropdown-menu *clrIfOpen>
+            <button clrDropdownItem type="button" (click)="showNewK8sContainerDialog = true">Container</button>
+            <button clrDropdownItem type="button" (click)="showNewK8sInitContainerDialog = true">Init Container</button>
+          </clr-dropdown-menu>
+        </clr-dropdown>
+        <clr-dropdown>
+          <button clrDropdownTrigger id="k8s-new-volume-button" [disabled]="this.editorService.readOnly" style="margin-top: 6px; margin-left: 0px; margin-right: 4px;"
+            type="button" class="btn btn-icon white" title="New volume">
+            <img src="./assets/images/volume.svg" class="clr-icon">
+            <clr-icon shape="caret down"></clr-icon>
+          </button>
+          &nbsp;
+          <clr-dropdown-menu *clrIfOpen>
+            <button clrDropdownItem type="button" (click)="showNewK8sVolumeDialog = true">Persistent Volume Claim</button>
+            <button clrDropdownItem type="button" (click)="showNewK8sVolumeTemplateDialog = true">Persistent Volume
+              Claim Template</button>
+            <button clrDropdownItem type="button" (click)="showNewK8sEmptyDirDialog = true">Empty Directory</button>
+            <button clrDropdownItem type="button" (click)="showNewK8sHostPathDialog = true">Host Path</button>
+          </clr-dropdown-menu>
+        </clr-dropdown>
+        <button id="k8s-new-service-button" [disabled]="this.editorService.readOnly" type="button" class="btn btn-icon white"
+          title="New service" (click)="showNewK8sServiceDialog = true">
+          <img src="./assets/images/service-k8s.svg" class="clr-icon">
+        </button>
+        <button id="k8s-new-ingress-button" [disabled]="this.editorService.readOnly" type="button" class="btn btn-icon white"
+          title="New ingress" (click)="showNewK8sIngressDialog = true">
+          <img src="./assets/images/ingress.svg" class="clr-icon">
+        </button>
+        <button *ngIf="!isProduction" type="button" class="btn btn-icon white" title="Debug" (click)="onDebug()">
+          <clr-icon shape="bug"></clr-icon>
+        </button>
+        <button id="k8s-new-unknownkind-button" type="button" class="btn btn-icon white" (click)="createNewUnknownKind()"
+          title="New custom">
+          <img src="./assets/images/plugin.svg" class="clr-icon">
+        </button>
+      </div>
+      <div class="flex-center">
+      </div>
+    </app-toolbar>
+  </div>
+  <!-- ****************** -->
+  <!-- END canvas toolbar -->
+  <!-- ****************** -->
+
+  <!-- ************* -->
+  <!-- editor modals -->
+  <!-- ************* -->
+  <div>
+    <app-new-k8s-hostpath-modal [show]="showNewK8sHostPathDialog" (onCancel)="showNewK8sHostPathDialog = false"
+      (onCreate)="newK8sHostPathVolume($event); showNewK8sHostPathDialog = false;">
+    </app-new-k8s-hostpath-modal>
+    <app-new-k8s-emptydir-modal [show]="showNewK8sEmptyDirDialog" (onCancel)="showNewK8sEmptyDirDialog = false"
+      (onCreate)="newK8sEmptyDirVolume($event); showNewK8sEmptyDirDialog = false;">
+    </app-new-k8s-emptydir-modal>
+    <app-new-k8s-volume-modal [show]="showNewK8sVolumeDialog" [isTemplate]="false" (onCancel)="showNewK8sVolumeDialog = false"
+      (onCreate)="newK8sVolume($event); showNewK8sVolumeDialog = false;">
+    </app-new-k8s-volume-modal>
+    <app-new-k8s-volume-modal [show]="showNewK8sVolumeTemplateDialog" [isTemplate]="true" (onCancel)="showNewK8sVolumeTemplateDialog = false"
+      (onCreate)="newK8sVolume($event); showNewK8sVolumeTemplateDialog = false;">
+    </app-new-k8s-volume-modal>
+    <app-new-k8s-statefulset-modal [show]="showNewK8sStatefulSetDialog" (onCancel)="showNewK8sStatefulSetDialog = false"
+      (onCreate)="newContainerGroup($event); showNewK8sStatefulSetDialog = false;">
+    </app-new-k8s-statefulset-modal>
+    <app-new-k8s-deployment-modal [show]="showNewK8sDeploymentDialog" (onCancel)="showNewK8sDeploymentDialog = false"
+      (onCreate)="newContainerGroup($event); showNewK8sDeploymentDialog = false;">
+    </app-new-k8s-deployment-modal>
+    <app-new-k8s-daemon-set-modal [show]="showNewK8sDaemonSetDialog" (onCancel)="showNewK8sDaemonSetDialog = false"
+      (onCreate)="newContainerGroup($event); showNewK8sDaemonSetDialog = false;">
+    </app-new-k8s-daemon-set-modal>
+    <app-new-k8s-cron-job-modal [show]="showNewK8sCRONJobDialog" (onCancel)="showNewK8sCRONJobDialog = false"
+      (onCreate)="newContainerGroup($event); showNewK8sCRONJobDialog = false;">
+    </app-new-k8s-cron-job-modal>
+    <app-new-k8s-container-modal [show]="showNewK8sContainerDialog" (onCancel)="showNewK8sContainerDialog = false"
+      (onCreate)="newContainer($event); showNewK8sContainerDialog = false;">
+    </app-new-k8s-container-modal>
+    <app-new-k8s-init-container-modal [show]="showNewK8sInitContainerDialog" (onCancel)="showNewK8sInitContainerDialog = false"
+      (onCreate)="newContainer($event); showNewK8sInitContainerDialog = false;">
+    </app-new-k8s-init-container-modal>
+    <app-new-k8s-service-modal [show]="showNewK8sServiceDialog" (onCancel)="showNewK8sServiceDialog = false" (onCreate)="newK8sService($event); showNewK8sServiceDialog = false;">
+    </app-new-k8s-service-modal>
+    <app-new-k8s-ingress-modal [show]="showNewK8sIngressDialog" (onCancel)="showNewK8sIngressDialog = false" (onCreate)="newK8sIngress($event); showNewK8sIngressDialog = false;">
+    </app-new-k8s-ingress-modal>
+  </div>
+  <!-- ***************** -->
+  <!-- END editor modals -->
+  <!-- ***************** -->
+
+  <app-confirm-delete-modal [show]="showConfirmDeleteDialog" [objectType]="confirmDeleteObjectType" [objectName]="confirmDeleteObjectName"
+    (onCancel)="showConfirmDeleteDialog = false" (onDelete)="removeElementConfirmed(); showConfirmDeleteDialog = false;">
+  </app-confirm-delete-modal>
+</div>

@@ -1,0 +1,19 @@
+{
+    "app-info": {
+        "name": "SimpleService",
+        "description": "a (very) simple service"
+    },
+    "services": {
+        "simpleservice": {
+            "image": "mysimpleserviceimage",
+            "expose": [
+                "80",
+                "3000/udp"
+            ],
+            "ports": [
+                "8080:80"
+            ],
+            "restart": "always"
+        }
+    }
+}

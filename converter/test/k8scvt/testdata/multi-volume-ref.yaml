@@ -1,0 +1,185 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+  labels:
+    name: web
+    app: demo
+spec:
+  selector:
+    name: web
+  type: NodePort
+  ports:
+   - port: 80
+     name: http
+     targetPort: 5000
+     protocol: TCP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  labels:
+    name: mysql
+    app: demo
+spec:
+  ports:
+  - port: 3306
+    name: mysql
+    targetPort: 3306
+  selector:
+    name: mysql
+    app: demo
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: vaalyume-claim
+spec: {}
+
+---
+
+apiVersion: "extensions/v1beta1"
+kind: Deployment
+metadata:
+  name: mysql
+  labels:
+    name: mysql
+    app: demo
+spec:
+  selector:
+    matchLabels:
+      name: mysql
+      component: mysql
+      app: demo
+  template:
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:latest
+          ports:
+            - containerPort: 3306
+              name: mysql
+              protocol: TCP
+          env:
+            - name: "MYSQL_ROOT_PASSWORD"
+              value: "password"
+          volumeMounts:
+          - mountPath: /scratch
+            name: scratch
+          - mountPath: /tmp/host_empty_type
+            name: fromhost
+          - mountPath: /pubkey
+            name: mykey
+      restartPolicy: Always
+      volumes:
+      - name: scratch
+        emptyDir:
+          medium: Memory
+      - name: fromhost
+        hostPath:
+          path: /host/notype
+      - name: mykey
+        hostPath:
+          path: /home/me/.ssh/id_rsa.pub
+          type: File
+
+    metadata:
+      labels:
+        name: mysql
+        component: mysql
+        app: demo
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  rollbackTo:
+    revision: 0
+  replicas: 1
+  revisionHistoryLimit: 2
+
+---
+apiVersion: "extensions/v1beta1"
+kind: Deployment
+metadata:
+  name: web
+  labels:
+    name: web
+    app: demo
+spec:
+  selector:
+    matchLabels:
+      name: web
+      component: web
+      app: demo
+  template:
+    spec:
+      containers:
+      - name: redis
+        image: redis
+        ports:
+        - containerPort: 6379
+          name: redis
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /anity
+          name: vaalyume
+        - mountPath: /mnt/run
+          name: secrets
+          readOnly: true
+        - mountPath: /scratch
+          name: scratch
+        - mountPath: /var/run/docker.sock
+          name: hostdocker
+      - name: python
+        image: janakiramm/py-red
+        env:
+        - name: "REDIS_HOST"
+          value: "localhost"
+        ports:
+        - containerPort: 5000
+          name: http
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /anbean
+          name: vaalyume
+        - mountPath: /mnt/run
+          name: secrets
+          readOnly: true
+        - mountPath: /var/run/docker.sock
+          name: hostdocker
+      restartPolicy: Always
+      volumes:
+      - name: scratch
+        emptyDir: {}
+      - name: secrets
+        secret:
+          items:
+          - key: Secret1
+            mode: 292
+            path: secrets/SikhRhett
+          secretName: secret
+      - name: vaalyume
+        persistentVolumeClaim:
+          claimName: vaalyume-claim
+      - name: hostdocker
+        hostPath:
+          type: Socket
+          path: /var/run/docker.sock
+    metadata:
+      labels:
+        name: web
+        component: web
+        app: demo
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  rollbackTo:
+    revision: 0
+  replicas: 2
+  revisionHistoryLimit: 2

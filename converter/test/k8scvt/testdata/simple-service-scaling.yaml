@@ -1,0 +1,52 @@
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: simpleservice
+spec:
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      name: SimpleService
+      component: simpleservice
+  template:
+    metadata:
+      labels:
+        name: SimpleService
+        component: simpleservice
+    spec:
+      containers:
+      - image: mysimpleserviceimage
+        name: simpleservice
+      restartPolicy: Always
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: simpleservice2
+spec:
+  replicas: 3
+  rollbackTo:
+    revision: 0
+  selector:
+    matchLabels:
+      name: SimpleService
+      component: simpleservice2
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name: SimpleService
+        component: simpleservice2
+    spec:
+      containers:
+      - image: mysimpleserviceimage
+        name: simpleservice2
+      restartPolicy: Always

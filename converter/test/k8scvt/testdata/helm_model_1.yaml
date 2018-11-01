@@ -1,0 +1,254 @@
+# Generated 2018-09-21T20:23:31.900Z by Yipee.io
+# Application: joomla
+# Last Modified: 2018-09-21T20:23:31.900Z
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: joomla
+  annotations:
+    yipee.io.lastModelUpdate: '2018-09-21T20:23:31.847Z'
+    yipee.io.modelId: 10d4ebd2-5919-11e8-a3f9-db2dd23490ad
+    yipee.io.contextId: 6e0a6206-1558-11e7-a0fe-e7a448f880d1
+    yipee.io.modelURL: https://app.yipee.io/editor/10d4ebd2-5919-11e8-a3f9-db2dd23490ad/6e0a6206-1558-11e7-a0fe-e7a448f880d1
+spec:
+  selector:
+    name: joomla-kubernetes
+    component: joomla
+  ports:
+  - port: 443
+    targetPort: 443
+    name: joomla-443
+    protocol: TCP
+  - port: 80
+    targetPort: 80
+    name: joomla-80
+    protocol: TCP
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mariadb
+  annotations:
+    yipee.io.lastModelUpdate: '2018-09-21T20:23:31.847Z'
+    yipee.io.modelId: 10d4ebd2-5919-11e8-a3f9-db2dd23490ad
+    yipee.io.contextId: 6e0a6206-1558-11e7-a0fe-e7a448f880d1
+    yipee.io.modelURL: https://app.yipee.io/editor/10d4ebd2-5919-11e8-a3f9-db2dd23490ad/6e0a6206-1558-11e7-a0fe-e7a448f880d1
+spec:
+  selector:
+    name: joomla-kubernetes
+    component: mariadb
+  ports:
+  - port: 3306
+    targetPort: 3306
+    name: mariadb-3306
+    protocol: TCP
+  type: ClusterIP
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: joomla
+  uid: 10d4ebd2-5919-11e8-a3f9-db2dd23490af
+  annotations:
+    yipee.io.lastModelUpdate: '2018-09-21T20:23:31.847Z'
+    yipee.io.modelId: 10d4ebd2-5919-11e8-a3f9-db2dd23490ad
+    yipee.io.contextId: 6e0a6206-1558-11e7-a0fe-e7a448f880d1
+    yipee.io.modelURL: https://app.yipee.io/editor/10d4ebd2-5919-11e8-a3f9-db2dd23490ad/6e0a6206-1558-11e7-a0fe-e7a448f880d1
+spec:
+  selector:
+    matchLabels:
+      name: joomla-kubernetes
+      component: joomla
+  rollbackTo:
+    revision: 0
+  template:
+    spec:
+      imagePullSecrets: []
+      containers:
+      - volumeMounts:
+        - mountPath: /bitnami/apache
+          name: apache-data
+        - mountPath: /bitnami/joomla
+          name: joomla-data
+        - mountPath: /bitnami/php
+          name: php-data
+        name: joomla
+        env:
+        - name: JOOMLA_EMAIL
+          value: user@example.com
+        - name: JOOMLA_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              key: JOOM_PASS
+              name: joomlaconfig
+        - name: JOOMLA_USERNAME
+          value: root
+        - name: MARIADB_HOST
+          value: mariadb
+        - name: MARIADB_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              key: MARIA_PASS
+              name: joomlaconfig
+        - name: MARIADB_PORT
+          value: '3306'
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        - containerPort: 443
+          protocol: TCP
+        image: bitnami/joomla:latest
+      volumes:
+      - name: php-data
+        persistentVolumeClaim:
+          claimName: php-data-claim
+      - name: apache-data
+        persistentVolumeClaim:
+          claimName: apache-data-claim
+      - name: joomla-data
+        persistentVolumeClaim:
+          claimName: joomla-data-claim
+      restartPolicy: Always
+    metadata:
+      labels:
+        name: joomla-kubernetes
+        component: joomla
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  replicas: 1
+  revisionHistoryLimit: 2
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mariadb
+  annotations:
+    yipee.io.lastModelUpdate: '2018-09-21T20:23:31.847Z'
+    yipee.io.modelId: 10d4ebd2-5919-11e8-a3f9-db2dd23490ad
+    yipee.io.contextId: 6e0a6206-1558-11e7-a0fe-e7a448f880d1
+    yipee.io.modelURL: https://app.yipee.io/editor/10d4ebd2-5919-11e8-a3f9-db2dd23490ad/6e0a6206-1558-11e7-a0fe-e7a448f880d1
+spec:
+  selector:
+    matchLabels:
+      name: joomla-kubernetes
+      component: mariadb
+  rollbackTo:
+    revision: 0
+  template:
+    spec:
+      imagePullSecrets: []
+      containers:
+      - volumeMounts:
+        - mountPath: /bitnami/mariadb
+          name: mariadb-data
+        name: mariadb
+        env:
+        - name: ALLOW_EMPTY_PASSWORD
+          value: 'yes'
+        - name: MARIADB_PORT
+          value: '3306'
+        - name: MARIADB_ROOT_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              key: MARIA_PASS
+              name: joomlaconfig
+        ports:
+        - containerPort: 3306
+          protocol: TCP
+        image: bitnami/mariadb:10.1.26-r2
+      volumes:
+      - name: mariadb-data
+        persistentVolumeClaim:
+          claimName: mariadb-data-claim
+      restartPolicy: Always
+    metadata:
+      labels:
+        name: joomla-kubernetes
+        component: mariadb
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  replicas: 1
+  revisionHistoryLimit: 2
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: php-data-claim
+  annotations:
+    yipee.io.lastModelUpdate: '2018-09-21T20:23:31.847Z'
+    yipee.io.modelId: 10d4ebd2-5919-11e8-a3f9-db2dd23490ad
+    yipee.io.contextId: 6e0a6206-1558-11e7-a0fe-e7a448f880d1
+    yipee.io.modelURL: https://app.yipee.io/editor/10d4ebd2-5919-11e8-a3f9-db2dd23490ad/6e0a6206-1558-11e7-a0fe-e7a448f880d1
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2G
+  volumeMode: Filesystem
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: joomla-data-claim
+  annotations:
+    yipee.io.lastModelUpdate: '2018-09-21T20:23:31.847Z'
+    yipee.io.modelId: 10d4ebd2-5919-11e8-a3f9-db2dd23490ad
+    yipee.io.contextId: 6e0a6206-1558-11e7-a0fe-e7a448f880d1
+    yipee.io.modelURL: https://app.yipee.io/editor/10d4ebd2-5919-11e8-a3f9-db2dd23490ad/6e0a6206-1558-11e7-a0fe-e7a448f880d1
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2G
+  volumeMode: Filesystem
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: apache-data-claim
+  annotations:
+    yipee.io.lastModelUpdate: '2018-09-21T20:23:31.847Z'
+    yipee.io.modelId: 10d4ebd2-5919-11e8-a3f9-db2dd23490ad
+    yipee.io.contextId: 6e0a6206-1558-11e7-a0fe-e7a448f880d1
+    yipee.io.modelURL: https://app.yipee.io/editor/10d4ebd2-5919-11e8-a3f9-db2dd23490ad/6e0a6206-1558-11e7-a0fe-e7a448f880d1
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2G
+  volumeMode: Filesystem
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mariadb-data-claim
+  annotations:
+    yipee.io.lastModelUpdate: '2018-09-21T20:23:31.847Z'
+    yipee.io.modelId: 10d4ebd2-5919-11e8-a3f9-db2dd23490ad
+    yipee.io.contextId: 6e0a6206-1558-11e7-a0fe-e7a448f880d1
+    yipee.io.modelURL: https://app.yipee.io/editor/10d4ebd2-5919-11e8-a3f9-db2dd23490ad/6e0a6206-1558-11e7-a0fe-e7a448f880d1
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2G
+  volumeMode: Filesystem

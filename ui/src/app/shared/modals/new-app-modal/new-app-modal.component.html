@@ -1,0 +1,48 @@
+<form [formGroup]="newApplicationForm" (ngSubmit)="createNewApp(newApplicationForm.value)" autocomplete="off">
+  <clr-modal #createNewModal [clrModalClosable]="false" [(clrModalOpen)]="show" [clrModalSize]="'md'" [clrModalHeight]="'lg'">
+    <h3 class="modal-title">Create New Application</h3>
+    <div class="modal-body">
+      <div *ngIf="alertText.length > 0">
+        <div *ngFor="let alert of alertText; let i=index;" class="alert alert-danger">
+          <div class="alert-items">
+            <div class="alert-item static">
+              <div class="alert-icon-wrapper">
+                <clr-icon class="alert-icon" shape="exclamation-circle"></clr-icon>
+              </div>
+              <span class="alert-text">{{alert}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <section class="form-block">
+        <div class="form-group">
+          <label for="applicationName">Application Name</label>
+          <input name="applicationName" class="text-field form-control" placeholder="Application Name" formControlName="applicationName"
+            type="text" id="applicationName" required autofocus/>
+          <div *ngIf="applicationName.invalid && (applicationName.dirty || applicationName.touched)" class="alert alert-danger">
+            <div *ngIf="applicationName.errors.required">
+              Name is required.
+            </div>
+            <div *ngIf="applicationName.errors.maxlength">
+              Name must be less than 65 characters long.
+            </div>
+            <div *ngIf="applicationName.errors.forbiddenName">
+              Name cannot be the same as another app you own.
+            </div>
+            <div *ngIf="applicationName.errors.firstCharAlphaNumeric && !applicationName.errors.required">
+              The first character must be a letter or number.
+            </div>
+            <div *ngIf="applicationName.errors.alphaNumeric && !applicationName.errors.firstCharAlphaNumeric && !applicationName.errors.required">
+              Name can only contain letters, numbers, "_", and "-".
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="cancelNewApp()">Cancel</button>
+      <button type="submit" class="btn btn-primary" [disabled]="applicationName.invalid">Create</button>
+    </div>
+  </clr-modal>
+</form>

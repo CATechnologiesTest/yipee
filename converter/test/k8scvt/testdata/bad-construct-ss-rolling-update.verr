@@ -1,0 +1,2 @@
+ERRORS: element1: spec.updateStrategy.rollingUpdate.maxSurge: is not defined in the schema and the schema does not allow additional properties
+element1: spec.updateStrategy.rollingUpdate.maxUnavailable: is not defined in the schema and the schema does not allow additional properties

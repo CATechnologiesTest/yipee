@@ -1,0 +1,48 @@
+<div *ngIf="nerdmode.loading" class="container tc">
+  <div class="loading-spinner">
+    <span class="spinner">
+      Loading...
+    </span>
+  </div>
+</div>
+
+<div *ngIf="!nerdmode.loading" class="pb20">
+  <clr-tabs>
+
+    <clr-tab>
+      <button clrTabLink class="nerdmode-btn">
+        Kubernetes
+      </button>
+      <ng-template [(clrIfActive)]="kubernetes">
+        <clr-tab-content>
+          <div class="card">
+            <div class="card-header">
+              <button [disabled]="nerdmode.errors" (click)="onDownload(editorService.nerdModeType)" class="btn btn-sm btn-link">Download This File</button>
+            </div>
+            <div class="card-block">
+              <code class="card-text code">{{ nerdmode.code }}</code>
+            </div>
+          </div>
+        </clr-tab-content>
+      </ng-template>
+    </clr-tab>
+
+    <clr-tab>
+      <button clrTabLink class="nerdmode-btn">
+        Helm Chart
+      </button>
+      <ng-template [(clrIfActive)]="helm">
+        <clr-tab-content *clrIfActive>
+          <div class="card">
+            <div class="card-header">
+            </div>
+            <div class="card-block">
+              <code class="card-text code">{{ nerdmode.code }}</code>
+            </div>
+          </div>
+        </clr-tab-content>
+      </ng-template>
+    </clr-tab>
+
+  </clr-tabs>
+</div>

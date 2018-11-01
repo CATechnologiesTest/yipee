@@ -1,0 +1,88 @@
+{
+    "services": {
+        "extra-service": {
+            "image": "test/extra-service",
+            "hold_for_compose": {
+                "cap_add": [
+                    "ALL"
+                ],
+                "cap_drop": [
+                    "NET_ADMIN",
+                    "SYS_ADMIN"
+                ],
+                "cgroup_parent": "m-executor-abcd",
+                "container_name": "my-web-container",
+                "devices": [
+                    "/dev/ttyUSB0:/dev/ttyUSB0",
+                    "/dev/ttyUSB1:/dev/ttyUSB1"
+                ],
+                "dns": [
+                    "8.8.8.8",
+                    "9.9.9.9"
+                ],
+                "dns_search": "example.com",
+                "tmpfs": [
+                    "/run",
+                    "/tmp"
+                ],
+                "env_file": ".env",
+                "extends": {
+                    "file": "common.yml",
+                    "service": "webapp"
+                },
+                "external_links": [
+                    "redis_1",
+                    "project_db_1:mysql",
+                    "project_db_1:postgresql"
+                ],
+                "extra_hosts": [
+                    "somehost:162.242.195.82",
+                    "otherhost:50.31.209.229"
+                ],
+                "links": [
+                    "db",
+                    "db:database",
+                    "redis"
+                ],
+                "network_mode": "none",
+                "pid": "host",
+                "security_opt": [
+                    "label:user:USER",
+                    "label:role:ROLE"
+                ],
+                "stop_signal": "SIGUSR1",
+            "stop_grace_period": "1m30s",
+            "ulimits": {
+                "nproc": 65535,
+                "nofile": {
+                    "soft": 20000,
+                    "hard": 40000
+                }
+            },
+            "volumes_from": [
+                "service_name",
+                "service_name:ro",
+                "container:container_name",
+                "container:container_name:rw"
+            ],
+            "volume_driver": "booger",
+            "cpu_shares": 73,
+            "cpu_quota": 50000,
+            "cpuset": "0,1",
+            "user": "postgresql",
+            "working_dir": "/code",
+            "domainname": "foo.com",
+            "hostname": "foo",
+            "ipc": "host",
+            "mac_address": "02:42:ac:11:65:43",
+            "mem_limit": 1000000000,
+            "memswap_limit": 2000000000,
+            "privileged": true,
+            "read_only": true,
+            "shm_size": "64M",
+            "stdin_open": true,
+            "tty": true
+            }
+        }
+    }
+}

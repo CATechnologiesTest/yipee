@@ -1,0 +1,70 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: simpleservice2
+spec:
+  replicas: 1
+  rollbackTo:
+    revision: 0
+  selector:
+    matchLabels:
+      name: SimpleService
+      component: simpleservice2
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name: SimpleService
+        component: simpleservice2
+    spec:
+      containers:
+      - image: mysimpleserviceimage
+        name: simpleservice2
+      restartPolicy: OnFailure
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: simpleservice3
+  labels:
+    name: simpleservice3
+    component: SimpleService
+spec:
+  containers:
+  - image: mysimpleserviceimage
+    name: simpleservice3
+  restartPolicy: Never
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: simpleservice
+spec:
+  replicas: 1
+  rollbackTo:
+    revision: 0
+  selector:
+    matchLabels:
+      name: SimpleService
+      component: simpleservice
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name: SimpleService
+        component: simpleservice
+    spec:
+      containers:
+      - image: mysimpleserviceimage
+        name: simpleservice
+      restartPolicy: Always

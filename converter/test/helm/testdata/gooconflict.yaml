@@ -1,0 +1,7 @@
+oo:
+  gar:
+  - gaz: {{int .Values.fooG0Oo1Gar2Gaz3Gaz4}}
+  - guux: {{.Values.fooG0Oo1Gar2Guux3Guux4}}
+  ganda: {{.Values.fooG0Oo1Ganda2}}
+  gramkowitz: {{float .Values.fooG0Oo1Gramkowitz2}}
+ooWanda: {{.Values.fooG0OoWanda1}}

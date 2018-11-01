@@ -1,0 +1,98 @@
+<span [formGroup]="form">
+
+  <!-- service name -->
+  <div style="padding-left: 5rem;" class="form-group">
+    <label id="k8s-statefulset-servicename-label" style="width: 4rem;">Service Name</label>
+    <div style="margin-right: 35px;" class="select">
+      <select formControlName="service_name">
+        <option value="-- Select a service --">
+          -- Select a Service --
+        </option>
+        <option *ngFor="let option of serviceNameOptions" [value]="option.name">
+          {{ option.name }}
+        </option>
+      </select>
+    </div>
+    <div class="mr0" *ngIf="form.controls.service_name.errors?.required === true || form.controls.service_name.errors?.containsSelectAService === true"
+      [ngClass]="form.controls.service_name.errors?.required === true || form.controls.service_name.errors?.containsSelectAService === true ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+    </div>
+    <div class="error-text" *ngIf="form.controls.service_name.errors?.required === true || form.controls.service_name.errors?.containsSelectAService === true">
+      Valid service name required
+    </div>
+  </div>
+  <!-- END service name -->
+
+  <!-- statfulSet - grace_period -->
+  <div style="padding-left: 5rem;" class="form-group">
+    <label id="k8s-statefulset-graceperiod-label" style="width: 5rem;">
+      Grace Period
+    </label>
+    <input formControlName="grace_period" type="number">
+  </div>
+  <!-- END statefulSet - grace_period -->
+
+  <!-- statefulSet - update_strategy -->
+  <div style="padding-left: 5rem;" class="form-group">
+    <label id="k8s-statefulset-updatestrategy-label" style="width: 5rem;">Update Strategy</label>
+    <div class="select">
+      <select formControlName="update_strategy">
+        <option *ngFor="let option of updateStrategyOptions" [value]="option.value">
+          {{ option.name }}
+        </option>
+      </select>
+    </div>
+  </div>
+  <!-- END statefulSet - update_strategy -->
+
+  <!-- statfulSet - partition -->
+  <div *ngIf="form.value.update_strategy === 'RollingUpdate'" style="padding-left: 5rem;" class="form-group">
+    <label id="k8s-statefulset-partition-label" style="width: 5rem;">
+      Partition
+    </label>
+    <input formControlName="partition" type="number">
+  </div>
+  <!-- END statefulSet - partition -->
+
+  <!-- StatefulSet - revisionHistoryLimit -->
+  <div style="padding-left: 7rem;" class="form-group">
+    <label id="k8s-statefulset-revision-history-limit-label" style="width: 7rem;">
+      Revision History Limit
+    </label>
+    <label class="table-input" [ngClass]="form.controls.revisionHistoryLimit.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+      <input placeholder="Optional" formControlName="revisionHistoryLimit" type="number">
+      <span class="tooltip-content">
+        <span *ngIf="this.form.controls.revisionHistoryLimit.errors?.numericZeroOrGreater == true">Revision History Limit must be a number 0 or greater</span>
+      </span>
+    </label>
+  </div>
+  <!-- END StatefulSet - revisionHistoryLimit -->
+
+  <!-- statefulSet -  pod_management -->
+  <div style="padding-left: 5rem;" class="form-group">
+    <label id="k8s-statefulset-podmanagement-label" style="width: 5rem;">Pod Management</label>
+    <div class="select">
+      <select formControlName="pod_management">
+        <option *ngFor="let option of podManagementOptions" [value]="option.value">
+          {{ option.name }}
+        </option>
+      </select>
+    </div>
+  </div>
+  <!-- END statefulSet - pod_management -->
+
+  <!-- statefulSet - restart -->
+  <div style="padding-left: 5rem;" class="form-group">
+    <label id="k8s-statefulset-restart-label" style="width: 5rem;">
+      Restart
+    </label>
+    <div class="select">
+      <select formControlName="restart">
+        <option *ngFor="let option of restartOptions" [value]="option.value">
+          {{ option.name }}
+        </option>
+      </select>
+    </div>
+  </div>
+  <!-- END statefulSet - restart -->
+
+</span>

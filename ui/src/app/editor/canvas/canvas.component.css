@@ -1,0 +1,82 @@
+.canvas-header {
+  position: absolute;
+  top: 60px;
+  left: 0;
+  right: 560px;
+}
+.blue {
+  background: #8aa8dd;
+}
+.white {
+  background: white;
+}
+.button-svg {
+  width: 16px;
+  height: 16px;
+}
+
+.toolbar-button-group {
+  margin: 6px 12px 6px 0;
+}
+
+.clear-search-item {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+}
+
+.flex-left {
+  justify-content: flex-start;
+  display: flex;
+  flex: auto;
+  flex-direction: row;
+}
+
+.flex-center {
+  justify-content: center;
+  display: flex;
+  flex: auto;
+  flex-direction: row;
+}
+
+.flex-right {
+  justify-content: flex-end;
+  display: flex;
+  flex: auto;
+  flex-direction: row;
+}
+
+.tc {
+  text-align: center;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

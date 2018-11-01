@@ -1,0 +1,18 @@
+{
+    "app-info": {
+        "name": "SimpleService",
+        "description": "a (very) simple service"
+    },
+    "services": {
+        "simpleservice": {
+            "image": "mysimpleserviceimage",
+            "restart": "always",
+            "healthcheck": {
+                "healthcmd": ["/bin/sh", "-c", "test -f /var/poop"],
+                "interval": 10,
+                "timeout": 1,
+                "retries": 3
+            }
+        }
+    }
+}

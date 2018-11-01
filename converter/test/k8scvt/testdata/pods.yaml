@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo
+  labels:
+    name: mongo
+    app: mongo
+spec:
+  ports:
+  - port: 27017
+    name: web
+  selector:
+    name: mongo
+    component: pods
+    borflongaz: tongravul
+    yipee.io/mongo: generated
+  type: NodePort
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mongo
+  labels:
+    name: mongo
+    component: pods
+    borflongaz: tongravul
+    yipee.io/mongo: generated
+  annotations:
+    annoprefix/annoname: here is a pod annotation
+spec:
+  restartPolicy: Never
+  imagePullSecrets:
+    - name: itsasecret
+  containers:
+  - name: mongodb
+    image: mongo:3.4.1
+    command:
+    - mongod
+    - --replSet
+    - rs0
+    ports:
+    - containerPort: 27017
+      name: web
+   # This container initializes the mongodb, then sleeps.
+  - name: init-mongo
+    image: mongo:3.4.1
+    command:
+    - bash
+    - /config/init.sh

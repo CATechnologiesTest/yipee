@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: one
+spec:
+  selector:
+    name: booger
+    component: one

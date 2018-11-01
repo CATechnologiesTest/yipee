@@ -1,0 +1,68 @@
+<div class="row">
+  <div class="col-sm-12">
+    <h6 [ngSwitch]="isComponentExpanded">
+      <span id="k8s-ingress-tls-dropdown" class="pointer mb5" (click)="isComponentExpanded = !isComponentExpanded">
+        <clr-icon *ngSwitchCase="false" shape="caret right"></clr-icon>
+        <clr-icon *ngSwitchCase="true" shape="caret down"></clr-icon>
+        TLS
+        <clr-icon *ngIf="form.controls.tls.invalid" shape="exclamation-circle" class="icon-danger small-icon"></clr-icon>
+      </span>
+    </h6>
+  </div>
+</div>
+<div [hidden]="!isComponentExpanded">
+  <div [formGroup]="form" class="pt10">
+    <div class="col-xs-11 offset-xs-1">
+      <table class="table table-noborder mv0">
+        <thead>
+          <tr>
+            <th style="text-align: left; width: 25%;">
+              <label style="border: none;">Secret Name</label>
+            </th>
+            <th style="text-align: left; width: 65%">
+                <label style="border: none;">Hosts</label>
+            </th>
+            <th style="width: 10%;">
+              <clr-icon shape="plus-circle" class="is-highlight" (click)="handleAddTLS()"></clr-icon>
+            </th>
+          </tr>
+        </thead>
+        <div formArrayName="tls" style="display: contents;">
+          <tbody *ngFor="let object of tls; let i = index" [formGroupName]="i">
+            
+            <tr>
+              <td style="text-align: left;">
+                  <label class="table-input" [ngClass]="tls[i].controls.secret_name.invalid ? 'tooltip tooltip-validation tooltip-top-right invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+                      <input placeholder="Optional" maxlength="128" class="table-input" type="text" formControlName="secret_name">
+                      <span class="tooltip-content">
+                        <span *ngIf="tls[i].controls.secret_name.errors?.containsSpace === true">Secret Name cannot contain spaces
+                          <br/>
+                        </span>
+                      </span>
+                    </label>
+              </td>
+              <td>
+                  <label class="table-input" [ngClass]="tls[i].controls.hosts.invalid ? 'tooltip tooltip-validation tooltip-top-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+                      <input placeholder="Required" maxlength="128" class="table-input" type="text" formControlName="hosts">
+                      <span class="tooltip-content">
+                        <span *ngIf="tls[i].controls.hosts.errors?.required === true">Hosts is required
+                          <br/>
+                        </span>
+                        <span *ngIf="tls[i].controls.hosts.errors?.tlsHostsDnsValidator === true">Hosts must be a valid DNS name
+                          <br/>
+                        </span>
+                      </span>
+                    </label>
+              </td>
+              <td>
+                <clr-icon shape="minus-circle" class="is-highlight" (click)="handleRemoveTLS(i, j)"></clr-icon>
+              </td>
+            </tr>
+            
+
+          </tbody>
+        </div>
+      </table>
+    </div>
+  </div>
+</div>

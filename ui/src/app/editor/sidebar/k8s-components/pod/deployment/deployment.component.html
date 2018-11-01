@@ -1,0 +1,58 @@
+<form [formGroup]="form">
+
+    <!-- statefulSet - update_strategy -->
+    <div style="padding-left: 5rem;" class="form-group">
+        <label id="k8s-deployment-updatestrategy-label" style="width: 5rem;">Update Strategy</label>
+        <div class="select">
+            <select formControlName="update_strategy">
+                <option *ngFor="let option of updateStrategyOptions" [value]="option.value">
+                    {{ option.name }}
+                </option>
+            </select>
+        </div>
+    </div>
+    <!-- END statefulSet - update_strategy -->
+
+    <!-- deploymentSet - maxSurge -->
+    <div *ngIf="form.value.update_strategy === 'RollingUpdate'" style="padding-left: 5rem;" class="form-group">
+        <label id="k8s-deployment-max-surge-label" style="width: 5rem;">
+            Max Surge
+        </label>
+        <label class="table-input" [ngClass]="form.controls.maxSurge.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+            <input formControlName="maxSurge" type="text">
+            <span class="tooltip-content">
+                <span *ngIf="this.form.controls.maxSurge.errors?.numericAndPercentOnly == true">Max surge must be a number or percentage</span>
+            </span>
+        </label>
+    </div>
+    <!-- END deploymentSet - maxSurge -->
+
+    <!-- deploymentSet - maxUnavailable -->
+    <div *ngIf="form.value.update_strategy === 'RollingUpdate'" style="padding-left: 5rem;" class="form-group">
+        <label id="k8s-deployment-max-unavailable-label" style="width: 5rem;">
+            Max Unavailable
+        </label>
+        <label class="table-input" [ngClass]="form.controls.maxUnavailable.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+            <input formControlName="maxUnavailable" type="text">
+            <span class="tooltip-content">
+                <span *ngIf="this.form.controls.maxUnavailable.errors?.numericAndPercentOnly == true">Max unavailable must be a number or percentage</span>
+            </span>
+        </label>
+    </div>
+    <!-- END deploymentSet - maxUnavailable -->
+
+    <!-- deploymentSet - revisionHistoryLimit -->
+    <div style="padding-left: 7rem;" class="form-group">
+        <label id="k8s-deploymentset-revision-history-limit-label" style="width: 7rem;">
+            Revision History Limit
+        </label>
+        <label class="table-input" [ngClass]="form.controls.revisionHistoryLimit.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
+            <input placeholder="Optional" formControlName="revisionHistoryLimit" type="number">
+            <span class="tooltip-content">
+                <span *ngIf="this.form.controls.revisionHistoryLimit.errors?.numericZeroOrGreater == true">Revision History Limit must be a number 0 or greater</span>
+            </span>
+        </label>
+    </div>
+    <!-- END deploymentSet - revisionHistoryLimit -->
+
+</form>

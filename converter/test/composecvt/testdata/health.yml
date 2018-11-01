@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+  s1:
+    image: fake/poo
+    healthcheck:
+      test: "curl -f http://localhost/ || exit 1"
+      interval: 1m1s
+      timeout: 10s
+      retries: 2
+  s2:
+    image: fake/poo2
+    healthcheck:
+      test: ["CMD", "grep", "stuff"]
+      interval: 1m60s
+      timeout: 10s
+      retries: 2
+  s3:
+    image: fake/poo2
+    healthcheck:
+      test: ["CMD-SHELL", "grep", "stuff"]
+      interval: 1m120s
+      timeout: 10s
+      retries: 2
+
+  s4:
+    image: fake/poo4
+    healthcheck:
+      test: "curl -f http://defaults/ || exit 1"
+
+  # fail-validate:
+  #   image: fake/poo2
+  #   healthcheck:
+  #     test: false
+  #     interval: 1m120s
+  #     timeout: 10s
+  #     retries: 2

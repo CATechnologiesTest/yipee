@@ -1,0 +1,19 @@
+version: '2'
+services:
+  one:
+    image: some/image
+    volumes:
+    - vol1:/data
+    - vol2:/data2
+
+volumes:
+  vol1:
+    external:
+      name: blah
+  vol2:
+    external: true
+  vol3:
+    driver: foo
+    driver_opts:
+      first: something
+      second: 10

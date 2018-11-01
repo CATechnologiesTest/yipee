@@ -1,0 +1,10 @@
+*~
+node_modules
+Dockerfile
+.nyc_output
+docker-compose*
+*build.sh
+test
+.git*
+README*
+mkimage.sh*
