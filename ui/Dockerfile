@@ -37,7 +37,7 @@ RUN rm -rf /usr/html/index.html Dockerfile* *.md  && \
     npm run build-prod && \
     ln -sf /dev/stdout /var/log/nginx/access.log && \
     ln -sf /dev/stderr /var/log/nginx/error.log && \
-    cp -r ./dist/ ${HTML_DEST} && \
+    cp -r ./dist/* ${HTML_DEST} && \
     cp ./${DEFAULT_CFG} /etc/nginx/conf.d/default.conf && \
     cp ./run /etc/sysctl.d/
 
