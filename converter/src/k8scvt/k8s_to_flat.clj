@@ -420,7 +420,7 @@
                         (:default default-map))]
     (or (get-in (:spec cont) field-chain) default-val)))
 
-;; drop yipee.io and last-applied-config annotations
+;; drop yipee and last-applied-config annotations
 ;; - yipee-annotations: we'll want to generate new ones on download.
 ;; - last-applied-config: generally doesn't play well with
 ;;   subsequent "kubectl apply".
@@ -429,7 +429,7 @@
   (let [annos (into {}
                     (filter
                      #(and
-                       (not (str/starts-with? (name (first %)) "yipee.io"))
+                       (not (str/starts-with? (name (first %)) "yipee."))
                        (not (str/starts-with?
                              (name (first %)) last-applied-anno)))
                      annos))]

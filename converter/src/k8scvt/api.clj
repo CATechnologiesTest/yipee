@@ -202,8 +202,7 @@
                  (str/join "\n---\n" [joined vals])))))))
 
 (defn bundle-results [results]
-  (let [complete-file (join-results (format-results results))
-        entries (mapcat
+  (let [entries (mapcat
                  (fn [[k entries]]
                    (map (fn [entry]
                           [(str (inf/plural (name k))
@@ -214,8 +213,7 @@
                         entries))
                  results)]
     (helm/encode-bytes
-     (tar/tarify
-      (concat [["configurationAsSingleFile.yaml" complete-file]] entries)))))
+     (tar/tarify entries))))
 
 (defn conversion-base [ctx fun]
   (if (contains? ctx ::retval)

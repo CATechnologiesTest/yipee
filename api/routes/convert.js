@@ -61,21 +61,13 @@ function getAppName(req) {
 
 Router.post('/:_type', function(req, resp) {
     if (types.has(req.params._type)) {
-        var uiYipeeFile = Object.assign({}, req.body);
-        var modstr;
-        [_, modstr] = Helpers.generateDateStrings({name: getAppName(req),
-                                                   fromNerdCvt: true});
-        Helpers.addAnnotationInfo({yipeeFile: uiYipeeFile, fromNerdCvt: true},
-                                  Util.getAppURL(req),
-                                  // Helpers.useFlatFormat(req));
-                                  true);
-        // doConvert(req, req.params._type, uiYipeeFile)
-        doPost(optionsByType[req.params._type], uiYipeeFile)
+        let flatFile = Object.assign({}, req.body);
+        Helpers.addAnnotationInfo(flatFile);
+        doPost(optionsByType[req.params._type], flatFile)
             .then(res => {
                 if (res.rc < 300) {
                     // minimal yipeeobject for "makeCommentedDownload"
-                    var yipeeObj = {name: getAppName(req),
-                                    fromNerdCvt: true};
+                    var yipeeObj = {name: getAppName(req)};
                     var typeKey = req.params._type + "File";
                     var converted = Helpers.makeCommentedDownload(
                         yipeeObj, res.body);

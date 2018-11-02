@@ -23,7 +23,8 @@ Router.post('/:_type', function(req, resp) {
     const dltype = req.params._type;
     if (types.has(dltype)) {
         const converter = typeConverters[dltype];
-        const flatFile = req.body;
+        let flatFile = req.body;
+        Helpers.addAnnotationInfo(flatFile);
         converter.cvt(flatFile)
             .then(result => {
                 var retval = {};

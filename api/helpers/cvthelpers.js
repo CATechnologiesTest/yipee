@@ -21,74 +21,24 @@ function getAppName(yipee) {
 }
 module.exports.getAppName = getAppName;
 
-function generateDateStrings(yipee) {
-    var nowstr = new Date().toISOString();
-    var modstr;
-    if (typeof yipee.dateModified === 'string') {
-        // DB timestamps come out as strings, but they're not formatted
-        // the same as the nodejs toISOString that we're using
-        // for "generated time".   So we do this for consistency...
-        try {
-            modstr = new Date(yipee.dateModified).toISOString();
-        } catch (ignore) {
-            modstr = 'N/A';
-        }
-    } else if (yipee.fromNerdCvt) {
-        modstr = nowstr;
-    } else {
-        modstr = 'N/A';
-    }
-
-    return [nowstr, modstr];
+function getGenerationDate() {
+    return new Date().toISOString();
 }
 
-function splitURL(url) {
-    if (url == null || url == undefined || url == '') {
-        return ['app.yipee.io', '00000000-0000-0000-0000-000000000000',
-                '00000000-0000-0000-0000-000000000000'];
-    }
-
-    var host, id, org;
-    [_, _, host, _, _, _, id, _, org] = url.split(/([:][/][/])|[/]/);
-    return [host, id, org];
-}
-
-function addAnnotationInfo(yipee, url, isFlat) {
-    yipeeFile = yipee.yipeeFile;
-    // Add k8s annotations
-    var modstr;
-    [_, modstr] = generateDateStrings(yipee);
-
-    [host, id, org] = splitURL(url);
-    if (isFlat) {
-        yipeeFile['model-annotations'] = [{'type': 'model-annotations'}];
-        yipeeFile['model-annotations'][0]['yipee.io.lastModelUpdate'] = modstr;
-        yipeeFile['model-annotations'][0]['yipee.io.modelId'] = id;
-        yipeeFile['model-annotations'][0]['yipee.io.contextId'] = org;
-        yipeeFile['model-annotations'][0]['yipee.io.modelURL'] = url;
-    } else {
-        yipeeFile['model-annotations'] = {};
-        yipeeFile['model-annotations']['yipee.io.lastModelUpdate'] = modstr;
-        yipeeFile['model-annotations']['yipee.io.modelId'] = id;
-        yipeeFile['model-annotations']['yipee.io.contextId'] = org;
-        yipeeFile['model-annotations']['yipee.io.modelURL'] = url;
-    }
+function addAnnotationInfo(flatFile) {
+    let nowstr = getGenerationDate();
+    flatFile['model-annotations'] = [{'type': 'model-annotations'}];
+    flatFile['model-annotations'][0]['yipee.io.generatedAt'] = nowstr;
 }
 
 function makeCommentedDownload(yipee, payload) {
-    var nowstr, modstr;
-    [nowstr, modstr] = generateDateStrings(yipee);
-    return "# Generated " + nowstr + " by Yipee.io\n" +
-        "# Application: " + getAppName(yipee) + "\n" +
-        "# Last Modified: " + modstr + "\n" +
-        // XXX: don't include URL until the app supports it...
-        // "# URL: https://app.yipee.io/main/editor/" + yipee._id + "\n" +
-        "\n" +
+    let nowstr = getGenerationDate();
+    return "# Generated " + nowstr + " by Yipee editor\n" +
+        "# Application: " + getAppName(yipee) + "\n\n" +
         payload;
 }
 
 module.exports.addAnnotationInfo = addAnnotationInfo;
-module.exports.generateDateStrings = generateDateStrings;
 module.exports.makeCommentedDownload = makeCommentedDownload;
 
 function doConversion(inputdata, url, path) {
