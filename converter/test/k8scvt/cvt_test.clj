@@ -463,6 +463,23 @@
               (println (.getMessage e))
               (is false))))))))
 
+(deftest yipee-annotations-for-service
+  (testing "yipee annotations are added for services"
+    (binding [u/*wmes-by-id* (atom {})]
+      (let [to-flat (engine :k8scvt.k8s-to-flat)
+            from-flat (engine :k8scvt.flat-to-k8s)]
+        (let [k8s (fi/get-k8s-from-yaml-testdata "racket.yaml")
+              flats (to-flat :run-list [k8s])
+              results (apply concat
+                             (vals (u/k8skeys (from-flat :run-map flats))))
+              new-wmes (conj results
+                             {:type :model-annotations
+                              :yipee.generatedAt "2018-05-16T23:44:24Z"})
+              k8s-results (from-flat :run new-wmes)
+              svcs (:service k8s-results)]
+          (doseq [svc svcs]
+            (is (seq (:annotations (:metadata svc))))))))))
+
 (deftest retain-pod-annotations
   (testing "k8s annotations are retained when Pod is translated to Deployment"
     (binding [u/*wmes-by-id* (atom {})]

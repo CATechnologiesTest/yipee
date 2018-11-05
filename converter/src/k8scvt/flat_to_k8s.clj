@@ -34,7 +34,7 @@
 
 (defancestor [:deployment :daemonSet :statefulSet :cronJob] :k8s-controller)
 
-(defancestor [:k8s-controller :controller :k8s-service
+(defancestor [:k8s-controller :controller :k8s-service :service
               :persistent-volume-claim :k8s-namespace :pod :ingress]
   :k8s-annotatable)
 

@@ -1,12 +1,17 @@
 (ns k8scvt.diff-rules
   (:require [engine.core :refer :all]))
 
+;; Simple rules to manage diffs between two Kubernetes models. Takes an input
+;; set of fields and constructs diffs, pruning any diff subsumed by one higher
+;; in the object hierarchy.
+
 (def ^:dynamic *cleanup* -10000)
 (def ^:dynamic *adjustment* 10000)
 
 (defn add-or-remove [x]
   (#{:add :remove} (:action x)))
 
+;; Is the path to a field an extension of another path?
 (defn path-extends? [path sub-path]
   (loop [p path s sub-path]
     (cond (empty? p) false
@@ -14,6 +19,7 @@
           (= (first p) (first s)) (recur (rest p) (rest s))
           :else false)))
 
+;; Remove any diff whose path is an extension of another diff's path
 (defrule purge-duplicates
   {:priority *adjustment*}
   "Remove sub-diffs when parent structures are added or removed"
@@ -24,6 +30,7 @@
   =>
   (remove! ?diff2))
 
+;; Generate diffs (removed, added, modified)
 (defrule removed
   "Find diffs in which a field was removed"
   [?afield :field
@@ -79,9 +86,6 @@
    (:is-leaf ?afield)
    (= (:path ?afield) (:path ?field))
    (not= (:value ?afield) (:value ?field))]
-  [:not [?diff :diff
-         (= (:role ?diff) (:value ?role))
-         (path-extends? (:path ?diff) (:path ?field))]]
   [:not [?diff :diff
          (add-or-remove (:action ?diff))
          (path-extends? (:path ?field) (:path ?diff))]]

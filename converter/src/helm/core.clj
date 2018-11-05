@@ -15,20 +15,32 @@
             GzipCompressorInputStream]
            [java.nio.charset StandardCharsets]))
 
+;; Code for generating a Helm chart from a Yipee model. By default,
+;; the chart will parameterize everything in the templates but you can
+;; pass arguments to select any combination of labels, env vars, and
+;; ports as the subset of things to parameterize. The chart will
+;; include a single values file containing all the parameters and will
+;; be returned as a base 64 encoded, gzipped tar file.
+
+;; Debugging
 (defn ppwrap [tag val]
   (pprint/pprint (list tag val))
   val)
 
+;; Tag support for parameters
 (defn valueRef [x] (str ".Values." x))
 
 (defn valueRef? [x]
   (re-matches #"([.]Values|int [.]Values|float [.]Values)[.].+" x))
 
+;; Parts of a Kubernetes manifest that we should leave alone and
+;; not parameterize.
 (def untranslated [[:apiVersion :*]
                    [:kind :*]
                    [:* :metadata :name :*]
                    [:* :metadata :annotations :*]])
 
+;; Match the current item against the defined parameterization
 (defn match-context [cval pat]
   (cond (empty? cval) (every? #{:*} pat)
         (empty? pat) false
@@ -52,6 +64,7 @@
   (not (or (match-context cval [:* :labels :*])
            (match-context cval [:* :selector :*]))))
 
+;; Functions to determine what should be parameterized
 (defn get-base-leave-alone-fun [what-to-parameterize]
   (if (or (seq? what-to-parameterize)
           (vector? what-to-parameterize))

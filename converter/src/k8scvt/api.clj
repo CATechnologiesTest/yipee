@@ -26,6 +26,12 @@
   (:import [java.util Base64]
            [java.nio.charset StandardCharsets]))
 
+;; Module providing all apis dealing with Kubernetes, Helm, and Model Diffing.
+;; Support is provided for translating back and forth between flat format and
+;; Kubernetes, generating helm charts (either from a single Kubernetes
+;; manifest or the "diff" of multiple), and diffing manifests.
+
+;; Extract request data from HTTP request
 (defn body-as-string
   [ctx]
   (if-let [body (get-in ctx [:request :body])]
@@ -37,11 +43,15 @@
   (fi/protect-qualified-keywords
    (json/read-str (body-as-string ctx) :key-fn keyword)))
 
+;; Generic convert call that can be passed different converters and will
+;; run them and prepare the results by removing unused working memory elements
+;; and type tags
 (defn do-convert [converter valid-results]
   (let [retmap (converter :run-map valid-results)
         allowed (u/k8skeys retmap)]
     {::retval (u/remove-types allowed)}))
 
+;; Format and return any errors generated during processing
 (defn return-errors [results]
   (let [errmsgs
         (clojure.string/join "\n" (map u/format-validation-error results))]
@@ -57,6 +67,7 @@
       [results true]
       [errors false])))
 
+;; Perform an import given the translation to be performed
 (defn do-import [errs k8s-elements translator]
   (if (seq errs)
       {::reterr (clojure.string/join "\n" errs)}
@@ -182,6 +193,7 @@
                  (json/read-str (body-as-string ctx) :key-fn keyword))]
       (cvt-flat-to-k8s input)))
 
+;; Perform a diff across a set of Kubernetes models.
 (defn diff-models [ctx]
   (let [input (fi/protect-qualified-keywords
                (json/read-str (body-as-string ctx) :key-fn keyword))]
@@ -253,6 +265,8 @@
     (assoc-in (xlate data) [::retval :app-name]
               (get-app-name data))))
 
+;; Liberator resources implementing routes
+
 (defn f2hnerd [what-to-parameterize]
   (let [wtp (atom (unpack-options what-to-parameterize))]
     (resource
@@ -299,6 +313,8 @@
   :post! diff-models
   :handle-created #(conversion-base % identity))
 
+;; Routes handled by the Kubernetes subsystem. Only used in testing. In
+;; mainline operation, the converter api bypasses this.
 (def api-routes
   (routes
    (ANY "/f2hnerd" [] (f2hnerd "default"))

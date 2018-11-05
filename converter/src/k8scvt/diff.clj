@@ -360,7 +360,7 @@
 
 (defn apply-key [key obj]
   (cond (keyword? key) (key obj)
-        (string? key) (find-named-index obj key)
+        (string? key) (find-named obj key)
         :else (throw (RuntimeException.
                           (str "Key: '"
                                key
