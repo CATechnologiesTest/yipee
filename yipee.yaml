@@ -52,11 +52,11 @@ spec:
       imagePullSecrets: []
       containers:
       - name: yipee-ui
-        image: yipee-development/osyipee-ui
+        image: yipeeio/ui
+        imagePullPolicy: Always
         ports:
         - containerPort: 80
           protocol: TCP
-        imagePullPolicy: IfNotPresent
       restartPolicy: Always
     metadata:
       labels:
@@ -88,14 +88,14 @@ spec:
       imagePullSecrets: []
       containers:
       - name: yipee-api
-        image: yipee-development/osyipee-api
+        image: yipeeio/api
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
           protocol: TCP
-        imagePullPolicy: IfNotPresent
       - name: yipee-converter
-        image: yipee-development/osyipee-converter
-        imagePullPolicy: IfNotPresent
+        image: yipeeio/converter
+        imagePullPolicy: Always
       restartPolicy: Always
     metadata:
       labels:
