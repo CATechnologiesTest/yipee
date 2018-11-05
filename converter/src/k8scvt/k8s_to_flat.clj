@@ -430,7 +430,6 @@
                     (filter
                      #(and
                        (not (str/starts-with? (name (first %)) "yipee."))
-                       (not (str/starts-with? (name (first %)) "yipee.io."))
                        (not (str/starts-with?
                              (name (first %)) last-applied-anno)))
                      annos))]
