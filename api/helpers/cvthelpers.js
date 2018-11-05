@@ -24,16 +24,15 @@ module.exports.getAppName = getAppName;
 function getGenerationDate() {
     return new Date().toISOString();
 }
+module.exports.getGenerationDate = getGenerationDate;
 
-function addAnnotationInfo(flatFile) {
-    let nowstr = getGenerationDate();
+function addAnnotationInfo(flatFile, genTime) {
     flatFile['model-annotations'] = [{'type': 'model-annotations'}];
-    flatFile['model-annotations'][0]['yipee.io.generatedAt'] = nowstr;
+    flatFile['model-annotations'][0]['yipee.generatedAt'] = genTime;
 }
 
-function makeCommentedDownload(yipee, payload) {
-    let nowstr = getGenerationDate();
-    return "# Generated " + nowstr + " by Yipee editor\n" +
+function makeCommentedDownload(yipee, payload, genTime) {
+    return "# Generated " + genTime + " by Yipee editor\n" +
         "# Application: " + getAppName(yipee) + "\n\n" +
         payload;
 }

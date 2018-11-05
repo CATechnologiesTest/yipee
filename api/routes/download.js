@@ -15,22 +15,23 @@ const typeConverters = {
 
 const types = new Set(Object.getOwnPropertyNames(typeConverters));
 
-function makeComment() {
-    return "# Generated " + new Date().toISOString() + " by Yipee.io\n";
+function makeComment(genTime) {
+    return "# Generated " + genTime + " by Yipee\n";
 }
 
 Router.post('/:_type', function(req, resp) {
     const dltype = req.params._type;
     if (types.has(dltype)) {
         const converter = typeConverters[dltype];
+        let genTime = Helpers.getGenerationDate();
         let flatFile = req.body;
-        Helpers.addAnnotationInfo(flatFile);
+        Helpers.addAnnotationInfo(flatFile, genTime);
         converter.cvt(flatFile)
             .then(result => {
                 var retval = {};
                 var payload = result;
                 if (dltype === 'kubernetes') {
-                    payload = makeComment() + payload;
+                    payload = makeComment(genTime) + payload;
                 }
                 retval[converter.retkey] = payload;
                 resp.json(Util.generateSuccessResponse(retval));

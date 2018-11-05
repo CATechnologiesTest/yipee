@@ -62,7 +62,8 @@ function getAppName(req) {
 Router.post('/:_type', function(req, resp) {
     if (types.has(req.params._type)) {
         let flatFile = Object.assign({}, req.body);
-        Helpers.addAnnotationInfo(flatFile);
+        let genTime = Helpers.getGenerationDate();
+        Helpers.addAnnotationInfo(flatFile, genTime);
         doPost(optionsByType[req.params._type], flatFile)
             .then(res => {
                 if (res.rc < 300) {
@@ -70,7 +71,7 @@ Router.post('/:_type', function(req, resp) {
                     var yipeeObj = {name: getAppName(req)};
                     var typeKey = req.params._type + "File";
                     var converted = Helpers.makeCommentedDownload(
-                        yipeeObj, res.body);
+                        yipeeObj, res.body, genTime);
                     var response = {name: Helpers.getAppName(yipeeObj),
                                     version: 0};
                     response[typeKey] = converted;

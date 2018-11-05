@@ -108,7 +108,8 @@ Router.get('/:nsname/client', function(req, resp) {
 });
 
 function doDownload(req, resp, cvtfun, respkey, withComment) {
-    var nsname = req.params.nsname;
+    let nsname = req.params.nsname;
+    let genTime = cvtHelpers.getGenerationDate();
 
     k8s.makeImport(nsname)
         .then(impstring => {
@@ -116,7 +117,7 @@ function doDownload(req, resp, cvtfun, respkey, withComment) {
         })
         .then(flatfile => {
             let flatObj = JSON.parse(flatfile);
-            cvtHelpers.addAnnotationInfo(kflatObj);
+            cvtHelpers.addAnnotationInfo(flatObj, genTime);
             return cvtfun(flatObj);
         })
         .then(k8sFile => {
@@ -124,7 +125,7 @@ function doDownload(req, resp, cvtfun, respkey, withComment) {
             respobj[respkey] = k8sFile;
             if (withComment) {
                 respobj[respkey] = cvtHelpers.makeCommentedDownload(
-                    {name: nsname}, k8sFile);
+                    {name: nsname}, k8sFile, genTime);
             }
             resp.json(Util.generateSuccessResponse(respobj));
         })

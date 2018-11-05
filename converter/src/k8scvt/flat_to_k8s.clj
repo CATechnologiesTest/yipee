@@ -1572,7 +1572,7 @@
 
 (defn has-yipee-annos [kc]
   (when-let [annos (get-in kc [:metadata :annotations])]
-    (seq (filter #(str/starts-with? (name (first %1)) "yipee.io") annos))))
+    (seq (filter #(str/starts-with? (name (first %1)) "yipee.") annos))))
 
 (defrule insert-k8s-annos
   ;; before insert-service-spec-into-service cuz that will
