@@ -35,7 +35,7 @@ app.use(requestTrace);
 app.use('/setLog', loggingRoutes);
 app.use('/convert', convertRoutes);
 app.use('/import', importRoutes);
-    app.use('/download', downloadRoutes);
+app.use('/download', downloadRoutes);
 
 app.use('/namespaces', namespaceRoutes);
 

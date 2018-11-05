@@ -111,7 +111,7 @@ describe('Yipee Download API Tests:', function() {
             payload: flatYipee,
             retkey: 'kubernetesFile',
             expectStatus: 200,
-            expectEntries: ["configurationAsSingleFile.yaml"]
+            expectEntries: []
         },
         {
             type: 'helm',

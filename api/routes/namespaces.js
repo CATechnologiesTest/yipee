@@ -108,23 +108,24 @@ Router.get('/:nsname/client', function(req, resp) {
 });
 
 function doDownload(req, resp, cvtfun, respkey, withComment) {
-    var nsname = req.params.nsname;
+    let nsname = req.params.nsname;
+    let genTime = cvtHelpers.getGenerationDate();
 
     k8s.makeImport(nsname)
         .then(impstring => {
             return cvtHelpers.k8sToFlat(impstring);
         })
         .then(flatfile => {
-            var yipee = {name: nsname, yipeeFile: JSON.parse(flatfile)};
-            cvtHelpers.addAnnotationInfo(yipee, Util.getAppURL(req), true);
-            return cvtfun(yipee.yipeeFile);
+            let flatObj = JSON.parse(flatfile);
+            cvtHelpers.addAnnotationInfo(flatObj, genTime);
+            return cvtfun(flatObj);
         })
         .then(k8sFile => {
             let respobj = {name: nsname, version: 0};
             respobj[respkey] = k8sFile;
             if (withComment) {
                 respobj[respkey] = cvtHelpers.makeCommentedDownload(
-                    {name: nsname, fromNerdCvt: true}, k8sFile);
+                    {name: nsname}, k8sFile, genTime);
             }
             resp.json(Util.generateSuccessResponse(respobj));
         })
