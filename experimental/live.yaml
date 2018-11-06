@@ -1,0 +1,215 @@
+# Generated 2018-11-05T17:16:39.609Z by Yipee editor
+# Application: yipee
+
+# A version of yipee that can access data from a live k8s cluster.
+# Note that the UI for this is not (yet) opensource.
+#
+# Other changes to "stock" yipee include:
+# - kubectl included in API image (see api/Dockerfile)
+# - serviceaccount and roles as defined here
+# - api container environment as defined here
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: yipee-service-account
+
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: models.yipee.io
+spec:
+  group: yipee.io
+  version: v1
+  versions:
+  - name: v1
+    served: true
+    storage: true
+  scope: Namespaced
+  names:
+    plural: models
+    singular: model
+    kind: YipeeModel
+    shortNames:
+    - ym
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: yipee-cluster-actor
+  labels:
+    aggregate-to-admin: 'true'
+    aggregate-to-edit: 'true'
+rules:
+- apiGroups:
+  - '*'
+  resources:
+  - '*'
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: yipee-crd-editor
+  labels:
+    aggregate-to-admin: 'true'
+    aggregate-to-edit: 'true'
+rules:
+- apiGroups:
+  - yipee.io
+  resources:
+  - models
+  verbs:
+  - '*'
+
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: yipee-crd-edit
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: yipee-crd-editor
+subjects:
+- kind: ServiceAccount
+  name: yipee-service-account
+  namespace: default
+
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: yipee-cluster-actions
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: yipee-cluster-actor
+subjects:
+- kind: ServiceAccount
+  name: yipee-service-account
+  namespace: default
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+spec:
+  selector:
+    yipee.io/yipee-backend: generated
+  ports:
+  - port: 5000
+    targetPort: 5000
+    name: backend-5000
+    protocol: TCP
+    nodePort: 32005
+  type: NodePort
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: yipee-ui
+spec:
+  selector:
+    yipee.io/yipee-ui: generated
+  ports:
+  - port: 8080
+    targetPort: 80
+    name: yipee-ui-8080
+    protocol: TCP
+    nodePort: 32080
+  type: NodePort
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: yipee-ui
+  annotations:
+    yipee.generatedAt: '2018-11-05T17:16:39.573Z'
+spec:
+  selector:
+    matchLabels:
+      name: yipee
+      component: yipee-ui
+      yipee.io/yipee-ui: generated
+  rollbackTo:
+    revision: 0
+  template:
+    spec:
+      imagePullSecrets: []
+      containers:
+      - name: yipee-ui
+        # image: yipeeio/ui
+        # imagePullPolicy: Always
+        image: yipee-tools-spoke-cos.ca.com:5000/korn-dashboard
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+          protocol: TCP
+      restartPolicy: Always
+    metadata:
+      labels:
+        name: yipee
+        component: yipee-ui
+        yipee.io/yipee-ui: generated
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: {}
+  replicas: 1
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: yipee-backend
+  annotations:
+    yipee.generatedAt: '2018-11-05T17:16:39.573Z'
+spec:
+  selector:
+    matchLabels:
+      name: yipee
+      component: yipee-backend
+      yipee.io/yipee-backend: generated
+  rollbackTo:
+    revision: 0
+  template:
+    spec:
+      imagePullSecrets: []
+      containers:
+      - name: yipee-api
+        env:
+          - name: LIVE_CLUSTER
+            value: 'true'
+        # image: yipeeio/api
+        # imagePullPolicy: Always
+        image: yipee-development/osyipee-api
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5000
+          protocol: TCP
+      - name: yipee-converter
+        image: yipeeio/converter
+        imagePullPolicy: Always
+      restartPolicy: Always
+      serviceAccountName: yipee-service-account
+    metadata:
+      labels:
+        name: yipee
+        component: yipee-backend
+        yipee.io/yipee-backend: generated
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: {}
+  replicas: 1
