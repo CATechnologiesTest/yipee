@@ -244,32 +244,35 @@ That's partly up to you! Yipee is open source now and we welcome
 collaborators and contributors. If you have an idea or opinion as to
 future directions, we're listening.
 
-# Build and Install
+# Installation
+The yipee editor is ready to run as a kubernetes application.  Public
+images built from the master branch of this repo are available in
+dockerhub.  The _yipee.yaml_ file in this repo defines the kubernetes
+objects needed to deploy the app.
 
-## TO BUILD CONVERTER LOCALLY
+Running in a local minikube should be as simple as:
 
-### RUNNING LEIN LOCALLY
+```
+kubectl apply -f yipee.yaml
+minikube service yipee-ui
+```
 
-`bash -x local_build.sh`
+To deploy in a cloud-based cluster, you will want to change the type of
+the _yipee-ui_ service definition from _NodePort_ to _LoadBalancer_
+(or create an ingress).
 
-### RUNNING LEIN IN A CONTAINER
+# Build from Source
+## Prerequisites
+- docker
+- bash
+## Building Images
+You can build images from source by running _build.sh_ at the top of
+the repo.  By default this will produce three images:
+- yipee-converter
+- yipee-api
+- yipee-ui
 
-1. By setting up lein as a bash shell function (put in bash startup script):
-   1. ```
-        export BASH_ENV=~/setuplein.sh
-
-         lein() {
-            docker run --rm -it -u "$(id -u):$(id -g)" -v/tmp:/tmp -v \\
-            $(pwd):/usr/src/app -w /usr/src/app -e TERM=dumb -e \\
-            HOME=/usr/src/app yipeeio/clojure:helm-2.9.1-alpine lein $*
-   }
-   ```
-1. By setting up lein as an alias (put alias in bash startup script)
-   1. `alias lein="docker run --rm -it -u "$(id -u):$(id -g)"
-      -v/tmp:/tmp -v $(pwd):/usr/src/app -w /usr/src/app -e TERM=dumb
-      -e HOME=/usr/src/app yipeeio/clojure:helm-2.9.1-alpine lein $*"`
-   1. `bash -x local_build.sh`
-
-## TO BUILD CONVERTER IN MULTI-STAGE BUILD
-1. `cd converter`
-1. `docker build -t <image tag> .`
+## Run with Locally Built Images
+- push the images to your kubernetes cluster
+- modify _yipee.yaml_ to reference those images
+- apply the modified yipee.yaml
