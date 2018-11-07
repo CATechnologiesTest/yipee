@@ -315,7 +315,7 @@ export class EditorService {
   // go through the container group service names and clear them if the corresponding service no longer exists
   private initPodServiceNames(): void {
     this.k8sFile.containerGroups.forEach((containerGroup: ContainerGroup) => {
-      const serviceNameExistsInServiceMap = _.findWhere(this.returnServiceMapByContainerGroupId(containerGroup.id), { name: containerGroup.deployment_spec.service_name });
+      const serviceNameExistsInServiceMap = _.find(this.returnServiceMapByContainerGroupId(containerGroup.id), { name: containerGroup.deployment_spec.service_name });
 
       if (!serviceNameExistsInServiceMap) {
         containerGroup.deployment_spec.service_name = '-- Select a service --';
