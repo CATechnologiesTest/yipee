@@ -2,6 +2,7 @@ import { Component, OnInit, Input, ChangeDetectionStrategy, ChangeDetectorRef } 
 import { FormGroup, FormBuilder, FormArray, Validators } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/of';
+import * as _ from 'lodash';
 
 import { CustomValidators } from '../../../../shared/validators/custom-validators.validators';
 import { SelectionChangedEvent, EditorEventService, ContainerVolumeChangedEvent } from '../../../editor-event.service';

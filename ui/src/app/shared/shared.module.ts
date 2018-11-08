@@ -4,7 +4,6 @@ import { CommonModule } from '@angular/common';
 import { ClarityModule } from '@clr/angular';
 import { RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MarkdownModule } from 'ngx-markdown';
 
 import { HeaderComponent } from './header/header.component';
 import { FooterComponent } from './footer/footer.component';
@@ -56,12 +55,11 @@ import { NewK8sIngressModalComponent } from './modals/new-k8s-ingress-modal/new-
 @NgModule({
   imports: [
     CommonModule,
-    ClarityModule.forRoot(),
+    ClarityModule,
     RouterModule,
     FormsModule,
     ReactiveFormsModule,
-    AngularDraggableModule,
-    MarkdownModule.forRoot()
+    AngularDraggableModule
   ],
   declarations: [
     BulkNameValueEditComponent,

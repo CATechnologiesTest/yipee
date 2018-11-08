@@ -1,8 +1,9 @@
 import { Injectable, Output, EventEmitter } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/observable/of';
+import { of } from 'rxjs';
+
+import * as _ from 'lodash';
 
 import { DownloadService } from '../shared/services/download.service';
 import { YipeeFileService } from '../shared/services/yipee-file.service';
@@ -19,6 +20,7 @@ import { UnknownKind } from '../models/k8s/UnknownKind';
 import { EmptyDirVolume } from '../models/common/EmptyDirVolume';
 import { HostPathVolume } from '../models/common/HostPathVolume';
 import { NameStringValue } from '../models/common/Generic';
+
 
 @Injectable()
 export class EditorService {
@@ -139,30 +141,7 @@ export class EditorService {
     this.metadata = yipeeFile;
     this.k8sFile = yipeeFile.flatFile;
     this.editMode = this.getEditMode();
-    return Observable.of(true);
-  }
-
-  saveYipeeFile(): Observable<boolean> {
-    return this.yipeeFileService.update(this.metadata).map((metadata: YipeeFileMetadata) => {
-      this.metadata.dateCreated = metadata.dateCreated;
-      this.metadata.dateModified = metadata.dateModified;
-      this.metadata.revcount = metadata.revcount;
-      return true;
-    });
-  }
-
-  getYipeeFileLogo(): Observable<boolean> {
-    this.yipeeFileLogo = undefined;
-    return this.yipeeFileService.getYipeeFileLogo(this.yipeeFileID).map((base64Img) => {
-      this.yipeeFileLogo = base64Img;
-      return true;
-    });
-  }
-
-  saveYipeeFileLogo(): Observable<boolean> {
-    return this.yipeeFileService.putYipeeFileLogo(this.yipeeFileID, this.yipeeFileLogo).map((response) => {
-      return response;
-    });
+    return of(true);
   }
 
   newK8sEmptyDirVolume(volume?: EmptyDirVolume): EmptyDirVolume {
@@ -315,7 +294,7 @@ export class EditorService {
   // go through the container group service names and clear them if the corresponding service no longer exists
   private initPodServiceNames(): void {
     this.k8sFile.containerGroups.forEach((containerGroup: ContainerGroup) => {
-      const serviceNameExistsInServiceMap = _.find(this.returnServiceMapByContainerGroupId(containerGroup.id), { name: containerGroup.deployment_spec.service_name });
+      const serviceNameExistsInServiceMap = _.find(this.returnServiceMapByContainerGroupId(containerGroup.id), function(arrayValue) { return arrayValue.name === containerGroup.deployment_spec.service_name; });
 
       if (!serviceNameExistsInServiceMap) {
         containerGroup.deployment_spec.service_name = '-- Select a service --';

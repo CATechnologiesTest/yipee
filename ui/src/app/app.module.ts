@@ -14,8 +14,6 @@ import { HomeModule } from './home/home.module';
 import { CanDeactivateGuard } from './can-deactivate.guard';
 
 import { httpFactory } from './http-interceptor-factory';
-import { NgIdleKeepaliveModule } from '@ng-idle/keepalive'; // this includes the core NgIdleModule but includes keepalive providers for easy wireup
-import { MomentModule } from 'angular2-moment'; // optional, provides moment-style pipes for date formatting
 import { HttpClientModule } from '@angular/common/http';
 
 const appRoutes: Routes = [
@@ -30,14 +28,12 @@ const appRoutes: Routes = [
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    ClarityModule.forRoot(),
+    ClarityModule,
     HomeModule,
     EditorModule,
     RouterModule.forRoot(appRoutes),
     SharedModule.forRoot(),
     HttpModule,
-    MomentModule,
-    NgIdleKeepaliveModule.forRoot(),
     HttpClientModule
   ],
   providers: [

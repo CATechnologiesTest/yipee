@@ -2,6 +2,7 @@ import { Component, OnInit, Input, ChangeDetectionStrategy } from '@angular/core
 import { FormGroup, FormBuilder, Validators, FormArray } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/of';
+import * as _ from 'lodash';
 
 import { Service } from '../../../../models/k8s/Service';
 import { Label } from '../../../../models/common/Label';
