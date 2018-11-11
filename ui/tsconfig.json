@@ -9,9 +9,9 @@
     "experimentalDecorators": true,
     "target": "es5",
     "types": [
-      "segment-analytics",
       "jasmine",
-      "node"
+      "node",
+      "lodash"
     ],
     "typeRoots": [
       "node_modules/@types"

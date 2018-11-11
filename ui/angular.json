@@ -24,12 +24,12 @@
             "styles": [
               "src/styles.css",
               "node_modules/@clr/icons/clr-icons.min.css",
-              "node_modules/@clr/ui/clr-ui.min.css"
+              "node_modules/@clr/ui/clr-ui.min.css",
+              "node_modules/ng2-dnd/bundles/style.css"
             ],
             "scripts": [
-              "local/analytics/analytics.js",
               "node_modules/jquery/dist/jquery.js",
-              "node_modules/lodash/index.js",
+              "node_modules/lodash/lodash.js",
               "node_modules/backbone/backbone.js",
               "node_modules/dagre/dist/dagre.js",
               "node_modules/graphlib/dist/graphlib.js",
@@ -101,14 +101,10 @@
             "karmaConfig": "./karma.conf.js",
             "polyfills": "src/polyfills.ts",
             "tsConfig": "src/tsconfig.spec.json",
-            "codeCoverageExclude": [
-              "local/rappid/*.js",
-              "local/rappid/build/*.js"
-            ],
+            "codeCoverageExclude": [],
             "scripts": [
-              "local/analytics/analytics.js",
               "node_modules/jquery/dist/jquery.js",
-              "node_modules/lodash/index.js",
+              "node_modules/lodash/lodash.js",
               "node_modules/backbone/backbone.js",
               "node_modules/dagre/dist/dagre.js",
               "node_modules/graphlib/dist/graphlib.js",
@@ -118,7 +114,9 @@
             "styles": [
               "src/styles.css",
               "node_modules/@clr/icons/clr-icons.min.css",
-              "node_modules/@clr/ui/clr-ui.min.css"
+              "node_modules/@clr/ui/clr-ui.min.css",
+              "node_modules/ng2-dnd/bundles/style.css"
+
             ],
             "assets": [
               "src/assets",

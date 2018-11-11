@@ -76,7 +76,7 @@ export const editorRoutes: Routes = [
     SharedModule,
     FormsModule,
     ReactiveFormsModule,
-    DndModule
+    DndModule.forRoot()
   ],
   declarations: [
     EditorComponent,

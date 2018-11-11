@@ -4,7 +4,7 @@ import { of } from 'rxjs';
 
 import { Subject } from 'rxjs/Subject';
 
-import * as _ from 'lodash';
+import { find } from 'lodash';
 
 import { DownloadService } from '../shared/services/download.service';
 import { YipeeFileService } from '../shared/services/yipee-file.service';
@@ -284,7 +284,7 @@ export class EditorService {
   // go through the container group service names and clear them if the corresponding service no longer exists
   private initPodServiceNames(): void {
     this.k8sFile.containerGroups.forEach((containerGroup: ContainerGroup) => {
-      const serviceNameExistsInServiceMap = _.find(this.returnServiceMapByContainerGroupId(containerGroup.id), function(arrayValue) { return arrayValue.name === containerGroup.deployment_spec.service_name; });
+      const serviceNameExistsInServiceMap = find(this.returnServiceMapByContainerGroupId(containerGroup.id), function(arrayValue) { return arrayValue.name === containerGroup.deployment_spec.service_name; });
 
       if (!serviceNameExistsInServiceMap) {
         containerGroup.deployment_spec.service_name = '-- Select a service --';
@@ -297,7 +297,7 @@ export class EditorService {
   returnServiceMapByContainerGroupId(containerGroupId) {
     const serviceMap = [];
     this.k8sFile.services.forEach((service) => {
-      const matchesContainerGroup = _.find(service.container_groups, { id: containerGroupId });
+      const matchesContainerGroup = find(service.container_groups, { id: containerGroupId });
 
       if (matchesContainerGroup) {
         serviceMap.push(new NameStringValue(service.name, service.id));
