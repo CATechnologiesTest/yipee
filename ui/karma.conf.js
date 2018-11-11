@@ -32,7 +32,10 @@ module.exports = function(config) {
     },
     client: {
       args: [tags],
-      clearContext: false // leave Jasmine Spec Runner output visible in browser
+      clearContext: false, // leave Jasmine Spec Runner output visible in browser
+      jasmine: {
+        randomizeTests: false   // Switch to random when karma is updated for jasmine 3.3.0
+      }
     },
     specReporter: {
       maxLogLines: 5,         // limit number of lines logged per test

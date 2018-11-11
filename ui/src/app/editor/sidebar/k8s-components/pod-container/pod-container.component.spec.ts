@@ -90,14 +90,6 @@ describe('PodContainerComponent', () => {
     })
     .compileComponents();
   }));
-  const objIdMap = new WeakMap;
-  let initCount = 0;
-  function objectId(o) {
-    if (!objIdMap.has(o)) {
-      objIdMap.set(o, initCount++);
-    }
-    return objIdMap.get(o);
-  }
 
   beforeEach( inject([EditorService], (editorService: EditorService) => {
     fixture = TestBed.createComponent(PodContainerComponent);
@@ -105,9 +97,6 @@ describe('PodContainerComponent', () => {
 
     Initialize.constructStatefulSet();
     component.pod = editorService.k8sFile.containerGroups[0];
-    console.log('Obj id:' + objectId(component.pod));
-    console.log('editorService.k8sfile id:' + objectId(editorService.k8sFile));
-    console.log('editorService id:' + objectId(editorService));
     fixture.detectChanges();
   }));
 

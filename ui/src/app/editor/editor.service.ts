@@ -1,7 +1,8 @@
 import { Injectable, Output, EventEmitter } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
 import { of } from 'rxjs';
+
+import { Subject } from 'rxjs/Subject';
 
 import * as _ from 'lodash';
 
@@ -75,17 +76,6 @@ export class EditorService {
       this.initPodServiceNames();
     });
 
-  }
-
-  setShowReadme(value: boolean): void {
-    if (!value) {
-      this.editorEventService.onGenericTrack.emit('CloseReadme');
-    }
-    this.showReadmeDialog.next(value);
-  }
-
-  getShowReadme(): Observable<boolean> {
-    return this.showReadmeDialog.asObservable();
   }
 
   downloadCurrentModel(): void {
