@@ -1,4 +1,4 @@
-# Korn
+# Yipee
 
 The [Angular CLI](https://github.com/angular/angular-cli) user interface for Yipee.io.
 
@@ -22,7 +22,7 @@ Run `ng generate component component-name` to generate a new component. You can 
 
 ### Build
 
-Run `npm run build` to build the project. To build a production version of Korn, run `npm run build-prod` which will clean, build, run tests, and build a production version of the product.
+Run `npm run build` to build the project. To build a production version of Yipee, run `npm run build-prod` which will clean, build, run tests, and build a production version of the product.
 
 ### Running unit tests
 

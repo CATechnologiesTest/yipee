@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "korn": {
+    "yipee": {
       "root": "",
       "sourceRoot": "src",
       "projectType": "application",
@@ -77,21 +77,21 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "korn:build"
+            "browserTarget": "yipee:build"
           },
           "configurations": {
             "beta": {
-              "browserTarget": "korn:build:beta"
+              "browserTarget": "yipee:build:beta"
             },
             "production": {
-              "browserTarget": "korn:build:production"
+              "browserTarget": "yipee:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "korn:build"
+            "browserTarget": "yipee:build"
           }
         },
         "test": {
@@ -140,7 +140,7 @@
         }
       }
     },
-    "korn-e2e": {
+    "yipee-e2e": {
       "root": "e2e",
       "sourceRoot": "e2e",
       "projectType": "application",
@@ -149,7 +149,7 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "./protractor.conf.js",
-            "devServerTarget": "korn:serve"
+            "devServerTarget": "yipee:serve"
           }
         },
         "lint": {
@@ -166,7 +166,7 @@
       }
     }
   },
-  "defaultProject": "korn",
+  "defaultProject": "yipee",
   "schematics": {
     "@schematics/angular:component": {
       "prefix": "app",

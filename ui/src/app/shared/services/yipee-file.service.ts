@@ -1605,7 +1605,7 @@ export class YipeeFileService {
 
   }
 
-  /** Convert legacy yipee file canvas data to korn annotations. */
+  /** Convert legacy yipee file canvas data to Yipee annotations. */
 
   constructor(
     private apiService: ApiService,
