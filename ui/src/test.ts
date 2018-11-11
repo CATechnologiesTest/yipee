@@ -5,7 +5,6 @@
 // import 'zone.js/dist/sync-test';
 // import 'zone.js/dist/async-test';
 // import 'zone.js/dist/fake-async-test';
-import 'zone.js/dist/zone';  // Included with Angular CLI.
 
 (window as any)['__zone_symbol__fakeAsyncPatchLock'] = true;
 import 'zone.js/dist/zone-testing';
