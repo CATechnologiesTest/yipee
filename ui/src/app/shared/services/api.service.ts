@@ -10,8 +10,6 @@ import { KubernetesFile } from '../../models/KubernetesFile';
 import { HelmFile } from '../../models/HelmFile';
 import { YipeeFileResponse } from '../../models/YipeeFileResponse';
 import { UserInfoResponse } from '../../models/UserInfo';
-import { AuthResponse } from '../../models/AuthResponse';
-import { LogoutResponse } from '../../models/LogoutResponse';
 import { YipeeFileRaw } from '../../models/YipeeFileRaw';
 
 @Injectable()
@@ -20,73 +18,9 @@ export class ApiService {
 
   constructor(private http: Http) { }
 
-  /* ------------------------ */
-  /* AUTHENTICATION ENDPOINTS */
-  /* ------------------------ */
-
-  // login to yipee
-  loginToYipee(github_callback_code: string): Observable<AuthResponse> {
-    const api_endpoint = '/api/auth';
-    const github_code_query: string = '?code=' + github_callback_code;
-
-    return this.http.get(api_endpoint + github_code_query).map((response: Response) => {
-      return <AuthResponse>response.json();
-    });
-  }
-
-  // get authentication status
-  getLoginStatus(): Observable<boolean> {
-    const api_endpoint = '/api/userInfo';
-    return this.http.get(api_endpoint).map((response: Response) => {
-      return response.json().loggedIn;
-    });
-
-  }
-
-  /* NOTE: here that we used to take in the whole reponse and return the
-  response object. However, the API is using a 304 redirect for zebra which
-  is probably for the best. Because of technicalities the response we actually
-  get is a refresh root req of the root page, basically the body of localhost:8080,
-  we can get more advanced with this once we remove this 304 after zerba but right
-  now we can just check for a 200 sucess status code */
-  logoutOfYipee(): Observable<boolean> {
-    const api_endpoint = '/api/logout';
-
-    return this.http.get(api_endpoint).map((response: Response) => {
-      if (response.status === 200) {
-        return true;
-      }
-      // TODO: generic handle error
-    });
-  }
-  /* ---------------------------- */
-  /* END AUTHENTICATION ENDPOINTS */
-  /* ---------------------------- */
-
   /* ----------------------------------- */
   /* APPLICATION CONFIGURATION ENDPOINTS */
   /* ----------------------------------- */
-  getGithubClientID(): Observable<string> {
-    const api_endpoint = '/api/configurations/CLIENT_ID';
-    return this.http.get(api_endpoint).map((response: Response) => {
-      return response.json().data[0].val;
-    });
-
-  }
-
-  getGitHubClientHost(): Observable<string> {
-    const api_endpoint = '/api/configurations/GITHUB_HOST';
-    return this.http.get(api_endpoint).map((response: Response) => {
-      return response.json().data[0].val;
-    });
-  }
-
-  getYipeeStoreRepo(): Observable<string> {
-    const api_endpoint = '/api/configurations/YIPEE_STORE_REPO';
-    return this.http.get(api_endpoint).map((response: Response) => {
-      return <string> response.json().data[0].val;
-    });
-  }
 
   getAnalyticsKey(): Observable<string> {
     const api_endpoint = '/api/configurations/ANALYTICS_KEY';
@@ -141,34 +75,6 @@ export class ApiService {
     const queryObject = { query: graphQLQuery };
     return this.http.post(api_endpoint, JSON.stringify(queryObject)).map((response: Response) => {
       return <Feature[]>response.json().data.activeFeatures.features;
-    });
-  }
-
-  /* ----------------- */
-  /* CATALOG ENDPOINTS */
-  /* ----------------- */
-
-  getPrivateApps(): Observable<YipeeFileMetadataRaw[]> {
-    const api_endpoint = '/api/yipeefiles/myapps';
-    const source_query = '?source=korn';
-    return this.http.get(api_endpoint + source_query).map((response: Response) => {
-      return <YipeeFileMetadataRaw[]>response.json().data;
-    });
-  }
-
-  getPublicApps(): Observable<YipeeFileMetadataRaw[]> {
-    const api_endpoint = '/api/yipeefiles';
-    const source_query = '?source=korn';
-    return this.http.get(api_endpoint + source_query).map((response: Response) => {
-      return <YipeeFileMetadataRaw[]>response.json().data;
-    });
-  }
-
-  makePublic(appId: string): Observable<YipeeFileResponse> {
-    const api_endpoint = '/api/yipeefiles/make-public/' + appId;
-    const source_query = '?source=korn';
-    return this.http.put(api_endpoint + source_query, '').map((response: Response) => {
-      return <YipeeFileResponse>response.json();
     });
   }
 

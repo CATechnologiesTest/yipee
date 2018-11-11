@@ -12,8 +12,6 @@ import { KubernetesFile } from '../../models/KubernetesFile';
 import { OpenShiftFileResponse } from '../../models/OpenShiftFileResponse';
 import { KubernetesFileResponse } from '../../models/KubernetesFileResponse';
 import { YipeeFileResponse } from '../../models/YipeeFileResponse';
-import { AuthResponse } from '../../models/AuthResponse';
-import { LogoutResponse } from '../../models/LogoutResponse';
 import { ApiService } from './api.service';
 
 describe('ApiService', () => {
@@ -238,60 +236,6 @@ describe('ApiService', () => {
   /* BEGIN METHOD RESPONSE OBJECTS */
   /* ----------------------------- */
 
-  const loginResponse: AuthResponse = {
-    authenticated: true,
-    githubUsername: 'copan02',
-    registered: true
-  };
-
-  const logoutResponse: LogoutResponse = {
-    ok: true,
-    status: 200,
-    statusText: 'OK',
-    type: 2,
-    url: 'http://localhost:8080/',
-  };
-
-  const githubIdResponse = {
-    headers: {
-      Headers: { _headers: [], _normalizedNames: [] }
-    },
-    ok: true,
-    status: 200,
-    statusText: 'OK',
-    type: 2,
-    url: 'http://localhost:8080/api/configurations/CLIENT_ID',
-    _body: {
-      success: true,
-      total: 1,
-      data: [{
-        _id: '398c8dba-97c1-11e7-9967-f753811b2bc4',
-        key: 'CLIENT_ID',
-        val: '1930325ba3a90de9bfa0'
-      }]
-    }
-  };
-
-  const githubHostResponse = {
-    headers: {
-      Headers: { _headers: [], _normalizedNames: [] }
-    },
-    ok: true,
-    status: 200,
-    statusText: 'OK',
-    type: 2,
-    url: 'http://localhost:8080/api/configurations/GITHUB_HOST',
-    _body: {
-      success: true,
-      total: 1,
-      data: [{
-        _id: '398d02b8-97c1-11e7-9967-73769d8de375',
-        key: 'GITHUB_HOST',
-        val: 'github-isl-01.ca.com'
-      }]
-    }
-  };
-
   const yipeeStoreResponse = {
     headers: {
       Headers: { _headers: [], _normalizedNames: [] }
@@ -510,104 +454,10 @@ describe('ApiService', () => {
     expect(service).toBeTruthy();
   }));
 
-  /* ----------------------------- */
-  /* AUTHENTICATION ENDPOINT TESTS */
-  /* ----------------------------- */
-
-  it('should login to yipee given a github code', inject([ApiService, MockBackend], (service: ApiService, backend: MockBackend) => {
-    const response = new ResponseOptions({
-      body: JSON.stringify({
-        authenticated: true,
-        githubUsername: 'copan02',
-        registered: true
-      })
-    });
-
-    const baseResponse = new Response(response);
-
-    backend.connections.subscribe(
-      (c: MockConnection) => c.mockRespond(baseResponse)
-    );
-
-    return service.loginToYipee(githubCode).subscribe(data => {
-      expect(data).toEqual(loginResponse);
-    });
-  }));
-
-  it('should logout to yipee homepage', inject([ApiService, MockBackend], (service: ApiService, backend: MockBackend) => {
-    /* only mocking out the status code here since thats what the API service
-    uses right now, theres not much point in mocking much else. In the future
-    we can mock an error code and error other than 200 to test the error handler */
-    const response = new ResponseOptions({
-      status: 200,
-    });
-
-    const baseResponse = new Response(response);
-
-    backend.connections.subscribe(
-      (c: MockConnection) => c.mockRespond(baseResponse)
-    );
-
-    return service.logoutOfYipee().subscribe(data => {
-      expect(data).toEqual(true);
-    });
-  }));
-
-  it('should return loginStatus', inject([ApiService, MockBackend], (service: ApiService, backend: MockBackend) => {
-    const response = new ResponseOptions({
-      body: JSON.stringify({ loggedIn: true })
-    });
-
-    const baseResponse = new Response(response);
-
-    backend.connections.subscribe(
-      (c: MockConnection) => c.mockRespond(baseResponse)
-    );
-
-    return service.getLoginStatus().subscribe(data => {
-      expect(data).toEqual(loginStatusTrue.loggedIn);
-    });
-  }));
-
-  /* --------------------------------- */
-  /* END AUTHENTICATION ENDPOINT TESTS */
-  /* --------------------------------- */
-
   /* ---------------------------------------- */
   /* APPLICATION CONFIGURATION ENDPOINT TESTS */
   /* ---------------------------------------- */
 
-  it('should return github client ID', inject([ApiService, MockBackend], (service: ApiService, backend: MockBackend) => {
-    const response = new ResponseOptions({
-      body: JSON.stringify({
-        headers: {
-          Headers: { _headers: [], _normalizedNames: [] }
-        },
-        ok: true,
-        status: 200,
-        statusText: 'OK',
-        type: 2,
-        url: 'http://localhost:8080/api/configurations/CLIENT_ID',
-        success: true,
-        total: 1,
-        data: [{
-          _id: '398c8dba-97c1-11e7-9967-f753811b2bc4',
-          key: 'CLIENT_ID',
-          val: '1930325ba3a90de9bfa0'
-        }]
-      })
-    });
-
-    const baseResponse = new Response(response);
-
-    backend.connections.subscribe(
-      (c: MockConnection) => c.mockRespond(baseResponse)
-    );
-
-    return service.getGithubClientID().subscribe(data => {
-      expect(data).toEqual(githubIdResponse._body.data[0].val);
-    });
-  }));
 
   it('should return analytics key', inject([ApiService, MockBackend], (service: ApiService, backend: MockBackend) => {
     const response = new ResponseOptions({
@@ -638,70 +488,6 @@ describe('ApiService', () => {
 
     return service.getAnalyticsKey().subscribe(data => {
       expect(data).toEqual('42');
-    });
-  }));
-
-  it('should return github client Host', inject([ApiService, MockBackend], (service: ApiService, backend: MockBackend) => {
-    const response = new ResponseOptions({
-      body: JSON.stringify({
-        headers: {
-          Headers: { _headers: [], _normalizedNames: [] }
-        },
-        ok: true,
-        status: 200,
-        statusText: 'OK',
-        type: 2,
-        url: 'http://localhost:8080/api/configurations/GITHUB_HOST',
-        success: true,
-        total: 1,
-        data: [{
-          _id: '398d02b8-97c1-11e7-9967-73769d8de375',
-          key: 'GITHUB_HOST',
-          val: 'github-isl-01.ca.com'
-        }]
-      })
-    });
-
-    const baseResponse = new Response(response);
-
-    backend.connections.subscribe(
-      (c: MockConnection) => c.mockRespond(baseResponse)
-    );
-
-    return service.getGitHubClientHost().subscribe(data => {
-      expect(data).toEqual(githubHostResponse._body.data[0].val);
-    });
-  }));
-
-  it('should return yipee store repo', inject([ApiService, MockBackend], (service: ApiService, backend: MockBackend) => {
-    const response = new ResponseOptions({
-      body: JSON.stringify({
-        headers: {
-          Headers: { _headers: [], _normalizedNames: [] }
-        },
-        ok: true,
-        status: 200,
-        statusText: 'OK',
-        type: 2,
-        url: 'http://localhost:8080/api/configurations/GITHUB_HOST',
-        success: true,
-        total: 1,
-        data: [{
-          _id: '398d02b8-97c1-11e7-9967-73769d8de375',
-          key: 'yipeeStore',
-          val: 'cannot-find-where-function-is-used'
-        }]
-      })
-    });
-
-    const baseResponse = new Response(response);
-
-    backend.connections.subscribe(
-      (c: MockConnection) => c.mockRespond(baseResponse)
-    );
-
-    return service.getYipeeStoreRepo().subscribe(data => {
-      expect(data).toEqual(yipeeStoreResponse._body.data[0].val);
     });
   }));
 
@@ -810,81 +596,6 @@ describe('ApiService', () => {
   /* CATALOG ENDPOINT TESTS */
   /* ---------------------- */
 
-  it('should return private applications', inject([ApiService, MockBackend], (service: ApiService, backend: MockBackend) => {
-    const response = new ResponseOptions({
-      body: JSON.stringify({
-        headers: {
-          Headers: { _headers: [], _normalizedNames: [] }
-        },
-        ok: true,
-        status: 200,
-        statusText: 'OK',
-        type: 2,
-        url: 'http://localhost:8080/api/yipeefiles/myapps',
-        success: true,
-        total: 1,
-        data: [yipeeMetadata]
-      })
-    });
-
-    const baseResponse = new Response(response);
-
-    backend.connections.subscribe(
-      (c: MockConnection) => c.mockRespond(baseResponse)
-    );
-
-    return service.getPrivateApps().subscribe(data => {
-      expect(data).toEqual(yipeeAppsResponse._body.data);
-    });
-  }));
-
-  it('should return public applications', inject([ApiService, MockBackend], (service: ApiService, backend: MockBackend) => {
-    const response = new ResponseOptions({
-      body: JSON.stringify({
-        headers: {
-          Headers: { _headers: [], _normalizedNames: [] }
-        },
-        ok: true,
-        status: 200,
-        statusText: 'OK',
-        type: 2,
-        url: 'http://localhost:8080/api/yipeefiles/myapps',
-        success: true,
-        total: 1,
-        data: [yipeeMetadata]
-      })
-    });
-
-    const baseResponse = new Response(response);
-
-    backend.connections.subscribe(
-      (c: MockConnection) => c.mockRespond(baseResponse)
-    );
-
-    return service.getPublicApps().subscribe(data => {
-      expect(data).toEqual(yipeeAppsResponse._body.data);
-    });
-  }));
-
-  it('should make an application public', inject([ApiService, MockBackend], (service: ApiService, backend: MockBackend) => {
-    const response = new ResponseOptions({
-      body: JSON.stringify({
-        success: true,
-        total: 1,
-        data: [yipeeMetadata]
-      })
-    });
-
-    const baseResponse = new Response(response);
-
-    backend.connections.subscribe(
-      (c: MockConnection) => c.mockRespond(baseResponse)
-    );
-
-    return service.makePublic(appId).subscribe(data => {
-      expect(data).toEqual(makePublicResponse);
-    });
-  }));
 
   it('should import an application using a compose file', inject([ApiService, MockBackend], (service: ApiService, backend: MockBackend) => {
     const response = new ResponseOptions({

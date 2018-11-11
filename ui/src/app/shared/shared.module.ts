@@ -10,7 +10,6 @@ import { FooterComponent } from './footer/footer.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { AngularDraggableModule } from 'angular2-draggable';
 
-import { AuthService } from './services/auth.service';
 import { UserService } from './services/user.service';
 import { FeatureService } from './services/feature.service';
 import { ApiService } from './services/api.service';
@@ -124,8 +123,7 @@ export class SharedModule {
   static forRoot(): ModuleWithProviders {
     return {
       ngModule: SharedModule,
-      providers: [  AuthService,
-                    UserService,
+      providers: [  UserService,
                     FeatureService,
                     ApiService,
                     DownloadService,

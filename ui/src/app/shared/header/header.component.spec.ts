@@ -4,18 +4,8 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { HeaderComponent } from './header.component';
-import { AuthService } from '../../shared/services/auth.service';
 import { UserService } from '../../shared/services/user.service';
 import { FeatureService } from '../../shared/services/feature.service';
-
-let logoutCalled = false;
-
-class MockAuthService {
-  constructor() { }
-  logout() {
-    logoutCalled = true;
-  }
-}
 
 const mockUserInfo: any = {
   githubUsername: 'copan02',
@@ -68,7 +58,6 @@ describe('HeaderComponent', () => {
       ],
       providers: [
         { provide: UserService, useClass: MockUserService },
-        { provide: AuthService, useClass: MockAuthService },
         { provide: FeatureService, useClass: MockFeatureService }
       ]
     })

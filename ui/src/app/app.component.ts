@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { Location } from '@angular/common';
-import { AuthService } from './shared/services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -14,7 +13,6 @@ export class AppComponent implements OnInit {
   githubcode: string;
 
   constructor(
-    private authService: AuthService,
     private router: Router,
     private location: Location,
     private activatedRoute: ActivatedRoute
