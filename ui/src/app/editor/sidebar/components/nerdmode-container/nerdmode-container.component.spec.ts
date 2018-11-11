@@ -1,7 +1,7 @@
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { async, ComponentFixture, TestBed, inject } from '@angular/core/testing';
 import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/observable/of';
+import { of } from 'rxjs';
 
 import { ApiService } from '../../../../shared/services/api.service';
 import { DownloadService } from '../../../../shared/services/download.service';
@@ -30,11 +30,11 @@ describe('NerdmodeContainerComponent', () => {
   class MockAPIService {
 
     getLiveKubernetesFileDataFromFlat(yipeeFile: YipeeFileRaw): Observable<KubernetesFile> {
-      return Observable.of({ name: 'name', version: 0, kubernetesFile: 'k file data' });
+      return of({ name: 'name', version: 0, kubernetesFile: 'k file data' });
     }
 
     getLiveHelmFileDataFromFlat(yipeeFile: YipeeFileRaw): Observable<HelmFile> {
-      return Observable.of({ name: 'name', version: 0, helmFile: 'h file data' });
+      return of({ name: 'name', version: 0, helmFile: 'h file data' });
     }
 
     constructor() { }

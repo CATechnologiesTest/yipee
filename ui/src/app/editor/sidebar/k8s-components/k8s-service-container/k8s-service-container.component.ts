@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, ChangeDetectionStrategy } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, FormArray } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/observable/of';
+import { of } from 'rxjs';
 import * as _ from 'lodash';
 
 import { Service } from '../../../../models/k8s/Service';
@@ -319,7 +319,7 @@ export class K8sServiceContainerComponent implements OnInit {
       arrayCopy = _.sortBy(sortableArray, sortByParam).reverse();
     }
 
-    return Observable.of(arrayCopy);
+    return of(arrayCopy);
   }
   /* *************** */
   /* END UTILITY fns */

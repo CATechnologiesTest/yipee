@@ -1,6 +1,6 @@
 import { TestBed, inject } from '@angular/core/testing';
 import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/observable/of';
+import { of } from 'rxjs';
 
 import { ImportAppService } from './import-app.service';
 import { UserService } from './user.service';
@@ -28,7 +28,7 @@ class MockApiService {
   constructor() { }
 
   importApp() {
-    return Observable.of(true);
+    return of(true);
   }
 }
 

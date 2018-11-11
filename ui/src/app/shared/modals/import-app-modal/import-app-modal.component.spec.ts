@@ -3,7 +3,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/observable/of';
+import { of } from 'rxjs';
 
 import { ImportAppModalComponent } from './import-app-modal.component';
 import { YipeeFileResponse } from '../../../models/YipeeFileResponse';
@@ -151,7 +151,7 @@ describe('ImportAppModalComponent', () => {
     constructor() { }
 
     importApp(yipeeFile: any): Observable<YipeeFileResponse> {
-      return Observable.of(yipeeFileResponse);
+      return of(yipeeFileResponse);
     }
 
   }
@@ -165,7 +165,7 @@ describe('ImportAppModalComponent', () => {
     availableOrgs = [];
 
     changeCurrentOrgSubscription(id): Observable<boolean> {
-      return Observable.of(true);
+      return of(true);
     }
   }
 
