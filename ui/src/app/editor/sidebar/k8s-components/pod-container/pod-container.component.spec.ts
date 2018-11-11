@@ -1,6 +1,6 @@
 import { NO_ERRORS_SCHEMA, EventEmitter } from '@angular/core';
 import { async, ComponentFixture, TestBed, inject } from '@angular/core/testing';
-import { FormsModule, FormBuilder, ReactiveFormsModule, FormArray, FormGroup, FormControl } from '@angular/forms';
+import { FormBuilder, FormArray, FormGroup, FormControl } from '@angular/forms';
 import { Subject } from 'rxjs/Subject';
 
 import { PodContainerComponent } from './pod-container.component';
@@ -9,8 +9,6 @@ import { EditorService } from '../../../editor.service';
 import { Label } from '../../../../models/common/Label';
 import { TopLabel } from '../../../../models/k8s/TopLabel';
 import { Service as k8sService } from '../../../../models/k8s/Service';
-import { Finder } from '../../../../models/parse/Finder';
-import { ExtraHosts } from '../../../../models/common/ExtraHosts';
 import { K8sFile } from '../../../../models/k8s/K8sFile';
 import { ContainerGroup } from '../../../../models/common/ContainerGroup';
 
@@ -19,8 +17,11 @@ describe('PodContainerComponent', () => {
 
   class Initialize {
 
-    static k8sFile: K8sFile = new K8sFile();
-
+    static k8sFile: K8sFile;
+    static getK8sFile(): K8sFile {
+      Initialize.k8sFile = new K8sFile();
+      return Initialize.k8sFile;
+    }
     static constructStatefulSet(): ContainerGroup {
       const cgroup = ContainerGroup.construct(ContainerGroup.OBJECT_NAME) as ContainerGroup;
       Initialize.k8sFile.push(cgroup);
@@ -58,7 +59,7 @@ describe('PodContainerComponent', () => {
   let fixture: ComponentFixture<PodContainerComponent>;
 
   class MockEditorService {
-    k8sFile = Initialize.k8sFile;
+    k8sFile = Initialize.getK8sFile();
 
     returnServiceMapByContainerGroupId(containerGroupId) {
       return [];
@@ -89,12 +90,24 @@ describe('PodContainerComponent', () => {
     })
     .compileComponents();
   }));
+  const objIdMap = new WeakMap;
+  let initCount = 0;
+  function objectId(o) {
+    if (!objIdMap.has(o)) {
+      objIdMap.set(o, initCount++);
+    }
+    return objIdMap.get(o);
+  }
 
   beforeEach( inject([EditorService], (editorService: EditorService) => {
     fixture = TestBed.createComponent(PodContainerComponent);
     component = fixture.componentInstance;
+
     Initialize.constructStatefulSet();
     component.pod = editorService.k8sFile.containerGroups[0];
+    console.log('Obj id:' + objectId(component.pod));
+    console.log('editorService.k8sfile id:' + objectId(editorService.k8sFile));
+    console.log('editorService id:' + objectId(editorService));
     fixture.detectChanges();
   }));
 
@@ -200,10 +213,10 @@ describe('PodContainerComponent', () => {
     }));
     it('should be able to add a new label to the editor service and this.form', inject([EditorService], (editorService: EditorService) => {
       const labelControl = component.form.get('label') as FormArray;
-      expect(labelControl.value.length).toEqual(1);
-      component.addLabel();
       expect(labelControl.value.length).toEqual(2);
-      expect(editorService.k8sFile.containerGroups[0].label.length).toEqual(2);
+      component.addLabel();
+      expect(labelControl.value.length).toEqual(3);
+      expect(editorService.k8sFile.containerGroups[0].label.length).toEqual(3);
     }));
   });
 
@@ -234,10 +247,10 @@ describe('PodContainerComponent', () => {
     }));
     it('should be able to add a new top_label to the editor service and this.form', inject([EditorService], (editorService: EditorService) => {
       const topLabelControl = component.form.get('top_label') as FormArray;
-      expect(topLabelControl.value.length).toEqual(1);
-      component.addTopLabel();
       expect(topLabelControl.value.length).toEqual(2);
-      expect(editorService.k8sFile.containerGroups[0].top_label.length).toEqual(2);
+      component.addTopLabel();
+      expect(topLabelControl.value.length).toEqual(3);
+      expect(editorService.k8sFile.containerGroups[0].top_label.length).toEqual(3);
     }));
   });
 
