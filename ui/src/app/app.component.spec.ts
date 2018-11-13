@@ -4,7 +4,6 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { HttpModule } from '@angular/http';
 
 import { AppComponent } from './app.component';
-import { AuthService } from './shared/services/auth.service';
 import { ApiService } from './shared/services/api.service';
 
 describe('AppComponent', () => {
@@ -19,7 +18,6 @@ describe('AppComponent', () => {
         HttpModule
       ],
       providers: [
-        AuthService,
         ApiService
       ],
       schemas: [

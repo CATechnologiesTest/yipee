@@ -1,6 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 declare var $: JQueryStatic;
-import * as _ from 'lodash';
 import * as joint from 'jointjs';
 
 import * as K8sService from '../../models/k8s/Service';

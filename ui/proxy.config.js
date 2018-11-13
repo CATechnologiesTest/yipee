@@ -7,13 +7,5 @@ var proxyConfig = [{
   pathRewrite: {
     "^/api": "",
   }
-},{
-  context: '/docker',
-  target: 'https://index.docker.io',
-  secure: true,
-  pathRewrite: {
-    "^/docker": "",
-  },
-  changeOrigin: true
 }];
 module.exports = proxyConfig;

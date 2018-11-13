@@ -82,7 +82,7 @@ export class ImportAppModalComponent implements OnInit {
     const fileReader: FileReader = new FileReader();
 
     fileReader.onloadend = (e) => {
-      const base64Result = btoa(fileReader.result);
+      const base64Result = btoa(fileReader.result.toString());
       this.importApplication(true, true, base64Result);
     };
     fileReader.readAsBinaryString(file);

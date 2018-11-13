@@ -1,8 +1,7 @@
 import { TestBed, inject } from '@angular/core/testing';
 import { HttpModule } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/observable/of';
-
+import { of } from 'rxjs';
 import { UserService } from './user.service';
 import { ApiService } from './api.service';
 import { FeatureService } from './feature.service';
@@ -32,7 +31,7 @@ class MockApiService {
       id: '2345',
       name: 'bar'
     }];
-    return Observable.of(features);
+    return of(features);
   }
 }
 

@@ -3,7 +3,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/observable/of';
+import { of } from 'rxjs';
 
 import { NewAppModalComponent } from './new-app-modal.component';
 import { YipeeFileResponse } from '../../../models/YipeeFileResponse';
@@ -135,7 +135,7 @@ describe('NewAppModalComponent', () => {
     constructor() { }
 
     newApp(metadata: YipeeFileMetadata): Observable<YipeeFileResponse> {
-      return Observable.of(yipeeFileResponse);
+      return of(yipeeFileResponse);
     }
 
   }
@@ -150,7 +150,7 @@ describe('NewAppModalComponent', () => {
     availableOrgs = [];
 
     changeCurrentOrgSubscription(id): Observable<boolean> {
-      return Observable.of(true);
+      return of(true);
     }
   }
 

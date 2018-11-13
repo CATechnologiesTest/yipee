@@ -4,7 +4,6 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
 import { ClarityModule } from '@clr/angular';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ClipboardModule } from 'ngx-clipboard';
 import { DndModule } from 'ng2-dnd';
 
 import { EditorComponent } from './editor.component';
@@ -73,11 +72,10 @@ export const editorRoutes: Routes = [
   imports: [
     CommonModule,
     RouterModule.forChild(editorRoutes),
-    ClarityModule.forRoot(),
+    ClarityModule,
     SharedModule,
     FormsModule,
     ReactiveFormsModule,
-    ClipboardModule,
     DndModule.forRoot()
   ],
   declarations: [

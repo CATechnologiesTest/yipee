@@ -1,7 +1,7 @@
 import { TestBed, inject } from '@angular/core/testing';
 import { HttpModule } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/observable/of';
+import { of } from 'rxjs';
 
 import { UserInfoResponse } from '../../models/UserInfo';
 import { UserService } from './user.service';
@@ -48,7 +48,7 @@ describe('UserService', () => {
           downloadKubernetesFiles: false
         }
       };
-      return Observable.of(response1);
+      return of(response1);
     }
 
   }

@@ -4,14 +4,12 @@ import { CommonModule } from '@angular/common';
 import { ClarityModule } from '@clr/angular';
 import { RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MarkdownModule } from 'ngx-markdown';
 
 import { HeaderComponent } from './header/header.component';
 import { FooterComponent } from './footer/footer.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { AngularDraggableModule } from 'angular2-draggable';
 
-import { AuthService } from './services/auth.service';
 import { UserService } from './services/user.service';
 import { FeatureService } from './services/feature.service';
 import { ApiService } from './services/api.service';
@@ -56,12 +54,11 @@ import { NewK8sIngressModalComponent } from './modals/new-k8s-ingress-modal/new-
 @NgModule({
   imports: [
     CommonModule,
-    ClarityModule.forRoot(),
+    ClarityModule,
     RouterModule,
     FormsModule,
     ReactiveFormsModule,
-    AngularDraggableModule,
-    MarkdownModule.forRoot()
+    AngularDraggableModule
   ],
   declarations: [
     BulkNameValueEditComponent,
@@ -126,8 +123,7 @@ export class SharedModule {
   static forRoot(): ModuleWithProviders {
     return {
       ngModule: SharedModule,
-      providers: [  AuthService,
-                    UserService,
+      providers: [  UserService,
                     FeatureService,
                     ApiService,
                     DownloadService,

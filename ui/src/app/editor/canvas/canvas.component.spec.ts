@@ -11,7 +11,6 @@ import { EditorEventService } from '../editor-event.service';
 import { K8sFile } from '../../models/k8s/K8sFile';
 import { YipeeFileMetadata } from '../../models/YipeeFileMetadata';
 import { YipeeFileMetadataRaw } from '../../models/YipeeFileMetadataRaw';
-import { AnonymousSubject } from 'rxjs/Subject';
 import { Container } from '../../models/common/Container';
 
 class MockApiService {
@@ -157,7 +156,6 @@ describe('CanvasComponent', () => {
   });
 
   it('should be created', () => {
-    console.log(component.editorService.k8sFile);
     expect(component).toBeTruthy();
   });
 

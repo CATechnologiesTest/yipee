@@ -1,7 +1,8 @@
 import { Component, OnInit, Input, ChangeDetectionStrategy } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, FormArray } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/observable/of';
+import { of } from 'rxjs';
+import { sortBy } from 'lodash';
 
 import { Service } from '../../../../models/k8s/Service';
 import { Label } from '../../../../models/common/Label';
@@ -313,12 +314,12 @@ export class K8sServiceContainerComponent implements OnInit {
     let arrayCopy = [];
 
     if (ascending) {
-      arrayCopy = _.sortBy(sortableArray, sortByParam);
+      arrayCopy = sortBy(sortableArray, sortByParam);
     } else {
-      arrayCopy = _.sortBy(sortableArray, sortByParam).reverse();
+      arrayCopy = sortBy(sortableArray, sortByParam).reverse();
     }
 
-    return Observable.of(arrayCopy);
+    return of(arrayCopy);
   }
   /* *************** */
   /* END UTILITY fns */

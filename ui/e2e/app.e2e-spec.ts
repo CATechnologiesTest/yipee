@@ -1,6 +1,6 @@
 import { AppPage } from './app.po';
 
-describe('korn App', () => {
+describe('yipee App', () => {
   let page: AppPage;
 
   beforeEach(() => {

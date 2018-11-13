@@ -3,7 +3,7 @@ import { async, ComponentFixture, TestBed, inject } from '@angular/core/testing'
 import { HttpModule } from '@angular/http';
 import { RouterTestingModule } from '@angular/router/testing';
 import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/observable/of';
+import { of } from 'rxjs';
 
 import { EditorComponent } from './editor.component';
 import { EditorService } from './editor.service';
@@ -23,7 +23,7 @@ class MockFeatureService {
   constructor() { }
   names: string[] = [];
   refreshFeatures(): Observable<boolean> {
-    return Observable.of(true);
+    return of(true);
   }
 }
 
@@ -45,11 +45,11 @@ class MockEditorService {
   }
   setYipeeFileID(yipeeFileId: string): Observable<boolean> {
     this.yipeeFileID = yipeeFileId;
-    return Observable.of(true);
+    return of(true);
   }
   loadYipeeFile(): Observable<boolean> {
     this.metadata = YipeeFileService.newTestYipeeFileMetadata('test');
-    return Observable.of(true);
+    return of(true);
   }
 }
 

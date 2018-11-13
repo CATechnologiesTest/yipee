@@ -1,7 +1,7 @@
 import { TestBed, inject } from '@angular/core/testing';
 import { HttpModule } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/observable/of';
+import { of } from 'rxjs';
 
 import { YipeeFileResponse } from '../../models/YipeeFileResponse';
 import { OpenShiftFile } from '../../models/OpenShiftFile';
@@ -26,19 +26,19 @@ describe('DownloadService', () => {
   class MockApiService {
     constructor() { }
     getOpenShiftFileData(appId): Observable<OpenShiftFile> {
-      return Observable.of(openShiftFile1);
+      return of(openShiftFile1);
     }
 
     getOpenShiftArchiveFileData(appId): Observable<OpenShiftFile> {
-      return Observable.of(openShiftFile1);
+      return of(openShiftFile1);
     }
 
     getKubernetesFileData(appId): Observable<KubernetesFile> {
-      return Observable.of(kubernetesFile1);
+      return of(kubernetesFile1);
     }
 
     getKubernetesArchiveFileData(appId): Observable<KubernetesFile> {
-      return Observable.of(kubernetesFile1);
+      return of(kubernetesFile1);
     }
 
   }

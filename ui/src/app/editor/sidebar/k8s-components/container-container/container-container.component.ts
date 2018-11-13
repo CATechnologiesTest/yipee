@@ -1,7 +1,8 @@
 import { Component, OnInit, Input, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { FormGroup, FormBuilder, FormArray, Validators } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/observable/of';
+import { of } from 'rxjs';
+import { sortBy } from 'lodash';
 
 import { CustomValidators } from '../../../../shared/validators/custom-validators.validators';
 import { SelectionChangedEvent, EditorEventService, ContainerVolumeChangedEvent } from '../../../editor-event.service';
@@ -839,12 +840,12 @@ export class ContainerContainerComponent implements OnInit {
     let arrayCopy = [];
 
     if (ascending) {
-      arrayCopy = _.sortBy(sortableArray, sortByParam);
+      arrayCopy = sortBy(sortableArray, sortByParam);
     } else {
-      arrayCopy = _.sortBy(sortableArray, sortByParam).reverse();
+      arrayCopy = sortBy(sortableArray, sortByParam).reverse();
     }
 
-    return Observable.of(arrayCopy);
+    return of(arrayCopy);
   }
   /* *************** */
   /* END UTILITY fns */

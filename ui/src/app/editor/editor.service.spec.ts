@@ -1,7 +1,7 @@
 import { TestBed, inject } from '@angular/core/testing';
 import { HttpModule } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/observable/of';
+import { of } from 'rxjs';
 
 import { EditorEventService } from './editor-event.service';
 import { EditorService } from './editor.service';
@@ -37,15 +37,15 @@ class MockYipeeFileService {
   constructor() { }
 
   read(yipeeFile_id: string): Observable<YipeeFileMetadata> {
-    return Observable.of(yipeeMetadata1);
+    return of(yipeeMetadata1);
   }
 
   update(metadata: YipeeFileMetadata): Observable<YipeeFileMetadata> {
-    return Observable.of(yipeeMetadata1);
+    return of(yipeeMetadata1);
   }
 
   putYipeeFileLogo(yipeeFileID: string, base64ImgString: string): Observable <boolean> {
-    return Observable.of(true);
+    return of(true);
   }
 }
 
