@@ -17,7 +17,7 @@ export class SidebarComponent implements OnInit {
   k8sFile: K8sFile;
   subscription: any;
   viewType = 'app';
-  editorMode: string;
+  editorMode: 'k8s';
   selectionId: string;
 
   @ViewChild(SidebarPanelComponent)
@@ -28,7 +28,6 @@ export class SidebarComponent implements OnInit {
     public editorSelectionService: EditorEventService,
     public editorEventService: EditorEventService
   ) {
-    this.editorMode = this.editorService.getEditMode();
     this.selectionId = 'APP_INFO';
   }
 
