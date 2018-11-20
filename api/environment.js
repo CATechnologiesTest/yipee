@@ -8,3 +8,7 @@ module.exports.cvtEndpointURL = process.env.CVT_URL || 'http://localhost:3000';
 // the backend pod(s) has access to the live cluster (via role definition
 // and binding).  See the deployment yaml file for details...
 module.exports.liveCluster = process.env.LIVE_CLUSTER;
+
+// This controls how many stored flatfiles to use for imports where query
+// parameter 'store' is set to true.
+module.exports.maxFlatFiles = process.env.MAX_FLAT_FILES || 5;
