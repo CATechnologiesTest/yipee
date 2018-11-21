@@ -9,54 +9,77 @@ import { EditorComponent } from './editor.component';
 import { EditorService } from './editor.service';
 import { YipeeFileService } from '../shared/services/yipee-file.service';
 import { YipeeFileMetadata } from '../models/YipeeFileMetadata';
+import { YipeeFileMetadataRaw } from '../models/YipeeFileMetadataRaw';
+import { YipeeFileResponse } from '../models/YipeeFileResponse';
 import { DownloadService } from '../shared/services/download.service';
 import { FeatureService } from '../shared/services/feature.service';
 import { EditorEventService, SelectionChangedEvent } from './editor-event.service';
 import { EventEmitter } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { ApiService } from '../shared/services/api.service';
+
 import { Subject } from 'rxjs/Subject';
-
-class MockDownloadService {
-  constructor() { }
-}
-
-class MockFeatureService {
-  constructor() { }
-  names: string[] = [];
-  refreshFeatures(): Observable<boolean> {
-    return of(true);
-  }
-}
-
-class MockEditorEventService {
-  constructor() { }
-  onSelectionChange: EventEmitter<SelectionChangedEvent> = new EventEmitter();
-}
-
-class MockEditorService {
-  yipeeFileID: string;
-  metadata: YipeeFileMetadata;
-  fatalText: string[] = [];
-  alertText: string[] = [];
-  infoText: string[] = [];
-  invalidKeys: string[];
-
-  constructor() {
-    this.invalidKeys = [];
-  }
-  setYipeeFileID(yipeeFileId: string): Observable<boolean> {
-    this.yipeeFileID = yipeeFileId;
-    return of(true);
-  }
-  loadYipeeFile(): Observable<boolean> {
-    this.metadata = YipeeFileService.newTestYipeeFileMetadata('test');
-    return of(true);
-  }
-}
+import { UserService } from '../shared/services/user.service';
 
 describe('EditorComponent', () => {
   let component: EditorComponent;
   let fixture: ComponentFixture<EditorComponent>;
+  class MockDownloadService {
+    constructor() { }
+  }
+  class MockYipeeFileService {
+    constructor() { }
+    onSelectionChange: EventEmitter<SelectionChangedEvent> = new EventEmitter();
+  }
+  class MockActivatedRoute {
+    constructor() { }
+    snapshot = { params: {} };
+    addId(id) {
+      this.snapshot.params['id'] = id;
+    }
+  }
+  class MockApiService {
+    requestedId: string;
+    constructor() { }
+    getApp(id) {
+      this.requestedId = id;
+      const yfmdr: YipeeFileMetadataRaw = {
+        name: 'foo',
+        _id: id,
+        author: '',
+        username: ''
+      };
+      const yfr: YipeeFileResponse = {
+        success: true,
+        total: 1,
+        data: [yfmdr]
+      };
+      return of(yfr);
+    }
+  }
+  class MockEditorService {
+    yipeeFileID: string;
+    metadata: YipeeFileMetadata;
+    fatalText: string[] = [];
+    alertText: string[] = [];
+    infoText: string[] = [];
+    invalidKeys: string[];
+    lastYipeeId: string;
 
+    constructor() {
+      this.invalidKeys = [];
+      this.metadata = new YipeeFileMetadata();
+    }
+    setYipeeFileID(yipeeFileId: string): Observable<boolean> {
+      this.yipeeFileID = yipeeFileId;
+      return of(true);
+    }
+    loadYipeeFile(id): Observable<boolean> {
+      this.lastYipeeId = id;
+      this.metadata = YipeeFileService.newTestYipeeFileMetadata('test');
+      return of(true);
+    }
+  }
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [
@@ -71,9 +94,10 @@ describe('EditorComponent', () => {
       ],
       providers: [
         { provide: DownloadService, useClass: MockDownloadService },
-        { provide: FeatureService, useClass: MockFeatureService },
+        FeatureService, UserService, EditorEventService, YipeeFileService,
         { provide: EditorService, useClass: MockEditorService },
-        { provide: EditorEventService, useClass: MockEditorEventService }
+        { provide: ApiService, useClass: MockApiService },
+        { provide: ActivatedRoute, useClass: MockActivatedRoute }
       ]
     })
       .compileComponents();
@@ -82,12 +106,19 @@ describe('EditorComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(EditorComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
-  xit('should be created', inject([MockEditorService], (service: MockEditorService) => {
-    service.loadYipeeFile().subscribe((response) => {
-      expect(component).toBeTruthy();
-    });
+  it('should be created', () => {
+
+    fixture.detectChanges();
+    expect(component).toBeTruthy();
+  });
+
+  it('should load model from URL', inject([EditorService, ApiService, ActivatedRoute], (service: MockEditorService, apiService: MockApiService, ar: MockActivatedRoute) => {
+    ar.addId('foo');
+    expect(component.ui.loading).toBeTruthy();
+    fixture.detectChanges();
+    expect(apiService.requestedId).toBe('foo');
+    expect(component.ui.loading).toBeFalsy();
   }));
 });
