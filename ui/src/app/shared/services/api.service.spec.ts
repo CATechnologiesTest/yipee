@@ -1,4 +1,4 @@
-import { TestBed, inject, async } from '@angular/core/testing';
+import { TestBed, inject, async, fakeAsync, tick, flush } from '@angular/core/testing';
 import { HttpClientModule } from '@angular/common/http';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
@@ -478,12 +478,12 @@ describe('ApiService', () => {
   /* USER ENDPOINT TESTS */
   /* ------------------- */
 
-  it('should return userInfo', inject([ApiService, HttpTestingController], (service: ApiService, backend: HttpTestingController) => {
+  it('should return userInfo', async(inject([ApiService, HttpTestingController], (service: ApiService, backend: HttpTestingController) => {
     service.getUserInfo().subscribe(data => {
       expect(data).toEqual(userInfoResponse);
     });
     backend.expectOne('/api/userInfo').flush(userInfo1);
-  }));
+  })));
 
   it('should return githubUsername is valid in yipee and return the id', async(inject([ApiService, HttpTestingController], (service: ApiService, backend: HttpTestingController) => {
 
@@ -501,7 +501,7 @@ describe('ApiService', () => {
       }}});
   })));
 
-  it('should return githubUsername is invalid in yipee and return null', inject([ApiService, HttpTestingController], (service: ApiService, backend: HttpTestingController) => {
+  it('should return githubUsername is invalid in yipee and return null', async(inject([ApiService, HttpTestingController], (service: ApiService, backend: HttpTestingController) => {
 
     service.validateGithubId(userId).subscribe(data => {
       expect(data).toEqual(null);
@@ -514,7 +514,7 @@ describe('ApiService', () => {
         userByIdentity: {
           id: null
       }}});
-  }));
+  })));
 
   /* ----------------------- */
   /* END USER ENDPOINT TESTS */
@@ -524,13 +524,13 @@ describe('ApiService', () => {
   /* ---------------------- */
 
 
-  it('should import an application using a compose file', inject([ApiService, HttpTestingController], (service: ApiService, backend: HttpTestingController) => {
+  it('should import an application using a compose file', async(inject([ApiService, HttpTestingController], (service: ApiService, backend: HttpTestingController) => {
 
     service.importApp(yipeeMetadata.uiFile).subscribe(data => {
       expect(data).toEqual(importAppResponse);
     });
     backend.expectOne({method: 'POST', url: '/api/import'}).flush(yipeeFileResponse);
-  }));
+  })));
 
   /* -------------------------- */
   /* END CATALOG ENDPOINT TESTS */
@@ -540,23 +540,25 @@ describe('ApiService', () => {
   /* DOWNLOAD SERVICE ENDPOINT TESTS */
   /* ------------------------------- */
 
-  it('should download a kubernetes file', inject([ApiService, HttpTestingController], (service: ApiService, backend: HttpTestingController) => {
+  it('should download a kubernetes file', fakeAsync(inject([ApiService, HttpTestingController], (service: ApiService, backend: HttpTestingController) => {
 
     service.getKubernetesFileData(rawYipeeFile1).subscribe(data => {
       expect(data).toEqual(downloadKubernetesResponse._body.kubernetesFileResponse1.data[0]);
 
     });
-    backend.expectOne({method: 'POST', url: '/api/convert/kubernetes?format=flat'}).flush(kubernetesFile1);
-  }));
+    backend.expectOne({method: 'POST', url: '/api/convert/kubernetes?format=flat'}).flush(kubernetesFileResponse1);
+    tick(50);
+  })));
 
-  it('should download a kubernetes archive file', inject([ApiService, HttpTestingController], (service: ApiService, backend: HttpTestingController) => {
+  it('should download a kubernetes archive file', fakeAsync(inject([ApiService, HttpTestingController], (service: ApiService, backend: HttpTestingController) => {
 
     service.getKubernetesArchiveFileData(rawYipeeFile1).subscribe(data => {
       expect(data).toEqual(downloadKubernetesResponse._body.kubernetesFileResponse1.data[0]);
     });
 
-    backend.expectOne({method: 'POST', url: '/api/download/k8sbundle'}).flush(kubernetesFile1);
-  }));
+    backend.expectOne({method: 'POST', url: '/api/download/k8sbundle'}).flush(kubernetesFileResponse1);
+    tick(50);
+  })));
   /* ----------------------------------- */
   /* END DOWNLOAD SERVICE ENDPOINT TESTS */
   /* ----------------------------------- */
@@ -565,7 +567,7 @@ describe('ApiService', () => {
   /* YIPEEFILE CRUD ENDPOINT TESTS */
   /* ----------------------------- */
 
-  it('should return deleted application success', inject([ApiService, HttpTestingController], (service: ApiService, backend: HttpTestingController) => {
+  it('should return deleted application success', async(inject([ApiService, HttpTestingController], (service: ApiService, backend: HttpTestingController) => {
     const response = new ResponseOptions({
       body: JSON.stringify({
         success: true,
@@ -580,7 +582,7 @@ describe('ApiService', () => {
     });
 
     backend.expectOne({method: 'DELETE', url: '/api/yipeefiles/' + appId + '?source=korn'}).flush(yipeeFileResponse);
-  }));
+  })));
 
   // xit('should make create a new application', inject([ApiService, HttpTestingController], (service: ApiService, backend: HttpTestingController) => {
   //   const response = new ResponseOptions({
@@ -602,14 +604,14 @@ describe('ApiService', () => {
   //   });
   // }));
 
-  it('should update an existing application', inject([ApiService, HttpTestingController], (service: ApiService, backend: HttpTestingController) => {
+  it('should update an existing application', async(inject([ApiService, HttpTestingController], (service: ApiService, backend: HttpTestingController) => {
 
     service.updateApp(yipeeMetadata).subscribe(data => {
       expect(data).toEqual(makePublicResponse);
     });
     const req = backend.expectOne({method: 'PUT', url: '/api/yipeefiles/' + yipeeMetadata.id + '?source=korn'}).flush(yipeeFileResponse);
 
-  }));
+  })));
 
   /* --------------------------------- */
   /* END YIPEEFILE CRUD ENDPOINT TESTS */
