@@ -19,6 +19,7 @@ import { EditorEventService, SelectionChangedEvent, EventSource } from './editor
 })
 export class EditorComponent implements OnInit, AfterViewChecked {
 
+  static UNEXPECTED_RESPONSE = 'Unexpected response from server: ';
   @ViewChild(CanvasComponent)
   private canvasComponent: CanvasComponent;
 
@@ -51,23 +52,22 @@ export class EditorComponent implements OnInit, AfterViewChecked {
     // Are we "deep linking" into a model that is saved on the backend?
     const deepLinkId = this.activatedRoute.snapshot.params['id'];
     if (deepLinkId) {
-      this.yipeeFileService.read(deepLinkId).subscribe((yipeeFile) => {
-        this.editorService.loadYipeeFile(yipeeFile).subscribe((response) => {
+      this.yipeeFileService.read(deepLinkId).subscribe(
+        (yipeeFile) => {
+          this.editorService.loadYipeeFile(yipeeFile).subscribe(
+            (response) => {
+              this.ui.loading = false;
+              this.yipeeFileID = this.editorService.yipeeFileID;
+
+            });
+        },
+        (error) => {
+          this.ui.error = true;
           this.ui.loading = false;
-          this.yipeeFileID = this.editorService.yipeeFileID;
-        });
-      }, (error) => {
-        this.ui.error = true;
-        this.ui.loading = false;
-        this.editorService.metadata = null;
-        try {
-          const response = JSON.parse(error._body) as YipeeFileErrorResponse;
-          this.editorService.fatalText.push.apply(this.editorService.fatalText, response.data);
-        } catch (e) {
+          this.editorService.metadata = null;
           this.editorService.fatalText.length = 0;
-          this.editorService.fatalText.push('Unexpected response from server: ' + error);
-        }
-      });
+          this.editorService.fatalText.push(EditorComponent.UNEXPECTED_RESPONSE + error.message);
+        });
     } else {
       this.ui.loading = false;
     }

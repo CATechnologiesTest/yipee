@@ -12,6 +12,8 @@ import { YipeeFileResponse } from '../../models/YipeeFileResponse';
 import { YipeeFileMetadataRaw } from '../../models/YipeeFileMetadataRaw';
 import { K8sFile } from '../../models/k8s/K8sFile';
 import { Subscriber } from 'rxjs/Subscriber';
+import { throwError } from 'rxjs';
+
 
 @Injectable()
 export class YipeeFileService {
@@ -122,7 +124,11 @@ export class YipeeFileService {
 
   read(yipeeFile_id: string): Observable<YipeeFileMetadata> {
     return this.apiService.getApp(yipeeFile_id).map((response) => {
-      return this.convertServerResponse(response.data[0]);
+      if (typeof response.data[0] === 'string') {
+        throw new Error(response.data[0].toString());
+      } else {
+        return this.convertServerResponse(response.data[0]);
+      }
     });
   }
 
@@ -179,8 +185,8 @@ export class YipeeFileService {
   }
 
   convertServerResponse(response: YipeeFileMetadataRaw): YipeeFileMetadata {
-    const metadata = new YipeeFileMetadata(response);
-    return metadata;
+    let metadata: YipeeFileMetadata;
+    return metadata = new YipeeFileMetadata(response);
   }
 
 }

@@ -1,16 +1,17 @@
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { async, ComponentFixture, TestBed, inject } from '@angular/core/testing';
-import { HttpModule } from '@angular/http';
+import { HttpClientModule } from '@angular/common/http';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { Observable } from 'rxjs/Observable';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
 import { EditorComponent } from './editor.component';
 import { EditorService } from './editor.service';
 import { YipeeFileService } from '../shared/services/yipee-file.service';
 import { YipeeFileMetadata } from '../models/YipeeFileMetadata';
 import { YipeeFileMetadataRaw } from '../models/YipeeFileMetadataRaw';
-import { YipeeFileResponse } from '../models/YipeeFileResponse';
+import { YipeeFileResponse, YipeeFileErrorResponse } from '../models/YipeeFileResponse';
 import { DownloadService } from '../shared/services/download.service';
 import { FeatureService } from '../shared/services/feature.service';
 import { EditorEventService, SelectionChangedEvent } from './editor-event.service';
@@ -24,6 +25,7 @@ import { UserService } from '../shared/services/user.service';
 describe('EditorComponent', () => {
   let component: EditorComponent;
   let fixture: ComponentFixture<EditorComponent>;
+
   class MockDownloadService {
     constructor() { }
   }
@@ -39,25 +41,13 @@ describe('EditorComponent', () => {
     }
   }
   class MockApiService {
-    requestedId: string;
+    static BAD_MODEL = 'bad_model';
+    static CALL_ERROR = '404 error';
+    static BAD_MODEL_ERROR = 'Missing or invalid model';
+
     constructor() { }
-    getApp(id) {
-      this.requestedId = id;
-      const yfmdr: YipeeFileMetadataRaw = {
-        name: 'foo',
-        _id: id,
-        author: '',
-        username: ''
-      };
-      const yfr: YipeeFileResponse = {
-        success: true,
-        total: 1,
-        data: [yfmdr]
-      };
-      return of(yfr);
     }
-  }
-  class MockEditorService {
+    class MockEditorService {
     yipeeFileID: string;
     metadata: YipeeFileMetadata;
     fatalText: string[] = [];
@@ -89,14 +79,15 @@ describe('EditorComponent', () => {
         NO_ERRORS_SCHEMA
       ],
       imports: [
-        HttpModule,
+        HttpClientModule,
+        HttpClientTestingModule,
         RouterTestingModule
       ],
       providers: [
         { provide: DownloadService, useClass: MockDownloadService },
-        FeatureService, UserService, EditorEventService, YipeeFileService,
+        FeatureService, UserService, EditorEventService, YipeeFileService, ApiService,
         { provide: EditorService, useClass: MockEditorService },
-        { provide: ApiService, useClass: MockApiService },
+        // { provide: ApiService, useClass: MockApiService },
         { provide: ActivatedRoute, useClass: MockActivatedRoute }
       ]
     })
@@ -108,17 +99,78 @@ describe('EditorComponent', () => {
     component = fixture.componentInstance;
   });
 
+  afterEach(inject([HttpTestingController], (backend: HttpTestingController) => {
+    backend.verify();
+  }));
+
   it('should be created', () => {
 
     fixture.detectChanges();
     expect(component).toBeTruthy();
   });
 
-  it('should load model from URL', inject([EditorService, ApiService, ActivatedRoute], (service: MockEditorService, apiService: MockApiService, ar: MockActivatedRoute) => {
-    ar.addId('foo');
-    expect(component.ui.loading).toBeTruthy();
-    fixture.detectChanges();
-    expect(apiService.requestedId).toBe('foo');
-    expect(component.ui.loading).toBeFalsy();
-  }));
+  it('should load model from URL', async(inject([EditorService, ApiService, ActivatedRoute, HttpTestingController],
+    (service: MockEditorService, apiService: ApiService, ar: MockActivatedRoute, backend: HttpTestingController) => {
+      ar.addId('foo');
+      expect(component.ui.loading).toBeTruthy();
+      fixture.detectChanges();
+      backend.expectOne('/api/yipeefiles/foo?source=korn').flush({
+        success: true,
+        total: 1,
+        data: [{
+          name: 'App Name',
+          _id: '1010',
+          author: '',
+          username: ''
+        }]
+      });
+      expect(component.ui.loading).toBeFalsy();
+    })));
+
+  it('should handle invalid model error, where 200 is returned', async(inject([EditorService, ApiService, ActivatedRoute, HttpTestingController],
+    (service: MockEditorService, apiService: ApiService, ar: MockActivatedRoute, backend: HttpTestingController) => {
+      ar.addId(MockApiService.BAD_MODEL);
+      expect(component.ui.loading).toBeTruthy();
+      fixture.detectChanges();
+      backend.expectOne('/api/yipeefiles/' + MockApiService.BAD_MODEL + '?source=korn').flush({
+        success: false,
+        total: 1,
+        data: [MockApiService.BAD_MODEL_ERROR]
+      });
+      expect(component.ui.loading).toBeFalsy();
+      expect(component.ui.error).toBeTruthy();
+      expect(service.fatalText[0]).toBe(EditorComponent.UNEXPECTED_RESPONSE + MockApiService.BAD_MODEL_ERROR);
+    })));
+
+  it('should handle invalid model error, where 4xx is returned', async(inject([EditorService, ActivatedRoute, HttpTestingController],
+    (service: MockEditorService, ar: MockActivatedRoute, backend: HttpTestingController) => {
+      ar.addId('foo');
+      expect(component.ui.loading).toBeTruthy();
+      fixture.detectChanges();
+
+      backend.expectOne('/api/yipeefiles/foo?source=korn')
+        .flush({success: false, total: 1, data: [MockApiService.BAD_MODEL_ERROR]}, {status: 404, statusText: 'Not found'});
+      expect(component.ui.loading).toBeFalsy();
+      expect(component.ui.error).toBeTruthy();
+      expect(service.fatalText[0].indexOf('404') > 0).toBeTruthy('no 404 in the error message');
+      expect(service.fatalText[0].indexOf('Not found') > 0).toBeTruthy('Not found - not in the error message');
+      })));
+
+  it('should handle a network error', async(inject([EditorService, ActivatedRoute, HttpTestingController],
+    (service: MockEditorService, ar: MockActivatedRoute, backend: HttpTestingController) => {
+      ar.addId('foo');
+      fixture.detectChanges();
+      const req = backend.expectOne('/api/yipeefiles/foo?source=korn');
+      const emsg = 'simulated network error';
+
+      const mockError = new ErrorEvent('Network error', {
+        message: emsg,
+      });
+
+      // Respond with mock error
+      req.error(mockError);
+      expect(component.ui.loading).toBeFalsy();
+      expect(component.ui.error).toBeTruthy();
+      expect(service.fatalText[0].indexOf(EditorComponent.UNEXPECTED_RESPONSE) >= 0).toBeTruthy();
+    })));
 });
