@@ -154,7 +154,7 @@ export class ApiService {
   /* YIPEEFILE CRUD ENDPOINTS */
   /* ************************ */
   getApp(appId: string): Observable<YipeeFileResponse> {
-    const api_endpoint = '/api/yipeefiles/' + appId;
+    const api_endpoint = '/api/import/' + appId;
     const source_query = '?source=korn'; // TODO &format=flat
     return this.http.get<YipeeFileResponse>(api_endpoint + source_query);
   }

@@ -114,7 +114,7 @@ describe('EditorComponent', () => {
       ar.addId('foo');
       expect(component.ui.loading).toBeTruthy();
       fixture.detectChanges();
-      backend.expectOne('/api/yipeefiles/foo?source=korn').flush({
+      backend.expectOne('/api/import/foo?source=korn').flush({
         success: true,
         total: 1,
         data: [{
@@ -132,7 +132,7 @@ describe('EditorComponent', () => {
       ar.addId(MockApiService.BAD_MODEL);
       expect(component.ui.loading).toBeTruthy();
       fixture.detectChanges();
-      backend.expectOne('/api/yipeefiles/' + MockApiService.BAD_MODEL + '?source=korn').flush({
+      backend.expectOne('/api/import/' + MockApiService.BAD_MODEL + '?source=korn').flush({
         success: false,
         total: 1,
         data: [MockApiService.BAD_MODEL_ERROR]
@@ -148,7 +148,7 @@ describe('EditorComponent', () => {
       expect(component.ui.loading).toBeTruthy();
       fixture.detectChanges();
 
-      backend.expectOne('/api/yipeefiles/foo?source=korn')
+      backend.expectOne('/api/import/foo?source=korn')
         .flush({success: false, total: 1, data: [MockApiService.BAD_MODEL_ERROR]}, {status: 404, statusText: 'Not found'});
       expect(component.ui.loading).toBeFalsy();
       expect(component.ui.error).toBeTruthy();
@@ -160,7 +160,7 @@ describe('EditorComponent', () => {
     (service: MockEditorService, ar: MockActivatedRoute, backend: HttpTestingController) => {
       ar.addId('foo');
       fixture.detectChanges();
-      const req = backend.expectOne('/api/yipeefiles/foo?source=korn');
+      const req = backend.expectOne('/api/import/foo?source=korn');
       const emsg = 'simulated network error';
 
       const mockError = new ErrorEvent('Network error', {
