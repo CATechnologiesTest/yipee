@@ -42,8 +42,9 @@ function doImport(yipeeobj) {
     });
 };
 
-Router.get('/:_id', function(req, resp, _id) {
-    let flatfile = modelStore.retrieveModel(_id);
+Router.get('/:_id', function(req, resp) {
+    let id = req.params._id;
+    let flatfile = modelStore.retrieveModel(id);
     if ( flatfile ) {
         let retobj = {
             flatfile: JSON.parse(flatfile)
@@ -51,8 +52,8 @@ Router.get('/:_id', function(req, resp, _id) {
         resp.json(Util.generateSuccessResponse(retobj));
     } else {
         let err = {
-            message: "No model for uuid: " + _id
-        }
+            message: "No model for uuid: " + id
+        };
         resp.status(404).json(Util.generateErrorResponse(err, req));
     }
 });

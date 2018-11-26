@@ -110,7 +110,6 @@ describe('Import Returning GUIDs Test', function() {
                         assertExpectedGuid(yipeeobj);
                         return agent
                             .get('/import/' + yipeeobj.guid)
-                            .set('content-type', 'applicaiton/json')
                             .set('accept', 'application/json')
                             .then(res1 => {
                                 expect(res1).to.have.status(200);
@@ -125,6 +124,31 @@ describe('Import Returning GUIDs Test', function() {
                     });
             });
         });
+    };
+
+    let badGuid = 'abcdefgh-ijkl-mnop-qrst-uvwxyz012345';
+    let testBadGuid = function() {
+        describe('#testRetrieveNonExistingGuid', function() {
+            it('should return error message for non-existing guid',
+               function(done) {
+                   chai.request.agent(app.server)
+                       .get('/import/' + badGuid)
+                       .set('accept', 'application/json')
+                       .then(res => {
+                           expect(res).to.have.status(404);
+                           expect(res).to.be.json;
+                           expect(res.body.success).to.equal(false);
+                           expect(res.body.data[0]).to.equal(
+                               "No model for uuid: " + badGuid);
+                           done();
+                       })
+                       .catch(err => {
+                           console.log("test bad guid error: %j", err);
+                           done(err);
+                       });
+               });
+        });
+    };
 
     let importBundle = {
         name: 'bundleImport',
@@ -142,4 +166,5 @@ describe('Import Returning GUIDs Test', function() {
 
     testK8sImportGuid(importBundle);
     testK8sImportGuid(importFile);
-    }});
+    testBadGuid();
+});
