@@ -47,7 +47,7 @@ Router.get('/:_id', function(req, resp) {
     let flatfile = modelStore.retrieveModel(id);
     if ( flatfile ) {
         let retobj = {
-            flatfile: JSON.parse(flatfile)
+            flatFile: JSON.parse(flatfile)
         };
         resp.json(Util.generateSuccessResponse(retobj));
     } else {

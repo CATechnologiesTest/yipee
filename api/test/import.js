@@ -115,6 +115,8 @@ describe('Import Returning GUIDs Test', function() {
                                 expect(res1).to.have.status(200);
                                 expect(res1).to.be.json;
                                 expect(res1.body.success).to.equal(true);
+                                expect(res1.body.data[0]).to.have.property(
+                                    'flatFile');
                                 done();
                             })
                             .catch(err => {
