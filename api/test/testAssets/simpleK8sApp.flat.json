@@ -1,0 +1,153 @@
+{
+    "network-ref": [
+        {
+            "type": "network-ref",
+            "aliases": [],
+            "container": "db60fce7-1d9d-40e0-97c9-4d9b96c1531b",
+            "name": "default",
+            "id": "4ac6a0c1-9c9a-42a7-985f-bd4d7cc2667b"
+        }
+    ],
+    "container-group": [
+        {
+            "name": "one",
+            "type": "container-group",
+            "containers": [
+                "db60fce7-1d9d-40e0-97c9-4d9b96c1531b"
+            ],
+            "source": "k8s",
+            "container-names": [
+                "one"
+            ],
+            "pod": "4a981264-533a-46c6-b8a2-61837e98d70c",
+            "id": "c0a367cc-6070-491d-90ec-b78451359604",
+            "controller-type": "Deployment"
+        }
+    ],
+    "deployment-spec": [
+        {
+            "termination-grace-period": 10,
+            "service-name": "",
+            "mode": "replicated",
+            "type": "deployment-spec",
+            "cgroup": "c0a367cc-6070-491d-90ec-b78451359604",
+            "id": "76ae4edd-36a4-474e-92df-a18a330ac43f",
+            "controller-type": "Deployment",
+            "count": 1,
+            "image-pull-secrets": "",
+            "pod-management-policy": "OrderedReady",
+            "revisionHistoryLimit": 2,
+            "update-strategy": {
+                "type": "RollingUpdate",
+                "rollingUpdate": {
+                    "maxSurge": 1,
+                    "maxUnavailable": 1
+                }
+            }
+        }
+    ],
+    "app-info": [
+        {
+            "type": "app-info",
+            "name": "unknown",
+            "description": "[insert app description here]",
+            "logo": "[insert name of app logo image here]",
+            "id": "1bf446f5-4d2b-4f5c-bbb6-8ea87cdda9da"
+        }
+    ],
+    "volume": [
+        {
+            "selector": {
+                "matchLabels": {
+                }
+            },
+            "storage-class": "",
+            "is-template": false,
+            "name": "vol1",
+            "type": "volume",
+            "volume-mode": "Filesystem",
+            "access-modes": [
+                "ReadWriteOnce"
+            ],
+            "id": "7b941996-0d35-462a-8459-b9e5b07e9d01",
+            "storage": "",
+            "annotations": {
+            },
+            "physical-volume-name": "vol1",
+            "claim-name": "vol1-claim"
+        }
+    ],
+    "replication": [
+        {
+            "type": "replication",
+            "cgroup": "c0a367cc-6070-491d-90ec-b78451359604",
+            "count": 1,
+            "id": "3bdd4af7-1aea-424f-9d59-9cdcb503e524"
+        }
+    ],
+    "label": [
+        {
+            "type": "label",
+            "cgroup": "c0a367cc-6070-491d-90ec-b78451359604",
+            "key": "name",
+            "value": "dummy",
+            "id": "a95acd20-f338-4826-ae28-428615f728b9"
+        },
+        {
+            "type": "label",
+            "cgroup": "c0a367cc-6070-491d-90ec-b78451359604",
+            "key": "component",
+            "value": "one",
+            "id": "26ab2d4c-14e3-4c52-86d3-36a83efa0e6b"
+        }
+    ],
+    "container": [
+        {
+            "type": "container",
+            "name": "one",
+            "cgroup": "c0a367cc-6070-491d-90ec-b78451359604",
+            "position": -1,
+            "id": "db60fce7-1d9d-40e0-97c9-4d9b96c1531b"
+        }
+    ],
+    "restart-policy": [
+        {
+            "type": "restart-policy",
+            "cgroup": "c0a367cc-6070-491d-90ec-b78451359604",
+            "value": "always",
+            "id": "c5ef55c2-f2f9-42f4-8e71-13f7e29fe87f"
+        }
+    ],
+    "image": [
+        {
+            "type": "image",
+            "container": "db60fce7-1d9d-40e0-97c9-4d9b96c1531b",
+            "value": "one",
+            "id": "b1bfbcd0-d279-4b5a-a637-a52196cfdfb5"
+        }
+    ],
+    "volume-ref": [
+        {
+            "path": "/foo",
+            "access-mode": "ReadWriteOnce",
+            "sub-path": "",
+            "type": "volume-ref",
+            "volume": "7b941996-0d35-462a-8459-b9e5b07e9d01",
+            "container-name": "one",
+            "id": "ad544dda-fc0e-46de-acab-9d3e59f394fb",
+            "container": "db60fce7-1d9d-40e0-97c9-4d9b96c1531b",
+            "volume-name": "vol1"
+        }
+    ],
+    "label-group": [
+        {
+            "type": "label-group",
+            "cgroup": "c0a367cc-6070-491d-90ec-b78451359604",
+            "id": "b7c32e1f-4b8f-4c10-a87f-4fd41fd97db0",
+            "labels": {
+                "component": "one",
+                "name": "dummy"
+            }
+        }
+    ]
+}
