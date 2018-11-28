@@ -19,6 +19,8 @@ import { EditorEventService, SelectionChangedEvent, EventSource } from './editor
 })
 export class EditorComponent implements OnInit, AfterViewChecked {
 
+  showWarningModal: boolean;
+
   @ViewChild(CanvasComponent)
   private canvasComponent: CanvasComponent;
 
@@ -44,7 +46,9 @@ export class EditorComponent implements OnInit, AfterViewChecked {
     private router: Router,
     private editorEventService: EditorEventService,
     private cd: ChangeDetectorRef,
-  ) { }
+  ) {
+    this.showWarningModal = false;
+  }
 
   ngOnInit() {
 
@@ -161,8 +165,16 @@ export class EditorComponent implements OnInit, AfterViewChecked {
     return false;
   }
 
-  onClose(): void {
-    this.router.navigate(['']);
+  onClose(forceClose?: boolean): void {
+    if (forceClose) {
+      this.editorService.dirty = false;
+      this.router.navigate(['']);
+    }
+    if (this.editorService.dirty) {
+      this.showWarningModal = true;
+    } else {
+      this.router.navigate(['']);
+    }
   }
 
   ngAfterViewChecked() {

@@ -120,3 +120,8 @@
 
 </div>
 
+<app-warn-changes-modal 
+  [show]="showWarningModal"
+  (onClose)="showWarningModal = false; onClose(true);"
+  (onCancel)="showWarningModal = false;">
+</app-warn-changes-modal>
