@@ -27,4 +27,21 @@ describe('WarnChangesModalComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should emit true when onClose function is called', () => {
+    component.onClose.subscribe((value: boolean) => {
+      expect(value).toBeDefined();
+      expect(value).toEqual(true);
+    });
+    component.navigateHome();
+  });
+
+  it('should emit false when onCancel function is called', () => {
+    component.onCancel.subscribe((value: boolean) => {
+      expect(value).toBeDefined();
+      expect(value).toEqual(false);
+    });
+    component.cancel();
+  });
+
 });
