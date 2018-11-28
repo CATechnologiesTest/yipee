@@ -19,7 +19,7 @@ Router.post('/', function(req, resp) {
         .catch(err => {
             Logger.error({error: errorObject(err),
                           yipeeobj: yipeeobj}, "import");
-            resp.status(400).json(Util.generateErrorResponse(err, req));
+            resp.status(400).json(Util.generateErrorResponse(err));
         });
 });
 

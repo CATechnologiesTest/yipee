@@ -18,6 +18,7 @@ const importRoutes = require('./routes/import');
 const downloadRoutes = require('./routes/download');
 
 const namespaceRoutes = require('./routes/namespaces');
+const diffRoutes = require('./routes/diff');
 
 const initPrimus = require('./helpers/k8sapi').initPrimus;
 const app = express();
@@ -38,6 +39,7 @@ app.use('/import', importRoutes);
 app.use('/download', downloadRoutes);
 
 app.use('/namespaces', namespaceRoutes);
+app.use('/diff', diffRoutes);
 
 // Listen on port 5000
 const server = app.listen(5000);
