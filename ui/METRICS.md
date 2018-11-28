@@ -274,8 +274,6 @@ Pattern will be Verb - Noun - Action/result  eg.  SignupClicked, CreateModel, Fo
   userSrc: (Is always 'Github', as it is the only Oauth we use)
 });
 
-### ('LogoutSuccessful');
-
 ### ('ModelMadePublic', {
   fileId: (UID of model in database)
   appName: (Name of model)

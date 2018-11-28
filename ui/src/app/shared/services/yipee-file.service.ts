@@ -25,7 +25,6 @@ export class YipeeFileService {
       'username': 'murra10',
       'downloads': 0,
       'likes': 0,
-      'logodata': null,
       'revcount': 5,
       'ownerorg': '03241d7e-3906-11e8-aa27-b7c5a17c8fb7',
       'fullname': 'murra10@github/e@no@ent/murra10/joomla-base.yipee',
@@ -100,7 +99,6 @@ export class YipeeFileService {
           'ui': {
             'canvas': {}
           },
-          'logo': '[insert name of app logo image here]',
           'name': 'joomla-base',
           'readme': '',
           'description': '[insert app description here]'
@@ -751,7 +749,6 @@ export class YipeeFileService {
         ]
       },
       'id': 'ee57fb6a-3c32-11e8-9bd0-f379f27269bb',
-      'hasLogo': false,
       'containers': [
         'joomla',
         'mariadb'
@@ -849,7 +846,6 @@ export class YipeeFileService {
           'ui': {
             'canvas': {}
           },
-          'logo': '[insert name of app logo image here]',
           'name': 'joomla-base',
           'readme': '',
           'description': '[insert app description here]'
@@ -1573,7 +1569,6 @@ export class YipeeFileService {
     metadata.orgname = 'copan02';
     metadata.isPrivate = true;
     metadata.id = '5551212';
-    metadata.hasLogo = false;
     metadata.flatFile = new K8sFile();
     return metadata;
 
@@ -1599,7 +1594,6 @@ export class YipeeFileService {
     metadata.orgname = 'copan02';
     metadata.isPrivate = true;
     metadata.id = '5551212';
-    metadata.hasLogo = false;
     metadata.flatFile = new K8sFile();
     return metadata;
 
@@ -1668,18 +1662,6 @@ export class YipeeFileService {
       // metadata.uiFile.appinfo.name = applicationName;
     }
     return metadata;
-  }
-
-  getYipeeFileLogo(yipeeFileId: string): Observable<string> {
-    return this.apiService.getYipeeFileLogo(yipeeFileId).map((data) => {
-      return data.data[0].serializedData;
-    });
-  }
-
-  putYipeeFileLogo(yipeeFileId: string, base64ImageString: string) {
-    return this.apiService.putYipeeFileLogo(yipeeFileId, base64ImageString).map((response) => {
-      return response;
-    });
   }
 
   convertServerResponse(response: YipeeFileMetadataRaw): YipeeFileMetadata {
