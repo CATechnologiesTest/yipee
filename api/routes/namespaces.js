@@ -176,10 +176,9 @@ Router.post('/diff', function(req, resp) {
         parent: {
             name: req.body.parent
         },
-        child: {
-            name: req.body.children[0]
-        }
+        children: req.body.children.map(c => { return {name: c}; })
     };
+    console.log("diffobj:", diffObj);
     cvtHelpers.prepareDiffInput(diffObj)
         .then(payload => {
             if (payload.err) {
@@ -199,7 +198,7 @@ Router.post('/diff', function(req, resp) {
         })
         .catch(err => {
             Logger.error({error: errorObject(err),
-                          payload: payload}, "diff");
+                          payload: req.body}, "diff");
             resp.status(500).json(Util.generateErrorResponse(err));
         });
 });

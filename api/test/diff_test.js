@@ -53,10 +53,10 @@ describe('Yipee Diff API Tests:', function() {
             name: 'parent-flat',
             data: flatJson
         },
-        child: {
+        children: [{
             name: 'child-yaml',
             data: yaml
-        }
+        }]
     });
 
     diffTest({
@@ -64,10 +64,10 @@ describe('Yipee Diff API Tests:', function() {
             name: 'parent-yaml',
             data: yaml
         },
-        child: {
+        children: [{
             name: 'child-flat',
             data: flatJson
-        }
+        }]
     });
 
     diffTest({
@@ -75,10 +75,10 @@ describe('Yipee Diff API Tests:', function() {
             name: 'parent-yaml',
             data: yaml
         },
-        child: {
+        children: [{
             name: 'child-yaml',
             data: yaml
-        }
+        }]
     });
 
     diffTest({
@@ -86,10 +86,10 @@ describe('Yipee Diff API Tests:', function() {
             name: 'parent-flat',
             data: flatJson
         },
-        child: {
+        children: [{
             name: 'child-flat',
             data: flatJson
-        }
+        }]
     });
 
 });

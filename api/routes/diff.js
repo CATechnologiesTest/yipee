@@ -26,7 +26,7 @@ Router.post('/', function(req, resp) {
         })
         .catch(err => {
             Logger.error({error: errorObject(err),
-                          payload: payload}, "diff");
+                          payload: req.body}, "diff");
             resp.status(500).json(Util.generateErrorResponse(err));
         });
 });

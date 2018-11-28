@@ -171,17 +171,19 @@ function prepareDiffInput(body) {
             retval.err = new Error("invalid diff input -- not an object");
             resolve(retval);
         } else if (!(body.hasOwnProperty("parent") &&
-                     body.hasOwnProperty("child"))) {
+                     body.hasOwnProperty("children") &&
+                     Array.isArray(body.children))) {
             retval.err = new Error("invalid diff input -- " +
-                                   "must have 'parent' and 'child' properties");
+                                   "must have 'parent' and " +
+                                   "'children' properties");
             resolve(retval);
         } else {
-            Promise.all([makeDiffObject(body.parent),
-                         makeDiffObject(body.child)])
+            let childPromises = body.children.map(c => makeDiffObject(c));
+            Promise.all([makeDiffObject(body.parent), ...childPromises])
                 .then(inputs => {
                     retval.diffobj = {
-                        parent: inputs[0],
-                        children: [inputs[1]]
+                        parent: inputs.shift(),
+                        children: inputs
                     };
                     resolve(retval);
                 })
