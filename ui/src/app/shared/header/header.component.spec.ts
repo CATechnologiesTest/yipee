@@ -6,6 +6,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { HeaderComponent } from './header.component';
 import { UserService } from '../../shared/services/user.service';
 import { FeatureService } from '../../shared/services/feature.service';
+import { EditorService } from '../../editor/editor.service';
 
 const mockUserInfo: any = {
   githubUsername: 'copan02',
@@ -40,6 +41,11 @@ class MockFeatureService {
   names: Array<string> = [];
 }
 
+class MockEditorService {
+  constructor() { }
+  dirty: boolean;
+}
+
 describe('HeaderComponent', () => {
   let component: HeaderComponent;
   let fixture: ComponentFixture<HeaderComponent>;
@@ -57,6 +63,8 @@ describe('HeaderComponent', () => {
         CUSTOM_ELEMENTS_SCHEMA
       ],
       providers: [
+        // EditorService,
+        { provide: EditorService, useClass: MockEditorService },
         { provide: UserService, useClass: MockUserService },
         { provide: FeatureService, useClass: MockFeatureService }
       ]

@@ -1,6 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { WarnChangesModalComponent } from './warn-changes-modal.component';
+import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
 
 describe('WarnChangesModalComponent', () => {
   let component: WarnChangesModalComponent;
@@ -8,7 +9,11 @@ describe('WarnChangesModalComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ WarnChangesModalComponent ]
+      declarations: [ WarnChangesModalComponent ],
+      schemas: [
+        CUSTOM_ELEMENTS_SCHEMA,
+        NO_ERRORS_SCHEMA
+      ]
     })
     .compileComponents();
   }));
