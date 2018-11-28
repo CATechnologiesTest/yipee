@@ -125,7 +125,7 @@ function promiseConvert(data, endpoint) {
 }
 
 function makeDiffObject(inobj) {
-    if (!typeof inobj === 'object' || !(inobj.hasOwnProperty('name'))) {
+    if (!(typeof inobj === 'object') || !(inobj.hasOwnProperty('name'))) {
         return Promise.reject(new Error("each diff object must have a " +
                                         "'name' property"));
     }
@@ -167,7 +167,7 @@ function makeDiffObject(inobj) {
 function prepareDiffInput(body) {
     return new Promise((resolve, reject) => {
         let retval = {};
-        if (!typeof body === 'object') {
+        if (!(typeof body) === 'object') {
             retval.err = new Error("invalid diff input -- not an object");
             resolve(retval);
         } else if (!(body.hasOwnProperty("parent") &&
