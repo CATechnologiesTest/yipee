@@ -146,7 +146,7 @@ function makeDiffObject(inobj) {
             resolve({name: inobj.name,
                      yaml: inobj.data});
         } else if (inputType === 'undefined') {
-            // assume that 'name' denotes a k8s namespace
+            // assume that 'name' without 'data' denotes a k8s namespace
             k8s.makeImport(inobj.name)
                 .then(yaml => {
                     resolve({name: inobj.name,
@@ -156,7 +156,7 @@ function makeDiffObject(inobj) {
                     reject(err);
                 });
         } else {
-            // neither flat nor yaml -- input error
+            // 'data' was specified but it's neither flat nor yaml -- input error
             reject(new Error(`${inobj.name} is ${inputType}.` +
                              "Must be either object (flat-format) or " +
                              "string (yaml)"));

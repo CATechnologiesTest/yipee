@@ -178,7 +178,6 @@ Router.post('/diff', function(req, resp) {
         },
         children: req.body.children.map(c => { return {name: c}; })
     };
-    console.log("diffobj:", diffObj);
     cvtHelpers.prepareDiffInput(diffObj)
         .then(payload => {
             if (payload.err) {
