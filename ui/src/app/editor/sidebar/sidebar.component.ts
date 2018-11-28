@@ -17,7 +17,7 @@ export class SidebarComponent implements OnInit {
   k8sFile: K8sFile;
   subscription: any;
   viewType = 'app';
-  editorMode: 'k8s';
+  editorMode = 'k8s';
   selectionId: string;
 
   @ViewChild(SidebarPanelComponent)
