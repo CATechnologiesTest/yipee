@@ -1,8 +1,9 @@
-var Env = require('../environment');
-var baselogger = require('./logger');
-var errorObject = baselogger.errorObject;
-var logger = baselogger.getOrCreateLogger('cvthelper');
+const Env = require('../environment');
+const baselogger = require('./logger');
+const errorObject = baselogger.errorObject;
+const logger = baselogger.getOrCreateLogger('cvthelper');
 const Http = require('./http');
+const k8s = require('./k8sapi');
 
 function getAppName(yipee) {
     if (yipee.yipeeFile &&
@@ -123,6 +124,75 @@ function promiseConvert(data, endpoint) {
     });
 }
 
+function makeDiffObject(inobj) {
+    if (!typeof inobj === 'object' || !(inobj.hasOwnProperty('name'))) {
+        return Promise.reject(new Error("each diff object must have a " +
+                                        "'name' property"));
+    }
+    let inputType = typeof inobj.data;
+    return new Promise((resolve, reject) => {
+        if (inputType === 'object') {
+            // assume this is flat-format and turn it to yaml
+            flatToK8s(inobj.data)
+                .then(yaml => {
+                    resolve({name: inobj.name,
+                             yaml: yaml});
+                })
+                .catch(err => {
+                    reject(err);
+                });
+        } else if (inputType === 'string') {
+            // assume it's already yaml and we're good to go
+            resolve({name: inobj.name,
+                     yaml: inobj.data});
+        } else if (inputType === 'undefined') {
+            // assume that 'name' denotes a k8s namespace
+            k8s.makeImport(inobj.name)
+                .then(yaml => {
+                    resolve({name: inobj.name,
+                             yaml: yaml});
+                })
+                .catch(err => {
+                    reject(err);
+                });
+        } else {
+            // neither flat nor yaml -- input error
+            reject(new Error(`${inobj.name} is ${inputType}.` +
+                             "Must be either object (flat-format) or " +
+                             "string (yaml)"));
+        }
+    });
+}
+
+function prepareDiffInput(body) {
+    return new Promise((resolve, reject) => {
+        let retval = {};
+        if (!typeof body === 'object') {
+            retval.err = new Error("invalid diff input -- not an object");
+            resolve(retval);
+        } else if (!(body.hasOwnProperty("parent") &&
+                     body.hasOwnProperty("child"))) {
+            retval.err = new Error("invalid diff input -- " +
+                                   "must have 'parent' and 'child' properties");
+            resolve(retval);
+        } else {
+            Promise.all([makeDiffObject(body.parent),
+                         makeDiffObject(body.child)])
+                .then(inputs => {
+                    retval.diffobj = {
+                        parent: inputs[0],
+                        children: [inputs[1]]
+                    };
+                    resolve(retval);
+                })
+                .catch(err => {
+                    retval.err = err;
+                    resolve(retval);
+                });
+        }
+    });
+}
+module.exports.prepareDiffInput = prepareDiffInput;
 
 function k8sToFlat(k8sdata) {
     return promiseConvert(k8sdata, '/k2f');

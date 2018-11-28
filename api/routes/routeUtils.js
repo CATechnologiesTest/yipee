@@ -15,7 +15,7 @@ function generateResponse(success, contents, length) {
     return response;
 }
 
-module.exports.generateErrorResponse = function(error, req) {
+module.exports.generateErrorResponse = function(error) {
     return generateResponse(false, [error.message]);
 }
 

@@ -30,16 +30,6 @@ describe('Yipee Diff API Tests:', function() {
         describe('#diffTest', function() {
             it('should diff the posted files', function(done) {
                 let url = '/diff';
-                let payload = {
-                    parent: {
-                        name: 'parent-flat',
-                        data: flatJson
-                    },
-                    child: {
-                        name: 'child-yml',
-                        data: yaml
-                    }
-                };
                 chai.request(app.server)
                     .post(url)
                     .set('content-type', 'application/json')
@@ -47,7 +37,7 @@ describe('Yipee Diff API Tests:', function() {
                     .then(res => {
                         expect(res).to.have.status(200);
                         expect(res).to.be.json;
-                        console.log("diff return:", res.body.data[0]);
+                        // console.log("diff return:", res.body.data[0]);
                         done();
                     })
                     .catch(err => {
