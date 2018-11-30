@@ -27,14 +27,11 @@ export class HeaderComponent {
   }
 
   onClose(forceClose?: boolean) {
-    if (forceClose) {
+    if (forceClose || (this.editorService.dirty === false)) {
       this.editorService.dirty = false;
       this.router.navigate(['/'], {});
-    }
-    if (this.editorService.dirty) {
-      this.showWarningModal = true;
     } else {
-      this.router.navigate(['/'], {});
+      this.showWarningModal = true;
     }
   }
 

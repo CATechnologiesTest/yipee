@@ -1,16 +1,11 @@
 declare var $: JQueryStatic;
 import { Component, OnInit, ViewChild, ChangeDetectorRef, AfterViewChecked } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 
 import { EditorService } from './editor.service';
 import { CanvasComponent } from './canvas/canvas.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
-import { YipeeFileService } from '../shared/services/yipee-file.service';
 import { DownloadService } from '../shared/services/download.service';
-import { YipeeFileMetadata } from '../models/YipeeFileMetadata';
-import { YipeeFileErrorResponse } from '../models/YipeeFileResponse';
-import { FeatureService } from '../shared/services/feature.service';
 import { EditorEventService, SelectionChangedEvent, EventSource } from './editor-event.service';
 
 @Component({
@@ -40,9 +35,7 @@ export class EditorComponent implements OnInit, AfterViewChecked {
 
   constructor(
     public editorService: EditorService,
-    public featureService: FeatureService,
     public downloadService: DownloadService,
-    private activatedRoute: ActivatedRoute,
     private router: Router,
     private editorEventService: EditorEventService,
     private cd: ChangeDetectorRef,
@@ -166,14 +159,11 @@ export class EditorComponent implements OnInit, AfterViewChecked {
   }
 
   onClose(forceClose?: boolean): void {
-    if (forceClose) {
+    if (forceClose || (this.editorService.dirty === false)) {
       this.editorService.dirty = false;
-      this.router.navigate(['']);
-    }
-    if (this.editorService.dirty) {
-      this.showWarningModal = true;
+      this.router.navigate(['/'], {});
     } else {
-      this.router.navigate(['']);
+      this.showWarningModal = true;
     }
   }
 
