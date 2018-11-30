@@ -32,11 +32,9 @@ describe('K8sInfoContainerComponent (k8sFile.appInfo)', () => {
     dateCreated: new Date().toDateString(),
     dateModified: new Date().toDateString(),
     id: '5551212',
-    hasLogo: false,
     uiFile: {
       appinfo: {
         id: '',
-        logo: '',
         name: '',
         description: '',
         ui: {},
@@ -69,7 +67,6 @@ describe('K8sInfoContainerComponent (k8sFile.appInfo)', () => {
     dateCreated: new Date().toDateString(),
     dateModified: new Date().toDateString(),
     id: 'string2',
-    hasLogo: false,
     flatFile: []
   };
   const yipeeFile2 = new YipeeFileMetadata(yipeeFileRaw2);
@@ -92,7 +89,6 @@ describe('K8sInfoContainerComponent (k8sFile.appInfo)', () => {
     dateCreated: new Date().toDateString(),
     dateModified: new Date().toDateString(),
     id: 'string3',
-    hasLogo: false,
     flatFile: []
   };
   const yipeeFile3 = new YipeeFileMetadata(yipeeFileRaw3);
@@ -201,9 +197,6 @@ describe('K8sInfoContainerComponent (k8sFile.appInfo)', () => {
     component.form.get('description').setValue('new app description');
     expect(editorService.k8sFile.appInfo.description).toEqual('new app description');
   }));
-
-  // appInfo.logo
-  xit(`logo tests pending...`, () => {});
 
   // appInfo.id
   it(`id should autofill with value from editorService`, inject([EditorService], (editorService: EditorService) => {

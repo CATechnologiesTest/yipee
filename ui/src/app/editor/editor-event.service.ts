@@ -59,7 +59,6 @@ export class EditorEventService {
   onSelectionChange: EventEmitter<SelectionChangedEvent> = new EventEmitter();
   onInvalidKeysChange: EventEmitter<InvalidKeysChangeEvent> = new EventEmitter();
   onCompatSecretChange: EventEmitter<boolean> = new EventEmitter();
-  onLogoChange: EventEmitter<boolean> = new EventEmitter();
   onAppSecretChange: EventEmitter<boolean> = new EventEmitter();
 
   public onServiceSelectorChange = new Subject<k8sService>();

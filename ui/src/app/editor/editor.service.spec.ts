@@ -43,10 +43,6 @@ class MockYipeeFileService {
   update(metadata: YipeeFileMetadata): Observable<YipeeFileMetadata> {
     return of(yipeeMetadata1);
   }
-
-  putYipeeFileLogo(yipeeFileID: string, base64ImgString: string): Observable <boolean> {
-    return of(true);
-  }
 }
 
 describe('EditorService', () => {

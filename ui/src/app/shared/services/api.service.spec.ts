@@ -177,7 +177,6 @@ describe('ApiService', () => {
       'environment': ['envvar1=envval1']
     }],
     'appinfo': {
-      'logo': '[insert name of app logo image here]',
       'name': '[insert app name here]',
       'description': '[insert app description here]'
     }
