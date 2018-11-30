@@ -23,7 +23,6 @@ function doImport(yipeeobj) {
 const ffMap = new Map([]);
 
 function stashModel(flatfile) {
-    console.log("stash: size %j, max: %j", ffMap.size, Env.getMaxFlatFiles());
     if (ffMap.size >= Env.getMaxFlatFiles()) {
         return null;
     };
