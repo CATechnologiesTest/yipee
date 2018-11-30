@@ -96,7 +96,7 @@ describe('Import Returning GUIDs Test', function() {
         describe('#testImportGuid', function() {
             it('should import k8s and return flat', function(done) {
                 // create initial yipee
-                var agent = chai.request.agent(app.server);
+                let agent = chai.request.agent(app.server);
                 agent
                     .post('/import?store=true')
                     .set('content-type', 'application/json')
@@ -152,6 +152,101 @@ describe('Import Returning GUIDs Test', function() {
         });
     };
 
+    let pause = function(secs) {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => { resolve(true); },  secs * 1000);
+        });
+    };
+
+    let testGuidTimeout = function(payload) {
+        describe('#testGuidTimeout', function() {
+            it('should return error for timed-out guid', function(done) {
+                let origTimeout = process.env.FLAT_FILE_TIMEOUT_SECS;
+                process.env.FLAT_FILE_TIMEOUT_SECS = "1";
+                let agent = chai.request.agent(app.server);
+                let timeoutGuid;
+                agent
+                    .post('/import?store=true')
+                    .set('content-type', 'application/json')
+                    .set('accept', 'application/json')
+                    .send(payload)
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                        expect(res).to.be.json;
+                        expect(res.body.success).to.equal(true);
+                        let yipeeobj = res.body.data[0];
+                        assertExpectedGuid(yipeeobj);
+                        timeoutGuid = yipeeobj.guid;
+                        return pause(2);
+                    })
+                    .then(() => {
+                        return agent
+                            .get('/import/' + timeoutGuid)
+                            .set('accept', 'application/json');
+                    })
+                    .then(res1 => {
+                        expect(res1).to.have.status(404);
+                        expect(res1).to.be.json;
+                        expect(res1.body.success).to.equal(false);
+                        process.env.FLAT_FILE_TIMEOUT_SECS = origTimeout;
+                        done();
+                    })
+                    .catch(err => {
+                        console.log("test k8s import error: %j", err);
+                        process.env.FLAT_FILE_TIMEOUT_SECS = origTimeout;
+                        done(err);
+                    });
+            });
+        });
+    }
+
+    let testStashLimit = function(payload) {
+        describe('#testStashLimit', function() {
+            it('should return error on stash cache overflow', function(done) {
+                let origmax = process.env.MAX_FLAT_FILES;
+                process.env.MAX_FLAT_FILES = "1";
+                let agent = chai.request.agent(app.server);
+                let stashGuid;
+                agent.post('/import?store=true')
+                    .set('content-type', 'application/json')
+                    .set('accept', 'application/json')
+                    .send(payload)
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                        expect(res).to.be.json;
+                        expect(res.body.success).to.equal(true);
+                        let yipeeobj = res.body.data[0];
+                        assertExpectedGuid(yipeeobj);
+                        stashGuid = yipeeobj.guid;
+                        return agent.post('/import?store=true')
+                            .set('content-type', 'application/json')
+                            .set('accept', 'application/json')
+                            .send(payload);
+                    })
+                    .then(res => {
+                        expect(res).to.have.status(409);
+                        expect(res).to.be.json;
+                        expect(res.body.success).to.equal(false);
+                        return agent.get('/import/' + stashGuid)
+                            .set('accept', 'application/json');
+                    })
+                    .then(res1 => {
+                        expect(res1).to.have.status(200);
+                        expect(res1).to.be.json;
+                        expect(res1.body.success).to.equal(true);
+                        expect(res1.body.data[0]).to.have.property('flatFile');
+                        process.env.MAX_FLAT_FILES = origmax
+                        done();
+                    })
+                    .catch(err => {
+                        console.log("test k8s import error: %j", err);
+                        process.env.MAX_FLAT_FILES = origmax
+                        done(err);
+                    });
+            });
+        });
+    }
+
     let importBundle = {
         name: 'bundleImport',
         isPrivate: true,
@@ -169,4 +264,6 @@ describe('Import Returning GUIDs Test', function() {
     testK8sImportGuid(importBundle);
     testK8sImportGuid(importFile);
     testBadGuid();
+    testGuidTimeout(importFile);
+    testStashLimit(importFile);
 });

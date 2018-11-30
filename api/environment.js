@@ -11,4 +11,26 @@ module.exports.liveCluster = process.env.LIVE_CLUSTER;
 
 // This controls how many stored flatfiles to use for imports where query
 // parameter 'store' is set to true.
-module.exports.maxFlatFiles = process.env.MAX_FLAT_FILES || 5;
+function getMaxFlatFiles() {
+    let intmax = 64;
+    if (process.env.MAX_FLAT_FILES) {
+        let intenv = parseInt(process.env.MAX_FLAT_FILES, 10);
+        if (intenv) {
+            intmax = intenv;
+        }
+    }
+    return intmax;
+}
+module.exports.getMaxFlatFiles = getMaxFlatFiles;
+
+function getFlatFileTimeout() {
+    let timeoutsecs = 30;
+    if (process.env.FLAT_FILE_TIMEOUT_SECS) {
+        let intsecs = parseInt(process.env.FLAT_FILE_TIMEOUT_SECS, 10);
+        if (intsecs) {
+            timeoutsecs = intsecs;
+        }
+    }
+    return timeoutsecs * 1000;
+}
+module.exports.getFlatFileTimeout = getFlatFileTimeout;
