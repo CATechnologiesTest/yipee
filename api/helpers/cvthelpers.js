@@ -157,7 +157,7 @@ function makeDiffObject(inobj) {
                 });
         } else {
             // 'data' was specified but it's neither flat nor yaml -- input error
-            reject(new Error(`${inobj.name} is ${inputType}.` +
+            reject(new Error(`${inobj.name} is ${inputType}.  ` +
                              "Must be either object (flat-format) or " +
                              "string (yaml)"));
         }
@@ -167,15 +167,15 @@ function makeDiffObject(inobj) {
 function prepareDiffInput(body) {
     return new Promise((resolve, reject) => {
         let retval = {};
-        if (!(typeof body) === 'object') {
+        if (!(typeof body === 'object')) {
             retval.err = new Error("invalid diff input -- not an object");
             resolve(retval);
         } else if (!(body.hasOwnProperty("parent") &&
                      body.hasOwnProperty("children") &&
                      Array.isArray(body.children))) {
             retval.err = new Error("invalid diff input -- " +
-                                   "must have 'parent' and " +
-                                   "'children' properties");
+                                   "must have 'parent' (string) and " +
+                                   "'children' (array) properties");
             resolve(retval);
         } else {
             let childPromises = body.children.map(c => makeDiffObject(c));
