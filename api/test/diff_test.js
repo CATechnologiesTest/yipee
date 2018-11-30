@@ -92,4 +92,41 @@ describe('Yipee Diff API Tests:', function() {
         }]
     });
 
+    const badDiffInput = function(payload) {
+        describe('#badDiffInput', function() {
+            it('should fail diff with bad input', function(done) {
+                let url = '/diff';
+                chai.request(app.server)
+                    .post(url)
+                    .set('content-type', 'application/json')
+                    .send(payload)
+                    .then(res => {
+                        expect(res).to.have.status(400);
+                        expect(res).to.be.json;
+                        console.log("diff input error (expected): ",
+                                    res.body.data[0]);
+                        done();
+                    })
+                    .catch(err => {
+                        console.log("bad diff input error: %j", err);
+                        done(err);
+                    });
+            });
+        });
+    }
+
+    badDiffInput({
+        parent: "I'm the parent",
+        children: "just me"
+    });
+
+    badDiffInput({
+        parent: "I'm the parent",
+        children: ["just me"]
+    });
+
+    badDiffInput({
+        parent: {name: "nolan"},
+        children: [{name: "dj", data: 10}]
+    });
 });
