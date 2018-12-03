@@ -29,7 +29,7 @@ function stashModel(flatfile) {
     let uuid = uuidv4();
     let timer = setTimeout(() => {
         if (ffMap.delete(uuid)) {
-            Logger.info({guid: uuid}, "delete stashed import after timeout");
+            Logger.info({guid: uuid}, "deleted stashed import after timeout");
         }
     }, Env.getFlatFileTimeout());
     ffMap.set(uuid, {flatFile: flatfile, timer: timer});
