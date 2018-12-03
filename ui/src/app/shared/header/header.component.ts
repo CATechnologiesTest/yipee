@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
 import { EditorService } from '../../editor/editor.service';
+import { getOnClose } from '../shared.functions';
 
 @Component({
   selector: 'app-header',
@@ -10,6 +11,7 @@ import { EditorService } from '../../editor/editor.service';
 export class HeaderComponent {
 
   showWarningModal: boolean;
+  onClose: any;
 
   isBeta: boolean;
   @Input() title: string;
@@ -20,19 +22,11 @@ export class HeaderComponent {
     private router: Router
   ) {
     this.showWarningModal = false;
+    this.onClose = getOnClose(editorService, router, this);
   }
 
   onShowSettingsDialog() {
     this.showSettingsDialog.emit(true);
-  }
-
-  onClose(forceClose?: boolean) {
-    if (forceClose || (this.editorService.dirty === false)) {
-      this.editorService.dirty = false;
-      this.router.navigate(['/'], {});
-    } else {
-      this.showWarningModal = true;
-    }
   }
 
   onCancel() {

@@ -7,6 +7,7 @@ import { CanvasComponent } from './canvas/canvas.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { DownloadService } from '../shared/services/download.service';
 import { EditorEventService, SelectionChangedEvent, EventSource } from './editor-event.service';
+import { getOnClose } from '../shared/shared.functions';
 
 @Component({
   templateUrl: './editor.component.html',
@@ -15,6 +16,7 @@ import { EditorEventService, SelectionChangedEvent, EventSource } from './editor
 export class EditorComponent implements OnInit, AfterViewChecked {
 
   showWarningModal: boolean;
+  onClose: any;
 
   @ViewChild(CanvasComponent)
   private canvasComponent: CanvasComponent;
@@ -41,6 +43,7 @@ export class EditorComponent implements OnInit, AfterViewChecked {
     private cd: ChangeDetectorRef,
   ) {
     this.showWarningModal = false;
+    this.onClose = getOnClose(editorService, router, this);
   }
 
   ngOnInit() {
@@ -156,15 +159,6 @@ export class EditorComponent implements OnInit, AfterViewChecked {
   startResize(event): boolean {
     this.resizing = true;
     return false;
-  }
-
-  onClose(forceClose?: boolean): void {
-    if (forceClose || (this.editorService.dirty === false)) {
-      this.editorService.dirty = false;
-      this.router.navigate(['/'], {});
-    } else {
-      this.showWarningModal = true;
-    }
   }
 
   ngAfterViewChecked() {
