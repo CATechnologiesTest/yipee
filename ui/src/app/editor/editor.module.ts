@@ -60,12 +60,13 @@ import { IngressRuleComponent } from './sidebar/k8s-components/k8s-ingress/k8s-i
 import { AnnotationsComponent } from './sidebar/k8s-components/k8s-service/k8s-service-annotations/k8s-annotations.component';
 import { UnknownKindContainerComponent } from './sidebar/k8s-components/unknown-kind-container/unknown-kind-container.component';
 import { K8sHelmComponent } from './sidebar/k8s-components/k8s-info/k8s-helm/k8s-helm.component';
+import { CanDeactivateGuard } from '../can-deactivate.guard';
 
 // if this const gets too large, export it from a routs.ts file in this dir
 export const editorRoutes: Routes = [
-  {path: 'editor', component: EditorComponent },
-  {path: 'editor/:id/:context', component: EditorComponent },
-  {path: 'edit/:id/:context', component: EditorComponent }
+  {path: 'editor', component: EditorComponent, canDeactivate: [CanDeactivateGuard] },
+  {path: 'editor/:id/:context', component: EditorComponent, canDeactivate: [CanDeactivateGuard] },
+  {path: 'edit/:id/:context', component: EditorComponent, canDeactivate: [CanDeactivateGuard] }
 ];
 
 @NgModule({

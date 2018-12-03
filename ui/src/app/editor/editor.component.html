@@ -61,7 +61,7 @@
                 </label>
               </div>
             </div>
-            <button type="button" class="btn btn-icon" title="Close" (click)="onClose()">
+            <button type="button" class="btn btn-icon" title="Close" (click)="exitEditor()">
               <clr-icon shape="times-circle" class="is-solid"></clr-icon>
             </button>
           </div>
@@ -122,6 +122,6 @@
 
 <app-warn-changes-modal 
   [show]="showWarningModal"
-  (onClose)="showWarningModal = false; onClose(true);"
+  (onClose)="showWarningModal = false; disregardChanges = true; exitEditor();"
   (onCancel)="showWarningModal = false;">
 </app-warn-changes-modal>
