@@ -33,7 +33,6 @@ export class EditorService {
   yipeeFileID: string;
   metadata: YipeeFileMetadata;
   k8sFile: K8sFile = new K8sFile();
-  yipeeFileLogo: string;
   fatalText: string[];
   alertText: string[];
   infoText: string[];

@@ -71,7 +71,6 @@ export class YipeeFileService {
     metadata.orgname = 'copan02';
     metadata.isPrivate = true;
     metadata.id = '5551212';
-    metadata.hasLogo = false;
     metadata.flatFile = new K8sFile();
     return metadata;
 
@@ -97,7 +96,6 @@ export class YipeeFileService {
     metadata.orgname = 'copan02';
     metadata.isPrivate = true;
     metadata.id = '5551212';
-    metadata.hasLogo = false;
     metadata.flatFile = new K8sFile();
     return metadata;
 
@@ -170,18 +168,6 @@ export class YipeeFileService {
       // metadata.uiFile.appinfo.name = applicationName;
     }
     return metadata;
-  }
-
-  getYipeeFileLogo(yipeeFileId: string): Observable<string> {
-    return this.apiService.getYipeeFileLogo(yipeeFileId).map((data) => {
-      return data.data[0].serializedData;
-    });
-  }
-
-  putYipeeFileLogo(yipeeFileId: string, base64ImageString: string) {
-    return this.apiService.putYipeeFileLogo(yipeeFileId, base64ImageString).map((response) => {
-      return response;
-    });
   }
 
   convertServerResponse(response: YipeeFileMetadataRaw): YipeeFileMetadata {

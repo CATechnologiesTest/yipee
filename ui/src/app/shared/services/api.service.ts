@@ -183,31 +183,6 @@ export class ApiService {
   /* END YIPEEFILE CRUD ENDPOINTS */
   /* **************************** */
 
-  /* ************************ */
-  /* YIPEEFILE LOGO ENDPOINTS */
-  /* ************************ */
-  getYipeeFileLogo(yipeeFileId: string): Observable<YipeeFileResponse> {
-    const api_endpoint = '/api/uploadLogo/' + yipeeFileId;
-    return this.http.get<YipeeFileResponse>(api_endpoint);
-  }
-
-  putYipeeFileLogo(yipeeFileId: string, base64ImgString: string): Observable<boolean> {
-    const api_endpoint = '/api/uploadLogo';
-    const logo_object = {
-      _id: yipeeFileId,
-      serializedData: base64ImgString
-    };
-    return this.http.post(api_endpoint, logo_object).map((response: HttpResponse<Object>) => {
-      if (response.status === 200) {
-        return true;
-      }
-      return false;
-    });
-  }
-  /* **************************** */
-  /* END YIPEEFILE LOGO ENDPOINTS */
-  /* **************************** */
-
   /* ******************* */
   /* DOCKERHUB ENDPOINTS */
   /* ******************* */
