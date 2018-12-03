@@ -64,8 +64,7 @@ import { K8sHelmComponent } from './sidebar/k8s-components/k8s-info/k8s-helm/k8s
 // if this const gets too large, export it from a routs.ts file in this dir
 export const editorRoutes: Routes = [
   {path: 'editor', component: EditorComponent },
-  {path: 'editor/:id/:context', component: EditorComponent },
-  {path: 'edit/:id/:context', component: EditorComponent }
+  {path: 'editor/:id', component: EditorComponent },
 ];
 
 @NgModule({

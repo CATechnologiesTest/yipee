@@ -19,7 +19,7 @@ Router.get('/', function(req, resp) {
         })
         .catch(err => {
             Logger.error({error: errorObject(err)}, "getNamespaces");
-            resp.status(500).json(Util.generateErrorResponse(err, req));
+            resp.status(500).json(Util.generateErrorResponse(err));
         });
 });
 
@@ -47,7 +47,7 @@ Router.get('/:nsname', function(req, resp) {
             console.log("route error:", err);
             Logger.error({error: errorObject(err),
                           nsname: req.params.nsname}, "getNamespace");
-            resp.status(500).json(Util.generateErrorResponse(err, req));
+            resp.status(500).json(Util.generateErrorResponse(err));
         });
 });
 
@@ -64,7 +64,7 @@ Router.put('/:nsname', function (req, resp) {
         .catch(err => {
             Logger.error({error: errorObject(err),
                           nsname: req.params.nsname}, "saveNamespace");
-            resp.status(500).json(Util.generateErrorResponse(err, req));
+            resp.status(500).json(Util.generateErrorResponse(err));
         });
 });
 
@@ -97,7 +97,7 @@ Router.post('/apply/:nsname', function (req, resp) {
         .catch(err => {
             Logger.error({error: errorObject(err),
                           nsname: nsname}, "apply");
-            resp.status(500).json(Util.generateErrorResponse(err, req));
+            resp.status(500).json(Util.generateErrorResponse(err));
         });
 });
 
@@ -134,7 +134,7 @@ function doDownload(req, resp, cvtfun, respkey, withComment) {
             Logger.error({error: errorObject(err),
                           nsname: nsname,
                           type: req.params.dltype}, "download");
-            resp.status(500).json(Util.generateErrorResponse(err, req));
+            resp.status(500).json(Util.generateErrorResponse(err));
         });
 }
 
@@ -165,7 +165,7 @@ Router.post('/import', function(req, resp) {
         .catch(err => {
             Logger.error({error: errorObject(err),
                           yipeeobj: yipeeobj}, "import");
-            resp.status(400).json(Util.generateErrorResponse(err, req));
+            resp.status(400).json(Util.generateErrorResponse(err));
         });
 });
 

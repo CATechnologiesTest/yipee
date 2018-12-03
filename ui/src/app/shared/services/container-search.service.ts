@@ -28,21 +28,21 @@ export class ContainerSearchService {
   searchDockerhub(searchQuery: string): Observable<DockerhubContainer[]> {
     return this.apiService.getDockerhubContainers(searchQuery)
       .map((response) => {
-        return (response.json().results);
+        return (response['results']);
       });
   }
 
   searchDockerhubOfficial(searchQuery: string): Observable<DockerhubContainer[]> {
     return this.apiService.getDockerhubContainers(searchQuery)
       .map((response) => {
-        return response.json().results.filter(result => (result.is_official === true));
+        return response['results'].filter(result => (result.is_official === true));
       });
   }
 
   getTags(namespaceAndRepository) {
     return this.apiService.getDockerhubTags(namespaceAndRepository)
       .map((response) => {
-        return response.json();
+        return response;
       });
   }
 

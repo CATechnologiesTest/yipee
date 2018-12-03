@@ -33,31 +33,28 @@ export class DownloadService {
   downloadKubernetesFile(isKubernetes: boolean, file: any): void {
     const modelName = file['app-info'][0].name;
     this.apiService.getKubernetesFileData(file).subscribe((data) => {
-      const modelType = isKubernetes ? 'k8s' : 'c11y';
       const kubernetesFile = data.kubernetesFile;
       console.log('DOWNLOAD SERVICE DATA HERE: ', data);
       const fileName = this.generateName(modelName, 'kubernetes');
-      this.downloadFile([kubernetesFile], fileName, 'Kubernetes', modelType, false);
+      this.downloadFile([kubernetesFile], fileName, 'Kubernetes', 'k8s', false);
     });
   }
 
   downloadHelmArchive(isKubernetes: boolean, file: any): void {
     const modelName = file['app-info'][0].name;
     this.apiService.getHelmFileArchiveData(file).subscribe((data) => {
-      const modelType = isKubernetes ? 'k8s' : 'c11y';
       const helmFile = data.helmFile;
       const fileName = this.generateName(modelName, 'helmbundle');
-      this.downloadFile(this.convertB64(helmFile), fileName, 'Helm', modelType, false);
+      this.downloadFile(this.convertB64(helmFile), fileName, 'Helm', 'k8s', false);
     });
   }
 
   downloadKubernetesArchive(isKubernetes: boolean, file: any): void {
     const modelName = file['app-info'][0].name;
     this.apiService.getKubernetesArchiveFileData(file).subscribe((data) => {
-      const modelType = isKubernetes ? 'k8s' : 'c11y';
       const kubernetesArchiveFile = data.kubernetesFile;
       const fileName = this.generateName(modelName, 'kubernetesarchive');
-      this.downloadFile(this.convertB64(kubernetesArchiveFile), fileName, 'KubernetesArchive', modelType, false);
+      this.downloadFile(this.convertB64(kubernetesArchiveFile), fileName, 'KubernetesArchive', 'k8s', false);
     });
   }
 
