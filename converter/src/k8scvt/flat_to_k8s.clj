@@ -1616,6 +1616,11 @@
 ;; Support for storing UI layout info in a single distinct k8s ConfigMap.
 ;; On import of the "special" ConfigMap we re-create the annotations
 ;; that the UI expects for layout data.
+;;
+;; Note that we accumulate our
+;; layout data early (at "adjustment" priority) so we can see all target
+;; objects before any are (potentially) coalesced into their containing
+;; k8s objects.
 
 (defrule create-layout-anno-holder
   {:priority *adjustment*}

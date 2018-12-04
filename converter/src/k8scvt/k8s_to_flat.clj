@@ -1187,7 +1187,6 @@
     {:canvas {:position {:x xval :y yval}}}))
 
 (defrule extract-config-maps
-  {:priority *cleanup*}
   [?k8s :k8s (:configmaps ?k8s)]
   =>
   (id-remove! ?k8s)
