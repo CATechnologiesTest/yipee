@@ -1,30 +1,34 @@
-import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { async, ComponentFixture, TestBed, inject } from '@angular/core/testing';
+import { NO_ERRORS_SCHEMA, NgZone } from '@angular/core';
+import { tick, fakeAsync, async, ComponentFixture, TestBed, inject } from '@angular/core/testing';
 import { HttpClientModule } from '@angular/common/http';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
+import { Location } from '@angular/common';
+
 import { Observable } from 'rxjs/Observable';
-import { of, throwError } from 'rxjs';
+import { of } from 'rxjs';
 
 import { EditorComponent } from './editor.component';
+
 import { EditorService } from './editor.service';
 import { YipeeFileService } from '../shared/services/yipee-file.service';
 import { YipeeFileMetadata } from '../models/YipeeFileMetadata';
 import { YipeeFileMetadataRaw } from '../models/YipeeFileMetadataRaw';
 import { YipeeFileResponse, YipeeFileErrorResponse } from '../models/YipeeFileResponse';
 import { DownloadService } from '../shared/services/download.service';
-import { FeatureService } from '../shared/services/feature.service';
-import { EditorEventService, SelectionChangedEvent } from './editor-event.service';
+import { EditorEventService, SelectionChangedEvent, EventSource } from './editor-event.service';
 import { EventEmitter } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../shared/services/api.service';
 
 import { Subject } from 'rxjs/Subject';
 import { UserService } from '../shared/services/user.service';
+import { FeatureService } from '../shared/services/feature.service';
 
 describe('EditorComponent', () => {
   let component: EditorComponent;
   let fixture: ComponentFixture<EditorComponent>;
+  let location: Location;
 
   class MockDownloadService {
     constructor() { }
@@ -47,6 +51,7 @@ describe('EditorComponent', () => {
 
     constructor() { }
     }
+
     class MockEditorService {
     yipeeFileID: string;
     metadata: YipeeFileMetadata;
@@ -55,10 +60,12 @@ describe('EditorComponent', () => {
     infoText: string[] = [];
     invalidKeys: string[];
     lastYipeeId: string;
+    dirty: boolean;
 
     constructor() {
       this.invalidKeys = [];
       this.metadata = new YipeeFileMetadata();
+      this.dirty = false;
     }
     setYipeeFileID(yipeeFileId: string): Observable<boolean> {
       this.yipeeFileID = yipeeFileId;
@@ -84,20 +91,25 @@ describe('EditorComponent', () => {
         RouterTestingModule
       ],
       providers: [
+        FeatureService,
+        UserService,
+        EditorEventService,
+        YipeeFileService,
+        ApiService,
         { provide: DownloadService, useClass: MockDownloadService },
-        FeatureService, UserService, EditorEventService, YipeeFileService, ApiService,
         { provide: EditorService, useClass: MockEditorService },
-        // { provide: ApiService, useClass: MockApiService },
         { provide: ActivatedRoute, useClass: MockActivatedRoute }
       ]
     })
       .compileComponents();
+      location = TestBed.get(Location);
   }));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(EditorComponent);
     component = fixture.componentInstance;
   });
+
 
   afterEach(inject([HttpTestingController], (backend: HttpTestingController) => {
     backend.verify();
@@ -173,4 +185,34 @@ describe('EditorComponent', () => {
       expect(component.ui.error).toBeTruthy();
       expect(service.fatalText[0].indexOf(EditorComponent.UNEXPECTED_RESPONSE) >= 0).toBeTruthy();
     })));
+
+    it('should set dirty flag and route to home when exitEditor is called with disregardChanges set to true', fakeAsync(inject([EditorService], (service: MockEditorService) => {
+      expect(component).toBeTruthy();
+      expect(location.path() === '').toBeTruthy();
+      service.dirty = true;
+      component.disregardChanges = true;
+      component.canDeactivate();
+      expect(service.dirty).toBeFalsy();
+      expect(component.showWarningModal).toBeFalsy();
+      component.exitEditor();
+      tick(500);
+      expect(location.path()).toBe('/');
+    })));
+
+    it('should set showWarningModal to true when exitEditor is called with EditorService dirty flag set to true', fakeAsync(inject([EditorService], (service: MockEditorService) => {
+      expect(component.showWarningModal).toEqual(false);
+      service.dirty = true;
+      component.canDeactivate();
+      expect(component.showWarningModal).toEqual(true);
+    })));
+
+    it('should call router.navigate home when exitEditor is called with EditorService dirty flag set to false', fakeAsync(inject([EditorService], (service: MockEditorService) => {
+      expect(location.path() === '').toBeTruthy();
+      expect(component.showWarningModal).toEqual(false);
+      expect(service.dirty).toBeFalsy();
+      component.exitEditor();
+      tick(500);
+      expect(location.path()).toBe('/');
+    })));
+
 });

@@ -38,6 +38,7 @@ import { NewK8sDaemonSetModalComponent } from './modals/new-k8s-daemon-set-modal
 import { NewK8sCronJobModalComponent } from './modals/new-k8s-cron-job-modal/new-k8s-cron-job-modal.component';
 import { NewK8sInitContainerModalComponent } from './modals/new-k8s-init-container-modal/new-k8s-init-container-modal.component';
 import { NewK8sIngressModalComponent } from './modals/new-k8s-ingress-modal/new-k8s-ingress-modal.component';
+import { WarnChangesModalComponent } from './modals/warn-changes-modal/warn-changes-modal.component';
 
 // removed components
 // import { SaveAppModalComponent } from './modals/save-app-modal/save-app-modal.component';
@@ -84,7 +85,8 @@ import { NewK8sIngressModalComponent } from './modals/new-k8s-ingress-modal/new-
     ToolbarComponent,
     NewK8sDaemonSetModalComponent,
     NewK8sCronJobModalComponent,
-    NewK8sInitContainerModalComponent
+    NewK8sInitContainerModalComponent,
+    WarnChangesModalComponent
   ],
   providers: [ /* leave empty, read notes below */ ContainerSearchService],
   exports: [
@@ -109,7 +111,8 @@ import { NewK8sIngressModalComponent } from './modals/new-k8s-ingress-modal/new-
     RightOfForwardSlashPipe,
     ToolbarComponent,
     NewK8sDaemonSetModalComponent,
-    NewK8sCronJobModalComponent
+    NewK8sCronJobModalComponent,
+    WarnChangesModalComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA

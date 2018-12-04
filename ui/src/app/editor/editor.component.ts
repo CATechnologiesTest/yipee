@@ -1,25 +1,24 @@
 declare var $: JQueryStatic;
 import { Component, OnInit, ViewChild, ChangeDetectorRef, AfterViewChecked } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 
 import { EditorService } from './editor.service';
 import { CanvasComponent } from './canvas/canvas.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
-import { YipeeFileService } from '../shared/services/yipee-file.service';
 import { DownloadService } from '../shared/services/download.service';
-import { YipeeFileMetadata } from '../models/YipeeFileMetadata';
-import { YipeeFileErrorResponse } from '../models/YipeeFileResponse';
-import { FeatureService } from '../shared/services/feature.service';
 import { EditorEventService, SelectionChangedEvent, EventSource } from './editor-event.service';
+import { YipeeFileService } from '../shared/services/yipee-file.service';
+import { FeatureService } from '../shared/services/feature.service';
 
 @Component({
   templateUrl: './editor.component.html',
   styleUrls: ['./editor.component.css']
 })
 export class EditorComponent implements OnInit, AfterViewChecked {
-
   static UNEXPECTED_RESPONSE = 'Unexpected response from server: ';
+
+  showWarningModal: boolean;
+
   @ViewChild(CanvasComponent)
   private canvasComponent: CanvasComponent;
 
@@ -46,7 +45,9 @@ export class EditorComponent implements OnInit, AfterViewChecked {
     private editorEventService: EditorEventService,
     private yipeeFileService: YipeeFileService,
     private cd: ChangeDetectorRef,
-  ) { }
+  ) {
+    this.showWarningModal = false;
+  }
 
   ngOnInit() {
     // Are we "deep linking" into a model that is saved on the backend?
@@ -148,16 +149,22 @@ export class EditorComponent implements OnInit, AfterViewChecked {
     return false;
   }
 
-  onClose(): void {
-    this.router.navigate(['']);
-  }
-
   ngAfterViewChecked() {
     this.cd.detectChanges();
   }
 
   exitEditor(): void {
     this.router.navigate(['']);
+  }
+
+  canDeactivate(): boolean {
+    if (this.disregardChanges || (this.editorService.dirty === false)) {
+      this.editorService.dirty = false;
+      return true;
+    } else {
+      this.showWarningModal = true;
+      return false;
+    }
   }
 
 }
