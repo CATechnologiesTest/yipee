@@ -1612,3 +1612,48 @@
   (doseq [leftover (collect! :leftover identity)]
     (remove! leftover)))
 
+(defrule create-ui-anno-holder
+  {:priority *adjustment*}
+  [:not [? :ui-annotations]]
+  [?anno :annotation (= "ui" (:key ?anno))]
+  =>
+  (insert! {:type :ui-annotations :data {}}))
+
+(defn map-key-for-annotation
+  [objtype objname varname]
+  (apply str (map #(format "%02x" (int %)) (str (name objtype) "!" (name objname) "!" varname))))
+
+(defn ui-anno-value [part1 part2]
+  (apply str (map #(format "02x" (int %)) (str part1 "!" part2))))
+
+(defrule collect-ui-annotations
+  {:priority *adjustment*}
+  [?ui-annos :ui-annotations]
+  [?anno :annotation (= "ui" (:key ?anno))]
+  [?target :wme (= (:id ?target) (:annotated ?anno))]
+  =>
+  (remove! ?anno)
+  (remove! ?ui-annos)
+  (let [x (get-in ?anno [:value :canvas :position :x])
+        y (get-in ?anno [:value :canvas :position :y])
+        targname (name (:name ?target))
+        targtype (name (:type ?target))
+        ;; XXX: make it a single 'key: val' where the key identifies
+        ;; the target ("type!name") and the value is "x!y"
+        newdata (assoc (:data ?ui-annos)
+                       (ui-anno-value targname targtype)
+                       (ui-anno-value x y))]
+    (insert! (assoc-in ?ui-annos [:data] newdata))))
+
+(defrule create-config-map-of-ui-annotations
+  [?ui-annos :ui-annotations (> (count ?ui-annos) 0)]
+  [:not [?anno :annotation (= "ui" (:key ?anno))]]
+  =>
+  (remove! ?ui-annos)
+  (insert! {:apiVersion "v1"
+            :type :ui-config-map
+            :kind "ConfigMap"
+            :metadata {:name "yipee-ui-annos"}
+            :data (:data ?ui-annos)}))
+
+

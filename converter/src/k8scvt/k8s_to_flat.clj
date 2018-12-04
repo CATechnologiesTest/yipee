@@ -17,6 +17,7 @@
 (def known-types
   #{:type :__id :id :app-name :persistentvolumes :persistentvolumeclaims
     :services :daemonsets :deployments :pods :namespaces :statefulsets
+    :configmaps
     :cronjobs :ingresses :replicationcontrollers :validation-errors})
 
 (def default-k8s-secret-mode 420)
@@ -1158,3 +1159,46 @@
                           :location [:metadata :annotations]
                           :annotated-name (:name (:metadata ?k8sanno))
                           :annotated-type (get-annotation-type ?k8sanno)})))))
+
+(defn hex-to-string [hex]
+  (apply str
+    (map
+      (fn [[x y]] (char (Integer/parseInt (str x y) 16)))
+      (partition 2 hex))))
+
+(defn split-anno-data [v]
+  (str/split (hex-to-string v) #"!" 2))
+
+(defn get-anno-xy [v]
+  (let [[xstr ystr] (split-anno-data v)
+        xval (Integer/parseInt xstr 10)
+        yval (Integer/parseInt ystr 10)]
+  {:x xval :y yval}))
+
+(defrule extract-config-maps
+  {:priority *cleanup*}
+  [?k8s :k8s (:config-maps ?k8s)]
+  =>
+  (id-remove! ?k8s)
+  (id-insert! (dissoc ?k8s :config-maps))
+  (doseq [cm (:config-maps ?k8s)]
+    (if (= "yipee-ui-annotations" (:name (:metadata cm)))
+      (doseq [[k v] (:data cm)]
+        (let [[typ nm] (split-anno-data k)]
+        (id-insert! {:type :annotation :key "ui"
+                     :target {:type typ :name nm}
+                     :value {:canvas {:position (get-anno-xy v)}}}))
+      {xxx: "unknown kind thing here"})))
+
+(defrule apply-ui-anno-target
+  [?anno :annotation (:anno-target ?anno)]
+  [?wme :wme (and (= (:type ?wme) (get-in ?anno [:target :type]))
+                  (= (:name ?wme) (get-in ?anno [:target :name])))]
+  =>
+  (id-remove! ?anno)
+  (id-insert? (assoc (dissoc ?anno :target) :annotated (:id ?wme))))
+
+
+
+
+
