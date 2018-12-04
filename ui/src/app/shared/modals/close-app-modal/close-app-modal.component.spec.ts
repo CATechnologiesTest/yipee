@@ -26,7 +26,6 @@ const yipeeFileRaw: YipeeFileMetadataRaw = {
   dateCreated: new Date().toDateString(),
   dateModified: new Date().toDateString(),
   id: '5551212',
-  hasLogo: false,
   flatFile: []
 };
 const metadata = new YipeeFileMetadata(yipeeFileRaw);

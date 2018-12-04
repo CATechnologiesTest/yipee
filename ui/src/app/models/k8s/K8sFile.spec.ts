@@ -156,7 +156,6 @@ describe('K8sFile', () => {
       {
         'type': 'app-info',
         'id': '60ae8142-6577-4218-a80a-9b995e275d45',
-        'logo': '[insert name of app logo image here]',
         'name': 'k8s-import',
         'readme': '',
         'description': '[insert app description here]'
@@ -679,7 +678,6 @@ describe('K8sFile', () => {
       {
         'type': 'app-info',
         'id': 'cb0df3d5-9063-4c60-afb0-0026273f73ac',
-        'logo': '[insert name of app logo image here]',
         'name': 'parse',
         'readme': 'foo bar',
         'description': '[insert app description here]'

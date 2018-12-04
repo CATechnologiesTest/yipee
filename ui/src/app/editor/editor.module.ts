@@ -65,8 +65,7 @@ import { CanDeactivateGuard } from '../can-deactivate.guard';
 // if this const gets too large, export it from a routs.ts file in this dir
 export const editorRoutes: Routes = [
   {path: 'editor', component: EditorComponent, canDeactivate: [CanDeactivateGuard] },
-  {path: 'editor/:id/:context', component: EditorComponent, canDeactivate: [CanDeactivateGuard] },
-  {path: 'edit/:id/:context', component: EditorComponent, canDeactivate: [CanDeactivateGuard] }
+  {path: 'editor/:id', component: EditorComponent, canDeactivate: [CanDeactivateGuard] },
 ];
 
 @NgModule({
