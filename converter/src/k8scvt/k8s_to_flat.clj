@@ -1212,8 +1212,3 @@
   =>
   (id-remove! ?anno)
   (id-insert! (assoc (dissoc ?anno :target) :annotated (:id ?wme))))
-
-
-
-
-
