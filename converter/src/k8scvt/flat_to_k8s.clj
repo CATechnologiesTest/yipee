@@ -11,6 +11,7 @@
                      trim-right-dashes ingress-has-key-instances
                      substitute-ingress-attributes
                      add-namespace remove-namespace get-namespace
+                     layout-config-name encode-layout-value
                      *validation* *adjustment* *cleanup*]])
   (:import java.util.UUID))
 
@@ -1612,48 +1613,49 @@
   (doseq [leftover (collect! :leftover identity)]
     (remove! leftover)))
 
-(defrule create-ui-anno-holder
+;; Support for storing UI layout info in a single distinct k8s ConfigMap.
+;; On import of the "special" ConfigMap we re-create the annotations
+;; that the UI expects for layout data.
+
+(defrule create-layout-anno-holder
   {:priority *adjustment*}
-  [:not [? :ui-annotations]]
-  [?anno :annotation (= "ui" (:key ?anno))]
+  [:not [? :layout-annotations]]
+  [?anno :annotation (and (= "ui" (:key ?anno))
+                          (get-in ?anno [:value :canvas :position]))]
   =>
-  (insert! {:type :ui-annotations :data {}}))
+  (id-insert! {:type :layout-annotations :data {}}))
 
-(defn map-key-for-annotation
-  [objtype objname varname]
-  (apply str (map #(format "%02x" (int %)) (str (name objtype) "!" (name objname) "!" varname))))
-
-(defn ui-anno-value [part1 part2]
-  (apply str (map #(format "02x" (int %)) (str part1 "!" part2))))
-
-(defrule collect-ui-annotations
+(defrule collect-layout-annotations
   {:priority *adjustment*}
-  [?ui-annos :ui-annotations]
-  [?anno :annotation (= "ui" (:key ?anno))]
+  [?layout-annos :layout-annotations]
+  [?anno :annotation (and (= "ui" (:key ?anno))
+                          (get-in ?anno [:value :canvas :position]))]
   [?target :wme (= (:id ?target) (:annotated ?anno))]
   =>
   (remove! ?anno)
-  (remove! ?ui-annos)
+  (remove! ?layout-annos)
   (let [x (get-in ?anno [:value :canvas :position :x])
         y (get-in ?anno [:value :canvas :position :y])
         targname (name (:name ?target))
         targtype (name (:type ?target))
-        ;; XXX: make it a single 'key: val' where the key identifies
-        ;; the target ("type!name") and the value is "x!y"
-        newdata (assoc (:data ?ui-annos)
-                       (ui-anno-value targname targtype)
-                       (ui-anno-value x y))]
-    (insert! (assoc-in ?ui-annos [:data] newdata))))
+        ;; Map key is "type!name", value is "x!y".
+        ;; N.B. a unique name/key would require all of
+        ;; namespace!type!name but we ignore namespace since our
+        ;; imports require that all contained objects be in a single
+        ;; namespace
+        newdata (assoc (:data ?layout-annos)
+                       (encode-layout-value targtype targname)
+                       (encode-layout-value x y))]
+    (id-insert! (assoc-in ?layout-annos [:data] newdata))))
 
-(defrule create-config-map-of-ui-annotations
-  [?ui-annos :ui-annotations (> (count ?ui-annos) 0)]
-  [:not [?anno :annotation (= "ui" (:key ?anno))]]
+(defrule create-config-map-of-layout-annotations
+  [?layout-annos :layout-annotations (> (count ?layout-annos) 0)]
+  [:not [?anno :annotation (and (= "ui" (:key ?anno))
+                                (get-in ?anno [:value :canvas :position]))]]
   =>
-  (remove! ?ui-annos)
+  (remove! ?layout-annos)
   (insert! {:apiVersion "v1"
-            :type :ui-config-map
+            :type :layout-config-map
             :kind "ConfigMap"
-            :metadata {:name "yipee-ui-annos"}
-            :data (:data ?ui-annos)}))
-
-
+            :metadata {:name layout-config-name}
+            :data (:data ?layout-annos)}))
