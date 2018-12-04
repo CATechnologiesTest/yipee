@@ -68,7 +68,6 @@
     "@types/jquery": "3.3.22",
     "@types/lodash": "4.14.118",
     "@types/node": "10.12.3",
-    "@types/segment-analytics": "0.0.28",
     "@types/uuid": "3.4.4",
     "@types/ws": "6.0.1",
     "codelyzer": "4.5.0",

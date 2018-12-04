@@ -455,20 +455,6 @@ describe('ApiService', () => {
   /* APPLICATION CONFIGURATION ENDPOINT TESTS */
   /* ---------------------------------------- */
 
-
-  it('should return analytics key', inject([ApiService, HttpTestingController], (service: ApiService, backend: HttpTestingController) => {
-
-    service.getAnalyticsKey().subscribe(data => {
-      expect(data).toEqual('42');
-    });
-    backend.expectOne('/api/configurations/ANALYTICS_KEY').flush({data: [{
-      _id: '498c8dba-97c1-11e7-9967-f753811b2bc4',
-      key: 'ANALYTICS_KEY',
-      val: '42'
-    }]});
-
-  }));
-
   /* -------------------------------------------- */
   /* END APPLICATION CONFIGURATION ENDPOINT TESTS */
   /* -------------------------------------------- */
