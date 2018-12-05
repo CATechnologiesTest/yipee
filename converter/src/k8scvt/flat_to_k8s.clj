@@ -1651,7 +1651,7 @@
         newdata (assoc (:data ?layout-annos)
                        (encode-layout-value targtype targname)
                        (encode-layout-value x y))]
-    (id-insert! (assoc-in ?layout-annos [:data] newdata))))
+    (id-insert! (assoc ?layout-annos :data newdata))))
 
 (defrule create-config-map-of-layout-annotations
   [?layout-annos :layout-annotations (> (count ?layout-annos) 0)]
