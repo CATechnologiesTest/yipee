@@ -1,7 +1,8 @@
-import { TestBed, async, inject } from '@angular/core/testing';
-import { HttpModule } from '@angular/http';
-import { MockBackend, MockConnection } from '@angular/http/testing';
-import { BaseRequestOptions, Http, RequestMethod, Response, ResponseOptions } from '@angular/http';
+import { TestBed, inject, async, fakeAsync, tick, flush } from '@angular/core/testing';
+import { HttpClientModule } from '@angular/common/http';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+
+import { Response, ResponseOptions } from '@angular/http';
 
 import { UserInfoResponse } from '../../models/UserInfo';
 import { YipeeFileService } from './yipee-file.service';
@@ -433,21 +434,18 @@ describe('ApiService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpModule],
+      imports: [
+        HttpClientModule,
+        HttpClientTestingModule
+      ],
       providers: [
-        ApiService,
-        MockBackend,
-        BaseRequestOptions,
-        {
-          provide: Http,
-          useFactory: (backend: MockBackend, defaultOptions: BaseRequestOptions) => {
-            return new Http(backend, defaultOptions);
-          },
-          deps: [MockBackend, BaseRequestOptions]
-        },
+        ApiService
       ]
     });
   });
+  afterEach(inject([HttpTestingController], (backend: HttpTestingController) => {
+    backend.verify();
+  }));
 
   it('should be created', inject([ApiService], (service: ApiService) => {
     expect(service).toBeTruthy();
@@ -458,36 +456,17 @@ describe('ApiService', () => {
   /* ---------------------------------------- */
 
 
-  it('should return analytics key', inject([ApiService, MockBackend], (service: ApiService, backend: MockBackend) => {
-    const response = new ResponseOptions({
-      body: JSON.stringify({
-        headers: {
-          Headers: { _headers: [], _normalizedNames: [] }
-        },
-        ok: true,
-        status: 200,
-        statusText: 'OK',
-        type: 2,
-        url: 'http://localhost:8080/api/configurations/ANALYTICS_KEY',
-        success: true,
-        total: 1,
-        data: [{
-          _id: '498c8dba-97c1-11e7-9967-f753811b2bc4',
-          key: 'ANALYTICS_KEY',
-          val: '42'
-        }]
-      })
-    });
+  it('should return analytics key', inject([ApiService, HttpTestingController], (service: ApiService, backend: HttpTestingController) => {
 
-    const baseResponse = new Response(response);
-
-    backend.connections.subscribe(
-      (c: MockConnection) => c.mockRespond(baseResponse)
-    );
-
-    return service.getAnalyticsKey().subscribe(data => {
+    service.getAnalyticsKey().subscribe(data => {
       expect(data).toEqual('42');
     });
+    backend.expectOne('/api/configurations/ANALYTICS_KEY').flush({data: [{
+      _id: '498c8dba-97c1-11e7-9967-f753811b2bc4',
+      key: 'ANALYTICS_KEY',
+      val: '42'
+    }]});
+
   }));
 
   /* -------------------------------------------- */
@@ -498,95 +477,43 @@ describe('ApiService', () => {
   /* USER ENDPOINT TESTS */
   /* ------------------- */
 
-  it('should return userInfo', inject([ApiService, MockBackend], (service: ApiService, backend: MockBackend) => {
-    const response = new ResponseOptions({
-      body: JSON.stringify({
-        loggedIn: true,
-        userInfo: {
-          githubUsername: 'copan02',
-          avatarURL: 'https://avatars.github-isl-01.ca.com/u/4187?',
-          activatedOn: '2017-09-19T14:50:51.307374+00:00'
-        },
-        permissions: {
-          userId: 'd2587542-97c9-11e7-b422-73953baaabfc',
-          id: 'copan02',
-          viewYipeeCatalog: true,
-          yipeeTeamMember: false,
-          terms: true,
-          paidUser: false,
-          downloadKubernetesFiles: false
-        }
-      })
-    });
-
-    const baseResponse = new Response(response);
-
-    backend.connections.subscribe(
-      (c: MockConnection) => c.mockRespond(baseResponse)
-    );
-
-    return service.getUserInfo().subscribe(data => {
+  it('should return userInfo', async(inject([ApiService, HttpTestingController], (service: ApiService, backend: HttpTestingController) => {
+    service.getUserInfo().subscribe(data => {
       expect(data).toEqual(userInfoResponse);
     });
-  }));
+    backend.expectOne('/api/userInfo').flush(userInfo1);
+  })));
 
-  it('should return githubUsername is valid in yipee and return the id', inject([ApiService, MockBackend], (service: ApiService, backend: MockBackend) => {
-    const response = new ResponseOptions({
-      body: JSON.stringify({
-        headers: {
-          Headers: { _headers: [], _normalizedNames: [] }
-        },
-        ok: true,
-        status: 200,
-        statusText: 'OK',
-        type: 2,
-        url: 'http://localhost:8080/api/query',
-        data: {
-          userByIdentity: {
-            id: 'c1f2b694-97d9-11e7-9215-73a85b907ae8'
-          }
-        }
-      })
-    });
+  it('should return githubUsername is valid in yipee and return the id', async(inject([ApiService, HttpTestingController], (service: ApiService, backend: HttpTestingController) => {
 
-    const baseResponse = new Response(response);
-
-    backend.connections.subscribe(
-      (c: MockConnection) => c.mockRespond(baseResponse)
-    );
-
-    return service.validateGithubId(userId).subscribe(data => {
+    service.validateGithubId(userId).subscribe(data => {
       expect(data).toEqual(validateGithubIdResponse._body.data.userByIdentity.id);
     });
-  }));
 
-  it('should return githubUsername is invalid in yipee and return null', inject([ApiService, MockBackend], (service: ApiService, backend: MockBackend) => {
-    const response = new ResponseOptions({
-      body: JSON.stringify({
-        headers: {
-          Headers: { _headers: [], _normalizedNames: [] }
-        },
-        ok: true,
-        status: 200,
-        statusText: 'OK',
-        type: 2,
-        url: 'http://localhost:8080/api/query',
-        data: {
-          userByIdentity: null
-        }
-      })
-    });
+    const req = backend.expectOne({method: 'POST', url: '/api/query'});
+    // make sure the id is in the body
+    expect(req.request.body).toMatch('.*' + userId + '.*');
+    req.flush({
+      data: {
+        userByIdentity: {
+          id: 'c1f2b694-97d9-11e7-9215-73a85b907ae8'
+      }}});
+  })));
 
-    const baseResponse = new Response(response);
+  it('should return githubUsername is invalid in yipee and return null', async(inject([ApiService, HttpTestingController], (service: ApiService, backend: HttpTestingController) => {
 
-    backend.connections.subscribe(
-      (c: MockConnection) => c.mockRespond(baseResponse)
-    );
-
-    return service.validateGithubId(userId).subscribe(data => {
+    service.validateGithubId(userId).subscribe(data => {
       expect(data).toEqual(null);
     });
-  }));
+    const req = backend.expectOne({method: 'POST', url: '/api/query'});
+    // make sure the id is in the body
+    expect(req.request.body).toMatch('.*' + userId + '.*');
+    req.flush({
+      data: {
+        userByIdentity: {
+          id: null
+      }}});
+  })));
 
   /* ----------------------- */
   /* END USER ENDPOINT TESTS */
@@ -596,25 +523,13 @@ describe('ApiService', () => {
   /* ---------------------- */
 
 
-  it('should import an application using a compose file', inject([ApiService, MockBackend], (service: ApiService, backend: MockBackend) => {
-    const response = new ResponseOptions({
-      body: JSON.stringify({
-        success: true,
-        total: 1,
-        data: [yipeeMetadata]
-      })
-    });
+  it('should import an application using a compose file', async(inject([ApiService, HttpTestingController], (service: ApiService, backend: HttpTestingController) => {
 
-    const baseResponse = new Response(response);
-
-    backend.connections.subscribe(
-      (c: MockConnection) => c.mockRespond(baseResponse)
-    );
-
-    return service.importApp(yipeeMetadata.uiFile).subscribe(data => {
+    service.importApp(yipeeMetadata.uiFile).subscribe(data => {
       expect(data).toEqual(importAppResponse);
     });
-  }));
+    backend.expectOne({method: 'POST', url: '/api/import'}).flush(yipeeFileResponse);
+  })));
 
   /* -------------------------- */
   /* END CATALOG ENDPOINT TESTS */
@@ -624,62 +539,25 @@ describe('ApiService', () => {
   /* DOWNLOAD SERVICE ENDPOINT TESTS */
   /* ------------------------------- */
 
-  it('should download a kubernetes file', inject([ApiService, MockBackend], (service: ApiService, backend: MockBackend) => {
-    const response = new ResponseOptions({
-      body: JSON.stringify({
-        headers: {
-          Headers: { _headers: [], _normalizedNames: [] }
-        },
-        ok: true,
-        status: 200,
-        statusText: 'OK',
-        type: 2,
-        url: 'http://localhost:8080/api/yipeefiles/6a379f42-9d50-11e7-99a2-e3878023cbd7/compose',
-        success: true,
-        total: 1,
-        data: [kubernetesFile1]
-      })
+  it('should download a kubernetes file', fakeAsync(inject([ApiService, HttpTestingController], (service: ApiService, backend: HttpTestingController) => {
+
+    service.getKubernetesFileData(rawYipeeFile1).subscribe(data => {
+      expect(data).toEqual(downloadKubernetesResponse._body.kubernetesFileResponse1.data[0]);
+
     });
+    backend.expectOne({method: 'POST', url: '/api/convert/kubernetes?format=flat'}).flush(kubernetesFileResponse1);
+    tick(50);
+  })));
 
-    const baseResponse = new Response(response);
+  it('should download a kubernetes archive file', fakeAsync(inject([ApiService, HttpTestingController], (service: ApiService, backend: HttpTestingController) => {
 
-    backend.connections.subscribe(
-      (c: MockConnection) => c.mockRespond(baseResponse)
-    );
-
-    return service.getKubernetesFileData(rawYipeeFile1).subscribe(data => {
+    service.getKubernetesArchiveFileData(rawYipeeFile1).subscribe(data => {
       expect(data).toEqual(downloadKubernetesResponse._body.kubernetesFileResponse1.data[0]);
     });
-  }));
 
-  it('should download a kubernetes archive file', inject([ApiService, MockBackend], (service: ApiService, backend: MockBackend) => {
-    const response = new ResponseOptions({
-      body: JSON.stringify({
-        headers: {
-          Headers: { _headers: [], _normalizedNames: [] }
-        },
-        ok: true,
-        status: 200,
-        statusText: 'OK',
-        type: 2,
-        url: 'http://localhost:8080/api/yipeefiles/6a379f42-9d50-11e7-99a2-e3878023cbd7/compose',
-        success: true,
-        total: 1,
-        data: [kubernetesFile1]
-      })
-    });
-
-    const baseResponse = new Response(response);
-
-    backend.connections.subscribe(
-      (c: MockConnection) => c.mockRespond(baseResponse)
-    );
-
-    return service.getKubernetesArchiveFileData(rawYipeeFile1).subscribe(data => {
-      expect(data).toEqual(downloadKubernetesResponse._body.kubernetesFileResponse1.data[0]);
-    });
-  }));
-
+    backend.expectOne({method: 'POST', url: '/api/download/k8sbundle'}).flush(kubernetesFileResponse1);
+    tick(50);
+  })));
   /* ----------------------------------- */
   /* END DOWNLOAD SERVICE ENDPOINT TESTS */
   /* ----------------------------------- */
@@ -688,7 +566,7 @@ describe('ApiService', () => {
   /* YIPEEFILE CRUD ENDPOINT TESTS */
   /* ----------------------------- */
 
-  it('should return deleted application success', inject([ApiService, MockBackend], (service: ApiService, backend: MockBackend) => {
+  it('should return deleted application success', async(inject([ApiService, HttpTestingController], (service: ApiService, backend: HttpTestingController) => {
     const response = new ResponseOptions({
       body: JSON.stringify({
         success: true,
@@ -698,37 +576,14 @@ describe('ApiService', () => {
     });
 
     const baseResponse = new Response(response);
-
-    backend.connections.subscribe(
-      (c: MockConnection) => c.mockRespond(baseResponse)
-    );
-
-    return service.getApp(appId).subscribe(data => {
-      expect(data).toEqual(getAppResponse);
-    });
-  }));
-
-  it('should return deleted application success', inject([ApiService, MockBackend], (service: ApiService, backend: MockBackend) => {
-    const response = new ResponseOptions({
-      body: JSON.stringify({
-        success: true,
-        total: 1,
-        data: [yipeeMetadata]
-      })
-    });
-
-    const baseResponse = new Response(response);
-
-    backend.connections.subscribe(
-      (c: MockConnection) => c.mockRespond(baseResponse)
-    );
-
-    return service.deleteApp(appId).subscribe(data => {
+    service.deleteApp(appId).subscribe(data => {
       expect(data).toEqual(deleteAppResponse);
     });
-  }));
 
-  // xit('should make create a new application', inject([ApiService, MockBackend], (service: ApiService, backend: MockBackend) => {
+    backend.expectOne({method: 'DELETE', url: '/api/yipeefiles/' + appId + '?source=korn'}).flush(yipeeFileResponse);
+  })));
+
+  // xit('should make create a new application', inject([ApiService, HttpTestingController], (service: ApiService, backend: HttpTestingController) => {
   //   const response = new ResponseOptions({
   //     body: JSON.stringify({
   //       success: true,
@@ -748,40 +603,18 @@ describe('ApiService', () => {
   //   });
   // }));
 
-  it('should update an existing application', inject([ApiService, MockBackend], (service: ApiService, backend: MockBackend) => {
-    const response = new ResponseOptions({
-      body: JSON.stringify({
-        success: true,
-        total: 1,
-        data: [yipeeMetadata]
-      })
-    });
+  it('should update an existing application', async(inject([ApiService, HttpTestingController], (service: ApiService, backend: HttpTestingController) => {
 
-    const baseResponse = new Response(response);
-
-    backend.connections.subscribe(
-      (c: MockConnection) => c.mockRespond(baseResponse)
-    );
-
-    return service.updateApp(yipeeMetadata).subscribe(data => {
+    service.updateApp(yipeeMetadata).subscribe(data => {
       expect(data).toEqual(makePublicResponse);
     });
-  }));
+    const req = backend.expectOne({method: 'PUT', url: '/api/yipeefiles/' + yipeeMetadata.id + '?source=korn'}).flush(yipeeFileResponse);
+
+  })));
 
   /* --------------------------------- */
   /* END YIPEEFILE CRUD ENDPOINT TESTS */
   /* --------------------------------- */
-
-  /* ---------------------------------------------- */
-  /* METHODS TO MANAGE THE ORG CONTEXT HEADER TESTS */
-  /* ---------------------------------------------- */
-
-  // @TEST
-  // PLACE HOLDER for when updateOrgContextHeaderId method becomes finalized
-
-  /* -------------------------------------------------- */
-  /* END METHODS TO MANAGE THE ORG CONTEXT HEADER TESTS */
-  /* -------------------------------------------------- */
 
   /* tests to make sure yipee files are marshalled correctly */
 

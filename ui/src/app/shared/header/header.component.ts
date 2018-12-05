@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
@@ -8,20 +8,12 @@ import { Router } from '@angular/router';
 })
 export class HeaderComponent {
 
-  isBeta: boolean;
+
   @Input() title: string;
-  @Output() showSettingsDialog = new EventEmitter<boolean>();
 
   constructor(
     private router: Router
-  ) { }
-
-  onShowSettingsDialog() {
-    this.showSettingsDialog.emit(true);
-  }
-
-  goHome() {
-    this.router.navigate(['/'], {});
+  ) {
   }
 
 }

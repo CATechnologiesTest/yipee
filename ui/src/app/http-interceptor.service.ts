@@ -31,13 +31,13 @@ export class HttpInterceptorService extends Http {
     }
 
     options(url: string, options?: RequestOptionsArgs): Observable<Response> {
-        if (options === 'CHANGE_ORG_HEADER') {
-            this.orgHeaderId = url;
+        // if (options === 'CHANGE_ORG_HEADER') {
+        //     this.orgHeaderId = url;
 
-            return;
-        } else {
+        //     return;
+        // } else {
             return super.options(url, this.getRequestOptionArgs(options));
-        }
+        // }
     }
 
     private getRequestOptionArgs(options?: RequestOptionsArgs): RequestOptionsArgs {

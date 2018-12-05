@@ -1,23 +1,23 @@
 declare var $: JQueryStatic;
 import { Component, OnInit, ViewChild, ChangeDetectorRef, AfterViewChecked } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 
 import { EditorService } from './editor.service';
 import { CanvasComponent } from './canvas/canvas.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
-import { YipeeFileService } from '../shared/services/yipee-file.service';
 import { DownloadService } from '../shared/services/download.service';
-import { YipeeFileMetadata } from '../models/YipeeFileMetadata';
-import { YipeeFileErrorResponse } from '../models/YipeeFileResponse';
-import { FeatureService } from '../shared/services/feature.service';
 import { EditorEventService, SelectionChangedEvent, EventSource } from './editor-event.service';
+import { YipeeFileService } from '../shared/services/yipee-file.service';
+import { FeatureService } from '../shared/services/feature.service';
 
 @Component({
   templateUrl: './editor.component.html',
   styleUrls: ['./editor.component.css']
 })
 export class EditorComponent implements OnInit, AfterViewChecked {
+  static UNEXPECTED_RESPONSE = 'Unexpected response from server: ';
+
+  showWarningModal: boolean;
 
   @ViewChild(CanvasComponent)
   private canvasComponent: CanvasComponent;
@@ -43,50 +43,38 @@ export class EditorComponent implements OnInit, AfterViewChecked {
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private editorEventService: EditorEventService,
+    private yipeeFileService: YipeeFileService,
     private cd: ChangeDetectorRef,
-  ) { }
+  ) {
+    this.showWarningModal = false;
+  }
 
   ngOnInit() {
+    // Are we "deep linking" into a model that is saved on the backend?
+    const deepLinkId = this.activatedRoute.snapshot.params['id'];
+    if (deepLinkId) {
+      this.yipeeFileService.read(deepLinkId).subscribe(
+        (yipeeFile) => {
+          this.editorService.loadYipeeFile(yipeeFile).subscribe(
+            (response) => {
+              this.ui.loading = false;
+              this.yipeeFileID = this.editorService.yipeeFileID;
 
-    // this.featureService.refreshFeatures().subscribe((value) => {
-      // this.orgService.refreshOrgs().subscribe((orgResponse: boolean) => {
-        // this.orgService.changeCurrentOrg(this.activatedRoute.snapshot.params['context']);
-        // this.editorService.loadYipeeFile(this.activatedRoute.snapshot.params['id']).subscribe((response) => {
+            });
+        },
+        (error) => {
+          this.ui.error = true;
           this.ui.loading = false;
-          this.ui.error = false;
-          // this.yipeeFileID = this.editorService.yipeeFileID;
-          // this.editorService.fatalText.length = 0;
-          // this.editorService.alertText.length = 0;
-          // this.editorService.infoText.length = 0;
-          // if (this.editorService.readOnly) {
-          //   this.editorService.infoText.push('This is a read only view of the model, changes cannot be saved.');
-          // }
-        // }, (error) => {
-        //   this.ui.error = true;
-        //   this.ui.loading = false;
-        //   this.editorService.metadata = null;
-        //   if (error.status === 403) {
-        //     this.editorService.fatalText.push(
-        //       'You do not have permission to view this application. ' +
-        //       'Please ask the owner of this application to add you to their team.'
-        //     );
-        //   } else {
-        //     try {
-        //       const response = JSON.parse(error._body) as YipeeFileErrorResponse;
-        //       this.editorService.fatalText.push.apply(this.editorService.fatalText, response.data);
-        //     } catch (e) {
-        //       this.editorService.fatalText.length = 0;
-        //       this.editorService.fatalText.push('Unexpected response from server: ' + error);
-        //     }
-        //   }
-        // });
-      // });
-    // });
-
+          this.editorService.metadata = null;
+          this.editorService.fatalText.length = 0;
+          this.editorService.fatalText.push(EditorComponent.UNEXPECTED_RESPONSE + error.message);
+        });
+    } else {
+      this.ui.loading = false;
+    }
     this.editorEventService.onSelectionChange.subscribe((event) => {
       this.handleSelectionChanged(event);
     });
-
   }
 
   handleSelectionChanged(event: SelectionChangedEvent): void {
@@ -115,7 +103,7 @@ export class EditorComponent implements OnInit, AfterViewChecked {
   }
 
   fatalExit() {
-    this.router.navigate(['/catalog']);
+    this.router.navigate(['/']);
   }
 
   doChangeView(view: string): void {
@@ -161,16 +149,22 @@ export class EditorComponent implements OnInit, AfterViewChecked {
     return false;
   }
 
-  onClose(): void {
-    this.router.navigate(['']);
-  }
-
   ngAfterViewChecked() {
     this.cd.detectChanges();
   }
 
   exitEditor(): void {
     this.router.navigate(['']);
+  }
+
+  canDeactivate(): boolean {
+    if (this.disregardChanges || (this.editorService.dirty === false)) {
+      this.editorService.dirty = false;
+      return true;
+    } else {
+      this.showWarningModal = true;
+      return false;
+    }
   }
 
 }

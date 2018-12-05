@@ -60,6 +60,7 @@ export class YipeeFileMetadata {
 
   public toRaw(): YipeeFileMetadataRaw {
     this.raw.name = this.name;
+    this.raw.id = this.id;
     this.raw.isFlat = this.isFlat;
     this.raw.storeFromFlatFile = true;
     this.raw.storeFromUIFile = false;

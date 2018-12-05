@@ -56,7 +56,7 @@ export class EditorService {
     private downloadService: DownloadService
   ) {
     this._dirty = false;
-    this.editMode = '';
+    this.editMode = 'k8s';
     this.readOnly = false;
     this.isWriter = false;
     this.fatalText = [];
@@ -129,7 +129,6 @@ export class EditorService {
     this.invalidKeys.length = 0;
     this.metadata = yipeeFile;
     this.k8sFile = yipeeFile.flatFile;
-    this.editMode = this.getEditMode();
     return of(true);
   }
 
@@ -262,22 +261,6 @@ export class EditorService {
       unique = true;
     }
     return name;
-  }
-
-
-  getEditMode(): string {
-    if (this.metadata.isFlat) {
-      return 'k8s';
-    }
-    return 'compat';
-  }
-
-  getModelType(): string {
-    if (this.metadata.flatFile) {
-      return 'k8s';
-    } else {
-      return 'c11y';
-    }
   }
 
   // go through the container group service names and clear them if the corresponding service no longer exists

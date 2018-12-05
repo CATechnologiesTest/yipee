@@ -1,5 +1,5 @@
 import { TestBed, inject } from '@angular/core/testing';
-import { HttpModule } from '@angular/http';
+import { HttpClientModule } from '@angular/common/http';
 
 import { YipeeFileService } from './yipee-file.service';
 import { ApiService } from './api.service';
@@ -412,7 +412,7 @@ describe('YipeefileService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpModule],
+      imports: [HttpClientModule],
       providers: [
         YipeeFileService,
         ApiService,
