@@ -79,18 +79,30 @@ export class EditorService {
 
   downloadCurrentModel(): void {
     this.downloadService.downloadKubernetesFile(true, this.k8sFile.toFlat());
+    if (!this.checkInvalidFormKeys()) {
+      this.dirty = false;
+    }
   }
 
   downloadKubernetes(): void {
     this.downloadService.downloadKubernetesFile(true, this.k8sFile.toFlat());
+    if (!this.checkInvalidFormKeys()) {
+      this.dirty = false;
+    }
   }
 
   downloadKubernetesArchive(): void {
     this.downloadService.downloadKubernetesArchive(true, this.k8sFile.toFlat());
+    if (!this.checkInvalidFormKeys()) {
+      this.dirty = false;
+    }
   }
 
   downloadHelm(): void {
     this.downloadService.downloadHelmArchive(true, this.k8sFile.toFlat());
+    if (!this.checkInvalidFormKeys()) {
+      this.dirty = false;
+    }
   }
 
   dumpK8sFile() {
@@ -115,6 +127,14 @@ export class EditorService {
     if (index !== -1) {
       this.invalidKeys.splice(index, 1);
       this.editorEventService.onInvalidKeysChange.emit(new InvalidKeysChangeEvent(this.invalidKeys));
+    }
+  }
+
+  checkInvalidFormKeys(): boolean {
+    if (this.invalidKeys.length > 0) {
+      return true;
+    } else {
+      return false;
     }
   }
 
