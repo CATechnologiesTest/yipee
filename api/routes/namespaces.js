@@ -2,7 +2,7 @@ const Express = require('express');
 const fs = require('fs');
 const Router = Express.Router();
 const baselogger = require('../helpers/logger');
-const Logger = baselogger.createLogger("convertAPI");
+const Logger = baselogger.createLogger("namespaces");
 const errorObject = baselogger.errorObject;
 const k8s = require('../helpers/k8sapi');
 const Util = require('./routeUtils');
@@ -19,7 +19,7 @@ Router.get('/', function(req, resp) {
         })
         .catch(err => {
             Logger.error({error: errorObject(err)}, "getNamespaces");
-            resp.status(500).json(Util.generateErrorResponse(err, req));
+            resp.status(500).json(Util.generateErrorResponse(err));
         });
 });
 
@@ -47,7 +47,7 @@ Router.get('/:nsname', function(req, resp) {
             console.log("route error:", err);
             Logger.error({error: errorObject(err),
                           nsname: req.params.nsname}, "getNamespace");
-            resp.status(500).json(Util.generateErrorResponse(err, req));
+            resp.status(500).json(Util.generateErrorResponse(err));
         });
 });
 
@@ -64,7 +64,7 @@ Router.put('/:nsname', function (req, resp) {
         .catch(err => {
             Logger.error({error: errorObject(err),
                           nsname: req.params.nsname}, "saveNamespace");
-            resp.status(500).json(Util.generateErrorResponse(err, req));
+            resp.status(500).json(Util.generateErrorResponse(err));
         });
 });
 
@@ -97,7 +97,7 @@ Router.post('/apply/:nsname', function (req, resp) {
         .catch(err => {
             Logger.error({error: errorObject(err),
                           nsname: nsname}, "apply");
-            resp.status(500).json(Util.generateErrorResponse(err, req));
+            resp.status(500).json(Util.generateErrorResponse(err));
         });
 });
 
@@ -134,7 +134,7 @@ function doDownload(req, resp, cvtfun, respkey, withComment) {
             Logger.error({error: errorObject(err),
                           nsname: nsname,
                           type: req.params.dltype}, "download");
-            resp.status(500).json(Util.generateErrorResponse(err, req));
+            resp.status(500).json(Util.generateErrorResponse(err));
         });
 }
 
@@ -165,42 +165,42 @@ Router.post('/import', function(req, resp) {
         .catch(err => {
             Logger.error({error: errorObject(err),
                           yipeeobj: yipeeobj}, "import");
-            resp.status(400).json(Util.generateErrorResponse(err, req));
+            resp.status(400).json(Util.generateErrorResponse(err));
         });
 });
-// End XXX
 
+// XXX: remove this and teach the app to use /diff instead of
+// /namespaces/diff
 Router.post('/diff', function(req, resp) {
-    let nsSpec = req.body;
-    let cvtObj = {
+    let diffObj = {
         parent: {
-            name: nsSpec.parent
+            name: req.body.parent
         },
-        children: []
+        children: req.body.children.map(c => { return {name: c}; })
     };
-    let models = [k8s.makeImport(nsSpec.parent)];
-    nsSpec.children.forEach((child, idx) => {
-        cvtObj.children.push({name: child});
-        models.push(k8s.makeImport(child));
-    });
-    Promise.all(models)
-        .then(yamls => {
-            cvtObj.parent.yaml = yamls.shift();
-            yamls.forEach((yaml, idx) => {
-                cvtObj.children[idx].yaml = yaml;
-            });
-            return cvtHelpers.diff(cvtObj);
-        })
-        .then(diffs => {
-            // diffs are a single newline-separated string -- just return it
-            resp.json(Util.generateSuccessResponse(diffs));
+    cvtHelpers.prepareDiffInput(diffObj)
+        .then(payload => {
+            if (payload.err) {
+                resp.status(400).json(
+                    Util.generateErrorResponse(payload.err));
+                return;
+            }
+            cvtHelpers.diff(payload.diffobj)
+                .then(diffs => {
+                    resp.json(Util.generateSuccessResponse(diffs));
+                })
+                .catch(err => {
+                    Logger.error({error: errorObject(err),
+                                  payload: payload}, "diff");
+                    resp.status(500).json(Util.generateErrorResponse(err));
+                });
         })
         .catch(err => {
             Logger.error({error: errorObject(err),
-                          nsSpec: nsSpec}, "diff");
-            resp.status(500).json(Util.generateErrorResponse(err, req));
+                          payload: req.body}, "diff");
+            resp.status(500).json(Util.generateErrorResponse(err));
         });
-
 });
+// End XXX
 
 module.exports = Router;

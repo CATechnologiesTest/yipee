@@ -61,7 +61,7 @@
                 </label>
               </div>
             </div>
-            <button type="button" class="btn btn-icon" title="Close" (click)="onClose()">
+            <button type="button" class="btn btn-icon" title="Close" (click)="exitEditor()">
               <clr-icon shape="times-circle" class="is-solid"></clr-icon>
             </button>
           </div>
@@ -92,7 +92,7 @@
             {{alert}}
           </span>
           <div class="alert-actions">
-            <button class="btn alert-action" (click)="fatalExit()">Return to Catalog</button>
+            <button class="btn alert-action" (click)="fatalExit()">OK</button>
           </div>
         </div>
       </clr-alert>
@@ -120,3 +120,8 @@
 
 </div>
 
+<app-warn-changes-modal 
+  [show]="showWarningModal"
+  (onClose)="showWarningModal = false; disregardChanges = true; exitEditor();"
+  (onCancel)="showWarningModal = false;">
+</app-warn-changes-modal>

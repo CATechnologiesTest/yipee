@@ -5,7 +5,7 @@
 # Note that the UI for this is not (yet) opensource.
 #
 # Other changes to "stock" yipee include:
-# - kubectl included in API image (see api/Dockerfile)
+# - kubectl included in API image (see api/Dockerfile.experimental)
 # - serviceaccount and roles as defined here
 # - api container environment as defined here
 
@@ -192,10 +192,8 @@ spec:
         env:
           - name: LIVE_CLUSTER
             value: 'true'
-        # image: yipeeio/api
-        # imagePullPolicy: Always
-        image: yipee-development/osyipee-api
-        imagePullPolicy: IfNotPresent
+        image: yipeeio/api:experimental
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
           protocol: TCP

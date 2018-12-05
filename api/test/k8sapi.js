@@ -893,12 +893,12 @@ describe('Yipee K8s API Tests:', function() {
         });
     }
 
-    function diffTest() {
+    function nsDiffTest() {
         let diffInput = {
             parent: "ns1",
             children: ["ns2", "ns3"]
         };
-        describe("#diffTest", function() {
+        describe("#nsDiffTest", function() {
             it('should diff namespaces', function(done) {
                 chai.request(app.server)
                     .post('/namespaces/diff')
@@ -929,5 +929,5 @@ describe('Yipee K8s API Tests:', function() {
     nslistTest();
     nsappTest();
     crdTest();
-    diffTest();
+    nsDiffTest();
 });

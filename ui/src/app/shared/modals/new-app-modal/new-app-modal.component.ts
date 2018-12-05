@@ -9,7 +9,6 @@ import { YipeeFileMetadata } from '../../../models/YipeeFileMetadata';
 import { UserService } from '../../services/user.service';
 
 import { YipeeFileService } from '../../services/yipee-file.service';
-import { YipeeFileErrorResponse } from '../../../models/YipeeFileResponse';
 import { FeatureService } from '../../services/feature.service';
 import { EditorService } from '../../../editor/editor.service';
 

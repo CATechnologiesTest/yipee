@@ -49,6 +49,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: mariadb
+spec:  
   selector:
     name: joomla-kubernetes
     component: mariadb

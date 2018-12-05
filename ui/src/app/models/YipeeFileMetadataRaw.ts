@@ -20,7 +20,6 @@ export interface YipeeFileMetadataRaw {
   dateModified?: string;
   id?: string;
   isFlat?: boolean;
-  hasLogo?: boolean;
   storeFromUIFile?: boolean;
   storeFromFlatFile?: boolean;
   uiFile?: YipeeFileRaw;

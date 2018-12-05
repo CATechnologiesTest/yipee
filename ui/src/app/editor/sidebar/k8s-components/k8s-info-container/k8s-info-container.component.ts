@@ -251,7 +251,6 @@ export class K8sInfoContainerComponent implements OnInit {
         CustomValidators.endsWithDash
       ]],
       description: [{ value: this.k8sFile.appInfo.description, disabled: this.isReadOnly }, [ /* add validations here */]],
-      logo: [{ value: this.k8sFile.appInfo.logo, disabled: this.isReadOnly }, [ /* add validations here */]],
       readme: [{ value: this.k8sFile.appInfo.readme, disabled: this.isReadOnly }, [ /* add validations here */]],
       helmSettingsAll: [{ value: this.k8sFile.appInfo.helmSettingsAll, disabled: this.isReadOnly }, [ /* no validations */ ]],
       helmSettingsPorts: [{ value: this.k8sFile.appInfo.helmSettingsPorts, disabled: this.isReadOnly }, [ /* no validations */ ]],
@@ -273,7 +272,6 @@ export class K8sInfoContainerComponent implements OnInit {
     this.form.get('name').valueChanges.subscribe((newVal) => this.k8sFile.appInfo.name = newVal);
     this.form.get('namespace').valueChanges.subscribe((newVal) => this.k8sFile.appInfo.namespace = newVal);
     this.form.get('description').valueChanges.subscribe((newVal) => this.k8sFile.appInfo.description = newVal);
-    this.form.get('logo').valueChanges.subscribe((newVal) => this.k8sFile.appInfo.logo = newVal);
     this.form.get('readme').valueChanges.subscribe((newVal) => this.k8sFile.appInfo.readme = newVal);
     this.form.get('helmSettingsAll').valueChanges.subscribe((newVal) => this.k8sFile.appInfo.helmSettingsAll = newVal);
     this.form.get('helmSettingsEnvironment').valueChanges.subscribe((newVal) => this.k8sFile.appInfo.helmSettingsEnv = newVal);

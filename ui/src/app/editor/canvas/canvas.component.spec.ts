@@ -23,10 +23,8 @@ class MockFeatureService {
 
 class MockEditorService {
   dirty: false;
-  yipeeFileLogo: string;
   yipeeFileRaw: YipeeFileMetadataRaw = {
     id: '123',
-    hasLogo: true,
     flatFile: [],
     name: '',
     author: '',

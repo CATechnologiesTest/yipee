@@ -24,7 +24,6 @@ export class YipeeFileMetadata {
   dateModified: Date;
   id: string;
   isFlat: boolean;
-  hasLogo: boolean;
   flatFile: K8sFile;
   raw: YipeeFileMetadataRaw;
   file_type: string;
@@ -61,6 +60,7 @@ export class YipeeFileMetadata {
 
   public toRaw(): YipeeFileMetadataRaw {
     this.raw.name = this.name;
+    this.raw.id = this.id;
     this.raw.isFlat = this.isFlat;
     this.raw.storeFromFlatFile = true;
     this.raw.storeFromUIFile = false;

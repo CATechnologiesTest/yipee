@@ -81,8 +81,7 @@ export class NerdmodeContainerComponent implements OnInit {
 
   downloadFile(type: string): boolean {
     const filename = this.downloadService.generateName(this.nerdmode.name, type);
-    const modelType = this.editorService.metadata.isFlat ? 'k8s' : 'c11y';
-    this.downloadService.downloadFile([this.nerdmode.code], filename, type, modelType, true);
+    this.downloadService.downloadFile([this.nerdmode.code], filename, type, 'k8s', true);
     return true;
   }
 

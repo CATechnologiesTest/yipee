@@ -1,8 +1,8 @@
 // Karma configuration file, see link for more information
 // https://karma-runner.github.io/1.0/config/configuration-file.html
 
-const argv = require('minimist')(process.argv.slice(2)),
-  tags = (argv.tags !== true) && argv.tags;
+const argv = require('minimist')(process.argv.slice(2));
+const tags = process.env.TEST_FILE;
 
 module.exports = function(config) {
   config.set({
