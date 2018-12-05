@@ -21,10 +21,20 @@ describe('NerdmodeContainerComponent', () => {
 
   class MockEditorService {
     constructor() { }
+    invalidKeys: string[];
     k8sFile = new K8sFile();
     alertText: string[];
     nerdModeType: undefined;
     metadata = YipeeFileService.newTestYipeeFileMetadata('doggy');
+
+    checkInvalidFormKeys(): boolean {
+      if (this.invalidKeys.length > 0) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
   }
 
   class MockAPIService {
@@ -92,12 +102,14 @@ describe('NerdmodeContainerComponent', () => {
     });
   }));
 
-  it('should call the helm download service properly on downloadFile()', inject([DownloadService], (service: DownloadService) => {
+  it('should call the helm download service properly on downloadFile()', inject([DownloadService, EditorService], (service: DownloadService, editorService: EditorService) => {
+    editorService.invalidKeys = [];
     const result = component.downloadFile('helm');
     expect(result).toEqual(true);
   }));
 
-  it('should call the kubernetes download service properly on downloadFile()', inject([DownloadService], (service: DownloadService) => {
+  it('should call the kubernetes download service properly on downloadFile()', inject([DownloadService, EditorService], (service: DownloadService, editorService: EditorService) => {
+    editorService.invalidKeys = [];
     const result = component.downloadFile('kubernetes');
     expect(result).toEqual(true);
   }));
