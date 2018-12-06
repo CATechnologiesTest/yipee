@@ -99,6 +99,18 @@
     </clr-alerts>
   </div>
 
+  <div *ngIf="editorService.warningText.length > 0">
+    <clr-alerts>
+      <clr-alert *ngFor="let alert of editorService.warningText" [clrAlertType]="'danger'" [clrAlertAppLevel]="true" [clrAlertClosable]="true">
+        <div class="alert-item">
+          <span class="alert-text">
+            {{alert}}
+          </span>
+        </div>
+      </clr-alert>
+    </clr-alerts>
+  </div>
+
   <div *ngIf="editorService.alertText.length > 0 || editorService.infoText.length > 0">
     <clr-alerts>
       <clr-alert *ngFor="let alert of editorService.alertText" [clrAlertType]="'danger'" [clrAlertAppLevel]="true" (clrAlertClosedChange)="onAlertClose(alert)">

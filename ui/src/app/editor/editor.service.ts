@@ -26,6 +26,8 @@ import { NameStringValue } from '../models/common/Generic';
 @Injectable()
 export class EditorService {
 
+  static UNEXPECTED_RESPONSE = 'Unexpected response from server: ';
+
   private _dirty: boolean;
   editMode: string;
   readOnly: boolean;
@@ -34,6 +36,7 @@ export class EditorService {
   metadata: YipeeFileMetadata;
   k8sFile: K8sFile = new K8sFile();
   fatalText: string[];
+  warningText: string[];
   alertText: string[];
   infoText: string[];
   invalidKeys: string[];
@@ -60,6 +63,7 @@ export class EditorService {
     this.readOnly = false;
     this.isWriter = false;
     this.fatalText = [];
+    this.warningText = [];
     this.alertText = [];
     this.infoText = [];
     this.invalidKeys = [];
@@ -78,31 +82,43 @@ export class EditorService {
   }
 
   downloadCurrentModel(): void {
-    this.downloadService.downloadKubernetesFile(true, this.k8sFile.toFlat());
-    if (!this.checkInvalidFormKeys()) {
-      this.dirty = false;
-    }
+    this.downloadService.downloadKubernetesFile(true, this.k8sFile.toFlat()).subscribe((successfulDownload) => {
+      if (successfulDownload) {
+        this.dirty = false;
+      } else {
+        this.warningText.push(EditorService.UNEXPECTED_RESPONSE + ' failed to download');
+      }
+    });
   }
 
   downloadKubernetes(): void {
-    this.downloadService.downloadKubernetesFile(true, this.k8sFile.toFlat());
-    if (!this.checkInvalidFormKeys()) {
-      this.dirty = false;
-    }
+    this.downloadService.downloadKubernetesFile(true, this.k8sFile.toFlat()).subscribe((successfulDownload) => {
+      if (successfulDownload) {
+        this.dirty = false;
+      } else {
+        this.warningText.push(EditorService.UNEXPECTED_RESPONSE + ' failed to download');
+      }
+    });
   }
 
   downloadKubernetesArchive(): void {
-    this.downloadService.downloadKubernetesArchive(true, this.k8sFile.toFlat());
-    if (!this.checkInvalidFormKeys()) {
-      this.dirty = false;
-    }
+    this.downloadService.downloadKubernetesArchive(true, this.k8sFile.toFlat()).subscribe((successfulDownload) => {
+      if (successfulDownload) {
+        this.dirty = false;
+      } else {
+        this.warningText.push(EditorService.UNEXPECTED_RESPONSE + ' failed to download');
+      }
+    });
   }
 
   downloadHelm(): void {
-    this.downloadService.downloadHelmArchive(true, this.k8sFile.toFlat());
-    if (!this.checkInvalidFormKeys()) {
-      this.dirty = false;
-    }
+    this.downloadService.downloadHelmArchive(true, this.k8sFile.toFlat()).subscribe((successfulDownload) => {
+      if (successfulDownload) {
+        this.dirty = false;
+      } else {
+        this.warningText.push(EditorService.UNEXPECTED_RESPONSE + ' failed to download');
+      }
+    });
   }
 
   dumpK8sFile() {
@@ -286,7 +302,7 @@ export class EditorService {
   // go through the container group service names and clear them if the corresponding service no longer exists
   private initPodServiceNames(): void {
     this.k8sFile.containerGroups.forEach((containerGroup: ContainerGroup) => {
-      const serviceNameExistsInServiceMap = find(this.returnServiceMapByContainerGroupId(containerGroup.id), function(arrayValue) { return arrayValue.name === containerGroup.deployment_spec.service_name; });
+      const serviceNameExistsInServiceMap = find(this.returnServiceMapByContainerGroupId(containerGroup.id), function (arrayValue) { return arrayValue.name === containerGroup.deployment_spec.service_name; });
 
       if (!serviceNameExistsInServiceMap) {
         containerGroup.deployment_spec.service_name = '-- Select a service --';
