@@ -35,6 +35,10 @@ describe('NerdmodeContainerComponent', () => {
       }
     }
 
+    downloadKubernetes(): boolean {
+      return true;
+    }
+
   }
 
   class MockAPIService {

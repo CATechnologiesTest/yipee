@@ -4,7 +4,7 @@ import { Observable } from 'rxjs/Observable';
 import * as FileSaver from 'file-saver';
 
 import { ApiService } from './api.service';
-import { of, Subject } from 'rxjs';
+import { Subscriber } from 'rxjs';
 
 @Injectable()
 export class DownloadService {
@@ -31,52 +31,39 @@ export class DownloadService {
     return name;
   }
 
-  downloadKubernetesFile(isKubernetes: boolean, file: any): Observable<boolean> {
+  download(file: any, downloadFunc: string, fileNameType: string, b64Encode: boolean, resultFileType: string): Observable<boolean> {
     const modelName = file['app-info'][0].name;
-    const subject = new Subject<boolean>();
-    this.apiService.getKubernetesFileData(file).subscribe(
+    let subscriber: Subscriber<any>;
+    const result = new Observable<boolean>((s) => subscriber = s) ;
+    this.apiService[downloadFunc](file).subscribe(
       (data) => {
-        const kubernetesFile = data.kubernetesFile;
-        const fileName = this.generateName(modelName, 'kubernetes');
-        this.downloadFile([kubernetesFile], fileName, 'Kubernetes', 'k8s', false);
-        subject.next(true);
+        const fileData = data[resultFileType];
+        const fileName = this.generateName(modelName, fileNameType);
+        if (b64Encode) {
+          this.saveFile(this.convertB64(fileData), fileName, fileNameType, 'k8s', false);
+        } else {
+          this.saveFile([fileData], fileName, fileNameType, 'k8s', false);
+        }
+        subscriber.next(true);
+        subscriber.complete();
       }, (error) => {
-        subject.next(false);
+        subscriber.next(false);
+        subscriber.complete();
       }
     );
-    return subject.asObservable();
+    return result;
+  }
+
+  downloadKubernetesFile(isKubernetes: boolean, file: any): Observable<boolean> {
+    return this.download(file, 'getKubernetesFileData', 'kubernetes', false, 'kubernetesFile');
   }
 
   downloadHelmArchive(isKubernetes: boolean, file: any): Observable<boolean> {
-    const modelName = file['app-info'][0].name;
-    const subject = new Subject<boolean>();
-    this.apiService.getHelmFileArchiveData(file).subscribe(
-      (data) => {
-        const helmFile = data.helmFile;
-        const fileName = this.generateName(modelName, 'helmbundle');
-        this.downloadFile(this.convertB64(helmFile), fileName, 'Helm', 'k8s', false);
-        subject.next(true);
-      }, (error) => {
-        subject.next(false);
-      }
-    );
-    return subject.asObservable();
+    return this.download(file, 'getHelmFileArchiveData', 'helmbundle', true, 'helmFile');
   }
 
   downloadKubernetesArchive(isKubernetes: boolean, file: any): Observable<boolean> {
-    const modelName = file['app-info'][0].name;
-    const subject = new Subject<boolean>();
-    this.apiService.getKubernetesArchiveFileData(file).subscribe(
-      (data) => {
-        const kubernetesArchiveFile = data.kubernetesFile;
-        const fileName = this.generateName(modelName, 'kubernetesarchive');
-        this.downloadFile(this.convertB64(kubernetesArchiveFile), fileName, 'KubernetesArchive', 'k8s', false);
-        subject.next(true);
-      }, (error) => {
-        subject.next(false);
-      }
-    );
-    return subject.asObservable();
+    return this.download(file, 'getKubernetesArchiveFileData', 'kubernetesarchive', true, 'kubernetesFile');
   }
 
   convertB64(b64Data) {
@@ -98,10 +85,7 @@ export class DownloadService {
     return byteArrays;
   }
 
-  downloadFile(data: any[], fileName: string, downloadType: string, modelType: string, live: boolean): void {
-    if (downloadType === 'compose') {
-      downloadType = 'composeV3';
-    }
+  saveFile(data: any[], fileName: string, downloadType: string, modelType: string, live: boolean): void {
     downloadType = downloadType.charAt(0).toUpperCase() + downloadType.substr(1);
     const blob = new Blob(data, { type: 'text/plain' });
     FileSaver.saveAs(blob, fileName);
