@@ -195,7 +195,8 @@
 
 (defn strat-stringify [strat]
   (if-let [strat-type (:type strat)]
-    (if (= (name strat-type) "RollingUpdate")
+    (if (and (= (name strat-type) "RollingUpdate")
+             (filled-in? (:rollingUpdate strat)))
       (update
        strat
        :rollingUpdate

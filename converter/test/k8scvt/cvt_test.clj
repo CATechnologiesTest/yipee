@@ -17,7 +17,8 @@
             [k8scvt.k8s-to-flat]
             [k8scvt.flat-validator :as fv]
             [helm.core :as helm]
-            [k8scvt.diff :as diff])
+            [k8scvt.diff :as diff]
+            [clojure.data.json :as json])
   (:import java.nio.file.FileSystems java.io.File))
 
 (defn every-pair? [pred x y]
@@ -461,6 +462,10 @@
                                            (vals (u/k8skeys
                                                   (from-flat :run-map wmes))))))]
                   (println "-----------------------------------------")
+                  (when-not (empty? verrors)
+                    (spit "/tmp/flats"
+                          (str (json/write-str wmes) "\n\n") :append true)
+                    (spit "/tmp/verrs" (str/join "\n\n" verrors) :append true))
                   (is (empty? serrors))
                   (is (empty? verrors))
                   (is (empty? (filter (comp fi/output-only-metadata :metadata)

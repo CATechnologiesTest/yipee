@@ -85,7 +85,6 @@
   (and (vector? type-val) (= ctype (first type-val))))
 
 (defn json-open-map-type [[_ key-type val-type] item]
-;;  (ppwrap :jomt [[key-type val-type] item])
   (and (map? item)
        (every? (fn [[k v]]
                  (and (type-check key-type k)
@@ -93,7 +92,6 @@
                item)))
 
 (defn json-map-type [typ item]
-;;  (ppwrap :jmt [typ item])
   (and (map? item)
        (every? (fn [field-type]
                  (let [[base-type is-optional?] (if (list? field-type)
@@ -121,7 +119,6 @@
         :else ((or (predicates typ) (fn [& _] false)) item)))
 
 (defn check-type [type-val field wme]
-;;  (ppwrap :ct [type-val field wme])
   (let [value (field wme)]
     (or (= value "") (type-check type-val value))))
 
@@ -204,7 +201,9 @@
   (let [item (first items)
         emph #(str "/" % "/")]
     (cond (nil? item) "\n"
-          (keyword? item) (type-description (rest items))
+          (or (keyword? item)
+              (and (vector? item)
+                   (keyword? (first item)))) (type-description (rest items))
           :else (cond (string? item) (format "(%s)\n" item)
                       (map? item) (if (contains? item :options)
                                     (str "("
@@ -333,7 +332,7 @@
   [:dependee :uuid-ref :container "reference to independent container"])
 
 (defflat deployment-spec
-"Defines how many instances of a container group should be deployed and in what \"mode\" (/replicated/ or /allnodes/)"
+  "Defines how many instances of a container group should be deployed and in what \"mode\" (/replicated/ or /allnodes/)"
   [:count :non-negative-integer]
   [:mode :string {:options ["replicated", "allnodes"]}]
   [:cgroup :uuid-ref :container-group "reference to container group"]
@@ -372,7 +371,8 @@
   "Empty directory on pod host for scratch use"
   [:name :string]
   [:annotations :json "will go away - currently used to support ui format"]
-  [:medium :string {:options ["Memory" "<empty string>"] :default "<empty string>" :post-text "whether or not to mount the directory as tmpfs"}]
+  [:medium :string {:options ["Memory" "<empty string>"] :default "<empty string>"
+                    :post-text "whether or not to mount the directory as tmpfs"}]
   [:cgroup :uuid-ref :container-group "needed to disambiguate empty dir volumes -- they don't have unique instances like PV claims"])
 
 (defflat entrypoint
@@ -424,9 +424,9 @@
 (defflat healthcheck
   "Specification for a check operation to perform on a container"
   [:healthcmd :string-array :optional]
-  [:interval :non-negative-integer]
+  [:interval :non-negative-integer :optional]
   [:retries :non-negative-integer :optional]
-  [:timeout :non-negative-integer]
+  [:timeout :non-negative-integer :optional]
   [:check-type :string {:options ["liveness" "readiness"]}]
   [:container :uuid-ref :container "reference to container"])
 
@@ -444,7 +444,7 @@
 (defflat port-mapping
   "Mapping between container port and external port"
   [:name :string]
-  [:internal :numeric-string]
+  [:internal :string] ;; can be named port
   [:external :numeric-string]
   [:protocol :string {:options ["tcp" "udp"]}]
   [:container :uuid-ref :container "reference to container" :optional]
@@ -470,7 +470,8 @@
   [:uid :numeric-string]
   [:gid :numeric-string]
   [:mode :numeric-string]
-  [:secret :uuid-ref :secret "reference to secret"]
+  [:secret-volume :uuid-ref :secret-volume "reference to secret volume"]
+  [:secret :uuid-ref :secret "reference to secret" :allow-missing-target]
   [:source :string]
   [:target :string]
   [:container :uuid-ref :container "reference to container using secret"])
@@ -491,7 +492,7 @@
 "Reference from container to volume"
   [:path :string]
   [:volume-name :string]
-  [:volume :uuid-ref :volume "reference to volume"]
+  [:volume :uuid-ref :referable-volume "reference to volume"]
   [:access-mode :string {:options ["ReadOnlyMany" "ReadWriteOnce"
                                    "ReadWriteMany"]}]
   [:container-name :string "name of container using volume"]

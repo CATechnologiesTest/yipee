@@ -41,7 +41,7 @@
 
 (defancestor [:replication :label] :group-property)
 
-(defancestor [:volume :empty-dir-volume] :referable-volume)
+(defancestor [:volume :empty-dir-volume :host-path-volume] :referable-volume)
 
 (defancestor [:persistent-volume-claim :persistentVolumeClaim
               :statefulset :statefulSet
