@@ -1,15 +1,11 @@
 import { Component, OnInit, EventEmitter, Input, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
-// import { CatalogService } from '../../../catalog/catalog.service';
-// import { forbiddenNameValidator } from '../../validators/forbidden-application-name.validator';
 import { alphaNumericValidator } from '../../validators/alpha-numeric.validator';
 import { firstCharAlphaNumericValidator } from '../../validators/first-char-alpha-numeric.validator';
 import { YipeeFileMetadata } from '../../../models/YipeeFileMetadata';
-import { UserService } from '../../services/user.service';
 
 import { YipeeFileService } from '../../services/yipee-file.service';
-import { FeatureService } from '../../services/feature.service';
 import { EditorService } from '../../../editor/editor.service';
 
 @Component({
@@ -31,10 +27,7 @@ export class NewAppModalComponent implements OnInit {
 
   constructor(
     private editorService: EditorService,
-    private userService: UserService,
-    // private catalogService: CatalogService,
-    private yipeeFileService: YipeeFileService,
-    public featureService: FeatureService
+    private yipeeFileService: YipeeFileService
   ) {
     this.show = false;
     this.alertText = [];

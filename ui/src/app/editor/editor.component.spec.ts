@@ -20,10 +20,7 @@ import { EditorEventService, SelectionChangedEvent, EventSource } from './editor
 import { EventEmitter } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../shared/services/api.service';
-
-import { Subject } from 'rxjs/Subject';
 import { UserService } from '../shared/services/user.service';
-import { FeatureService } from '../shared/services/feature.service';
 
 describe('EditorComponent', () => {
   let component: EditorComponent;
@@ -91,7 +88,6 @@ describe('EditorComponent', () => {
         RouterTestingModule
       ],
       providers: [
-        FeatureService,
         UserService,
         EditorEventService,
         YipeeFileService,

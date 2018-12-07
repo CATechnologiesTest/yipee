@@ -2,10 +2,6 @@
 
 The [Angular CLI](https://github.com/angular/angular-cli) user interface for Yipee.io.
 
-## Feature Toggles
-
-* none at this time
-
 ## Getting Started
 
 ### Development server

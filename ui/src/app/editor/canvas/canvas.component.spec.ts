@@ -6,7 +6,6 @@ import { CanvasComponent } from './canvas.component';
 import { CanvasUtility } from './canvas.utility';
 import { EditorService } from '../editor.service';
 import { ApiService } from '../../shared/services/api.service';
-import { FeatureService } from '../../shared/services/feature.service';
 import { EditorEventService } from '../editor-event.service';
 import { K8sFile } from '../../models/k8s/K8sFile';
 import { YipeeFileMetadata } from '../../models/YipeeFileMetadata';
@@ -15,10 +14,6 @@ import { Container } from '../../models/common/Container';
 
 class MockApiService {
 
-}
-
-class MockFeatureService {
-  features = [];
 }
 
 class MockEditorService {
@@ -140,8 +135,7 @@ describe('CanvasComponent', () => {
       providers: [
         { provide: EditorService, useClass: MockEditorService },
         EditorEventService,
-        { provide: ApiService, useClass: MockApiService },
-        { provide: FeatureService, useClass: MockFeatureService}
+        { provide: ApiService, useClass: MockApiService }
       ]
     })
       .compileComponents();

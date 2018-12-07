@@ -3,9 +3,7 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 
-import { Feature } from '../../models/Feature';
 import { YipeeFileMetadataRaw } from '../../models/YipeeFileMetadataRaw';
-import { OpenShiftFile } from '../../models/OpenShiftFile';
 import { KubernetesFile } from '../../models/KubernetesFile';
 import { HelmFile } from '../../models/HelmFile';
 import { YipeeFileResponse } from '../../models/YipeeFileResponse';
@@ -66,15 +64,6 @@ export class ApiService {
   /* ------------------ */
   /* END USER ENDPOINTS */
   /* ------------------ */
-
-  getActiveFeatures(userId: string): Observable<Feature[]> {
-    const api_endpoint = '/api/query';
-    const graphQLQuery = '{activeFeatures(user: "' + userId + '") { features {id, name}}}';
-    const queryObject = { query: graphQLQuery };
-    return this.http.post<YipeeFileResponse>(api_endpoint, JSON.stringify(queryObject)).map((response) => {
-      return <Feature[]>response.data['activeFeatures'].features;
-    });
-  }
 
   importApp(yipeeFile: any): Observable<YipeeFileResponse> {
     const api_endpoint = '/api/import';

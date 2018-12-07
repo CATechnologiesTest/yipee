@@ -12,7 +12,6 @@ import { ApiService } from '../../services/api.service';
 import { UserService } from '../../services/user.service';
 import { ImportAppService } from '../../services/import-app.service';
 import { YipeeFileMetadataRaw } from '../../../models/YipeeFileMetadataRaw';
-import { FeatureService } from '../../services/feature.service';
 import { EditorService } from '../../../editor/editor.service';
 import { EditorEventService } from '../../../editor/editor-event.service';
 import { YipeeFileService } from '../../services/yipee-file.service';
@@ -152,11 +151,6 @@ describe('ImportAppModalComponent', () => {
 
   }
 
-  class MockFeatureService {
-    constructor() { }
-    names: string[] = [];
-  }
-
   class MockOrgService {
     availableOrgs = [];
 
@@ -185,8 +179,7 @@ describe('ImportAppModalComponent', () => {
         YipeeFileService,
         DownloadService,
         {provide: UserService, useClass: MockUserService},
-        {provide: ApiService, useClass: MockApiService},
-        {provide: FeatureService, useClass: MockFeatureService}
+        {provide: ApiService, useClass: MockApiService}
       ]
     })
     .compileComponents();

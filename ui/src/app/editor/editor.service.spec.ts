@@ -7,16 +7,10 @@ import { EditorEventService } from './editor-event.service';
 import { EditorService } from './editor.service';
 import { YipeeFileService } from '../shared/services/yipee-file.service';
 import { YipeeFileMetadata } from '../models/YipeeFileMetadata';
-import { FeatureService } from '../shared/services/feature.service';
 import { DownloadService } from '../shared/services/download.service';
 import { ApiService } from '../shared/services/api.service';
 
 const yipeeMetadata1: YipeeFileMetadata = YipeeFileService.newTestYipeeFileMetadata('doggy');
-
-class MockFeatureService {
-  names: string[] = [];
-  constructor() { }
-}
 
 class MockOrgService {
   constructor() { }
@@ -54,7 +48,6 @@ describe('EditorService', () => {
         EditorService,
         { provide: ApiService, useClass: MockApiService },
         { provide: DownloadService, useClass: MockDownloadService },
-        { provide: FeatureService, useClass: MockFeatureService },
         { provide: YipeeFileService, useClass: MockYipeeFileService }
       ]
     });
