@@ -1,4 +1,5 @@
-import { TestBed, inject } from '@angular/core/testing';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { TestBed, inject, ComponentFixture } from '@angular/core/testing';
 import { HttpModule } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import { of } from 'rxjs';
@@ -11,43 +12,64 @@ import { FeatureService } from '../shared/services/feature.service';
 import { DownloadService } from '../shared/services/download.service';
 import { ApiService } from '../shared/services/api.service';
 
-const yipeeMetadata1: YipeeFileMetadata = YipeeFileService.newTestYipeeFileMetadata('doggy');
-
-class MockFeatureService {
-  names: string[] = [];
-  constructor() { }
-}
-
-class MockOrgService {
-  constructor() { }
-  userIsWriter(): boolean {
-    return true;
-  }
-}
-
-class MockDownloadService {
-  constructor() { }
-}
-
-class MockApiService {
-  constructor() { }
-}
-
-class MockYipeeFileService {
-  constructor() { }
-
-  read(yipeeFile_id: string): Observable<YipeeFileMetadata> {
-    return of(yipeeMetadata1);
-  }
-
-  update(metadata: YipeeFileMetadata): Observable<YipeeFileMetadata> {
-    return of(yipeeMetadata1);
-  }
-}
-
 describe('EditorService', () => {
+
+  const yipeeMetadata1: YipeeFileMetadata = YipeeFileService.newTestYipeeFileMetadata('doggy');
+
+  class MockFeatureService {
+    names: string[] = [];
+    constructor() { }
+  }
+
+  class MockOrgService {
+    constructor() { }
+    userIsWriter(): boolean {
+      return true;
+    }
+  }
+
+  class MockApiService {
+    constructor() { }
+  }
+
+  class MockDownloadService {
+    constructor() {
+    }
+
+    downloadKubernetesFile() {
+      return of(true);
+    }
+
+    downloadKubernetesArchive() {
+      return of(true);
+    }
+
+    downloadHelmArchive() {
+      return of(true);
+    }
+
+  }
+
+  class MockYipeeFileService {
+    constructor() { }
+
+    read(yipeeFile_id: string): Observable<YipeeFileMetadata> {
+      return of(yipeeMetadata1);
+    }
+
+    update(metadata: YipeeFileMetadata): Observable<YipeeFileMetadata> {
+      return of(yipeeMetadata1);
+    }
+  }
+
+
   beforeEach(() => {
     TestBed.configureTestingModule({
+      declarations: [
+      ],
+      schemas: [
+        NO_ERRORS_SCHEMA
+      ],
       imports: [HttpModule],
       providers: [
         EditorEventService,
@@ -57,7 +79,7 @@ describe('EditorService', () => {
         { provide: FeatureService, useClass: MockFeatureService },
         { provide: YipeeFileService, useClass: MockYipeeFileService }
       ]
-    });
+    }).compileComponents();
   });
 
   it('should be created', inject([EditorService], (service: EditorService) => {
@@ -89,6 +111,72 @@ describe('EditorService', () => {
     expect(service.dirty).toBeFalsy();
     service.dirty = true;
     expect(service.dirty).toBeTruthy();
+  }));
+
+  it('should check when downloads are successful that it resets the dirty flag to false', inject([EditorService], (service: EditorService) => {
+    expect(service.dirty).toBeFalsy();
+    service.dirty = true;
+    expect(service.dirty).toBeTruthy();
+    service.downloadCurrentModel();
+    expect(service.dirty).toBeFalsy();
+
+    service.dirty = true;
+    expect(service.dirty).toBeTruthy();
+    service.downloadKubernetes();
+    expect(service.dirty).toBeFalsy();
+
+    service.dirty = true;
+    expect(service.dirty).toBeTruthy();
+    service.downloadKubernetesArchive();
+    expect(service.dirty).toBeFalsy();
+
+    service.dirty = true;
+    expect(service.dirty).toBeTruthy();
+    service.downloadHelm();
+    expect(service.dirty).toBeFalsy();
+  }));
+
+  it('should check when downloads are unSuccessful that it sets warningText and the dirty flag remains true', inject([EditorService, DownloadService], (service: EditorService, ds: DownloadService) => {
+    ds.downloadKubernetesFile = function () {
+      return of(false);
+    };
+    ds.downloadKubernetesArchive = function () {
+      return of(false);
+    };
+    ds.downloadHelmArchive = function () {
+      return of(false);
+    };
+    const error = 'Unexpected response from server: failed to download';
+    const errorArray: string[] = ['Unexpected response from server: failed to download'];
+
+    expect(service.dirty).toBeFalsy();
+    service.dirty = true;
+    expect(service.dirty).toBeTruthy();
+    service.downloadCurrentModel();
+    expect(service.dirty).toBeTruthy();
+    expect(service.warningText).toEqual(errorArray);
+
+    errorArray.push(error);
+    service.dirty = true;
+    expect(service.dirty).toBeTruthy();
+    service.downloadKubernetes();
+    expect(service.dirty).toBeTruthy();
+    expect(service.warningText).toEqual(errorArray);
+
+    errorArray.push(error);
+    service.dirty = true;
+    expect(service.dirty).toBeTruthy();
+    service.downloadKubernetesArchive();
+    expect(service.dirty).toBeTruthy();
+    expect(service.warningText).toEqual(errorArray);
+
+    errorArray.push(error);
+    service.dirty = true;
+    expect(service.dirty).toBeTruthy();
+    service.downloadHelm();
+    expect(service.dirty).toBeTruthy();
+    expect(service.warningText).toEqual(errorArray);
+
   }));
 
 });

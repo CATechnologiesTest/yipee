@@ -56,7 +56,7 @@ export class EditorService {
   constructor(
     private editorEventService: EditorEventService,
     private yipeeFileService: YipeeFileService,
-    private downloadService: DownloadService
+    public downloadService: DownloadService
   ) {
     this._dirty = false;
     this.editMode = 'k8s';
@@ -86,7 +86,7 @@ export class EditorService {
       if (successfulDownload) {
         this.dirty = false;
       } else {
-        this.warningText.push(EditorService.UNEXPECTED_RESPONSE + ' failed to download');
+        this.warningText.push(EditorService.UNEXPECTED_RESPONSE + 'failed to download');
       }
     });
   }
@@ -96,7 +96,7 @@ export class EditorService {
       if (successfulDownload) {
         this.dirty = false;
       } else {
-        this.warningText.push(EditorService.UNEXPECTED_RESPONSE + ' failed to download');
+        this.warningText.push(EditorService.UNEXPECTED_RESPONSE + 'failed to download');
       }
     });
   }
@@ -106,7 +106,7 @@ export class EditorService {
       if (successfulDownload) {
         this.dirty = false;
       } else {
-        this.warningText.push(EditorService.UNEXPECTED_RESPONSE + ' failed to download');
+        this.warningText.push(EditorService.UNEXPECTED_RESPONSE + 'failed to download');
       }
     });
   }
@@ -116,7 +116,7 @@ export class EditorService {
       if (successfulDownload) {
         this.dirty = false;
       } else {
-        this.warningText.push(EditorService.UNEXPECTED_RESPONSE + ' failed to download');
+        this.warningText.push(EditorService.UNEXPECTED_RESPONSE + 'failed to download');
       }
     });
   }
