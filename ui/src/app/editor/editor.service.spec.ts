@@ -57,21 +57,6 @@ describe('EditorService', () => {
     expect(service).toBeTruthy();
   }));
 
-  // xit('should get and store a metadata on loadYipeeFile()', inject([EditorService], (service: EditorService) => {
-  //   service.loadYipeeFile('6a379f42-9d50-11e7-99a2-e3878023cbd7').subscribe(() => {
-  //     expect(service.metadata).toEqual(yipeeMetadata1);
-  //   });
-  // }));
-
-  // xit('should update a yipeefile on saveYipeeFile()', inject([EditorService], (service: EditorService) => {
-  //   service.loadYipeeFile('6a379f42-9d50-11e7-99a2-e3878023cbd7').subscribe(() => {
-  //     expect(service.metadata).toEqual(yipeeMetadata1);
-  //   });
-  //   service.saveYipeeFile().subscribe(() => {
-  //     expect(service.metadata).toEqual(yipeeMetadata1);
-  //   });
-  // }));
-
   it('should set readonly correctly', inject([EditorService], (service: EditorService) => {
     expect(service.readOnly).toBeFalsy();
     service.readOnly = true;
