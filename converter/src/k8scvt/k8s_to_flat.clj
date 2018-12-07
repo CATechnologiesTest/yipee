@@ -887,7 +887,7 @@
                              {:type :secret
                               :name secret-name
                               :secret-volume svol-id
-                              :default-mode (or (:mode secret) default-mode "")
+                              :default-mode (to-octal (or (:mode secret) default-mode ""))
                               :source ""
                               :alternate-name ""})]
               (doseq [cont (collect! :container #(= (:id ?cgroup) (:cgroup %)))]

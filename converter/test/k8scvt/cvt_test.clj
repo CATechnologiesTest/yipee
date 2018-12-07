@@ -15,6 +15,7 @@
             [k8scvt.util :as u]
             [k8scvt.flat-to-k8s]
             [k8scvt.k8s-to-flat]
+            [k8scvt.flat-validator :as fv]
             [helm.core :as helm]
             [k8scvt.diff :as diff])
   (:import java.nio.file.FileSystems java.io.File))
@@ -401,6 +402,7 @@
     (binding [u/*wmes-by-id* (atom {})]
       (let [to-flat (engine :k8scvt.k8s-to-flat)
             from-flat (engine :k8scvt.flat-to-k8s)
+            flat-validator (engine :k8scvt.flat-validator)
             index (atom 0)]
         (doseq [file [
                       "racket.yaml"
@@ -437,6 +439,11 @@
             (let [[fname record] (check-recording file)]
               (binding [*record-rule-output-flag* record]
                 (let [k8s (fi/get-k8s-from-yaml-testdata fname)
+                      raw (apply concat (vals (dissoc k8s :type :app-name :id :__id)))
+                      serrors (v/validate
+                               raw
+                               (map-indexed (fn [idx val] (str "element" idx))
+                                            raw))
                       _ (to-flat :configure
                                  {*record-rule-output-flag*
                                   (str "./tmp/toflat" (swap! index inc))})
@@ -445,6 +452,8 @@
                                      (str "./tmp/fromflat" @index)})
                       _ (System/gc)
                       wmes (time (to-flat :run-list [k8s]))
+                      verrors (mapv fv/translate-error
+                                    (:validation-error (flat-validator :run wmes)))
                       _ (System/gc)
                       results (time
                                (map #(dissoc % :type :id)
@@ -452,6 +461,8 @@
                                            (vals (u/k8skeys
                                                   (from-flat :run-map wmes))))))]
                   (println "-----------------------------------------")
+                  (is (empty? serrors))
+                  (is (empty? verrors))
                   (is (empty? (filter (comp fi/output-only-metadata :metadata)
                                       results)))
                   (is (empty? (filter #(fi/output-only-toplevel (keys %))

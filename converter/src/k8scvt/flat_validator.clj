@@ -24,7 +24,8 @@
               :value (field wme)})
     (insert! {:type :validation-error
               :validation-type :missing-required-field
-              :missing-field field})))
+              :missing-field field
+              :wme (to-map wme)})))
 
 (defn generate-type-error [wme field tipe]
   (when (and (contains? wme field) (not= (field wme) ""))
@@ -45,9 +46,9 @@
 
 ;; XXX: Support K8s identifier type
 (def predicates
-  {:string string?
+  {:string #(or (string? %) (keyword? %))
    :string-array (fn [val] (and (or (seq? val) (vector? val))
-                                (every? string? val)))
+                                (every? #(or (string? %) (keyword %)) val)))
    :numeric-string #(and (string? %) (re-matches #"^[\d]+$" %))
    :keyword keyword?
    :integer integer?
@@ -84,7 +85,7 @@
   (and (vector? type-val) (= ctype (first type-val))))
 
 (defn json-open-map-type [[_ key-type val-type] item]
-  (ppwrap :jomt [[key-type val-type] item])
+;;  (ppwrap :jomt [[key-type val-type] item])
   (and (map? item)
        (every? (fn [[k v]]
                  (and (type-check key-type k)
@@ -92,7 +93,7 @@
                item)))
 
 (defn json-map-type [typ item]
-  (ppwrap :jmt [typ item])
+;;  (ppwrap :jmt [typ item])
   (and (map? item)
        (every? (fn [field-type]
                  (let [[base-type is-optional?] (if (list? field-type)
@@ -100,30 +101,27 @@
                                                   [field-type false])
                        field-val ((first base-type) item)]
                    (if (nil? field-val)
-                     (do (ppwrap :is [is-optional? (first base-type)]) is-optional?)
+                     is-optional?
                      (type-check (second base-type) field-val))))
                (rest typ))))
 
 (defn json-array-type [typ item]
-  (ppwrap :jat [typ item])
   (and (vector? item) (every? (checker (first typ)) item)))
 
 (defn json-optional-type [typ item]
-  (ppwrap :jot [typ item])
   (or (nil? item) (type-check typ item)))
 
 (defn type-check [typ item]
-  (ppwrap :tc [typ item])
   (cond (compound-type? :or typ) (some #(type-check % item) typ)
         (compound-type? :map typ) (json-map-type typ item)
         (compound-type? :open-map typ) (json-open-map-type typ item)
         (compound-type? :array typ) (json-array-type typ item)
         (list? typ) (json-optional-type (first typ) item)
         (set? typ) (typ item)
-        :else ((or (predicates typ) (do (ppwrap :fn typ) (fn [& _] false))) item)))
+        :else ((or (predicates typ) (fn [& _] false)) item)))
 
 (defn check-type [type-val field wme]
-  (ppwrap :ct [type-val field wme])
+;;  (ppwrap :ct [type-val field wme])
   (let [value (field wme)]
     (or (= value "") (type-check type-val value))))
 
@@ -131,31 +129,31 @@
   (let [choice #(str "(" (str/join " | " (mapv translate-type %)) ")")]
     (cond (vector? typ)
           (case (first typ)
-            (:or) (choice (rest typ))
-            (:map) (str
-                    "{"
-                    (str/join ", "
-                              (mapv (fn [item]
-                                      (let [is-optional? (list? item)
-                                            real-item (if is-optional?
-                                                        (first item)
-                                                        item)
-                                            [ktype vtype] real-item
-                                            base-str (str (str "\"" (name ktype) "\"")
-                                                          "=>"
-                                                          (translate-type vtype))]
-                                        (if is-optional?
-                                          (str "(" base-str ")?")
-                                          base-str)))
-                                    (rest typ)))
-                    "}")
-            (:open-map) (let [[ktype vtype] (rest typ)]
-                          (str "{"
-                               (translate-type ktype)
-                               "=>"
-                               (translate-type vtype)
-                               ", ...}"))
-            (:array) (str "[" (second typ) "]"))
+            :or (choice (rest typ))
+            :map (str
+                  "{"
+                  (str/join ", "
+                            (mapv (fn [item]
+                                    (let [is-optional? (list? item)
+                                          real-item (if is-optional?
+                                                      (first item)
+                                                      item)
+                                          [ktype vtype] real-item
+                                          base-str (str (str "\"" (name ktype) "\"")
+                                                        "=>"
+                                                        (translate-type vtype))]
+                                      (if is-optional?
+                                        (str "(" base-str ")?")
+                                        base-str)))
+                                  (rest typ)))
+                  "}")
+            :open-map (let [[ktype vtype] (rest typ)]
+                        (str "{"
+                             (translate-type ktype)
+                             "=>"
+                             (translate-type vtype)
+                             ", ...}"))
+            :array (str "[" (second typ) "]"))
 
           (list? typ)
           (str "(" (translate-type (first typ)) ")?")
@@ -172,6 +170,25 @@
           :else
           typ)))
 
+(defn translate-error [verr]
+  (case (:validation-type verr)
+    :invalid-type
+    (format "Object (%s): invalid type -- field: '%s', expected: '%s'"
+            (json/write-str (:wme verr))
+            (name (:field verr))
+            (translate-type (:expected verr)))
+
+    :missing-required-field
+    (format "Object (%s): missing required field: '%s'"
+            (json/write-str (:wme verr))
+            (name (:missing-field verr)))
+
+    :invalid-reference
+    (format (str "Object (%s): invalid reference - field: '%s' refers "
+                 "to non-existent object of type: '%s'")
+            (json/write-str (:wme verr))
+            (name (:field verr))
+            (translate-type (:reference-type verr)))))
 
 (def header "#+TITLE: Flat Format\n#+AUTHOR:\n#+DATE:\n#+LANGUAGE:  en\n#+OPTIONS:   H:3 num:nil toc:nil :nil @:t ::t |:t ^:t *:t TeX:t LaTeX:nil\n\n* Flat Format \"Objects\"\nThe term \"Flat Format\" refers to the lack of any kind of hierarchical\nstructure in the model below. Any relationships between objects are\nmanaged via /id/ references. A flat format document consists of a map\nfrom object type names to arrays of corresponding objects. In addition\nto the specific fields mentioned below, each object contains a /type/\nfield whose value is the string name of the object type and an /id/\nfield containing a uuid string uniquely representing the object. We\nintend that some objects will contain attributes specific to\nparticular orchestrators. Because of this, it's critical that users\noverwrite fields within an existing object rather than construct\ninstances from scratch so any \"extra\" information used internally is\nnot lost.")
 
@@ -210,11 +227,7 @@
            (doseq [field fields]
              (printf "- /%s/ *%s* %s"
                      (name (first field))
-                     ;; translate-compound-type
                      (translate-type (second field))
-                     ;; (if (keyword? (second field))
-                     ;;   (name (second field))
-                     ;;   (with-out-str (json/write-str (second field))))
                      (type-description (nthrest field 2)))))))
 
 ;;
@@ -332,10 +345,10 @@
                                        "CronJob"]}]
   [:termination-grace-period :integer "how long to wait before killing pods"]
   [:update-strategy [:or
-                     [:map [:type #{"Recreate" "OnDelete"}]] ;; "OnDelete" obsolete?
+                     [:map [:type #{"Recreate"}]]
                      [:map
                       [:type #{"RollingUpdate"}]
-                      [:rollingUpdate [:map
+                      ([:rollingUpdate [:map
                                        ([:maxSurge
                                          [:or
                                           :non-negative-integer
@@ -343,7 +356,8 @@
                                        ([:maxUnavailable
                                          [:or
                                           :non-negative-integer
-                                          :string]])]]]]]
+                                          :string]])]])]]
+   :optional]
 ;;  [:update-strategy :string {:options ["OnDelete" "RollingUpdate"]}]
   [:pod-management-policy :string {:options ["OrderedReady" "Parallel"]}])
 
@@ -369,7 +383,28 @@
 (defflat environment-var
   "Enviroment variable"
   [:key :string]
-  [:value :string]
+  [:value :string :optional]
+  [:valueFrom [:or
+               [:map
+                [:configMapKeyRef [:map
+                                   [:key :string]
+                                   [:name :string]
+                                   ([:optional :boolean])]]]
+               [:map
+                [:fieldRef [:map
+                            ([:apiVersion :string])
+                            [:fieldPath :string]]]]
+               [:map
+                [:resourceFieldRef [:map
+                                    ([:containerName :string])
+                                    ([:divisor :string])
+                                    [:resource :string]]]]
+               [:map
+                [:secretKeyRef [:map
+                                [:key :string]
+                                [:name :string]
+                                ([:optional :boolean])]]]]
+   :optional]
   [:container :uuid-ref :container "reference to container"])
 
 (defflat external-config
@@ -388,9 +423,9 @@
 
 (defflat healthcheck
   "Specification for a check operation to perform on a container"
-  [:healthcmd :string-array]
+  [:healthcmd :string-array :optional]
   [:interval :non-negative-integer]
-  [:retries :non-negative-integer]
+  [:retries :non-negative-integer :optional]
   [:timeout :non-negative-integer]
   [:check-type :string {:options ["liveness" "readiness"]}]
   [:container :uuid-ref :container "reference to container"])
