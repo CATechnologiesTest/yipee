@@ -146,14 +146,6 @@ export class EditorService {
     }
   }
 
-  checkInvalidFormKeys(): boolean {
-    if (this.invalidKeys.length > 0) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
   hasError(): boolean {
     return (this.invalidKeys.length !== 0);
   }

@@ -27,14 +27,6 @@ describe('NerdmodeContainerComponent', () => {
     nerdModeType: undefined;
     metadata = YipeeFileService.newTestYipeeFileMetadata('doggy');
 
-    checkInvalidFormKeys(): boolean {
-      if (this.invalidKeys.length > 0) {
-        return true;
-      } else {
-        return false;
-      }
-    }
-
     downloadKubernetes(): boolean {
       return true;
     }
