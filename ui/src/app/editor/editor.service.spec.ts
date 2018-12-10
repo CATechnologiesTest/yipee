@@ -136,40 +136,39 @@ describe('EditorService', () => {
     expect(service.dirty).toBeFalsy();
   }));
 
-  it('should check when downloads are unSuccessful that it sets warningText and the dirty flag remains true', inject([EditorService, DownloadService], (service: EditorService, ds: DownloadService) => {
-    const falseFunction = function () {
-      return of(false);
-    };
-    ds.downloadKubernetesFile = falseFunction;
-    ds.downloadKubernetesArchive = falseFunction;
-    ds.downloadHelmArchive = falseFunction;
-    const errorArray: string[] = ['Unexpected response from server: failed to download'];
+  describe(`should check when downloads are unSuccessful that it sets warningText and the dirty flag remains true (download methods)`, () => {
 
-    expect(service.dirty).toBeFalsy();
-    service.dirty = true;
-    expect(service.dirty).toBeTruthy();
-    service.downloadCurrentModel();
-    expect(service.dirty).toBeTruthy();
-    expect(service.warningText).toEqual(errorArray);
+    beforeEach(inject([EditorService, DownloadService], (service: EditorService, ds: DownloadService) => {
+      const falseFunction = function () {
+        return of(false);
+      };
+      ds.downloadKubernetesFile = falseFunction;
+      ds.downloadKubernetesArchive = falseFunction;
+      ds.downloadHelmArchive = falseFunction;
 
-    service.dirty = true;
-    expect(service.dirty).toBeTruthy();
-    service.downloadKubernetes();
-    expect(service.dirty).toBeTruthy();
-    expect(service.warningText).toEqual(errorArray);
+      expect(service.dirty).toBeFalsy();
+      service.dirty = true;
+      expect(service.dirty).toBeTruthy();
+    }));
 
-    service.dirty = true;
-    expect(service.dirty).toBeTruthy();
-    service.downloadKubernetesArchive();
-    expect(service.dirty).toBeTruthy();
-    expect(service.warningText).toEqual(errorArray);
+    afterEach(inject([EditorService], (service: EditorService) => {
+      const errorArray: string[] = ['Unexpected response from server: failed to download'];
+      expect(service.dirty).toBeTruthy();
+      expect(service.warningText).toEqual(errorArray);
+    }));
 
-    service.dirty = true;
-    expect(service.dirty).toBeTruthy();
-    service.downloadHelm();
-    expect(service.dirty).toBeTruthy();
-    expect(service.warningText).toEqual(errorArray);
-
-  }));
+    it(`should check when downloadCurrentModel is unSuccessful that it sets warningText and the dirty flag remains true`, inject([EditorService], (service: EditorService) => {
+      service.downloadCurrentModel();
+    }));
+    it(`should check when downloadKubernetes is unSuccessful that it sets warningText and the dirty flag remains true`, inject([EditorService], (service: EditorService) => {
+      service.downloadKubernetes();
+    }));
+    it(`should check when downloadKubernetesArchive is unSuccessful that it sets warningText and the dirty flag remains true`, inject([EditorService], (service: EditorService) => {
+      service.downloadKubernetesArchive();
+    }));
+    it(`should check when downloadHelm is unSuccessful that it sets warningText and the dirty flag remains true`, inject([EditorService], (service: EditorService) => {
+      service.downloadHelm();
+    }));
+  });
 
 });
