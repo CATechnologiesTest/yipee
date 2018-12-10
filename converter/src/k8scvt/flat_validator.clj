@@ -15,6 +15,7 @@
 ;; string constants
 (def deployment "Deployment")
 (def stateful-set "StatefulSet")
+(def daemon-set "DaemonSet")
 
 (def ^:dynamic *wme-to-check* nil)
 
@@ -88,12 +89,12 @@
 ;; json simple type -> predicate from above
 ;; one of a set of specific values
 ;;  (e.g. the keyword :annotations or the string "foo") -> #{:annotations "foo"}
-;; optional value -> list
+;; optional value -> [:? <entry>]
 ;;
-;; e.g. metadata = [:map ([:annotations [:key-value :keyword :string]])
-;;                       ([:labels [:key-value :keyword :string]])
+;; e.g. metadata = [:map [:? [:annotations [:key-value :keyword :string]]]
+;;                       [:? [:labels [:key-value :keyword :string]]]
 ;;                       [:name :string]
-;;                       ([:namespace :string])]
+;;                       [:? [:namespace :string]]]
 
 (declare type-check)
 
@@ -102,6 +103,14 @@
 
 (defn compound-type? [ctype type-val]
   (and (vector? type-val) (= ctype (first type-val))))
+
+(defn case-type? [typ]      (compound-type? :case typ))
+(defn or-type? [typ]        (compound-type? :or typ))
+(defn fixed-map-type? [typ] (compound-type? :fixed-map typ))
+(defn open-map-type? [typ]  (compound-type? :open-map typ))
+(defn key-value-type? [typ] (compound-type? :key-value typ))
+(defn array-type? [typ]     (compound-type? :array typ))
+(defn optional-type? [typ]  (compound-type? :? typ))
 
 (defn json-key-value-type [[_ key-type val-type] item]
   (and (map? item)
@@ -113,8 +122,8 @@
 (defn json-open-map-type [typ item]
   (and (map? item)
        (every? (fn [field-type]
-                 (let [[base-type is-optional?] (if (list? field-type)
-                                                  [(first field-type) true]
+                 (let [[base-type is-optional?] (if (optional-type? field-type)
+                                                  [(second field-type) true]
                                                   [field-type false])
                        field-val ((first base-type) item)]
                    (if (nil? field-val)
@@ -125,16 +134,13 @@
 (defn json-fixed-map-type [typ item]
   (and (json-open-map-type typ item)
        (not (some (fn [key]
-                    (when
-                        (not (some (fn [field-type]
-                                     (let [base-type (if (list? field-type)
-                                                       (first field-type)
-                                                       field-type)
-                                           key-type (first base-type)]
-                                       (= key-type key)))
-                                   (rest typ)))
-                      (ppwrap :bad-key key)
-                      true))
+                    (not (some (fn [field-type]
+                                 (let [base-type (if (optional-type? field-type)
+                                                   (second field-type)
+                                                   field-type)
+                                       key-type (first base-type)]
+                                   (= key-type key)))
+                               (rest typ))))
                   (keys (dissoc item :type :id))))))
 
 (defn json-array-type [typ item]
@@ -149,7 +155,6 @@
     (loop [current body]
       (let [[curval & tail] current
             [k v] (if (list? curval) (first curval) curval)]
-        (ppwrap :ct [curval tail k key v])
         (cond (nil? k) (throw (RuntimeException.
                                (str "No matching case clause: " case-type)))
               (nil? v) (type-check k item)
@@ -157,16 +162,16 @@
               :else (recur tail))))))
 
 (defn type-check [typ item]
-  (cond (compound-type? :case typ) (case-type-check typ item)
-        (compound-type? :or typ) (some #(type-check % item) typ)
-        (compound-type? :fixed-map typ) (json-fixed-map-type typ item)
-        (compound-type? :open-map typ) (json-open-map-type typ item)
-        (compound-type? :key-value typ) (json-key-value-type typ item)
-        (compound-type? :array typ) (json-array-type typ item)
-        (list? typ) (json-optional-type (first typ) item)
-        (set? typ) (typ item)
+  (cond (case-type? typ)       (case-type-check typ item)
+        (or-type? typ)         (some #(type-check % item) typ)
+        (fixed-map-type? typ)  (json-fixed-map-type typ item)
+        (open-map-type? typ)   (json-open-map-type typ item)
+        (key-value-type? typ)  (json-key-value-type typ item)
+        (array-type? typ)      (json-array-type typ item)
+        (optional-type? typ)   (json-optional-type (first typ) item)
+        (set? typ)             (typ item)
         (= (type typ) Pattern) (re-matches typ item)
-        :else ((or (predicates typ) (fn [& _] false)) item)))
+        :else                  ((or (predicates typ) (fn [& _] false)) item)))
 
 (defn check-type [type-val field wme]
   (binding [*wme-to-check* wme]
@@ -185,7 +190,8 @@
                            (mapv (fn [[k v]]
                                    (if (nil? v)
                                      (str "otherwise=>(" (translate-type k) ")")
-                                     (str "when " k "=>(" (translate-type v) ")")))
+                                     (str "when \"" k
+                                          "\"=>(" (translate-type v) ")")))
                                  (nthrest typ 2))))
 
             :or
@@ -196,9 +202,9 @@
              "{"
              (str/join ", "
                        (mapv (fn [item]
-                               (let [is-optional? (list? item)
+                               (let [is-optional? (optional-type? item)
                                      real-item (if is-optional?
-                                                 (first item)
+                                                 (second item)
                                                  item)
                                      [ktype vtype] real-item
                                      base-str (str (str "\"" (name ktype) "\"")
@@ -220,10 +226,10 @@
                    ", ...}"))
 
             :array
-            (str "[" (second typ) "]"))
+            (str "[" (second typ) "]")
 
-          (list? typ)
-          (str "(" (translate-type (first typ)) ")?")
+            :?
+            (str "(" (translate-type (second typ)) ")?"))
 
           (set? typ)
           (choice typ)
@@ -233,6 +239,9 @@
 
           (string? typ)
           (str "\"" typ "\"")
+
+          (= (type typ) Pattern)
+          (str "#\"" typ "\"")
 
           :else
           typ)))
@@ -313,12 +322,12 @@
                  (str "validate-" (name type-name) "-" (name field-keyword)))
         ~@(let [var# (gensym (str "?" (name type-name)))]
             `[[~var# ~type-name
-               (not (check-type '~field-type ~field-keyword ~var#))]
+               (not (check-type ~field-type ~field-keyword ~var#))]
               ~(symbol "=>")
               ~(if (= (last field) :optional)
                  `(generate-type-error ~var# ~field-keyword '~field-type)
                  `(generate-required-type-error
-                   ~var# ~field-keyword '~field-type))]))
+                   ~var# ~field-keyword ~field-type))]))
       ~@(when (and (= field-type :uuid-ref)
                    (not= (last field) :optional)
                    (not= (last field) :allow-missing-target))
@@ -392,7 +401,7 @@
    :allow-missing-target]
   [:source :string {:options ["auto" "k8s"]}]
   [:controller-type :string {:options ["Deployment" "DaemonSet" "StatefulSet"
-                             "Job" "CronJob"]}]
+                                       "Job" "CronJob"]}]
   [:containers :uuid-ref-array]
   [:container-names :string-array "needed for storing in yipee"])
 
@@ -416,35 +425,40 @@
   [:update-strategy [:case :controller-type
                      ["StatefulSet" [:fixed-map
                                      [:type #{"RollingUpdate"}]
-                                     ([:rollingUpdate
+                                     [:?
+                                      [:rollingUpdate
                                        [:fixed-map
-                                        [:partition :non-negative-integer]]])]]
+                                        [:partition :non-negative-integer]]]]]]
                      ["Deployment" [:or
                                     [:fixed-map [:type #{"Recreate"}]]
                                     [:fixed-map
                                      [:type #{"RollingUpdate"}]
-                                     ([:rollingUpdate [:fixed-map
-                                                       ([:maxSurge
+                                     [:?
+                                      [:rollingUpdate [:fixed-map
+                                                       [:?
+                                                        [:maxSurge
                                                          [:or
                                                           :non-negative-integer
                                                           :non-negative-integer-string
-                                                          #"[1-9][0-9]?[%]"]])
-                                                       ([:maxUnavailable
+                                                          #"[1-9][0-9]?[%]"]]]
+                                                       [:?
+                                                        [:maxUnavailable
                                                          [:or
                                                           :non-negative-integer
                                                           :non-negative-integer-string
-                                                          #"[1-9][0-9]?[%]"]])]])]]]
+                                                          #"[1-9][0-9]?[%]"]]]]]]]]]
                      ["DaemonSet" [:or
                                    [:fixed-map [:type #{"OnDelete"}]]
                                    [:fixed-map
                                     [:type #{"RollingUpdate"}]
-                                    ([:rollingUpdate
+                                    [:?
+                                     [:rollingUpdate
                                       [:fixed-map
                                        [:maxUnavailable
                                         [:or
                                          :positive-integer
                                          :positive-integer-string
-                                         #"[1-9][0-9]?[%]"]]]])]]]]
+                                         #"[1-9][0-9]?[%]"]]]]]]]]]
    :optional]
   [:pod-management-policy :string {:options ["OrderedReady" "Parallel"]}])
 
@@ -477,21 +491,21 @@
                 [:configMapKeyRef [:fixed-map
                                    [:key :string]
                                    [:name :string]
-                                   ([:optional :boolean])]]]
+                                   [:? [:optional :boolean]]]]]
                [:fixed-map
                 [:fieldRef [:fixed-map
-                            ([:apiVersion :string])
+                            [:? [:apiVersion :string]]
                             [:fieldPath :string]]]]
                [:fixed-map
                 [:resourceFieldRef [:fixed-map
-                                    ([:containerName :string])
-                                    ([:divisor :string])
+                                    [:? [:containerName :string]]
+                                    [:? [:divisor :string]]
                                     [:resource :string]]]]
                [:fixed-map
                 [:secretKeyRef [:fixed-map
                                 [:key :string]
                                 [:name :string]
-                                ([:optional :boolean])]]]]
+                                [:? [:optional :boolean]]]]]]
    :optional]
   [:container :uuid-ref :container "reference to container"])
 
@@ -610,11 +624,11 @@
   "Stores the selector and metadata derived from a top level Kubernetes service"
   [:name :string]
   [:metadata [:open-map
-              ([:annotations [:key-value :keyword :string]])
-              ([:labels [:key-value :keyword :string]])
-              ([:selector [:key-value :keyword :string]])
+              [:? [:annotations [:key-value :keyword :string]]]
+              [:? [:labels [:key-value :keyword :string]]]
+              [:? [:selector [:key-value :keyword :string]]]
               [:name :string]
-              ([:namespace :string])]]
+              [:? [:namespace :string]]]]
   [:selector :json]
   [:service-type :string {:options ["ClusterIP" "NodePort" "LoadBalancer"
                                     "ExternalName"]}]
