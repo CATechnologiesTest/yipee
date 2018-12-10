@@ -484,6 +484,9 @@
                                  :StatefulSet {:type "RollingUpdate"
                                                :rollingUpdate
                                                {:partition 0}}
+                                 :DaemonSet {:type "RollingUpdate"
+                                             :rollingUpdate
+                                             {:maxUnavailable "1"}}
                                  :default {:type "RollingUpdate"
                                            :rollingUpdate
                                            {:maxSurge "1"

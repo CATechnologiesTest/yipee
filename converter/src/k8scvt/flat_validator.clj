@@ -1,7 +1,9 @@
 (ns k8scvt.flat-validator
   (:require [clojure.string :as str]
             [clojure.data.json :as json]
-            [engine.core :refer :all]))
+            [engine.core :refer :all])
+  (:import [java.util.regex Pattern]))
+
 
 (def hexre "[\\da-f]")
 (def uuid-regex (re-pattern (str hexre "{8}-"
@@ -13,6 +15,8 @@
 ;; string constants
 (def deployment "Deployment")
 (def stateful-set "StatefulSet")
+
+(def ^:dynamic *wme-to-check* nil)
 
 (defn uuid? [x] (and (string? x) (re-matches uuid-regex x)))
 
@@ -57,6 +61,11 @@
    :keyword keyword?
    :integer integer?
    :non-negative-integer #(and (integer? %) (>= % 0))
+   :non-negative-integer-string #(and (string? %) (re-matches #"^[\d]+$" %)
+                                      (>= (read-string %) 0))
+   :positive-integer #(and (integer? %) (> % 0))
+   :positive-integer-string #(and (string? %) (re-matches #"^[\d]+$" %)
+                                  (> (read-string %) 0))
    :boolean (fn [val] (or (= val true) (= val false)))
    :json (fn [val] (try (do (with-out-str (json/write-str val)) true)
                         (catch Exception e (.printStackTrace e) false)))
@@ -136,14 +145,15 @@
 
 (defn case-type-check [case-type item]
   (let [[_ func & body] case-type
-        key (func item)]
-    ;;    (loop [[[k v] & tail] body]
-    (loop [[current & tail] body]
-      (let [[[k v]] (if (list? current) (first current) current)]
+        key (func *wme-to-check*)]
+    (loop [current body]
+      (let [[curval & tail] current
+            [k v] (if (list? curval) (first curval) curval)]
+        (ppwrap :ct [curval tail k key v])
         (cond (nil? k) (throw (RuntimeException.
                                (str "No matching case clause: " case-type)))
               (nil? v) (type-check k item)
-              (= k key) (type-check v item)
+              (= (name k) (name key)) (type-check v item)
               :else (recur tail))))))
 
 (defn type-check [typ item]
@@ -155,11 +165,13 @@
         (compound-type? :array typ) (json-array-type typ item)
         (list? typ) (json-optional-type (first typ) item)
         (set? typ) (typ item)
+        (= (type typ) Pattern) (re-matches typ item)
         :else ((or (predicates typ) (fn [& _] false)) item)))
 
 (defn check-type [type-val field wme]
-  (let [value (field wme)]
-    (or (= value "") (type-check type-val value))))
+  (binding [*wme-to-check* wme]
+    (let [value (field wme)]
+      (or (= value "") (type-check type-val value)))))
 
 (defn translate-type [typ]
   (let [choice #(str "(" (str/join " | " (mapv translate-type %)) ")")]
@@ -354,7 +366,7 @@
 
 (defflat config
   "Config map (behaves mostly like an unencrypted secret)"
-  [:default-mode :numeric-string
+  [:default-mode :non-negative-integer-string
    "mode to apply to each config item if not specified"
    :optional]
   [:name :string "name of config volume"]
@@ -405,7 +417,8 @@
                      ["StatefulSet" [:fixed-map
                                      [:type #{"RollingUpdate"}]
                                      ([:rollingUpdate
-                                       [:fixed-map [:partition #{0}]]])]]
+                                       [:fixed-map
+                                        [:partition :non-negative-integer]]])]]
                      ["Deployment" [:or
                                     [:fixed-map [:type #{"Recreate"}]]
                                     [:fixed-map
@@ -414,11 +427,24 @@
                                                        ([:maxSurge
                                                          [:or
                                                           :non-negative-integer
-                                                          :string]])
+                                                          :non-negative-integer-string
+                                                          #"[1-9][0-9]?[%]"]])
                                                        ([:maxUnavailable
                                                          [:or
                                                           :non-negative-integer
-                                                          :string]])]])]]]]
+                                                          :non-negative-integer-string
+                                                          #"[1-9][0-9]?[%]"]])]])]]]
+                     ["DaemonSet" [:or
+                                   [:fixed-map [:type #{"OnDelete"}]]
+                                   [:fixed-map
+                                    [:type #{"RollingUpdate"}]
+                                    ([:rollingUpdate
+                                      [:fixed-map
+                                       [:maxUnavailable
+                                        [:or
+                                         :positive-integer
+                                         :positive-integer-string
+                                         #"[1-9][0-9]?[%]"]]]])]]]]
    :optional]
   [:pod-management-policy :string {:options ["OrderedReady" "Parallel"]}])
 
@@ -507,7 +533,7 @@
   "Mapping between container port and external port"
   [:name :string]
   [:internal :string] ;; can be named port
-  [:external :numeric-string]
+  [:external :non-negative-integer-string]
   [:protocol :string {:options ["tcp" "udp"]}]
   [:container :uuid-ref :container "reference to container" :optional]
   [:defining-service :uuid-ref :k8s-service
@@ -525,13 +551,13 @@
   [:source :string "empty string if \"external\", file name if \"file\""]
   [:alternate-name :string
    "empty string if \"file\" or \"external\" without name"]
-  [:default-mode :numeric-string "mode to apply to each secret item if not specified"])
+  [:default-mode :non-negative-integer-string "mode to apply to each secret item if not specified"])
 
 (defflat secret-ref
   "Reference to existing secret from a container"
-  [:uid :numeric-string]
-  [:gid :numeric-string]
-  [:mode :numeric-string]
+  [:uid :non-negative-integer-string]
+  [:gid :non-negative-integer-string]
+  [:mode :non-negative-integer-string]
   [:secret-volume :uuid-ref :secret-volume "reference to secret volume"]
   [:secret :uuid-ref :secret "reference to secret" :allow-missing-target]
   [:source :string]
