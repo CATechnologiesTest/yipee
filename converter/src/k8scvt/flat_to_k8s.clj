@@ -273,7 +273,7 @@
                   (id-insert! {:type :container-group
                                :name (:name ?cont)
                                :source "auto"
-                               :controller-type :Deployment
+                               :controller-type "Deployment"
                                :containers [(:id ?cont)]
                                :container-names [(:name ?cont)]}))))
 
@@ -322,11 +322,11 @@
                       :resources {:requests {:storage (:storage ?vol)}}
                       :selector (:selector ?vol)
                       :volumeMode (:volume-mode ?vol)}
-                     {:accessModes [:ReadWriteOnce]
+                     {:accessModes ["ReadWriteOnce"]
                       :resources {:requests {:storage ""}}
                       :selector {:matchLabels {}}
                       :storageClassName ""
-                      :volumeMode :Filesystem})}]
+                      :volumeMode "Filesystem"})}]
     (insert! pvc)
     (insert! (assoc ?volref :inserted-pvclaim true))))
 
@@ -555,8 +555,8 @@
                 :is-template false
                 :name volname
                 :physical-volume-name ""
-                :volume-mode :Filesystem
-                :accessModes [:ReadWriteOnce]
+                :volume-mode "Filesystem"
+                :accessModes ["ReadWriteOnce"]
                 :claim-name ""
                 :storage-class ""
                 :storage ""
@@ -680,8 +680,8 @@
   (let [base {:metadata {:name (:name ?vol)}
               :spec (assoc-in-if-filled
                      (assoc-if-filled
-                      {:accessModes (or (:access-modes ?vol) [:ReadWriteOnce])
-                       :volumeMode (or (:volume-mode ?vol) :Filesystem)}
+                      {:accessModes (or (:access-modes ?vol) ["ReadWriteOnce"])
+                       :volumeMode (or (:volume-mode ?vol) "Filesystem")}
                       :storageClassName
                       (:storage-class ?vol))
                      [:resources :requests :storage]

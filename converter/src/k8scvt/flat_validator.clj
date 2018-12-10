@@ -58,7 +58,8 @@
 (defn- non-negative? [x] (>= x 0))
 (defn- digit-string? [x] (re-matches #"^[\d]+$" x))
 (defn- array? [x] (or (seq? x) (vector? x)))
-(defn- string-val? [x] (or (string? x) (keyword? x)))
+;;(defn- string-val? [x] (or (string? x) (keyword? x)))
+(def string-val? string?)
 
 (def predicates
   {:string                      string-val?

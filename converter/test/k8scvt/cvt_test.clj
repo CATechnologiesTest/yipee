@@ -262,7 +262,7 @@
       (doseq [[field val] [[:updateStrategy
                             {:type "RollingUpdate"
                              :rollingUpdate {:partition 0}}]
-                           [:podManagementPolicy :OrderedReady]]]
+                           [:podManagementPolicy "OrderedReady"]]]
         (when (and (not (contains? (:spec @i) field))
                    (= (field (:spec @o)) val))
           (swap! o update :spec dissoc field)))
@@ -282,6 +282,20 @@
                     (contains? @o :storageClass)
                     (contains? @o :selector)))
       (swap! o dissoc :accessModes :storageClass :selector))
+    ;; If the input contains the default value, it's okay that the output doesn't
+    (when (and (:volumeName @i)
+               (:volumeName @o)
+               (contains? @i :accessModes)
+               (= (:accessModes @i) ["ReadWriteOnce"])
+               (not (contains? @o :accessModes)))
+      (swap! i dissoc :accessModes))
+    (when (and (:volumeName @i)
+               (:volumeName @o)
+               (contains? @i :volumeMode)
+               (= (:volumeMode @i) "Filesystem")
+               (not (contains? @o :volumeMode)))
+      (swap! i dissoc :volumeMode))
+
     (when (and (= (:namespace @i) "default")
                (or (not (:namespace @o)) (= (:namespace @o) "")))
       (swap! o assoc :namespace "default"))
