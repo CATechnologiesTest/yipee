@@ -137,16 +137,12 @@ describe('EditorService', () => {
   }));
 
   it('should check when downloads are unSuccessful that it sets warningText and the dirty flag remains true', inject([EditorService, DownloadService], (service: EditorService, ds: DownloadService) => {
-    ds.downloadKubernetesFile = function () {
+    const falseFunction = function () {
       return of(false);
     };
-    ds.downloadKubernetesArchive = function () {
-      return of(false);
-    };
-    ds.downloadHelmArchive = function () {
-      return of(false);
-    };
-    const error = 'Unexpected response from server: failed to download';
+    ds.downloadKubernetesFile = falseFunction;
+    ds.downloadKubernetesArchive = falseFunction;
+    ds.downloadHelmArchive = falseFunction;
     const errorArray: string[] = ['Unexpected response from server: failed to download'];
 
     expect(service.dirty).toBeFalsy();
@@ -156,21 +152,18 @@ describe('EditorService', () => {
     expect(service.dirty).toBeTruthy();
     expect(service.warningText).toEqual(errorArray);
 
-    errorArray.push(error);
     service.dirty = true;
     expect(service.dirty).toBeTruthy();
     service.downloadKubernetes();
     expect(service.dirty).toBeTruthy();
     expect(service.warningText).toEqual(errorArray);
 
-    errorArray.push(error);
     service.dirty = true;
     expect(service.dirty).toBeTruthy();
     service.downloadKubernetesArchive();
     expect(service.dirty).toBeTruthy();
     expect(service.warningText).toEqual(errorArray);
 
-    errorArray.push(error);
     service.dirty = true;
     expect(service.dirty).toBeTruthy();
     service.downloadHelm();

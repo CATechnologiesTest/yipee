@@ -92,7 +92,7 @@
             {{alert}}
           </span>
           <div class="alert-actions">
-            <button class="btn alert-action" (click)="fatalExit()">OK</button>
+            <button class="btn alert-action" (click)="onFatalClose(alert); fatalExit();">OK</button>
           </div>
         </div>
       </clr-alert>
@@ -101,7 +101,7 @@
 
   <div *ngIf="editorService.warningText.length > 0">
     <clr-alerts>
-      <clr-alert *ngFor="let alert of editorService.warningText" [clrAlertType]="'danger'" [clrAlertAppLevel]="true" [clrAlertClosable]="true">
+      <clr-alert *ngFor="let alert of editorService.warningText" [clrAlertType]="'danger'" [clrAlertAppLevel]="true" (clrAlertClosedChange)="onWarningClose(alert)">
         <div class="alert-item">
           <span class="alert-text">
             {{alert}}

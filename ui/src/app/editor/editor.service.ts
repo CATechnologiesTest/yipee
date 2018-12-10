@@ -81,44 +81,31 @@ export class EditorService {
 
   }
 
-  downloadCurrentModel(): void {
-    this.downloadService.downloadKubernetesFile(true, this.k8sFile.toFlat()).subscribe((successfulDownload) => {
+  downloadModel(downloadFunc: string): void {
+    this.downloadService[downloadFunc](true, this.k8sFile.toFlat()).subscribe((successfulDownload) => {
       if (successfulDownload) {
         this.dirty = false;
       } else {
+        this.warningText = [];
         this.warningText.push(EditorService.UNEXPECTED_RESPONSE + 'failed to download');
       }
     });
+  }
+
+  downloadCurrentModel(): void {
+    this.downloadModel('downloadKubernetesFile');
   }
 
   downloadKubernetes(): void {
-    this.downloadService.downloadKubernetesFile(true, this.k8sFile.toFlat()).subscribe((successfulDownload) => {
-      if (successfulDownload) {
-        this.dirty = false;
-      } else {
-        this.warningText.push(EditorService.UNEXPECTED_RESPONSE + 'failed to download');
-      }
-    });
+    this.downloadModel('downloadKubernetesFile');
   }
 
   downloadKubernetesArchive(): void {
-    this.downloadService.downloadKubernetesArchive(true, this.k8sFile.toFlat()).subscribe((successfulDownload) => {
-      if (successfulDownload) {
-        this.dirty = false;
-      } else {
-        this.warningText.push(EditorService.UNEXPECTED_RESPONSE + 'failed to download');
-      }
-    });
+    this.downloadModel('downloadKubernetesArchive');
   }
 
   downloadHelm(): void {
-    this.downloadService.downloadHelmArchive(true, this.k8sFile.toFlat()).subscribe((successfulDownload) => {
-      if (successfulDownload) {
-        this.dirty = false;
-      } else {
-        this.warningText.push(EditorService.UNEXPECTED_RESPONSE + 'failed to download');
-      }
-    });
+    this.downloadModel('downloadHelmArchive');
   }
 
   dumpK8sFile() {

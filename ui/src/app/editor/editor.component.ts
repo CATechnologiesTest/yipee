@@ -83,6 +83,20 @@ export class EditorComponent implements OnInit, AfterViewChecked {
     }
   }
 
+  onFatalClose(text: string) {
+    const index = this.editorService.fatalText.indexOf(text);
+    if (index !== -1) {
+      this.editorService.fatalText.splice(index, 1);
+    }
+  }
+
+  onWarningClose(text: string) {
+    const index = this.editorService.warningText.indexOf(text);
+    if (index !== -1) {
+      this.editorService.warningText.splice(index, 1);
+    }
+  }
+
   onAlertClose(text: string) {
     const index = this.editorService.alertText.indexOf(text);
     if (index !== -1) {
