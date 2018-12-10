@@ -79,7 +79,7 @@ export class NerdmodeContainerComponent implements OnInit {
     });
   }
 
-  downloadFile(type: string): boolean {
+  downloadFile(): boolean {
     this.editorService.downloadKubernetes();
     return true;
   }

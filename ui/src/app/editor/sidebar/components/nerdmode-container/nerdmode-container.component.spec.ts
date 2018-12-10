@@ -98,15 +98,9 @@ describe('NerdmodeContainerComponent', () => {
     });
   }));
 
-  it('should call the helm download service properly on downloadFile()', inject([DownloadService, EditorService], (service: DownloadService, editorService: EditorService) => {
-    editorService.invalidKeys = [];
-    const result = component.downloadFile('helm');
-    expect(result).toEqual(true);
-  }));
-
   it('should call the kubernetes download service properly on downloadFile()', inject([DownloadService, EditorService], (service: DownloadService, editorService: EditorService) => {
     editorService.invalidKeys = [];
-    const result = component.downloadFile('kubernetes');
+    const result = component.downloadFile();
     expect(result).toEqual(true);
   }));
 });
