@@ -1,4 +1,5 @@
-import { TestBed, inject } from '@angular/core/testing';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { TestBed, inject, ComponentFixture } from '@angular/core/testing';
 import { HttpModule } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import { of } from 'rxjs';
@@ -11,43 +12,52 @@ import { FeatureService } from '../shared/services/feature.service';
 import { DownloadService } from '../shared/services/download.service';
 import { ApiService } from '../shared/services/api.service';
 
-const yipeeMetadata1: YipeeFileMetadata = YipeeFileService.newTestYipeeFileMetadata('doggy');
-
-class MockFeatureService {
-  names: string[] = [];
-  constructor() { }
-}
-
-class MockOrgService {
-  constructor() { }
-  userIsWriter(): boolean {
-    return true;
-  }
-}
-
-class MockDownloadService {
-  constructor() { }
-}
-
-class MockApiService {
-  constructor() { }
-}
-
-class MockYipeeFileService {
-  constructor() { }
-
-  read(yipeeFile_id: string): Observable<YipeeFileMetadata> {
-    return of(yipeeMetadata1);
-  }
-
-  update(metadata: YipeeFileMetadata): Observable<YipeeFileMetadata> {
-    return of(yipeeMetadata1);
-  }
-}
-
 describe('EditorService', () => {
+
+  const yipeeMetadata1: YipeeFileMetadata = YipeeFileService.newTestYipeeFileMetadata('doggy');
+
+  class MockApiService {
+    constructor() { }
+  }
+
+  class MockDownloadService {
+    constructor() {
+    }
+
+    downloadKubernetesFile() {
+      return of(true);
+    }
+
+    downloadKubernetesArchive() {
+      return of(true);
+    }
+
+    downloadHelmArchive() {
+      return of(true);
+    }
+
+  }
+
+  class MockYipeeFileService {
+    constructor() { }
+
+    read(yipeeFile_id: string): Observable<YipeeFileMetadata> {
+      return of(yipeeMetadata1);
+    }
+
+    update(metadata: YipeeFileMetadata): Observable<YipeeFileMetadata> {
+      return of(yipeeMetadata1);
+    }
+  }
+
+
   beforeEach(() => {
     TestBed.configureTestingModule({
+      declarations: [
+      ],
+      schemas: [
+        NO_ERRORS_SCHEMA
+      ],
       imports: [HttpModule],
       providers: [
         EditorEventService,
@@ -57,27 +67,12 @@ describe('EditorService', () => {
         { provide: FeatureService, useClass: MockFeatureService },
         { provide: YipeeFileService, useClass: MockYipeeFileService }
       ]
-    });
+    }).compileComponents();
   });
 
   it('should be created', inject([EditorService], (service: EditorService) => {
     expect(service).toBeTruthy();
   }));
-
-  // xit('should get and store a metadata on loadYipeeFile()', inject([EditorService], (service: EditorService) => {
-  //   service.loadYipeeFile('6a379f42-9d50-11e7-99a2-e3878023cbd7').subscribe(() => {
-  //     expect(service.metadata).toEqual(yipeeMetadata1);
-  //   });
-  // }));
-
-  // xit('should update a yipeefile on saveYipeeFile()', inject([EditorService], (service: EditorService) => {
-  //   service.loadYipeeFile('6a379f42-9d50-11e7-99a2-e3878023cbd7').subscribe(() => {
-  //     expect(service.metadata).toEqual(yipeeMetadata1);
-  //   });
-  //   service.saveYipeeFile().subscribe(() => {
-  //     expect(service.metadata).toEqual(yipeeMetadata1);
-  //   });
-  // }));
 
   it('should set readonly correctly', inject([EditorService], (service: EditorService) => {
     expect(service.readOnly).toBeFalsy();
@@ -90,5 +85,68 @@ describe('EditorService', () => {
     service.dirty = true;
     expect(service.dirty).toBeTruthy();
   }));
+
+  describe(`should check when downloads are successful that it resets the dirty flag to false (download methods)`, () => {
+
+    beforeEach(inject([EditorService], (service: EditorService) => {
+
+      expect(service.dirty).toBeFalsy();
+      service.dirty = true;
+      expect(service.dirty).toBeTruthy();
+    }));
+
+    afterEach(inject([EditorService], (service: EditorService) => {
+      expect(service.dirty).toBeFalsy();
+    }));
+
+    it(`should check when downloadCurrentModel is Successful that it resets the dirty flag to false`, inject([EditorService], (service: EditorService) => {
+      service.downloadCurrentModel();
+    }));
+    it(`should check when downloadKubernetes is Successful that it resets the dirty flag to false`, inject([EditorService], (service: EditorService) => {
+      service.downloadKubernetes();
+    }));
+    it(`should check when downloadKubernetesArchive is Successful that it resets the dirty flag to false`, inject([EditorService], (service: EditorService) => {
+      service.downloadKubernetesArchive();
+    }));
+    it(`should check when downloadHelm is Successful that it resets the dirty flag to false`, inject([EditorService], (service: EditorService) => {
+      service.downloadHelm();
+    }));
+
+  });
+
+  describe(`should check when downloads are unSuccessful that it sets warningText and the dirty flag remains true (download methods)`, () => {
+
+    beforeEach(inject([EditorService, DownloadService], (service: EditorService, ds: DownloadService) => {
+      const falseFunction = function () {
+        return of(false);
+      };
+      ds.downloadKubernetesFile = falseFunction;
+      ds.downloadKubernetesArchive = falseFunction;
+      ds.downloadHelmArchive = falseFunction;
+
+      expect(service.dirty).toBeFalsy();
+      service.dirty = true;
+      expect(service.dirty).toBeTruthy();
+    }));
+
+    afterEach(inject([EditorService], (service: EditorService) => {
+      const errorArray: string[] = ['Unexpected response from server: failed to download'];
+      expect(service.dirty).toBeTruthy();
+      expect(service.warningText).toEqual(errorArray);
+    }));
+
+    it(`should check when downloadCurrentModel is unSuccessful that it sets warningText and the dirty flag remains true`, inject([EditorService], (service: EditorService) => {
+      service.downloadCurrentModel();
+    }));
+    it(`should check when downloadKubernetes is unSuccessful that it sets warningText and the dirty flag remains true`, inject([EditorService], (service: EditorService) => {
+      service.downloadKubernetes();
+    }));
+    it(`should check when downloadKubernetesArchive is unSuccessful that it sets warningText and the dirty flag remains true`, inject([EditorService], (service: EditorService) => {
+      service.downloadKubernetesArchive();
+    }));
+    it(`should check when downloadHelm is unSuccessful that it sets warningText and the dirty flag remains true`, inject([EditorService], (service: EditorService) => {
+      service.downloadHelm();
+    }));
+  });
 
 });
