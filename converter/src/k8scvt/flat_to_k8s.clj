@@ -11,6 +11,7 @@
                      trim-right-dashes ingress-has-key-instances
                      substitute-ingress-attributes
                      add-namespace remove-namespace get-namespace
+                     layout-config-name encode-layout-value
                      *validation* *adjustment* *cleanup*]])
   (:import java.util.UUID))
 
@@ -1612,3 +1613,55 @@
   (doseq [leftover (collect! :leftover identity)]
     (remove! leftover)))
 
+;; Support for storing UI layout info in a single distinct k8s ConfigMap.
+;; On import of the "special" ConfigMap we re-create the annotations
+;; that the UI expects for layout data.
+;;
+;; Note that we accumulate our
+;; layout data early (at "adjustment" priority) so we can see all target
+;; objects before any are (potentially) coalesced into their containing
+;; k8s objects.
+
+(defn is-layout-anno [anno]
+  (and (= "ui" (:key anno))
+       (get-in anno [:value :canvas :position])))
+
+(defrule create-layout-anno-holder
+  {:priority *adjustment*}
+  [:not [? :layout-annotations]]
+  [?anno :annotation (is-layout-anno ?anno)]
+  =>
+  (id-insert! {:type :layout-annotations :data {}}))
+
+(defrule collect-layout-annotations
+  {:priority *adjustment*}
+  [?layout-annos :layout-annotations]
+  [?anno :annotation (is-layout-anno ?anno)]
+  [?target :wme (= (:id ?target) (:annotated ?anno))]
+  =>
+  (remove! ?anno)
+  (remove! ?layout-annos)
+  (let [x (get-in ?anno [:value :canvas :position :x])
+        y (get-in ?anno [:value :canvas :position :y])
+        targname (name (:name ?target))
+        targtype (name (:type ?target))
+        ;; Map key is "type!name", value is "x!y".
+        ;; N.B. a unique name/key would require all of
+        ;; namespace!type!name but we ignore namespace since our
+        ;; imports require that all contained objects be in a single
+        ;; namespace
+        newdata (assoc (:data ?layout-annos)
+                       (encode-layout-value targtype targname)
+                       (encode-layout-value x y))]
+    (id-insert! (assoc ?layout-annos :data newdata))))
+
+(defrule create-config-map-of-layout-annotations
+  [?layout-annos :layout-annotations (> (count ?layout-annos) 0)]
+  [:not [?anno :annotation (is-layout-anno ?anno)]]
+  =>
+  (remove! ?layout-annos)
+  (insert! {:apiVersion "v1"
+            :type :layout-config-map
+            :kind "ConfigMap"
+            :metadata {:name layout-config-name}
+            :data (:data ?layout-annos)}))
