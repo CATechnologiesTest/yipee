@@ -11,7 +11,7 @@
     "coverage": "ng test --code-coverage",
     "build-prod-version": "npm version patch && node ./replace.build.js && npm run build-prod",
     "build-prod": "npm run clean && ng build --prod",
-    "test-prod": "echo 'set TEST_FILE to run a single test' && npm run clean && npm run lint && npm run test && ng build",
+    "test-prod": "echo 'set TEST_FILE to run a single test' && npm run clean && npm run lint && npm run test && ng build --prod",
     "build-beta": "npm run clean && npm run lint && npm run test && ng build --target=production --env=beta --base-href=/beta/",
     "test": "echo 'set TEST_FILE to run a single test' && ng test --watch=false --source-map=false",
     "test-watch": "echo 'set TEST_FILE to run a single test' && ng test --source-map=false",
