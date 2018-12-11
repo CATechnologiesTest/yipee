@@ -16,18 +16,6 @@ describe('EditorService', () => {
 
   const yipeeMetadata1: YipeeFileMetadata = YipeeFileService.newTestYipeeFileMetadata('doggy');
 
-  class MockFeatureService {
-    names: string[] = [];
-    constructor() { }
-  }
-
-  class MockOrgService {
-    constructor() { }
-    userIsWriter(): boolean {
-      return true;
-    }
-  }
-
   class MockApiService {
     constructor() { }
   }
