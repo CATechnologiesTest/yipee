@@ -1,4 +1,4 @@
-import { TestBed, inject, tick, async, fakeAsync } from '@angular/core/testing';
+import { TestBed, inject, tick, fakeAsync } from '@angular/core/testing';
 import { HttpModule } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import { of } from 'rxjs';
