@@ -63,7 +63,6 @@
   {:string                      string?
    :string-array                #(and (array? %) (every? string? %))
    :empty-string-array          #(and (array? %) (empty? %))
-   :keyword                     keyword?
    ;; some labels are turned into strings because their syntax includes '/' which
    ;; looks like a clojure namespace, so we need to allow either one
    :keyword-or-str              #(or (keyword? %) (string? %))
@@ -161,8 +160,8 @@
 
 ;; check a homogeneous vector
 (defn json-array-type [typ item]
-  (let [atype (first typ)]
-    (and (vector? item) (every? #(type-check atype item)))))
+  (let [atype (second typ)]
+    (and (or (seq? item) (vector? item)) (every? #(type-check atype %) item))))
 
 ;; check an item but don't fail if it is missing entirely
 (defn json-optional-type [typ item]
@@ -251,7 +250,7 @@
                    ", ...}"))
 
             :array
-            (str "[" (second typ) "]")
+            (str "[" (translate-type (second typ)) "]")
 
             :?
             (str "(" (translate-type (second typ)) ")?"))
@@ -296,7 +295,7 @@
             (translate-type (:reference-type verr)))))
 
 ;; Main header for documentation file
-(def header "#+TITLE: Flat Format\n#+AUTHOR:\n#+DATE:\n#+LANGUAGE:  en\n#+OPTIONS:   H:3 num:nil toc:nil :nil @:t ::t |:t ^:t *:t TeX:t LaTeX:nil\n\n* Flat Format \"Objects\"\nThe term \"Flat Format\" refers to the lack of any kind of hierarchical\nstructure in the model below. Any relationships between objects are\nmanaged via /id/ references. A flat format document consists of a map\nfrom object type names to arrays of corresponding objects. In addition\nto the specific fields mentioned below, each object contains a /type/\nfield whose value is the string name of the object type and an /id/\nfield containing a uuid string uniquely representing the object. We\nintend that some objects will contain attributes specific to\nparticular orchestrators. Because of this, it's critical that users\noverwrite fields within an existing object rather than construct\ninstances from scratch so any \"extra\" information used internally is\nnot lost.")
+(def header "# Flat Format\n## Flat Format \"Objects\"\nThe term \"Flat Format\" refers to the lack of (most) hierarchical\nstructure in the model below. Any relationships between objects are\nmanaged via *id* references. A flat format document consists of a map\nfrom object type names to arrays of corresponding objects. In addition\nto the specific fields mentioned below, each object contains a *type*\nfield whose value is the string name of the object type and an *id*\nfield containing a uuid string uniquely representing the object. We\nintend that some objects will contain attributes specific to\nparticular orchestrators. Because of this, it's critical that users\noverwrite fields within an existing object rather than construct\ninstances from scratch so any \"extra\" information used internally is\nnot lost.")
 
 ;; atom collecting all documentation from 'defflat' forms
 (def doc-text (atom ""))
@@ -307,13 +306,13 @@
 
 ;; include main header in generated docs
 (defn doc-header [header]
-  (swap! doc-text str "\n** " header "\n"))
+  (swap! doc-text str "\n### " header "\n"))
 
 ;; Create the textual description for a top level flat object -- different
 ;; from the kubernetes chunk types described above.
 (defn type-description [items]
   (let [item (first items)
-        emph #(str "/" % "/")]
+        emph #(str "*" % "*")]
     (cond (nil? item) "\n"
           (or (keyword? item)
               (and (vector? item)
@@ -336,10 +335,10 @@
 
 ;; generate documentation for a single 'defflat' type
 (defn generate-docs [type-name doc-string fields]
-  (swap! doc-text str "*** " type-name "\n" doc-string "\n"
+  (swap! doc-text str "#### " type-name "\n" doc-string "\n"
          (with-out-str
            (doseq [field fields]
-             (printf "- /%s/ *%s* %s"
+             (printf "- *%s* **%s** %s"
                      (name (first field))
                      (translate-type (second field))
                      (type-description (nthrest field 2)))))))
@@ -452,7 +451,7 @@
   [:dependee :uuid-ref :container "reference to independent container"])
 
 (defflat deployment-spec
-  "Defines how many instances of a container group should be deployed and in what \"mode\" (/replicated/ or /allnodes/)"
+  "Defines how many instances of a container group should be deployed and in what \"mode\" (*replicated* or *allnodes*)"
   [:count :non-negative-integer]
   [:mode :string {:options ["replicated", "allnodes"]}]
   [:cgroup :uuid-ref :container-group "reference to container group"]
@@ -556,7 +555,7 @@
   [:image :string]
   [:server :string]
   [:proxy-type :string {:options ["tcp" "udp"]}]
-  [:ports :string-array "each entry must match: \"(([^:\\s]+:)?[\\d]+:)?[\\d]+([/](udp|tcp))?\""]
+  [:ports [:array #"(([^:\\s]+:)?[\\d]+:)?[\\d]+([/](udp|tcp))?"]]
   [:configured :uuid-ref :annotatable "reference to configured object"])
 
 (defflat extra-hosts
@@ -602,7 +601,7 @@
    "reference to restarting container group"])
 
 (defflat secret
-"Definition of secret value (needs work as the set of fields is not currently fixed - /external/, /file/, /alternate-name/ vary depending on the secret"
+"Definition of secret value (needs work as the set of fields is not currently fixed - *external*, *file*, *alternate-name* vary depending on the secret"
   [:name :string]
   [:source :string "empty string if \"external\", file name if \"file\""]
   [:alternate-name :string
@@ -628,7 +627,8 @@
   [:volume-mode :string {:options ["Filesystem" "Block"]
                          :default "Filesystem"}
    :optional]
-  [:access-modes :string-array "one or more of: /ReadOnlyMany/, /ReadWriteOnce/, /ReadWriteMany/" :optional]
+  [:access-modes [:array #{"ReadOnlyMany" "ReadWriteOnce" "ReadWriteMany"}]
+   "one or more of: *ReadOnlyMany*, *ReadWriteOnce*, *ReadWriteMany*" :optional]
   [:storage-class :string "name of predefined cluster storage class" :optional]
   [:storage :string "amount of storage for a PersistentVolumeClaim -- allows units: E, P, T, G, M, K - powers of 10: Exa, Peta, Tera, Giga, Mega, Kilo and Ei, Pi, Ti, Gi, Mi, Ki - powers of two (i.e. Gi is 1024*1024*1024 while G is 1000*1000*1000"
    :optional]
@@ -644,7 +644,7 @@
                      [:operator #{"Exists" "DoesNotExist"}]
                      [:values :empty-string-array]]]]]
               [:? [:matchLabels [:key-value :keyword-or-str :string]]]]
-   "used for PersistentVolumeClaims -- staying compatible with k8s-service for now... both matchLabels and matchExpressions for attributes of persistent volumes (see: [[https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistent-volumes][persistent volume docs]]" :optional])
+   "used for PersistentVolumeClaims -- staying compatible with k8s-service for now... both matchLabels and matchExpressions for attributes of persistent volumes (see: [persistent volume docs](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistent-volumes))" :optional])
 
 (defflat volume-ref
 "Reference from container to volume"
@@ -659,7 +659,7 @@
 (doc-header "Kubernetes Only")
 
 (defflat top-label
-  "Kubernetes supports labels at many levels. We mostly care about labels in selectors but you can also place labels at the top levels of constructs like /Deployments/. These are those auxiliary labels."
+  "Kubernetes supports labels at many levels. We mostly care about labels in selectors but you can also place labels at the top levels of constructs like *Deployments*. These are those auxiliary labels."
   [:key :string]
   [:value :string]
   [:cgroup :uuid-ref :container-group "reference to labeled container group"])
@@ -694,4 +694,4 @@
    :optional])
 
 ;; Generate documentation into the target directory
-(dump-documentation "target/flat-format.org")
+(dump-documentation "src/flat-format.md")

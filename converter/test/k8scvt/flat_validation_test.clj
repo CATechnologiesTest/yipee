@@ -463,11 +463,37 @@
                                                                 :values []}}}])
            []))
 
-      ;; bad empty-string-array, boolean
+      ;; bad array, boolean
       (is (contains-errors
            (flat-validator :run [{:type :volume
                                   :name "v"
                                   :annotations {}
+                                  :access-modes ["ReadOnlyFew"]
+                                  :is-template false
+                                  :selector {:matchExpressions {:key "foo"
+                                                                :operator "Exists"
+                                                                :values []}}}])
+           [{:type :validation-error,
+             :validation-type :invalid-type,
+             :field :access-modes,
+             :expected
+             [:array #{"ReadWriteMany" "ReadWriteOnce" "ReadOnlyMany"}],
+             :wme
+             {:type :volume,
+              :name "v",
+              :annotations {},
+              :access-modes ["ReadOnlyFew"],
+              :is-template false,
+              :selector
+              {:matchExpressions {:key "foo", :operator "Exists", :values []}}},
+             :value ["ReadOnlyFew"]}]))
+
+      ;; bad empty-string-array, array, boolean
+      (is (contains-errors
+           (flat-validator :run [{:type :volume
+                                  :name "v"
+                                  :annotations {}
+                                  :access-modes ["ReadOnlyMany"]
                                   :is-template false
                                   :selector {:matchExpressions {:key "foo"
                                                                 :operator "Exists"
@@ -493,6 +519,7 @@
              {:type :volume,
               :name "v",
               :annotations {},
+              :access-modes ["ReadOnlyMany"]
               :is-template false,
               :selector
               {:matchExpressions
