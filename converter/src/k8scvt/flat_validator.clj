@@ -195,10 +195,12 @@
 
 ;; top level type checker; binds *wme-to-check* to the wme so discriminating
 ;; fields referenced by lower level 'case' tests can be accessed
-(defn check-type [type-val field wme]
+(defn check-type [type-val field wme is-optional?]
   (binding [*wme-to-check* wme]
     (let [value (field wme)]
-      (or (= value "") (type-check type-val value)))))
+      (or (= value "")
+          (and is-optional? (= value nil))
+          (type-check type-val value)))))
 
 ;; generate a string representation of a type for inclusion in documentation
 (defn translate-type [typ]
@@ -274,7 +276,7 @@
           typ)))
 
 ;; create string versions of generated errors
-(defn translate-error [verr]
+(defn format-flat-validation-error [verr]
   (case (:validation-type verr)
     :invalid-type
     (format "Object (%s): invalid type -- field: '%s', expected: '%s'"
@@ -354,19 +356,20 @@
                             (map? type-modifier)
                             (contains? type-modifier :options))
                      (set (:options type-modifier))
-                     base-field-type)]
+                     base-field-type)
+        is-optional? (= (last field) :optional)]
     `[(defrule ~(gensym
                  (str "validate-" (name type-name) "-" (name field-keyword)))
         ~@(let [var# (gensym (str "?" (name type-name)))]
             `[[~var# ~type-name
-               (not (check-type ~field-type ~field-keyword ~var#))]
+               (not (check-type ~field-type ~field-keyword ~var# ~is-optional?))]
               ~(symbol "=>")
-              ~(if (= (last field) :optional)
+              ~(if is-optional?
                  `(generate-type-error ~var# ~field-keyword '~field-type)
                  `(generate-required-type-error
                    ~var# ~field-keyword ~field-type))]))
       ~@(when (and (= field-type :uuid-ref)
-                   (not= (last field) :optional)
+                   (not is-optional?)
                    (not= (last field) :allow-missing-target))
           [`(defrule ~(gensym
                        (str "validate-" (name type-name) "-"
@@ -589,7 +592,7 @@
   [:name :string]
   [:internal :string] ;; can be named port
   [:external :non-negative-integer-string]
-  [:protocol :string {:options ["tcp" "udp"]}]
+  [:protocol :string {:options ["tcp" "udp"]} :optional]
   [:container :uuid-ref :container "reference to container" :optional]
   [:defining-service :uuid-ref :k8s-service
    "explicit service that called out port; empty string if generated from compatibility mode" :optional])

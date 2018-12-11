@@ -15,7 +15,177 @@ not lost.
 
 
 ### Orchestrator Agnostic
+#### annotation
+Additional information about another object (including overrides)
+- *key* **string** (name of annotation)
+- *value* **json** (value of annotation)
+- *annotated* **uuid-ref** (object being annotated)
+#### app-info
+High-level data about an entire model
+- *description* **string** 
+- *logo* **string** 
+- *name* **string** 
+- *readme* **string** 
+#### command
+Docker command for running a container
+- *value* **string-array** 
+- *container* **uuid-ref** (reference to container)
+#### config
+Config map (behaves mostly like an unencrypted secret)
+- *default-mode* **non-negative-integer-string** (mode to apply to each config item if not specified)
+- *name* **string** (name of config volume)
+- *map-name* **string** (name of config map)
+#### config-ref
+Reference to a config map/volume
+- *container* **uuid-ref** (reference to container)
+- *container-name* **string** (needed for lookup after storage)
+- *name* **string** (name of config volume)
+- *path* **string** (mount path for volume in container)
+- *config* **uuid-ref** (id of config volume)
+#### container
+Docker container being managed
+- *name* **string** 
+- *cgroup* **uuid-ref** (reference to container group)
+#### container-group
+Multi-container unit (support for Kubernetes pods)
+- *name* **string** 
+- *pod* **uuid-ref** (reference to pod structure representing group)
+- *source* **string** (*auto*, *k8s*)
+- *controller-type* **string** (*Deployment*, *DaemonSet*, *StatefulSet*, *Job*, *CronJob*)
+- *containers* **uuid-ref-array** 
+- *container-names* **string-array** (needed for storing in yipee)
+#### dependency
+Startup ordering relationship
+- *depender* **uuid-ref** (reference to dependent container)
+- *dependee* **uuid-ref** (reference to independent container)
+#### deployment-spec
+Defines how many instances of a container group should be deployed and in what "mode" (*replicated* or *allnodes*)
+- *count* **non-negative-integer** 
+- *mode* **string** (*replicated*, *allnodes*)
+- *cgroup* **uuid-ref** (reference to container group)
+- *service-name* **string** (name of associated headless service)
+- *controller-type* **string** (*Deployment*, *DaemonSet*, *StatefulSet*, *CronJob*)
+- *termination-grace-period* **non-negative-integer** (how long to wait before killing pods)
+- *update-strategy* **case controller-type: when "StatefulSet"=>({"type"=>("RollingUpdate"), ("rollingUpdate"=>{"partition"=>non-negative-integer})?}); when "Deployment"=>(({"type"=>("Recreate")} | {"type"=>("RollingUpdate"), ("rollingUpdate"=>{("maxSurge"=>(non-negative-integer | non-negative-integer-string | #"[1-9][0-9]?[%]"))?, ("maxUnavailable"=>(non-negative-integer | non-negative-integer-string | #"[1-9][0-9]?[%]"))?})?})); when "DaemonSet"=>(({"type"=>("OnDelete")} | {"type"=>("RollingUpdate"), ("rollingUpdate"=>{"maxUnavailable"=>(positive-integer | positive-integer-string | #"[1-9][0-9]?[%]")})?}))** 
+- *pod-management-policy* **string** (*OrderedReady*, *Parallel*)
+#### development-config
+Yipee development override
+- *image* **string** 
+- *repository* **string** 
+- *tag* **string** 
+- *configured* **uuid-ref** (reference to configured object)
+#### empty-dir-volume
+Empty directory on pod host for scratch use
+- *name* **string** 
+- *annotations* **json** (will go away - currently used to support ui format)
+- *medium* **string** (*Memory*, *<empty string>* -- default: *<empty string>*. whether or not to mount the directory as tmpfs)
+- *cgroup* **uuid-ref** (needed to disambiguate empty dir volumes -- they don't have unique instances like PV claims)
+#### entrypoint
+Docker entrypoint for running a container
+- *value* **string-array** 
+- *container* **uuid-ref** 
+#### environment-var
+Enviroment variable
+- *key* **string** 
+- *value* **string** 
+- *valueFrom* **({"configMapKeyRef"=>{"key"=>string, "name"=>string, ("optional"=>boolean)?}} | {"fieldRef"=>{("apiVersion"=>string)?, "fieldPath"=>string}} | {"resourceFieldRef"=>{("containerName"=>string)?, ("divisor"=>string)?, "resource"=>string}} | {"secretKeyRef"=>{"key"=>string, "name"=>string, ("optional"=>boolean)?}})** 
+- *container* **uuid-ref** (reference to container)
+#### external-config
+Yipee external override
+- *image* **string** 
+- *server* **string** 
+- *proxy-type* **string** (*tcp*, *udp*)
+- *ports* **[#"(([^:\\s]+:)?[\\d]+:)?[\\d]+([/](udp|tcp))?"]** 
+- *configured* **uuid-ref** (reference to configured object)
+#### extra-hosts
+Hostname/IP mappings for additional hosts
+- *value* **string-array** 
+- *cgroup* **uuid-ref** (reference to container group w/ mappings)
+#### healthcheck
+Specification for a check operation to perform on a container
+- *healthcmd* **string-array** 
+- *interval* **non-negative-integer** 
+- *retries* **non-negative-integer** 
+- *timeout* **non-negative-integer** 
+- *check-type* **string** (*liveness*, *readiness*, *both*)
+- *container* **uuid-ref** (reference to container)
+#### image
+Image run by a container
+- *value* **string** 
+- *container* **uuid-ref** (reference to container running image)
+#### label
+Tag placed on searchable unit
+- *key* **string** 
+- *value* **string** 
+- *cgroup* **uuid-ref** (reference to labeled container group)
+#### port-mapping
+Mapping between container port and external port
+- *name* **string** 
+- *internal* **string** 
+- *external* **non-negative-integer-string** 
+- *protocol* **string** (*tcp*, *udp*)
+- *container* **uuid-ref** (reference to container)
+- *defining-service* **uuid-ref** (explicit service that called out port; empty string if generated from compatibility mode)
+#### restart
+Conditions under which a container group should be restarted
+- *value* **string** (*always*, *none*, *unless-stopped*)
+- *cgroup* **uuid-ref** (reference to restarting container group)
+#### secret
+Definition of secret value (needs work as the set of fields is not currently fixed - *external*, *file*, *alternate-name* vary depending on the secret
+- *name* **string** 
+- *source* **string** (empty string if "external", file name if "file")
+- *alternate-name* **string** (empty string if "file" or "external" without name)
+- *default-mode* **non-negative-integer-string** (mode to apply to each secret item if not specified)
+#### secret-ref
+Reference to existing secret from a container
+- *uid* **non-negative-integer-string** 
+- *gid* **non-negative-integer-string** 
+- *mode* **non-negative-integer-string** 
+- *secret-volume* **uuid-ref** (reference to secret volume)
+- *secret* **uuid-ref** (reference to secret)
+- *source* **string** 
+- *target* **string** 
+- *container* **uuid-ref** (reference to container using secret)
+#### volume
+Storage specification
+- *name* **string** 
+- *annotations* **json** (will go away - currently used to support ui format)
+- *is-template* **boolean** (whether or not this volume object represents a StatefulSet VolumeClaimTemplate rather than a direct volume claim)
+- *volume-mode* **string** (*Filesystem*, *Block* -- default: *Filesystem*)
+- *access-modes* **[("ReadWriteMany" | "ReadWriteOnce" | "ReadOnlyMany")]** (one or more of: *ReadOnlyMany*, *ReadWriteOnce*, *ReadWriteMany*)
+- *storage-class* **string** (name of predefined cluster storage class)
+- *storage* **string** (amount of storage for a PersistentVolumeClaim -- allows units: E, P, T, G, M, K - powers of 10: Exa, Peta, Tera, Giga, Mega, Kilo and Ei, Pi, Ti, Gi, Mi, Ki - powers of two (i.e. Gi is 1024*1024*1024 while G is 1000*1000*1000)
+- *selector* **{("matchExpressions"=>({"key"=>string, "operator"=>("In" | "NotIn"), "values"=>string-array} | {"key"=>string, "operator"=>("Exists" | "DoesNotExist"), "values"=>empty-string-array}))?, ("matchLabels"=>{"keyword-or-str"=>string, ...})?}** (used for PersistentVolumeClaims -- staying compatible with k8s-service for now... both matchLabels and matchExpressions for attributes of persistent volumes (see: [persistent volume docs](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistent-volumes)))
+#### volume-ref
+Reference from container to volume
+- *path* **string** 
+- *volume-name* **string** 
+- *volume* **uuid-ref** (reference to volume)
+- *access-mode* **string** (*ReadOnlyMany*, *ReadWriteOnce*, *ReadWriteMany*)
+- *container-name* **string** (name of container using volume)
+- *container* **uuid-ref** (reference to container using volume)
 
 ### Kubernetes Only
+#### top-label
+Kubernetes supports labels at many levels. We mostly care about labels in selectors but you can also place labels at the top levels of constructs like *Deployments*. These are those auxiliary labels.
+- *key* **string** 
+- *value* **string** 
+- *cgroup* **uuid-ref** (reference to labeled container group)
 
 ### Compose Only
+#### image-pull-policy
+When to pull a new image
+- *value* **string** (*Always*, *IfNotPresent*)
+- *container* **uuid-ref** (reference to container using image)
+#### k8s-namespace
+Kubernetes supports explicit namespaces
+- *name* **string** 
+- *label-name* **string** 
+#### k8s-service
+Stores the selector and metadata derived from a top level Kubernetes service
+- *name* **string** 
+- *metadata* **{("annotations"=>{"keyword-or-str"=>string, ...})?, ("labels"=>{"keyword-or-str"=>string, ...})?, ("selector"=>{"keyword-or-str"=>string, ...})?, "name"=>string, ("namespace"=>string)?...}** 
+- *selector* **{"keyword-or-str"=>string, ...}** 
+- *service-type* **string** (*ClusterIP*, *NodePort*, *LoadBalancer*, *ExternalName*)
+- *cluster-ip* **string** (if present, static IP for service or "None")
+- *node-port* **string** (if present, staticly defined port for service)
