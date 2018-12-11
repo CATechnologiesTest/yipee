@@ -4,6 +4,8 @@ const errorObject = baselogger.errorObject;
 const logger = baselogger.getOrCreateLogger('cvthelper');
 const Http = require('./http');
 const k8s = require('./k8sapi');
+const importCache = require('./importCache');
+const guid = require('./guid');
 
 function getAppName(yipee) {
     if (yipee.yipeeFile &&
@@ -142,9 +144,25 @@ function makeDiffObject(inobj) {
                     reject(err);
                 });
         } else if (inputType === 'string') {
-            // assume it's already yaml and we're good to go
-            resolve({name: inobj.name,
-                     yaml: inobj.data});
+            if (guid.isGuid(inobj.data)) {
+                let flatFile = importCache.getFlatFile(inobj.data);
+                if (flatFile) {
+                    flatToK8s(importCache.getFlatFile(inobj.data))
+                        .then(yaml => {
+                            resolve({name: inobj.name,
+                                     yaml: yaml});
+                        })
+                        .catch(err => {
+                            reject(err);
+                        });
+                } else {
+                    reject(new Error(`No import for guid: ${inobj.data}`));
+                }
+            } else {
+                // assume it's already yaml and we're good to go
+                resolve({name: inobj.name,
+                         yaml: inobj.data});
+            }
         } else if (inputType === 'undefined') {
             // assume that 'name' without 'data' denotes a k8s namespace
             k8s.makeImport(inobj.name)
