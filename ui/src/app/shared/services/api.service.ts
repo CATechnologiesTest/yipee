@@ -22,13 +22,6 @@ export class ApiService {
   /* APPLICATION CONFIGURATION ENDPOINTS */
   /* ----------------------------------- */
 
-  getAnalyticsKey(): Observable<string> {
-    const api_endpoint = '/api/configurations/ANALYTICS_KEY';
-    return this.http.get<YipeeFileResponse>(api_endpoint).map((response) => {
-      return <string> response.data[0].val;
-    });
-  }
-
   getTimeoutDuration(): Observable<string> {
     const api_endpoint = '/api/configurations/SESSION_TIMEOUT_MILLIS';
     return this.http.get<YipeeFileResponse>(api_endpoint).map((response) => {
@@ -196,20 +189,5 @@ export class ApiService {
   /* *********************** */
   /* END DOCKERHUB ENDPOINTS */
   /* *********************** */
-
-  // metrics/trackingblocked
-  trackingPrevented(): Observable<boolean> {
-    return this.http.post('/api/metrics/trackingblocked', '').map((response: HttpResponse<Object>) => {
-      if (response.status === 200) {
-        return true;
-      }
-      return false;
-    });
-  }
-
-  // this sends the google analytics key to the backend
-  sendGoogleAnalyticsKey(gaKey): Observable<HttpResponse<Object>> {
-    return this.http.post<HttpResponse<object>>('/api/metrics/setgakey', { 'Google Analytics': { clientId: gaKey }});
-  }
 
 }
