@@ -7,7 +7,12 @@ const Logger = baselogger.createLogger("import");
 
 const ffMap = new Map([]);
 
-function stashModel(flatfile) {
+// Store a flat-file keyed by a new GUID.
+// Manage cache size by arranging
+// to remove the entry after an interval if no one has come
+// to claim it.  Also, enforce a maximum cache size as a guard against
+// the unlikely event of a flood of stash requests.
+function stashFlatFile(flatfile) {
     if (ffMap.size >= Env.getMaxFlatFiles()) {
         return null;
     };
@@ -20,9 +25,10 @@ function stashModel(flatfile) {
     ffMap.set(uuid, {flatFile: flatfile, timer: timer});
     return uuid;
 };
-module.exports.stashModel = stashModel;
+module.exports.stashFlatFile = stashFlatFile;
 
-function retrieveModel(uuid) {
+// Retrieve (and remove) a stored flat-file
+function retrieveFlatFile(uuid) {
     let mapEntry = ffMap.get(uuid);
     let flatFile = undefined;
     if (mapEntry) {
@@ -32,8 +38,9 @@ function retrieveModel(uuid) {
     }
     return flatFile;
 }
-module.exports.retrieveModel = retrieveModel;
+module.exports.retrieveFlatFile = retrieveFlatFile;
 
+// retrieve flat file but don't remove/expire the cache entry.
 function getFlatFile(uuid) {
     let mapEntry = ffMap.get(uuid);
     let flatFile = undefined;

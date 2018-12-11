@@ -28,7 +28,7 @@ Router.post('/', function(req, resp) {
     doImport(yipeeobj)
         .then(flatfile => {
             if (Util.hasQueryParam(req, 'store', 'true')) {
-                let yipeeguid = Cache.stashModel(flatfile);
+                let yipeeguid = Cache.stashFlatFile(flatfile);
                 if (yipeeguid) {
                     retobj.guid = yipeeguid;
                     resp.json(Util.generateSuccessResponse(retobj));
@@ -50,7 +50,7 @@ Router.post('/', function(req, resp) {
 
 Router.get('/:_id', function(req, resp) {
     let id = req.params._id;
-    let flatfile = Cache.retrieveModel(id);
+    let flatfile = Cache.retrieveFlatFile(id);
     if (flatfile) {
         let retobj = {
             flatFile: JSON.parse(flatfile)

@@ -156,7 +156,8 @@ function makeDiffObject(inobj) {
                             reject(err);
                         });
                 } else {
-                    reject(new Error(`No import for guid: ${inobj.data}`));
+                    reject(new Error(
+                        `No stored import for guid: ${inobj.data}`));
                 }
             } else {
                 // assume it's already yaml and we're good to go
@@ -177,7 +178,7 @@ function makeDiffObject(inobj) {
             // 'data' was specified but it's neither flat nor yaml -- input error
             reject(new Error(`${inobj.name} is ${inputType}.  ` +
                              "Must be either object (flat-format) or " +
-                             "string (yaml)"));
+                             "string (yaml or import guid)"));
         }
     });
 }

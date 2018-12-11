@@ -182,8 +182,8 @@ describe('Yipee Diff API Tests:', function() {
                         expect(diffres).to.have.status(200);
                         expect(diffres).to.be.json;
                         console.log("diff guids:", diffres.body.data[0]);
-                        /* XXX: fix this
-                        diffPayload.parent.data = '123456abcdef';
+                        diffPayload.parent.data =
+                            '12345678-0000-9999-aBcD-ABCDEFabcdef';
                         return chai.request(app.server)
                             .post('/diff')
                             .set('content-type', 'application/json')
@@ -194,7 +194,6 @@ describe('Yipee Diff API Tests:', function() {
                         expect(baddiff).to.be.json;
                         expect(baddiff.body.success).to.equal(false);
                         console.log("baddiff:", baddiff.body.data[0]);
-                        */
                         return chai.request(app.server)
                             .get('/import/' + guid1)
                             .set('accept', 'application/json');
