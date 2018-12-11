@@ -27,6 +27,9 @@
 (def ^:dynamic *specs-created* -100)
 (def ^:dynamic *cleanup* -10000)
 
+(defn to-lower-if [s]
+  (when s (str/lower-case s)))
+
 (defn to-octal [n]
   (if (string? n)
     n
@@ -609,7 +612,8 @@
                            :internal (str (:containerPort port))
                            :external ""
                            :node-port ""
-                           :protocol (or (:protocol port) "tcp")}))))))
+                           :protocol (or (to-lower-if (:protocol port))
+                                         "tcp")}))))))
     (id-insert!
      (assoc-if-filled
       (apply assoc {:type :deployment-spec :cgroup cgroup
@@ -692,7 +696,7 @@
                  :internal (str (or (:targetPort port) (:port port)))
                  :external (str (:port port))
                  :node-port (str (or (:nodePort port) ""))
-                 :protocol (or (:protocol port) "")}))
+                 :protocol (or (to-lower-if (:protocol port)) "")}))
   (id-insert! (update ?svc :spec #(dissoc % :ports))))
 
 (defrule update-service-defined-only-port-mappings
