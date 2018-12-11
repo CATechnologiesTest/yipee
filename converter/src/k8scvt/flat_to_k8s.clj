@@ -1622,19 +1622,21 @@
 ;; objects before any are (potentially) coalesced into their containing
 ;; k8s objects.
 
+(defn is-layout-anno [anno]
+  (and (= "ui" (:key anno))
+       (get-in anno [:value :canvas :position])))
+
 (defrule create-layout-anno-holder
   {:priority *adjustment*}
   [:not [? :layout-annotations]]
-  [?anno :annotation (and (= "ui" (:key ?anno))
-                          (get-in ?anno [:value :canvas :position]))]
+  [?anno :annotation (is-layout-anno ?anno)]
   =>
   (id-insert! {:type :layout-annotations :data {}}))
 
 (defrule collect-layout-annotations
   {:priority *adjustment*}
   [?layout-annos :layout-annotations]
-  [?anno :annotation (and (= "ui" (:key ?anno))
-                          (get-in ?anno [:value :canvas :position]))]
+  [?anno :annotation (is-layout-anno ?anno)]
   [?target :wme (= (:id ?target) (:annotated ?anno))]
   =>
   (remove! ?anno)
@@ -1655,8 +1657,7 @@
 
 (defrule create-config-map-of-layout-annotations
   [?layout-annos :layout-annotations (> (count ?layout-annos) 0)]
-  [:not [?anno :annotation (and (= "ui" (:key ?anno))
-                                (get-in ?anno [:value :canvas :position]))]]
+  [:not [?anno :annotation (is-layout-anno ?anno)]]
   =>
   (remove! ?layout-annos)
   (insert! {:apiVersion "v1"
