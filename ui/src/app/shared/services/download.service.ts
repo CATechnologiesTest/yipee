@@ -34,8 +34,10 @@ export class DownloadService {
   download(file: any, downloadFunc: string, fileNameType: string, b64Encode: boolean, resultFileType: string): Observable<boolean> {
     const modelName = file['app-info'][0].name;
     let subscriber: Subscriber<any>;
-    const result = new Observable<boolean>((s) => subscriber = s) ;
-    this.apiService[downloadFunc](file).subscribe(
+    const result = new Observable<boolean>((s) => subscriber = s);
+    const temp = this.apiService[downloadFunc](file);
+    console.log('TEMP: ', temp);
+    temp.subscribe(
       (data) => {
         const fileData = data[resultFileType];
         const fileName = this.generateName(modelName, fileNameType);
@@ -44,13 +46,20 @@ export class DownloadService {
         } else {
           this.saveFile([fileData], fileName, fileNameType, 'k8s', false);
         }
-        subscriber.next(true);
-        subscriber.complete();
-      }, (error) => {
-        subscriber.next(false);
-        subscriber.complete();
+        console.log('SUBSCRIBER: ', subscriber);
+        if (subscriber) {
+          subscriber.next(true);
+          subscriber.complete();
+        }
+      },
+      (error) => {
+        if (subscriber) {
+          subscriber.next(false);
+          subscriber.complete();
+        }
       }
     );
+    console.log('TEMP: ', temp);
     return result;
   }
 
