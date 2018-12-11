@@ -25,6 +25,11 @@ describe('NerdmodeContainerComponent', () => {
     alertText: string[];
     nerdModeType: undefined;
     metadata = YipeeFileService.newTestYipeeFileMetadata('doggy');
+
+    downloadKubernetes(): boolean {
+      return true;
+    }
+
   }
 
   class MockAPIService {
@@ -92,13 +97,8 @@ describe('NerdmodeContainerComponent', () => {
     });
   }));
 
-  it('should call the helm download service properly on downloadFile()', inject([DownloadService], (service: DownloadService) => {
-    const result = component.downloadFile('helm');
-    expect(result).toEqual(true);
-  }));
-
-  it('should call the kubernetes download service properly on downloadFile()', inject([DownloadService], (service: DownloadService) => {
-    const result = component.downloadFile('kubernetes');
+  it('should call the kubernetes download service properly on downloadFile()', inject([DownloadService, EditorService], (service: DownloadService, editorService: EditorService) => {
+    const result = component.downloadFile();
     expect(result).toEqual(true);
   }));
 });

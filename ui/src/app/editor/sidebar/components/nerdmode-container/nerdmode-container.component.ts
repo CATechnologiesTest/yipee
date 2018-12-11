@@ -79,9 +79,8 @@ export class NerdmodeContainerComponent implements OnInit {
     });
   }
 
-  downloadFile(type: string): boolean {
-    const filename = this.downloadService.generateName(this.nerdmode.name, type);
-    this.downloadService.downloadFile([this.nerdmode.code], filename, type, 'k8s', true);
+  downloadFile(): boolean {
+    this.editorService.downloadKubernetes();
     return true;
   }
 
