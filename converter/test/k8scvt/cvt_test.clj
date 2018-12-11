@@ -454,7 +454,8 @@
             (let [[fname record] (check-recording file)]
               (binding [*record-rule-output-flag* record]
                 (let [k8s (fi/get-k8s-from-yaml-testdata fname)
-                      raw (apply concat (vals (dissoc k8s :type :app-name :id :__id)))
+                      raw (apply concat
+                                 (vals (dissoc k8s :type :app-name :id :__id)))
                       serrors (v/validate
                                raw
                                (map-indexed (fn [idx val] (str "element" idx))
@@ -467,8 +468,7 @@
                                      (str "./tmp/fromflat" @index)})
                       _ (System/gc)
                       wmes (time (to-flat :run-list [k8s]))
-                      verrors (mapv fv/translate-error
-                                    (:validation-error (flat-validator :run wmes)))
+                      verrors (:validation-error (flat-validator :run wmes))
                       _ (System/gc)
                       results (time
                                (map #(dissoc % :type :id)
@@ -476,10 +476,6 @@
                                            (vals (u/k8skeys
                                                   (from-flat :run-map wmes))))))]
                   (println "-----------------------------------------")
-                  (when-not (empty? verrors)
-                    (spit "/tmp/flats"
-                          (str (json/write-str wmes) "\n\n") :append true)
-                    (spit "/tmp/verrs" (str/join "\n\n" verrors) :append true))
                   (is (empty? serrors))
                   (is (empty? verrors))
                   (is (empty? (filter (comp fi/output-only-metadata :metadata)

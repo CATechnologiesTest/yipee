@@ -76,7 +76,7 @@
                                       (positive? (read-string %)))
    :boolean                     #(or (= % true) (= % false))
    :json                        #(try (do (with-out-str (json/write-str %)) true)
-                                      (catch Exception e (.printStackTrace e) false))
+                                      (catch Exception _ false))
    :uuid                        uuid?
    :uuid-ref                    uuid?
    :uuid-ref-array              #(and (array? %) (every? uuid? %))})
