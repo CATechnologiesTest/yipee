@@ -132,20 +132,4 @@ describe('DownloadService', () => {
 
   });
 
-  // /* disable the download tests as they break Chrome v64
-
-  // it('should download a kubernetes file by id', inject([DownloadService], (service: DownloadService) => {
-  //   service.downloadKubernetesFileById('5551212');
-  // }));
-
-  // it('should download a openshift archive file by id', inject([DownloadService], (service: DownloadService) => {
-  //   service.downloadOpenShiftArchiveById('5551212');
-  // }));
-
-  // it('should download a openshift file by id', inject([DownloadService], (service: DownloadService) => {
-  //   service.downloadOpenShiftFileById('5551212');
-  // }));
-
-  // */
-
 });
