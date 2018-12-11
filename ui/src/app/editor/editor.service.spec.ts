@@ -86,21 +86,6 @@ describe('EditorService', () => {
     expect(service).toBeTruthy();
   }));
 
-  // xit('should get and store a metadata on loadYipeeFile()', inject([EditorService], (service: EditorService) => {
-  //   service.loadYipeeFile('6a379f42-9d50-11e7-99a2-e3878023cbd7').subscribe(() => {
-  //     expect(service.metadata).toEqual(yipeeMetadata1);
-  //   });
-  // }));
-
-  // xit('should update a yipeefile on saveYipeeFile()', inject([EditorService], (service: EditorService) => {
-  //   service.loadYipeeFile('6a379f42-9d50-11e7-99a2-e3878023cbd7').subscribe(() => {
-  //     expect(service.metadata).toEqual(yipeeMetadata1);
-  //   });
-  //   service.saveYipeeFile().subscribe(() => {
-  //     expect(service.metadata).toEqual(yipeeMetadata1);
-  //   });
-  // }));
-
   it('should set readonly correctly', inject([EditorService], (service: EditorService) => {
     expect(service.readOnly).toBeFalsy();
     service.readOnly = true;
@@ -113,28 +98,33 @@ describe('EditorService', () => {
     expect(service.dirty).toBeTruthy();
   }));
 
-  it('should check when downloads are successful that it resets the dirty flag to false', inject([EditorService], (service: EditorService) => {
-    expect(service.dirty).toBeFalsy();
-    service.dirty = true;
-    expect(service.dirty).toBeTruthy();
-    service.downloadCurrentModel();
-    expect(service.dirty).toBeFalsy();
+  describe(`should check when downloads are successful that it resets the dirty flag to false (download methods)`, () => {
 
-    service.dirty = true;
-    expect(service.dirty).toBeTruthy();
-    service.downloadKubernetes();
-    expect(service.dirty).toBeFalsy();
+    beforeEach(inject([EditorService], (service: EditorService) => {
 
-    service.dirty = true;
-    expect(service.dirty).toBeTruthy();
-    service.downloadKubernetesArchive();
-    expect(service.dirty).toBeFalsy();
+      expect(service.dirty).toBeFalsy();
+      service.dirty = true;
+      expect(service.dirty).toBeTruthy();
+    }));
 
-    service.dirty = true;
-    expect(service.dirty).toBeTruthy();
-    service.downloadHelm();
-    expect(service.dirty).toBeFalsy();
-  }));
+    afterEach(inject([EditorService], (service: EditorService) => {
+      expect(service.dirty).toBeFalsy();
+    }));
+
+    it(`should check when downloadCurrentModel is Successful that it resets the dirty flag to false`, inject([EditorService], (service: EditorService) => {
+      service.downloadCurrentModel();
+    }));
+    it(`should check when downloadKubernetes is Successful that it resets the dirty flag to false`, inject([EditorService], (service: EditorService) => {
+      service.downloadKubernetes();
+    }));
+    it(`should check when downloadKubernetesArchive is Successful that it resets the dirty flag to false`, inject([EditorService], (service: EditorService) => {
+      service.downloadKubernetesArchive();
+    }));
+    it(`should check when downloadHelm is Successful that it resets the dirty flag to false`, inject([EditorService], (service: EditorService) => {
+      service.downloadHelm();
+    }));
+
+  });
 
   describe(`should check when downloads are unSuccessful that it sets warningText and the dirty flag remains true (download methods)`, () => {
 
