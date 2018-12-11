@@ -4,6 +4,7 @@ const chaiAsPromised = require('chai-as-promised');
 const expect = chai.expect;
 const app = require('../app');
 const fs = require('fs');
+const guid = require('../helpers/guid');
 
 chai.use(chaiAsPromised);
 chai.use(chaiHttp);
@@ -76,11 +77,11 @@ describe('Import Tests', function() {
 });
 
 function assertExpectedGuid(yipeeobj) {
-    let guid = yipeeobj.guid;
-    expect(guid).to.not.be.null;
-    expect(guid).to.not.be.undefined;
-    expect(guid).to.be.a('string');
-    expect(guid).to.have.lengthOf(36);
+    let impguid = yipeeobj.guid;
+    expect(impguid).to.not.be.null;
+    expect(impguid).to.not.be.undefined;
+    expect(impguid).to.be.a('string');
+    expect(guid.isGuid(impguid)).to.be.true;
 }
 
 describe('Import Returning GUIDs Test', function() {
