@@ -13,17 +13,10 @@ import { ApiService } from '../shared/services/api.service';
 
 describe('EditorService', () => {
 
-<<<<<<< HEAD
-class MockOrgService {
-  constructor() { }
-  userIsWriter(): boolean {
-    return true;
-=======
   const yipeeMetadata1: YipeeFileMetadata = YipeeFileService.newTestYipeeFileMetadata('doggy');
 
   class MockApiService {
     constructor() { }
->>>>>>> 25c920cf7191e3eb49dae1ef7a589b0caceb1cb6
   }
 
   class MockDownloadService {
