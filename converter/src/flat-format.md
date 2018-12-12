@@ -68,12 +68,6 @@ Defines how many instances of a container group should be deployed and in what "
 - *termination-grace-period* **non-negative-integer** (how long to wait before killing pods)
 - *update-strategy* **case controller-type: when "StatefulSet"=>({"type"=>("RollingUpdate"), ("rollingUpdate"=>{"partition"=>non-negative-integer})?}); when "Deployment"=>(({"type"=>("Recreate")} | {"type"=>("RollingUpdate"), ("rollingUpdate"=>{("maxSurge"=>(non-negative-integer | non-negative-integer-string | #"[1-9][0-9]?[%]"))?, ("maxUnavailable"=>(non-negative-integer | non-negative-integer-string | #"[1-9][0-9]?[%]"))?})?})); when "DaemonSet"=>(({"type"=>("OnDelete")} | {"type"=>("RollingUpdate"), ("rollingUpdate"=>{"maxUnavailable"=>(positive-integer | positive-integer-string | #"[1-9][0-9]?[%]")})?}))** 
 - *pod-management-policy* **string** (*OrderedReady*, *Parallel*)
-#### development-config
-Yipee development override
-- *image* **string** 
-- *repository* **string** 
-- *tag* **string** 
-- *configured* **uuid-ref** (reference to configured object)
 #### empty-dir-volume
 Empty directory on pod host for scratch use
 - *name* **string** 
@@ -90,13 +84,6 @@ Enviroment variable
 - *value* **string** 
 - *valueFrom* **({"configMapKeyRef"=>{"key"=>string, "name"=>string, ("optional"=>boolean)?}} | {"fieldRef"=>{("apiVersion"=>string)?, "fieldPath"=>string}} | {"resourceFieldRef"=>{("containerName"=>string)?, ("divisor"=>string)?, "resource"=>string}} | {"secretKeyRef"=>{"key"=>string, "name"=>string, ("optional"=>boolean)?}})** 
 - *container* **uuid-ref** (reference to container)
-#### external-config
-Yipee external override
-- *image* **string** 
-- *server* **string** 
-- *proxy-type* **string** (*tcp*, *udp*)
-- *ports* **[#"(([^:\\s]+:)?[\\d]+:)?[\\d]+([/](udp|tcp))?"]** 
-- *configured* **uuid-ref** (reference to configured object)
 #### extra-hosts
 Hostname/IP mappings for additional hosts
 - *value* **string-array** 

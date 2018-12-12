@@ -517,13 +517,6 @@
    :optional]
   [:pod-management-policy :string {:options ["OrderedReady" "Parallel"]}])
 
-(defflat development-config
-  "Yipee development override"
-  [:image :string]
-  [:repository :string]
-  [:tag :string]
-  [:configured :uuid-ref :annotatable "reference to configured object"])
-
 (defflat empty-dir-volume
   "Empty directory on pod host for scratch use"
   [:name :string]
@@ -564,14 +557,6 @@
                                 [:? [:optional :boolean]]]]]]
    :optional]
   [:container :uuid-ref :container "reference to container"])
-
-(defflat external-config
-  "Yipee external override"
-  [:image :string]
-  [:server :string]
-  [:proxy-type :string {:options ["tcp" "udp"]}]
-  [:ports [:array #"(([^:\\s]+:)?[\\d]+:)?[\\d]+([/](udp|tcp))?"]]
-  [:configured :uuid-ref :annotatable "reference to configured object"])
 
 (defflat extra-hosts
   "Hostname/IP mappings for additional hosts"
