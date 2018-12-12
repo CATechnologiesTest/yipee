@@ -145,7 +145,7 @@ Storage specification
 - *volume-mode* **string** (*Filesystem*, *Block* -- default: *Filesystem*)
 - *access-modes* **[("ReadWriteMany" | "ReadWriteOnce" | "ReadOnlyMany")]** (one or more of: *ReadOnlyMany*, *ReadWriteOnce*, *ReadWriteMany*)
 - *storage-class* **string** (name of predefined cluster storage class)
-- *storage* **string** (amount of storage for a PersistentVolumeClaim -- allows units: E, P, T, G, M, K - powers of 10: Exa, Peta, Tera, Giga, Mega, Kilo and Ei, Pi, Ti, Gi, Mi, Ki - powers of two (i.e. Gi is 1024*1024*1024 while G is 1000*1000*1000)
+- *storage* **string** (amount of storage for a PersistentVolumeClaim -- allows units: E, P, T, G, M, K - powers of 10: Exa, Peta, Tera, Giga, Mega, Kilo and Ei, Pi, Ti, Gi, Mi, Ki - powers of two (i.e. Gi is 1024\*1024\*1024 while G is 1000\*1000\*1000)
 - *selector* **{("matchExpressions"=>({"key"=>string, "operator"=>("In" | "NotIn"), "values"=>string-array} | {"key"=>string, "operator"=>("Exists" | "DoesNotExist"), "values"=>empty-string-array}))?, ("matchLabels"=>{"keyword-or-str"=>string, ...})?}** (used for PersistentVolumeClaims -- staying compatible with k8s-service for now... both matchLabels and matchExpressions for attributes of persistent volumes (see: [persistent volume docs](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistent-volumes)))
 #### volume-ref
 Reference from container to volume

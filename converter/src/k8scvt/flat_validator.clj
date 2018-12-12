@@ -635,7 +635,7 @@
   [:access-modes [:array #{"ReadOnlyMany" "ReadWriteOnce" "ReadWriteMany"}]
    "one or more of: *ReadOnlyMany*, *ReadWriteOnce*, *ReadWriteMany*" :optional]
   [:storage-class :string "name of predefined cluster storage class" :optional]
-  [:storage :string "amount of storage for a PersistentVolumeClaim -- allows units: E, P, T, G, M, K - powers of 10: Exa, Peta, Tera, Giga, Mega, Kilo and Ei, Pi, Ti, Gi, Mi, Ki - powers of two (i.e. Gi is 1024*1024*1024 while G is 1000*1000*1000"
+  [:storage :string "amount of storage for a PersistentVolumeClaim -- allows units: E, P, T, G, M, K - powers of 10: Exa, Peta, Tera, Giga, Mega, Kilo and Ei, Pi, Ti, Gi, Mi, Ki - powers of two (i.e. Gi is 1024\\*1024\\*1024 while G is 1000\\*1000\\*1000"
    :optional]
   [:selector [:fixed-map
               [:? [:matchExpressions
