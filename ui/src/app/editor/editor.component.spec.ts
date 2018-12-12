@@ -54,6 +54,7 @@ describe('EditorComponent', () => {
     metadata: YipeeFileMetadata;
     fatalText: string[] = [];
     alertText: string[] = [];
+    warningText: string[] = [];
     infoText: string[] = [];
     invalidKeys: string[];
     lastYipeeId: string;
@@ -147,7 +148,7 @@ describe('EditorComponent', () => {
       });
       expect(component.ui.loading).toBeFalsy();
       expect(component.ui.error).toBeTruthy();
-      expect(service.fatalText[0]).toBe(EditorComponent.UNEXPECTED_RESPONSE + MockApiService.BAD_MODEL_ERROR);
+      expect(service.fatalText[0]).toBe(EditorService.UNEXPECTED_RESPONSE + MockApiService.BAD_MODEL_ERROR);
     })));
 
   it('should handle invalid model error, where 4xx is returned', async(inject([EditorService, ActivatedRoute, HttpTestingController],
@@ -179,7 +180,7 @@ describe('EditorComponent', () => {
       req.error(mockError);
       expect(component.ui.loading).toBeFalsy();
       expect(component.ui.error).toBeTruthy();
-      expect(service.fatalText[0].indexOf(EditorComponent.UNEXPECTED_RESPONSE) >= 0).toBeTruthy();
+      expect(service.fatalText[0].indexOf(EditorService.UNEXPECTED_RESPONSE) >= 0).toBeTruthy();
     })));
 
     it('should set dirty flag and route to home when exitEditor is called with disregardChanges set to true', fakeAsync(inject([EditorService], (service: MockEditorService) => {

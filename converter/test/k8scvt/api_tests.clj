@@ -166,3 +166,32 @@
                                           :children [(wrap "child" child)]})))]
       (is (= 201 status))
       (is (= body (test-slurp "diff-api-output.txt"))))))
+
+(defn fetch-annos [jsonstr]
+  ;; return a set containing the value objects from the given json
+  ;; annotations.
+  (set
+   (map #(:value %)
+        (filter #(= "ui" (:key %))
+                (:annotation (json/read-str jsonstr :key-fn keyword))))))
+
+(deftest test-layout-annos
+  (with-server
+    (let [toflat (format "%s/k2f" base-url)
+          tok8s (format "%s/f2k" base-url)
+          flatstr (slurp "test/k8scvt/testdata/yipee-flat.json")
+          arg-data {:accept :json
+                    :content-type :json
+                    :body flatstr}
+          {kbody :body} (client/post tok8s arg-data)
+          {newflatstr :body} (client/post toflat (assoc arg-data :body kbody))
+          origannos (fetch-annos flatstr)
+          newannos (fetch-annos newflatstr)]
+      ;; assert that we have the same number of UI annos across the
+      ;; conversion
+      (is (= (count origannos) (count newannos)))
+      ;; Assert that we have all the original x/y values.
+      ;; We can't compare much else since all the IDs will be different
+      (is (= (count (clojure.set/intersection origannos newannos))
+             (count origannos))))))
+

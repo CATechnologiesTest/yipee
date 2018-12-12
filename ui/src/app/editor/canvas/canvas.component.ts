@@ -36,7 +36,7 @@ export class CanvasComponent extends joint.mvc.View<undefined> implements OnInit
 
   graph: joint.dia.Graph;
   paper: joint.dia.Paper;
-  selection = { collection: new Set([ ]) };
+  selection = { collection: new Set([]) };
   haloAction: false;
   linkBeingCreated: LinkShape;
 
@@ -243,7 +243,7 @@ export class CanvasComponent extends joint.mvc.View<undefined> implements OnInit
     // initiate selecting when the user grabs the blank area of the paper while the Shift key is pressed.
     // otherwise, initiate paper pan.
     this.paper.on('blank:pointerdown', function (evt, x, y) {
-      this.unhighlightAll();
+      this.clearSelection();
       this.editorEventService.selectDefault();
     }, this);
 
@@ -370,7 +370,7 @@ export class CanvasComponent extends joint.mvc.View<undefined> implements OnInit
       // object, highlight the object
       if (this.linkBeingCreated &&
         this.linkBeingCreated.canLinkTo(cell)) {
-          this.linkTargetHighlight(cellView);
+        this.linkTargetHighlight(cellView);
       }
     }, this);
 
@@ -378,7 +378,7 @@ export class CanvasComponent extends joint.mvc.View<undefined> implements OnInit
       const cell = cellView.model as BaseShape;
       if (this.linkBeingCreated &&
         this.linkBeingCreated.canLinkTo(cell)) {
-          this.linkTargetUnhighlight(cellView);
+        this.linkTargetUnhighlight(cellView);
       }
     }, this);
     // listen for selection changes from the canvas
@@ -600,9 +600,8 @@ export class CanvasComponent extends joint.mvc.View<undefined> implements OnInit
 
   selectionChange(): void {
     if (this.selection.collection.size === 1) {
-    this.selection.collection.forEach(function (shape: BaseShape) {
-    this.editorEventService.canvasSelectionChanged(shape.key);
-        this.unhighlightAll();
+      this.selection.collection.forEach(function (shape: BaseShape) {
+        this.editorEventService.canvasSelectionChanged(shape.key);
         this.emphasizeLinks(shape);
         const cellView = this.paper.findViewByModel(shape);
         this.displayHalo(cellView);
@@ -612,7 +611,6 @@ export class CanvasComponent extends joint.mvc.View<undefined> implements OnInit
     if (this.selection.collection.size !== 1) {
       this.editorEventService.selectDefault();
       this.unemphasizeLinks();
-    this.unhighlightAll();
       this.removeHalo();
     }
 
@@ -675,8 +673,6 @@ export class CanvasComponent extends joint.mvc.View<undefined> implements OnInit
           this.unhighlightAll();
         }
       }
-    } else {
-      this.unhighlightAll();
     }
   }
 
@@ -1047,27 +1043,26 @@ export class CanvasComponent extends joint.mvc.View<undefined> implements OnInit
     const point = new joint.g.Point(x, y);
     const types = this.getSelectionTypes();
     if (types.length === 1 && !this.haloAction) {
-    this.selection.collection.forEach(function (shape: BaseShape) {
-      // findViewsFromPoint() returns the view for the `cell` itself so filter
-      const cellsBelow = this.paper.findViewsFromPoint(point).filter((c: joint.dia.CellView) => c.model.id !== shape.id) as joint.dia.CellView[];
-      let embedded = false;
-      for (const cell of cellsBelow) {
-        // prevent recursive embedding
-        if (cell && cell.model.get('parent') !== shape.id) {
-          const base = cell.model as BaseShape;
-          if (base.willAcceptChildType(shape.attributes.type)) {
-            this.embedShape(shape, base);
-            embedded = true;
+      this.selection.collection.forEach(function (shape: BaseShape) {
+        // findViewsFromPoint() returns the view for the `cell` itself so filter
+        const cellsBelow = this.paper.findViewsFromPoint(point).filter((c: joint.dia.CellView) => c.model.id !== shape.id) as joint.dia.CellView[];
+        let embedded = false;
+        for (const cell of cellsBelow) {
+          // prevent recursive embedding
+          if (cell && cell.model.get('parent') !== shape.id) {
+            const base = cell.model as BaseShape;
+            if (base.willAcceptChildType(shape.attributes.type)) {
+              this.embedShape(shape, base);
+              embedded = true;
+            }
           }
         }
-      }
-      if (!embedded) {
-        this.embedShape(shape);
-      }
-    }, this);
+        if (!embedded) {
+          this.embedShape(shape);
+        }
+      }, this);
     }
     this.haloAction = false;
-    this.unhighlightAll();
   }
 
   embedShape(shape: BaseShape, parent?: BaseShape): void {
@@ -1104,6 +1099,7 @@ export class CanvasComponent extends joint.mvc.View<undefined> implements OnInit
 
   clearSelection(): void {
     this.selection.collection.clear();
+    this.unhighlightAll();
     this.selectionChange();
   }
 

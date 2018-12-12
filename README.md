@@ -1,4 +1,4 @@
-# k10eh - Graphical Kubernetes Editing
+# Yipee - Graphical Kubernetes Editing
 Working with Kubernetes doesn't _necessarily_ imply spending quality
 time with YAML. For the last couple of years, Yipee.io has provided
 SaaS-based graphical Kubernetes modeling at `https://app.yipee.io` and

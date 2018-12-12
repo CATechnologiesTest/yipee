@@ -14,7 +14,6 @@ import { YipeeFileService } from '../shared/services/yipee-file.service';
   styleUrls: ['./editor.component.css']
 })
 export class EditorComponent implements OnInit, AfterViewChecked {
-  static UNEXPECTED_RESPONSE = 'Unexpected response from server: ';
 
   showWarningModal: boolean;
 
@@ -65,7 +64,7 @@ export class EditorComponent implements OnInit, AfterViewChecked {
           this.ui.loading = false;
           this.editorService.metadata = null;
           this.editorService.fatalText.length = 0;
-          this.editorService.fatalText.push(EditorComponent.UNEXPECTED_RESPONSE + error.message);
+          this.editorService.fatalText.push(EditorService.UNEXPECTED_RESPONSE + error.message);
         });
     } else {
       this.ui.loading = false;
@@ -79,6 +78,20 @@ export class EditorComponent implements OnInit, AfterViewChecked {
     if (event.source === EventSource.Canvas) {
       this.changeView('app');
       this.sidebarComponent.selectionChanged(event);
+    }
+  }
+
+  onFatalClose(text: string) {
+    const index = this.editorService.fatalText.indexOf(text);
+    if (index !== -1) {
+      this.editorService.fatalText.splice(index, 1);
+    }
+  }
+
+  onWarningClose(text: string) {
+    const index = this.editorService.warningText.indexOf(text);
+    if (index !== -1) {
+      this.editorService.warningText.splice(index, 1);
     }
   }
 

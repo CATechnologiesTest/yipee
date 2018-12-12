@@ -12,7 +12,7 @@ export class HeaderComponent {
   @Input() title: string;
 
   constructor(
-    private router: Router
+    public router: Router
   ) {
   }
 

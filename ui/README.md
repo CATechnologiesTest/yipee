@@ -7,7 +7,7 @@ The [Angular CLI](https://github.com/angular/angular-cli) user interface for Yip
 ### Development server
 
 Begin by installing the required dependencies.
-1. Install npm by navigating to the UI directory of the k10eh repo on your computer and typing `npm install` in the terminal. (this will install npm in the directory)
+1. Install npm by navigating to the UI directory of the yipee repo on your computer and typing `npm install` in the terminal. (this will install npm in the directory)
 2. Globally download the Angular CLI by typing in the same terminal `npm install -g @angular/cli`
 3. After both have been installed, you can run a development server by typing in the same terminal `npm run start`. (this starts a development server where the browser will automatically reload if you change any of the UI source files)
 4. Open a browser and navigate to `http://localhost:8080/`
