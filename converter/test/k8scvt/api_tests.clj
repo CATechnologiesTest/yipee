@@ -196,6 +196,8 @@
           badannos (fetch-annos badflat)
           newbadannos (fetch-annos newbadflat)]
       (is (= (count origannos) (count newannos)))
+      ;; Assert that we have all the original x/y values.
+      ;; We can't compare much else since all the IDs will be different
       (is (= (count (clojure.set/intersection origannos newannos))
              (count origannos)))
       ;; the "bad-layout-annos" file contains a single unknown-kind and
