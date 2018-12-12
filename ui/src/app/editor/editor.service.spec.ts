@@ -64,7 +64,6 @@ describe('EditorService', () => {
         EditorService,
         { provide: ApiService, useClass: MockApiService },
         { provide: DownloadService, useClass: MockDownloadService },
-        { provide: FeatureService, useClass: MockFeatureService },
         { provide: YipeeFileService, useClass: MockYipeeFileService }
       ]
     }).compileComponents();

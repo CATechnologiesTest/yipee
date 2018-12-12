@@ -15,7 +15,7 @@ import { YipeeFileErrorResponse } from '../../../../models/YipeeFileResponse';
       <nerdmode-viewer
         [nerdmode]="nerdmode"
         (switchType)="loadFile($event)"
-        (downloadByType)="downloadFile($event)">
+        (downloadByType)="downloadFile()">
       </nerdmode-viewer>
     </div>
   `
