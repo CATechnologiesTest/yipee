@@ -46,7 +46,7 @@
 
 ;; Format and return any errors generated during processing
 (defn return-formatted-errors [results formatter]
-  (let [errmsgs (clojure.string/join "\n" (map formatter results))]
+  (let [errmsgs (str/join "\n" (map formatter results))]
     {::reterr errmsgs}))
 
 (defn return-errors [results]
@@ -165,7 +165,7 @@
               [fv-results fv-ok] (results-and-errors
                                   (fvalidate :run-list results))]
              (if fv-ok
-               {::retval (group-by :type fv-results)}
+               {::retval (group-by :type results)}
                (return-fv-errors fv-results)))
         (return-errors results)))))
 

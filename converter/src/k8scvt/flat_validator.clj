@@ -58,6 +58,10 @@
 (defn- non-negative? [x] (>= x 0))
 (defn- digit-string? [x] (re-matches #"^[\d]+$" x))
 (defn- array? [x] (or (seq? x) (vector? x)))
+(defn- compose-duration? [x]
+  (and (> (count x) 0)
+       (re-matches #"^([\d]+[h])?([\d]+[m])?([\d]+[s])?([\d]+[ms])?([\d]+[us])?"
+                   x)))
 
 (def predicates
   {:string                      string?
@@ -75,6 +79,7 @@
    :positive-integer-string     #(and (string? %)
                                       (digit-string? %)
                                       (positive? (read-string %)))
+   :compose-duration            compose-duration?
    :boolean                     #(or (= % true) (= % false))
    :json                        #(try (do (with-out-str (json/write-str %)) true)
                                       (catch Exception _ false))
@@ -115,13 +120,14 @@
 (defn compound-type? [ctype type-val]
   (and (vector? type-val) (= ctype (first type-val))))
 
-(defn case-type? [typ]      (compound-type? :case typ))
-(defn or-type? [typ]        (compound-type? :or typ))
-(defn fixed-map-type? [typ] (compound-type? :fixed-map typ))
-(defn open-map-type? [typ]  (compound-type? :open-map typ))
-(defn key-value-type? [typ] (compound-type? :key-value typ))
-(defn array-type? [typ]     (compound-type? :array typ))
-(defn optional-type? [typ]  (compound-type? :? typ))
+(defn case-type? [typ]            (compound-type? :case typ))
+(defn or-type? [typ]              (compound-type? :or typ))
+(defn fixed-map-type? [typ]       (compound-type? :fixed-map typ))
+(defn open-map-type? [typ]        (compound-type? :open-map typ))
+(defn key-value-type? [typ]       (compound-type? :key-value typ))
+(defn array-type? [typ]           (compound-type? :array typ))
+(defn singleton-array-type? [typ] (compound-type? :singleton-array typ))
+(defn optional-type? [typ]        (compound-type? :? typ))
 
 ;; check a vector containing an arbitrary number of pairs with a single
 ;; key type and a single value type
@@ -163,6 +169,10 @@
   (let [atype (second typ)]
     (and (or (seq? item) (vector? item)) (every? #(type-check atype %) item))))
 
+;; check a homogeneous vector containing a single element
+(defn json-singleton-array-type [typ item]
+  (and (json-array-type typ item) (= (count item) 1)))
+
 ;; check an item but don't fail if it is missing entirely
 (defn json-optional-type [typ item]
   (or (nil? item) (type-check typ item)))
@@ -182,16 +192,18 @@
 
 ;; main recursive type checking function
 (defn type-check [typ item]
-  (cond (case-type? typ)       (case-type-check typ item)
-        (or-type? typ)         (some #(type-check % item) typ)
-        (fixed-map-type? typ)  (json-fixed-map-type typ item)
-        (open-map-type? typ)   (json-open-map-type typ item)
-        (key-value-type? typ)  (json-key-value-type typ item)
-        (array-type? typ)      (json-array-type typ item)
-        (optional-type? typ)   (json-optional-type (first typ) item)
-        (set? typ)             (typ item)
-        (= (type typ) Pattern) (and (string? item) (re-matches typ item))
-        :else                  ((or (predicates typ) (fn [& _] false)) item)))
+  (cond (case-type? typ)            (case-type-check typ item)
+        (or-type? typ)              (some #(type-check % item) typ)
+        (fixed-map-type? typ)       (json-fixed-map-type typ item)
+        (open-map-type? typ)        (json-open-map-type typ item)
+        (key-value-type? typ)       (json-key-value-type typ item)
+        (array-type? typ)           (json-array-type typ item)
+        (singleton-array-type? typ) (json-singleton-array-type typ item)
+        (optional-type? typ)        (json-optional-type (first typ) item)
+        (set? typ)                  (typ item)
+        (= (type typ) Pattern)      (and (string? item) (re-matches typ item))
+        :else                       ((or (predicates typ)
+                                         (fn [& _] false)) item)))
 
 ;; top level type checker; binds *wme-to-check* to the wme so discriminating
 ;; fields referenced by lower level 'case' tests can be accessed
@@ -251,7 +263,7 @@
                    (translate-type vtype)
                    ", ...}"))
 
-            :array
+            (:array :singleton-array)
             (str "[" (translate-type (second typ)) "]")
 
             :?
@@ -603,6 +615,11 @@
   [:cgroup :uuid-ref :container-group
    "reference to restarting container group"])
 
+(defflat restart-policy
+  "How containers should be restarted"
+  [:value :string {:options ["always" "none" "unless-stopped"]}]
+  [:cgroup :uuid-ref :container-group "reference to associated container group"])
+
 (defflat secret
 "Definition of secret value (needs work as the set of fields is not currently fixed - *external*, *file*, *alternate-name* vary depending on the secret"
   [:name :string]
@@ -667,8 +684,6 @@
   [:value :string]
   [:cgroup :uuid-ref :container-group "reference to labeled container group"])
 
-(doc-header "Compose Only")
-
 (defflat image-pull-policy
   "When to pull a new image"
   [:value :string {:options ["Always" "IfNotPresent"]}]
@@ -695,6 +710,137 @@
    :optional]
   [:node-port :string "if present, staticly defined port for service"
    :optional])
+
+(defflat model-namespace
+  "Single namespace for a model. The reference namespace will be added to each construct on output."
+  [:name :string "name of the namespace"])
+
+(defflat node-selector
+  "Defines the nodes on which a container can be deployed."
+  [:cgroup :uuid-ref :container-group "reference to labeled container group"]
+  [:nodeSelectorTerms [:array
+                       [:fixed-map
+                        [:? [:matchExpressions
+                             [:or
+                              [:fixed-map
+                               [:key :string]
+                               [:operator #{"In" "NotIn"}]
+                               [:values :non-empty-string-array]]
+                              [:fixed-map
+                               [:key :string]
+                               [:operator #{"Exists" "DoesNotExist"}]
+                               [:values :empty-string-array]]
+                              [:fixed-map
+                               [:key :string]
+                               [:operator #{"Gt" "Lt"}]
+                               [:values [:singleton-array
+                                         [:or :integer :integer-string]]]]]]]
+                        [:? [:matchFields
+                             [:or
+                              [:fixed-map
+                               [:key :string]
+                               [:operator #{"In" "NotIn"}]
+                               [:values :non-empty-string-array]]
+                              [:fixed-map
+                               [:key :string]
+                               [:operator #{"Exists" "DoesNotExist"}]
+                               [:values :empty-string-array]]
+                              [:fixed-map
+                               [:key :string]
+                               [:operator #{"Gt" "Lt"}]
+                               [:values [:singleton-array
+                                         [:or :integer :integer-string]]]]]]]]]
+   :optional])
+
+(defflat security-context
+  "Holds security configuration that will be applied to a container"
+  [:container :uuid-ref :container "reference to associated container"]
+  [:allowPrivilegeEscalation :boolean
+   "whether a process can gain more privileges than its parent process"
+   :optional]
+  [:capabilities [:fixed-map
+                  [:? [:add :string-array]]
+                  [:? [:drop :string-array]]]
+   "the capabilities to add/drop when running containers"
+   :optional]
+  [:privileged :boolean "run container in privileged mode" :optional]
+  [:readOnlyRootFilesystem :boolean :optional]
+  [:runAsGroup [:or :non-negative-integer :non-negative-integer-string]
+   :optional]
+  [:runAsNonRoot :boolean :optional]
+  [:runAsUser [:or :non-negative-integer :non-negative-integer-string]
+   :optional]
+  [:seLinuxOptions [:fixed-map
+                    [:level :string]
+                    [:role :string]
+                    [:type :string]
+                    [:user :string]]
+   :optional])
+
+(defflat secret-volume
+  "Volume holding secret item values"
+  [:source :string {:options ["auto" "k8s"]}
+   "Set to auto if auto-generated from compose; otherwise, \"k8s\""]
+  [:default-mode :non-negative-integer-string
+   "default mode for secret items in this volume"]
+  [:secret-name :string "name of secret exposed by secret volume"])
+
+(defflat unknown-k8s-kind
+  "Any item with a \"kind\" we don't recognize should be wrapped in one of these."
+  [:body :json "entire definition of unknown object"])
+
+(doc-header "Compose Only")
+
+(defflat build
+  "How to build a container"
+  [:value [:or
+           :string
+           [:fixed-map
+            [:context :string]
+            [:? [:dockerfile :string]]
+            [:? [:args [:or
+                        [:key-value :keyword-or-str [:or :string :integer]]
+                        [:array :string]]]]]]]
+  [:container :uuid-ref :container "reference to associated container"])
+
+(defflat network-ref
+  "Reference from a container to a network"
+  [:name :string]
+  [:aliases :string-array]
+  [:container :uuid-ref :container "reference to associated container"])
+
+(defflat logging
+  "Description of logging configuration for container"
+  [:driver :string]
+  [:options [:key-value :keyword-or-str [:or :string :integer]]]
+  [:container :uuid-ref :container "reference to container using logging"])
+
+(defflat stop-grace-period
+  "Length of time to wait for stop"
+  [:value :string]
+  [:container :uuid-ref :container "reference to container being stopped"])
+
+(defflat deployment-mode
+  "How a compose container should be deployed"
+  [:value :string {:options ["global" "replicated"]}]
+  [:source :string]
+  [:container :uuid-ref :container "reference to container being deployed"])
+
+(defflat placement
+  "How containers should be assigned to nodes"
+  [:value [:key-value :keyword-or-str :string]]
+  [:container :uuid-ref :container "reference to container being placed"])
+
+(defflat update-config
+  "How a service should be updated"
+  [:value [:fixed-map
+           [:parallelism :non-negative-integer]
+           [:delay :compose-duration]
+           [:? [:failure-action #{"continue" "rollback" "pause"}]]
+           [:? [:monitor :compose-duration]]
+           [:max_failure_ratio :json]
+           [:? [:order #{"stop-first" "start-first"}]]]]
+  [:container :uuid-ref :container "reference to container being updated"])
 
 ;; Generate documentation into the target directory
 (dump-documentation "src/flat-format.md")

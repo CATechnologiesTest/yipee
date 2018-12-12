@@ -130,6 +130,10 @@ Mapping between container port and external port
 Conditions under which a container group should be restarted
 - *value* **string** (*always*, *none*, *unless-stopped*)
 - *cgroup* **uuid-ref** (reference to restarting container group)
+#### restart-policy
+How containers should be restarted
+- *value* **string** (*always*, *none*, *unless-stopped*)
+- *cgroup* **uuid-ref** (reference to associated container group)
 #### secret
 Definition of secret value (needs work as the set of fields is not currently fixed - *external*, *file*, *alternate-name* vary depending on the secret
 - *name* **string** 
@@ -171,8 +175,6 @@ Kubernetes supports labels at many levels. We mostly care about labels in select
 - *key* **string** 
 - *value* **string** 
 - *cgroup* **uuid-ref** (reference to labeled container group)
-
-### Compose Only
 #### image-pull-policy
 When to pull a new image
 - *value* **string** (*Always*, *IfNotPresent*)
@@ -189,3 +191,62 @@ Stores the selector and metadata derived from a top level Kubernetes service
 - *service-type* **string** (*ClusterIP*, *NodePort*, *LoadBalancer*, *ExternalName*)
 - *cluster-ip* **string** (if present, static IP for service or "None")
 - *node-port* **string** (if present, staticly defined port for service)
+#### model-namespace
+Single namespace for a model. The reference namespace will be added to each construct on output.
+- *name* **string** (name of the namespace)
+#### node-selector
+Defines the nodes on which a container can be deployed.
+- *cgroup* **uuid-ref** (reference to labeled container group)
+- *nodeSelectorTerms* **[{("matchExpressions"=>({"key"=>string, "operator"=>("In" | "NotIn"), "values"=>non-empty-string-array} | {"key"=>string, "operator"=>("Exists" | "DoesNotExist"), "values"=>empty-string-array} | {"key"=>string, "operator"=>("Lt" | "Gt"), "values"=>[(integer | integer-string)]}))?, ("matchFields"=>({"key"=>string, "operator"=>("In" | "NotIn"), "values"=>non-empty-string-array} | {"key"=>string, "operator"=>("Exists" | "DoesNotExist"), "values"=>empty-string-array} | {"key"=>string, "operator"=>("Lt" | "Gt"), "values"=>[(integer | integer-string)]}))?}]** 
+#### security-context
+Holds security configuration that will be applied to a container
+- *container* **uuid-ref** (reference to associated container)
+- *allowPrivilegeEscalation* **boolean** (whether a process can gain more privileges than its parent process)
+- *capabilities* **{("add"=>string-array)?, ("drop"=>string-array)?}** (the capabilities to add/drop when running containers)
+- *privileged* **boolean** (run container in privileged mode)
+- *readOnlyRootFilesystem* **boolean** 
+- *runAsGroup* **(non-negative-integer | non-negative-integer-string)** 
+- *runAsNonRoot* **boolean** 
+- *runAsUser* **(non-negative-integer | non-negative-integer-string)** 
+- *seLinuxOptions* **{"level"=>string, "role"=>string, "type"=>string, "user"=>string}** 
+#### secret-volume
+Volume holding secret item values
+- *source* **string** (*auto*, *k8s*)
+- *default-mode* **non-negative-integer-string** (default mode for secret items in this volume)
+- *secret-name* **string** (name of secret exposed by secret volume)
+#### unknown-k8s-kind
+Any item with a "kind" we don't recognize should be wrapped in one of these.
+- *body* **json** (entire definition of unknown object)
+
+### Compose Only
+#### build
+How to build a container
+- *value* **(string | {"context"=>string, ("dockerfile"=>string)?, ("args"=>({"keyword-or-str"=>(string | integer), ...} | [string]))?})** 
+- *container* **uuid-ref** (reference to associated container)
+#### network-ref
+Reference from a container to a network
+- *name* **string** 
+- *aliases* **string-array** 
+- *container* **uuid-ref** (reference to associated container)
+#### logging
+Description of logging configuration for container
+- *driver* **string** 
+- *options* **{"keyword-or-str"=>(string | integer), ...}** 
+- *container* **uuid-ref** (reference to container using logging)
+#### stop-grace-period
+Length of time to wait for stop
+- *value* **string** 
+- *container* **uuid-ref** (reference to container being stopped)
+#### deployment-mode
+How a compose container should be deployed
+- *value* **string** (*global*, *replicated*)
+- *source* **string** 
+- *container* **uuid-ref** (reference to container being deployed)
+#### placement
+How containers should be assigned to nodes
+- *value* **{"keyword-or-str"=>string, ...}** 
+- *container* **uuid-ref** (reference to container being placed)
+#### update-config
+How a service should be updated
+- *value* **{"parallelism"=>non-negative-integer, "delay"=>compose-duration, ("failure-action"=>("pause" | "continue" | "rollback"))?, ("monitor"=>compose-duration)?, "max_failure_ratio"=>json, ("order"=>("stop-first" | "start-first"))?}** 
+- *container* **uuid-ref** (reference to container being updated)
