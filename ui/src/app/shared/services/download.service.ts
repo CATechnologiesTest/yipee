@@ -36,7 +36,6 @@ export class DownloadService {
     let subscriber: Subscriber<any>;
     const result = new Observable<boolean>((s) => subscriber = s);
     const temp = this.apiService[downloadFunc](file);
-    console.log('TEMP: ', temp);
     temp.subscribe(
       (data) => {
         const fileData = data[resultFileType];
@@ -46,7 +45,6 @@ export class DownloadService {
         } else {
           this.saveFile([fileData], fileName, fileNameType, 'k8s', false);
         }
-        console.log('SUBSCRIBER: ', subscriber);
         if (subscriber) {
           subscriber.next(true);
           subscriber.complete();
@@ -59,7 +57,6 @@ export class DownloadService {
         }
       }
     );
-    console.log('TEMP: ', temp);
     return result;
   }
 
