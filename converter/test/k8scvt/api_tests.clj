@@ -80,13 +80,14 @@
           (doseq [entry (get-tar-entries (helm/decode-bytes hb-body))]
             (let [ename (:name entry)]
               (swap! helmfiles conj ename)
-              (if (not (or (= ename "Chart.yaml") (= ename "values.yaml")))
+              (if (not (or (= ename "unknown/Chart.yaml")
+                           (= ename "unknown/values.yaml")))
                 (let [k8sobj (yaml/parse-string (:contents entry))]
                   (is (every? #(contains? k8sobj %)
                               [:kind :apiVersion :metadata :spec]))))))
           (is (> (count @helmfiles) 2))
-          (is (contains? @helmfiles "Chart.yaml"))
-          (is (contains? @helmfiles "values.yaml"))))))
+          (is (contains? @helmfiles "unknown/Chart.yaml"))
+          (is (contains? @helmfiles "unknown/values.yaml"))))))
 
 (deftest test-bundle-to-flat
   (with-server
@@ -175,23 +176,33 @@
         (filter #(= "ui" (:key %))
                 (:annotation (json/read-str jsonstr :key-fn keyword))))))
 
+(defn f2k2f [flatstr]
+  (let [toflat (format "%s/k2f" base-url)
+        tok8s (format "%s/f2k" base-url)
+        arg-data {:accept :json
+                  :content-type :json
+                  :body flatstr}
+        {kbody :body} (client/post tok8s arg-data)
+        {newflatstr :body} (client/post toflat (assoc arg-data :body kbody))]
+    newflatstr))
+
 (deftest test-layout-annos
   (with-server
-    (let [toflat (format "%s/k2f" base-url)
-          tok8s (format "%s/f2k" base-url)
-          flatstr (slurp "test/k8scvt/testdata/yipee-flat.json")
-          arg-data {:accept :json
-                    :content-type :json
-                    :body flatstr}
-          {kbody :body} (client/post tok8s arg-data)
-          {newflatstr :body} (client/post toflat (assoc arg-data :body kbody))
-          origannos (fetch-annos flatstr)
-          newannos (fetch-annos newflatstr)]
-      ;; assert that we have the same number of UI annos across the
-      ;; conversion
+    (let [flat (slurp "test/k8scvt/testdata/yipee-flat.json")
+          newflat (f2k2f flat)
+          badflat (slurp "test/k8scvt/testdata/bad-layout-anno.json")
+          newbadflat (f2k2f badflat)
+          origannos (fetch-annos flat)
+          newannos (fetch-annos newflat)
+          badannos (fetch-annos badflat)
+          newbadannos (fetch-annos newbadflat)]
       (is (= (count origannos) (count newannos)))
       ;; Assert that we have all the original x/y values.
       ;; We can't compare much else since all the IDs will be different
       (is (= (count (clojure.set/intersection origannos newannos))
-             (count origannos))))))
-
+             (count origannos)))
+      ;; the "bad-layout-annos" file contains a single unknown-kind and
+      ;; its associated layout annotation.  Since the unknown-kind object
+      ;; has no name attribute, we expect the layout annotation to be dropped
+      (is (= 1 (count badannos)))
+      (is (= 0 (count newbadannos))))))

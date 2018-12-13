@@ -646,5 +646,12 @@
         "component": "yipee-backend"
       }
     }
-  ]
+  ],
+    "model-namespace": [
+        {
+            "type": "model-namespace",
+            "id": "264e35aa-1a91-4827-9c72-706b58c8d9e5",
+            "name": "osyipee"
+        }
+    ]
 }

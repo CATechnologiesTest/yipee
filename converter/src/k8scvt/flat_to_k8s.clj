@@ -51,7 +51,8 @@
               :deployment
               :pod
               :ingress
-              :unknown-k8s-kind]
+              :unknown-k8s-kind
+              :layout-annotations]
   :namespaced)
 
 (defn safe-name [x]
@@ -1626,12 +1627,14 @@
   (and (= "ui" (:key anno))
        (get-in anno [:value :canvas :position])))
 
+(def layout-priority (+ 1 *adjustment*))
 (defrule create-layout-anno-holder
-  {:priority *adjustment*}
+  {:priority layout-priority} ;; ahead of apply-model-namespace
   [:not [? :layout-annotations]]
   [?anno :annotation (is-layout-anno ?anno)]
   =>
-  (id-insert! {:type :layout-annotations :data {}}))
+  (id-insert! {:type :layout-annotations
+               :metadata {:name layout-config-name} :data {}}))
 
 (defrule collect-layout-annotations
   {:priority *adjustment*}
@@ -1640,20 +1643,21 @@
   [?target :wme (= (:id ?target) (:annotated ?anno))]
   =>
   (remove! ?anno)
-  (remove! ?layout-annos)
-  (let [x (get-in ?anno [:value :canvas :position :x])
-        y (get-in ?anno [:value :canvas :position :y])
-        targname (name (:name ?target))
-        targtype (name (:type ?target))
-        ;; Map key is "type!name", value is "x!y".
-        ;; N.B. a unique name/key would require all of
-        ;; namespace!type!name but we ignore namespace since our
-        ;; imports require that all contained objects be in a single
-        ;; namespace
-        newdata (assoc (:data ?layout-annos)
-                       (encode-layout-value targtype targname)
-                       (encode-layout-value x y))]
-    (id-insert! (assoc ?layout-annos :data newdata))))
+  (when (:name ?target)
+    (remove! ?layout-annos)
+    (let [x (get-in ?anno [:value :canvas :position :x])
+          y (get-in ?anno [:value :canvas :position :y])
+          targname (name (:name ?target))
+          targtype (name (:type ?target))
+          ;; Map key is "type!name", value is "x!y".
+          ;; N.B. a unique name/key would require all of
+          ;; namespace!type!name but we ignore namespace since our
+          ;; imports require that all contained objects be in a single
+          ;; namespace
+          newdata (assoc (:data ?layout-annos)
+                         (encode-layout-value targtype targname)
+                         (encode-layout-value x y))]
+      (id-insert! (assoc ?layout-annos :data newdata)))))
 
 (defrule create-config-map-of-layout-annotations
   [?layout-annos :layout-annotations (> (count ?layout-annos) 0)]
@@ -1663,5 +1667,5 @@
   (insert! {:apiVersion "v1"
             :type :layout-config-map
             :kind "ConfigMap"
-            :metadata {:name layout-config-name}
+            :metadata (:metadata ?layout-annos)
             :data (:data ?layout-annos)}))

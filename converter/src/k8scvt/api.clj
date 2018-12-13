@@ -266,7 +266,7 @@
 (defn conversion-helm-nerd-return [wtp]
   (conversion-helm-return helm/to-nerd-helm wtp))
 
-(defn get-app-name [data] (:name (:app-info data)))
+(defn get-app-name [data] (:name (first (:app-info data))))
 
 (defn get-app-helm-settings [data]
   (if-let [settings (:helm-settings (first (:app-info data)))]

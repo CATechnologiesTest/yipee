@@ -277,3 +277,25 @@ the repo.  By default this will produce three images:
 - push the images to your kubernetes cluster
 - modify _yipee.yaml_ to reference those images
 - apply the modified yipee.yaml
+
+# Integration with other tools
+We've exposed an API that allows you to post your YAML file then open the browser with that file loaded.  This is to aid integration with things like `kubectl edit`
+
+## API
+URL: /api/import?store=true Content-Type: application/json<br/>
+Payload: Json object with a name:string and importFile:base64 encoded YAML<br/>
+Return: Json object success:boolean, total:int, data:[{name:string, guid:string}]
+
+Take the guid returned from the import and open your browser to /editor/<guid>
+
+### Example
+file import_test.json<br/>
+{"name":"test_import", "importFile":"IyBHZW5lcmF0ZWQg...=="}
+
+`curl -v -d @import_test.json "http://35.193.60.29:8080/api/import?store=true" -H "Content-Type: application/json"`
+
+{"success":true,"total":1,"data":[{"name":"test_import","guid":"659a74c2-310b-4d48-a0e3-cd45fd7c6e7c"}]}
+
+`open http://35.193.60.29:8080/editor/659a74c2-310b-4d48-a0e3-cd45fd7c6e7c`
+
+
