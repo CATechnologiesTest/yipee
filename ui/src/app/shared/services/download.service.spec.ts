@@ -1,7 +1,7 @@
 import { TestBed, inject, tick, fakeAsync } from '@angular/core/testing';
 import { HttpModule } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
-import { of } from 'rxjs';
+import { of, Subscriber } from 'rxjs';
 import { delay } from 'rxjs/operators';
 
 
@@ -62,17 +62,22 @@ describe('DownloadService', () => {
     }));
 
     it('should download a kubernetes archive file if you do not subscribe', fakeAsync(inject([DownloadService], (service: DownloadService) => {
+      let subscriber: Subscriber<any>;
+      let result = new Observable<boolean>((s) => subscriber = s);
       try {
-        service.download({ ['app-info']: [{ name: 'foo' }] }, 'getKubernetesArchiveFileData', 'kubernetesarchive', true, 'kubernetesFile');
+        result = service.download({ ['app-info']: [{ name: 'foo' }] }, 'getKubernetesArchiveFileData', 'kubernetesarchive', true, 'kubernetesFile');
       } catch (error) {
         fail(error);
       }
       tick(1000);
+      expect(result).toBeTruthy();
     })));
 
     it('should download a kubernetes file if you do not subscribe', fakeAsync(inject([DownloadService], (service: DownloadService) => {
+      let subscriber: Subscriber<any>;
+      let result = new Observable<boolean>((s) => subscriber = s);
       try {
-        service.download({ ['app-info']: [{ name: 'foo' }] }, 'getKubernetesFileData', 'kubernetes', false, 'kubernetesFile');
+        result = service.download({ ['app-info']: [{ name: 'foo' }] }, 'getKubernetesFileData', 'kubernetes', false, 'kubernetesFile');
       } catch (error) {
         fail(error);
       }
@@ -80,8 +85,10 @@ describe('DownloadService', () => {
     })));
 
     it('should download a helm file if you do not subscribe', fakeAsync(inject([DownloadService], (service: DownloadService) => {
+      let subscriber: Subscriber<any>;
+      let result = new Observable<boolean>((s) => subscriber = s);
       try {
-        service.download({ ['app-info']: [{ name: 'foo' }] }, 'getHelmFileArchiveData', 'helmbundle', true, 'helmFile');
+        result = service.download({ ['app-info']: [{ name: 'foo' }] }, 'getHelmFileArchiveData', 'helmbundle', true, 'helmFile');
       } catch (error) {
         fail(error);
       }
