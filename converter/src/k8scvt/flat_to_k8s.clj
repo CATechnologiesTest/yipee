@@ -1176,7 +1176,8 @@
   [?pspec :podspec (nil? (:controller-type ?pspec))]
   [?cgroup :container-group (= (:pod ?cgroup) (:id ?pspec))]
   [?dspec :deployment-spec
-   (:controller-type ?dspec) (filled-in? (:controller-type ?dspec))
+   (:controller-type ?dspec)
+   (filled-in? (:controller-type ?dspec))
    (= (:id ?cgroup) (:cgroup ?dspec))]
   =>
   (remove! ?pspec)
