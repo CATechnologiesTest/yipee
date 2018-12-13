@@ -1176,7 +1176,7 @@
   [?pspec :podspec (nil? (:controller-type ?pspec))]
   [?cgroup :container-group (= (:pod ?cgroup) (:id ?pspec))]
   [?dspec :deployment-spec
-   (and (:controller-type ?dspec) (filled-in? (:controller-type ?dspec)))
+   (:controller-type ?dspec) (filled-in? (:controller-type ?dspec))
    (= (:id ?cgroup) (:cgroup ?dspec))]
   =>
   (remove! ?pspec)
@@ -1449,8 +1449,8 @@
   [?cgroup :container-group (= (:pod ?cgroup) (:cont-id ?sspec))]
   [?pm :port-mapping
    (some #(= % (:container ?pm)) (:containers ?cgroup))
-   (and (filled-in? (:external ?pm))
-        (not= (:external ?pm) "*"))
+   (filled-in? (:external ?pm))
+   (not= (:external ?pm) "*")
    (not (some #(and (= (:port %) (intval (:external ?pm)))
                     (= (str (:targetPort %)) (:internal ?pm)))
               (:ports ?sspec)))]
@@ -1475,8 +1475,8 @@
    (= (:name ?ks) (:name ?sspec))
    (not= (:service-type ?ks) "ExternalName")]
   [?pm :port-mapping
-   (and (filled-in? (:external ?pm))
-        (not= (:external ?pm) "*"))
+   (filled-in? (:external ?pm))
+   (not= (:external ?pm) "*")
    (= (:defining-service ?pm) (:id ?ks))
    (not (some #(and (= (:port %) (intval (:external ?pm)))
                     (= (str (:targetPort %)) (:internal ?pm)))
