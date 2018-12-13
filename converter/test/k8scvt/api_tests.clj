@@ -80,13 +80,14 @@
           (doseq [entry (get-tar-entries (helm/decode-bytes hb-body))]
             (let [ename (:name entry)]
               (swap! helmfiles conj ename)
-              (if (not (or (= ename "Chart.yaml") (= ename "values.yaml")))
+              (if (not (or (= ename "unknown/Chart.yaml")
+                           (= ename "unknown/values.yaml")))
                 (let [k8sobj (yaml/parse-string (:contents entry))]
                   (is (every? #(contains? k8sobj %)
                               [:kind :apiVersion :metadata :spec]))))))
           (is (> (count @helmfiles) 2))
-          (is (contains? @helmfiles "Chart.yaml"))
-          (is (contains? @helmfiles "values.yaml"))))))
+          (is (contains? @helmfiles "unknown/Chart.yaml"))
+          (is (contains? @helmfiles "unknown/values.yaml"))))))
 
 (deftest test-bundle-to-flat
   (with-server
