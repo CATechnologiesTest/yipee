@@ -117,7 +117,6 @@ describe('EditorComponent', () => {
   }));
 
   it('should be created', () => {
-
     fixture.detectChanges();
     expect(component).toBeTruthy();
   });
@@ -169,11 +168,11 @@ describe('EditorComponent', () => {
       expect(service.fatalText[0].indexOf('Not found') > 0).toBeTruthy('Not found - not in the error message');
       })));
 
-  it('should handle a network error', async(inject([EditorService, ActivatedRoute, HttpTestingController],
-    (service: MockEditorService, ar: MockActivatedRoute, backend: HttpTestingController) => {
+  it('should handle a network error', async(inject([EditorService, ActivatedRoute, HttpTestingController, NgZone],
+    (service: MockEditorService, ar: MockActivatedRoute, backend: HttpTestingController, ngZone: NgZone) => {
       ar.addId('foo');
       fixture.detectChanges();
-      const req = backend.expectOne('/api/import/foo?source=korn');
+      const req = ngZone.run(() => backend.expectOne('/api/import/foo?source=korn') );
       const emsg = 'simulated network error';
 
       const mockError = new ErrorEvent('Network error', {
@@ -187,31 +186,31 @@ describe('EditorComponent', () => {
       expect(service.fatalText[0].indexOf(EditorService.UNEXPECTED_RESPONSE) >= 0).toBeTruthy();
     })));
 
-    it('should set dirty flag and route to home when exitEditor is called with disregardChanges set to true', fakeAsync(inject([EditorService], (service: MockEditorService) => {
+    it('should set dirty flag and route to home when exitEditor is called with disregardChanges set to true', fakeAsync(inject([EditorService, NgZone], (service: MockEditorService, ngZone: NgZone) => {
       expect(component).toBeTruthy();
       expect(location.path() === '').toBeTruthy();
       service.dirty = true;
       component.disregardChanges = true;
-      component.canDeactivate();
+      ngZone.run(() => component.canDeactivate());
       expect(service.dirty).toBeFalsy();
       expect(component.showWarningModal).toBeFalsy();
-      component.exitEditor();
+      ngZone.run(() => component.exitEditor());
       tick(500);
       expect(location.path()).toBe('/');
     })));
 
-    it('should set showWarningModal to true when exitEditor is called with EditorService dirty flag set to true', fakeAsync(inject([EditorService], (service: MockEditorService) => {
+    it('should set showWarningModal to true when exitEditor is called with EditorService dirty flag set to true', fakeAsync(inject([EditorService, NgZone], (service: MockEditorService, ngZone: NgZone) => {
       expect(component.showWarningModal).toEqual(false);
       service.dirty = true;
-      component.canDeactivate();
+      ngZone.run(() => component.canDeactivate());
       expect(component.showWarningModal).toEqual(true);
     })));
 
-    it('should call router.navigate home when exitEditor is called with EditorService dirty flag set to false', fakeAsync(inject([EditorService], (service: MockEditorService) => {
+    it('should call router.navigate home when exitEditor is called with EditorService dirty flag set to false', fakeAsync(inject([EditorService, NgZone], (service: MockEditorService, ngZone: NgZone) => {
       expect(location.path() === '').toBeTruthy();
       expect(component.showWarningModal).toEqual(false);
       expect(service.dirty).toBeFalsy();
-      component.exitEditor();
+      ngZone.run(() => component.exitEditor());
       tick(500);
       expect(location.path()).toBe('/');
     })));
