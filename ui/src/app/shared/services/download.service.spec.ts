@@ -66,11 +66,11 @@ describe('DownloadService', () => {
       let result = new Observable<boolean>((s) => subscriber = s);
       try {
         result = service.download({ ['app-info']: [{ name: 'foo' }] }, 'getKubernetesArchiveFileData', 'kubernetesarchive', true, 'kubernetesFile');
+        expect(result).toBeTruthy();
       } catch (error) {
         fail(error);
       }
       tick(1000);
-      expect(result).toBeTruthy();
     })));
 
     it('should download a kubernetes file if you do not subscribe', fakeAsync(inject([DownloadService], (service: DownloadService) => {
@@ -78,6 +78,7 @@ describe('DownloadService', () => {
       let result = new Observable<boolean>((s) => subscriber = s);
       try {
         result = service.download({ ['app-info']: [{ name: 'foo' }] }, 'getKubernetesFileData', 'kubernetes', false, 'kubernetesFile');
+        expect(result).toBeTruthy();
       } catch (error) {
         fail(error);
       }
@@ -89,6 +90,7 @@ describe('DownloadService', () => {
       let result = new Observable<boolean>((s) => subscriber = s);
       try {
         result = service.download({ ['app-info']: [{ name: 'foo' }] }, 'getHelmFileArchiveData', 'helmbundle', true, 'helmFile');
+        expect(result).toBeTruthy();
       } catch (error) {
         fail(error);
       }
