@@ -279,11 +279,11 @@ the repo.  By default this will produce three images:
 - apply the modified yipee.yaml
 
 # Integration with other tools
-We've exposed an API that allows you to post your YML file then open the browser with that file loaded.  This is to aid integration with things like `kubectl edit`
+We've exposed an API that allows you to post your YAML file then open the browser with that file loaded.  This is to aid integration with things like `kubectl edit`
 
 ## API
 URL: /api/import?store=true Content-Type: application/json<br/>
-Payload: Json object with a name:string and importFile:base64 encoded YML<br/>
+Payload: Json object with a name:string and importFile:base64 encoded YAML<br/>
 Return: Json object success:boolean, total:int, data:[{name:string, guid:string}]
 
 Take the guid returned from the import and open your browser to /editor/<guid>
