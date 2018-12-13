@@ -1,7 +1,7 @@
 (ns k8scvt.flat-validation-test
   (:require [clojure.test :refer :all]
             [engine.core :refer :all]
-            [k8scvt.flat-validator :as fv]))
+            [k8scvt.flat-validator :refer :all]))
 
 (def a-uuid "62849681-2862-8496-8128-628496812862")
 
@@ -52,6 +52,80 @@
   ;; translate to strings because regex patterns don't compare with '='
   (= (str (set (:validation-error data))) (str (set errors))))
 
+(deftest test-checks
+  (testing "field primitive type checks work"
+    (is (type-check :string "x"))
+    (is (not (type-check :string :x)))
+    (is (type-check :string-array ["x"]))
+    (is (type-check :string-array []))
+    (is (not (type-check :string-array [3])))
+    (is (type-check :empty-string-array []))
+    (is (not (type-check :empty-string-array ["x"])))
+    (is (type-check :keyword-or-str "x"))
+    (is (type-check :keyword-or-str :x))
+    (is (not (type-check :keyword-or-str [10])))
+    (is (type-check :integer 4))
+    (is (not (type-check :integer 10.2)))
+    (is (not (type-check :integer "x")))
+    (is (type-check :non-negative-integer 0))
+    (is (type-check :non-negative-integer 4))
+    (is (not (type-check :non-negative-integer -1)))
+    (is (not (type-check :non-negative-integer :x)))
+    (is (type-check :positive-integer 4))
+    (is (not (type-check :positive-integer -1)))
+    (is (not (type-check :positive-integer 0)))
+    (is (not (type-check :positive-integer :x)))
+    (is (type-check :non-negative-integer-string "0"))
+    (is (type-check :non-negative-integer-string "4"))
+    (is (not (type-check :non-negative-integer-string "-1")))
+    (is (not (type-check :non-negative-integer-string ":x")))
+    (is (type-check :positive-integer-string "4"))
+    (is (not (type-check :positive-integer-string "-1")))
+    (is (not (type-check :positive-integer-string "0")))
+    (is (not (type-check :positive-integer-string ":x")))
+    (is (type-check :compose-duration "3h4m"))
+    (is (type-check :compose-duration "3m4ms"))
+    (is (type-check :compose-duration "20h10m12s4ms100us"))
+    (is (not (type-check :compose-duration "20h10m12s4ms100e")))
+    (is (not (type-check :compose-duration 10)))
+    (is (type-check :memory-value 20))
+    (is (type-check :memory-value "20e10"))
+    (is (type-check :memory-value "20P"))
+    (is (type-check :memory-value "20Ki"))
+    (is (not (type-check :memory-value "20Kill")))
+    (is (not (type-check :memory-value "-20Ki")))
+    (is (not (type-check :memory-value -28)))
+    (is (not (type-check :memory-value :a)))
+    (is (type-check :storage-value 20))
+    (is (type-check :storage-value "20e10"))
+    (is (type-check :storage-value "20P"))
+    (is (type-check :storage-value "20Ki"))
+    (is (not (type-check :storage-value "20Kill")))
+    (is (not (type-check :storage-value "-20Ki")))
+    (is (not (type-check :storage-value -28)))
+    (is (not (type-check :storage-value :a)))
+    (is (type-check :cpu-value 5))
+    (is (type-check :cpu-value 0.5))
+    (is (type-check :cpu-value "5"))
+    (is (type-check :cpu-value "5m"))
+    (is (not (type-check :cpu-value "0.5m")))
+    (is (not (type-check :cpu-value "-5m")))
+    (is (type-check :boolean true))
+    (is (type-check :boolean false))
+    (is (not (type-check :boolean 3)))
+    (is (type-check :json {:x 4 :y [10]}))
+    (is (not (type-check :json +)))
+    (is (type-check :uuid a-uuid))
+    (is (not (type-check :uuid "111111-1111")))
+    (is (not (type-check :uuid 17)))
+    (is (type-check :uuid-ref a-uuid))
+    (is (not (type-check :uuid-ref "111111-1111")))
+    (is (not (type-check :uuid-ref 17)))
+    (is (type-check :uuid-ref-array [a-uuid]))
+    (is (not (type-check :uuid-ref-array ["111111-1111"])))
+    (is (not (type-check :uuid-ref-array [17])))
+    (is (not (type-check :uuid-ref-array a-uuid)))))
+
 (deftest test-validation-errors
   (testing "generate all error variations"
     (let [flat-validator (engine :k8scvt.flat-validator)]
@@ -64,7 +138,7 @@
            [{:type :validation-error,
              :validation-type :invalid-reference,
              :field :annotated,
-             :reference-type :annotatable,
+             :reference-type :wme,
              :wme
              {:type :annotation,
               :key 4,
@@ -98,7 +172,7 @@
                                   :key "foo"
                                   :value ["yes"]
                                   :annotated a-uuid}
-                                 {:type :annotatable :id a-uuid}])
+                                 {:type :foo :id a-uuid}])
            []))
 
       ;; optional value is ignored
@@ -109,7 +183,7 @@
            [{:type :validation-error,
              :validation-type :invalid-reference,
              :field :annotated,
-             :reference-type :annotatable,
+             :reference-type :wme,
              :wme
              {:type :annotation,
               :key 4,

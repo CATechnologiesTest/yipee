@@ -1508,7 +1508,9 @@
     (remove! ?ingress)
     (insert!
      (merge {:apiVersion "extensions/v1beta1" :kind "Ingress"}
-            (substitute-ingress-attributes ?ingress svcs f inkey outkey)))))
+            (substitute-ingress-attributes
+             (dissoc ?ingress :name)
+             svcs f inkey outkey)))))
 
 (defrule insert-service-spec-into-service
   {:priority 10}

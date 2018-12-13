@@ -54,14 +54,26 @@
             :value (field wme)}))
 
 ;; Tests for primitive types
-(defn- positive? [x] (> x 0))
-(defn- non-negative? [x] (>= x 0))
-(defn- digit-string? [x] (re-matches #"^[\d]+$" x))
-(defn- array? [x] (or (seq? x) (vector? x)))
-(defn- compose-duration? [x]
-  (and (> (count x) 0)
-       (re-matches #"^([\d]+[h])?([\d]+[m])?([\d]+[s])?([\d]+[ms])?([\d]+[us])?"
-                   x)))
+(defn positive? [x] (> x 0))
+(defn non-negative? [x] (>= x 0))
+(defn digit-string? [x] (re-matches #"^[\d]+$" x))
+(defn array? [x] (or (seq? x) (vector? x)))
+(defn compose-duration? [x]
+  (and (string? x)
+       (> (count x) 0)
+       (re-matches #"^([\d]+h)?([\d]+m)?([\d]+s)?([\d]+ms)?([\d]+us)?$" x)))
+
+(defn memory-value? [x]
+  (or (and (integer? x) (non-negative? x))
+      (and (string? x)
+           (> (count x) 0)
+           (re-matches #"^[\d]+((e[\d]+)|E|P|T|G|M|K|Ei|Pi|Ti|Gi|Mi|Ki)?$"
+                       x))))
+(defn cpu-value? [x]
+  (or (and (number? x) (cpu-value? (str x)))
+      (and (string? x)
+           (> (count x) 0)
+           (re-matches #"^[\d]+(([.][\d]+)|m)?$" x))))
 
 (def predicates
   {:string                      string?
@@ -80,6 +92,9 @@
                                       (digit-string? %)
                                       (positive? (read-string %)))
    :compose-duration            compose-duration?
+   :memory-value                memory-value?
+   :storage-value               memory-value? ;; Same units...
+   :cpu-value                   cpu-value?
    :boolean                     #(or (= % true) (= % false))
    :json                        #(try (do (with-out-str (json/write-str %)) true)
                                       (catch Exception _ false))
@@ -126,12 +141,13 @@
 (defn open-map-type? [typ]        (compound-type? :open-map typ))
 (defn key-value-type? [typ]       (compound-type? :key-value typ))
 (defn array-type? [typ]           (compound-type? :array typ))
+(defn range-type? [typ]           (compound-type? :range typ))
 (defn singleton-array-type? [typ] (compound-type? :singleton-array typ))
 (defn optional-type? [typ]        (compound-type? :? typ))
 
 ;; check a vector containing an arbitrary number of pairs with a single
 ;; key type and a single value type
-(defn json-key-value-type [[_ key-type val-type] item]
+(defn key-value-type [[_ key-type val-type] item]
   (and (map? item)
        (every? (fn [[k v]]
                  (and (type-check key-type k)
@@ -139,7 +155,7 @@
                item)))
 
 ;; check a map with a set of specified keys and any number of additional keys
-(defn json-open-map-type [typ item]
+(defn open-map-type [typ item]
   (and (map? item)
        (every? (fn [field-type]
                  (let [[base-type is-optional?] (if (optional-type? field-type)
@@ -152,8 +168,8 @@
                (rest typ))))
 
 ;; check a map with a set of specified keys and fail if any additional keys are found
-(defn json-fixed-map-type [typ item]
-  (and (json-open-map-type typ item)
+(defn fixed-map-type [typ item]
+  (and (open-map-type typ item)
        (not (some (fn [key]
                     (not (some (fn [field-type]
                                  (let [base-type (if (optional-type? field-type)
@@ -165,21 +181,26 @@
                   (keys (dissoc item :type :id))))))
 
 ;; check a homogeneous vector
-(defn json-array-type [typ item]
+(defn array-type [typ item]
   (let [atype (second typ)]
     (and (or (seq? item) (vector? item)) (every? #(type-check atype %) item))))
 
+;; check a numeric range
+(defn range-type [typ item]
+  (let [[low high] (second typ)]
+    (and (integer? item) (<= low item high))))
+
 ;; check a homogeneous vector containing a single element
-(defn json-singleton-array-type [typ item]
-  (and (json-array-type typ item) (= (count item) 1)))
+(defn singleton-array-type [typ item]
+  (and (array-type typ item) (= (count item) 1)))
 
 ;; check an item but don't fail if it is missing entirely
-(defn json-optional-type [typ item]
+(defn optional-type [typ item]
   (or (nil? item) (type-check typ item)))
 
 ;; check a 'case' type in which a discriminating field in the wme selects
 ;; among a set of distinct types
-(defn case-type-check [case-type item]
+(defn case-type [case-type item]
   (let [[_ func & body] case-type
         key (func *wme-to-check*)]
     (loop [current body]
@@ -192,14 +213,15 @@
 
 ;; main recursive type checking function
 (defn type-check [typ item]
-  (cond (case-type? typ)            (case-type-check typ item)
+  (cond (case-type? typ)            (case-type typ item)
         (or-type? typ)              (some #(type-check % item) typ)
-        (fixed-map-type? typ)       (json-fixed-map-type typ item)
-        (open-map-type? typ)        (json-open-map-type typ item)
-        (key-value-type? typ)       (json-key-value-type typ item)
-        (array-type? typ)           (json-array-type typ item)
-        (singleton-array-type? typ) (json-singleton-array-type typ item)
-        (optional-type? typ)        (json-optional-type (first typ) item)
+        (fixed-map-type? typ)       (fixed-map-type typ item)
+        (open-map-type? typ)        (open-map-type typ item)
+        (key-value-type? typ)       (key-value-type typ item)
+        (array-type? typ)           (array-type typ item)
+        (range-type? typ)           (range-type typ item)
+        (singleton-array-type? typ) (singleton-array-type typ item)
+        (optional-type? typ)        (optional-type (first typ) item)
         (set? typ)                  (typ item)
         (= (type typ) Pattern)      (and (string? item) (re-matches typ item))
         :else                       ((or (predicates typ)
@@ -239,14 +261,15 @@
             (str
              "{"
              (str/join ", "
-                       (mapv (fn [item]
-                               (let [is-optional? (optional-type? item)
-                                     real-item (if is-optional? (second item) item)
-                                     [ktype vtype] real-item
-                                     base-str (str (str "\"" (name ktype) "\"")
-                                                   "=>"
-                                                   (translate-type vtype))]
-                                 (if is-optional? (str "(" base-str ")?") base-str)))
+                       (mapv
+                        (fn [item]
+                          (let [is-optional? (optional-type? item)
+                                real-item (if is-optional? (second item) item)
+                                [ktype vtype] real-item
+                                base-str (str (str "\"" (name ktype) "\"")
+                                              "=>"
+                                              (translate-type vtype))]
+                            (if is-optional? (str "(" base-str ")?") base-str)))
                              (rest typ)))
              (when (= (first typ) :open-map) "...")
              "}")
@@ -265,6 +288,10 @@
 
             (:array :singleton-array)
             (str "[" (translate-type (second typ)) "]")
+
+            :range
+            (let [[low high] (second typ)]
+              (str low ".." high))
 
             :?
             (str "(" (translate-type (second typ)) ")?"))
@@ -413,7 +440,7 @@
   "Additional information about another object (including overrides)"
   [:key :string "name of annotation"]
   [:value :json "value of annotation" :optional]
-  [:annotated :uuid-ref :annotatable "object being annotated"])
+  [:annotated :uuid-ref :wme "object being annotated"])
 
 (defflat app-info
   "High-level data about an entire model"
@@ -573,6 +600,16 @@
   [:check-type :string {:options ["liveness" "readiness" "both"]}]
   [:container :uuid-ref :container "reference to container"])
 
+(defflat host-path-volume
+  "File or directory mounted from host node's filesystem"
+  [:name :string]
+  [:cgroup :uuid-ref :container-group "reference to associated container group"]
+  [:host-path :string "path on host node filesystem"]
+  [:host-path-type :string {:options ["DirectoryOrCreate" "Directory"
+                                      "FileOrCreate" "File" "Socket"
+                                      "CharDevice" "BlockDevice"]}
+   :optional])
+
 (defflat image
   "Image run by a container"
   [:value :string]
@@ -593,6 +630,11 @@
   [:container :uuid-ref :container "reference to container" :optional]
   [:defining-service :uuid-ref :k8s-service
    "explicit service that called out port; empty string if generated from compatibility mode" :optional])
+
+(defflat replication
+  "Number of instances of a container group to run"
+  [:count :non-negative-integer]
+  [:cgroup :uuid-ref :container-group "reference to replicated container group"])
 
 (defflat restart
   "Conditions under which a container group should be restarted"
@@ -635,7 +677,7 @@
   [:access-modes [:array #{"ReadOnlyMany" "ReadWriteOnce" "ReadWriteMany"}]
    "one or more of: *ReadOnlyMany*, *ReadWriteOnce*, *ReadWriteMany*" :optional]
   [:storage-class :string "name of predefined cluster storage class" :optional]
-  [:storage :string "amount of storage for a PersistentVolumeClaim -- allows units: E, P, T, G, M, K - powers of 10: Exa, Peta, Tera, Giga, Mega, Kilo and Ei, Pi, Ti, Gi, Mi, Ki - powers of two (i.e. Gi is 1024\\*1024\\*1024 while G is 1000\\*1000\\*1000"
+  [:storage :storage-value "amount of storage for a PersistentVolumeClaim -- allows units: E, P, T, G, M, K - powers of 10: Exa, Peta, Tera, Giga, Mega, Kilo and Ei, Pi, Ti, Gi, Mi, Ki - powers of two (i.e. Gi is 1024\\*1024\\*1024 while G is 1000\\*1000\\*1000"
    :optional]
   [:selector [:fixed-map
               [:? [:matchExpressions
@@ -652,7 +694,7 @@
    "used for PersistentVolumeClaims -- staying compatible with k8s-service for now... both matchLabels and matchExpressions for attributes of persistent volumes (see: [persistent volume docs](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistent-volumes))" :optional])
 
 (defflat volume-ref
-"Reference from container to volume"
+  "Reference from container to volume"
   [:path :string]
   [:volume-name :string]
   [:volume :uuid-ref :referable-volume "reference to volume"]
@@ -663,16 +705,131 @@
 
 (doc-header "Kubernetes Only")
 
-(defflat top-label
-  "Kubernetes supports labels at many levels. We mostly care about labels in selectors but you can also place labels at the top levels of constructs like *Deployments*. These are those auxiliary labels."
-  [:key :string]
-  [:value :string]
-  [:cgroup :uuid-ref :container-group "reference to labeled container group"])
+(defflat cronjob-data
+  "All data for a CronJob controller"
+  [:cgroup :uuid-ref :container-group "reference to associated container group"]
+  [:cronjob-spec [:fixed-map
+                  [:? [:concurrencyPolicy #{"Allow" "Forbid" "Replace"}]]
+                  [:? [:failedJobsHistoryLimit :non-negative-integer]]
+                  [:schedule :string]
+                  [:? [:startingDeadlineSeconds :non-negative-integer]]
+                  [:? [:successfulJobsHistoryLimit :non-negative-integer]]
+                  [:? [:suspend :boolean]]]]
+  [:job-spec [:fixed-map
+              [:activeDeadlineSeconds :positive-integer]
+              [:? [:backoffLimit :non-negative-integer]]
+              [:? [:completions :positive-integer]]
+              [:? [:manualSelector :boolean]]
+              [:parallelism :positive-integer]
+              [:? [:selector [:fixed-map
+                              [:? [:matchExpressions
+                                   [:or
+                                    [:fixed-map
+                                     [:key :string]
+                                     [:operator #{"In" "NotIn"}]
+                                     [:values :string-array]]
+                                    [:fixed-map
+                                     [:key :string]
+                                     [:operator #{"Exists" "DoesNotExist"}]
+                                     [:values :empty-string-array]]]]]
+                              [:? [:matchLabels
+                                   [:key-value :keyword-or-str :string]]]]]]]])
+
+(defflat container-lifecycle
+  [:container :uuid-ref :container "reference to container with lifecycle"]
+  [:postStart [:or
+               [:fixed-map [:exec [:fixed-map [:command :string-array]]]]
+               [:fixed-map [:httpGet [:fixed-map
+                                      [:? [:host :string]]
+                                      [:? [:httpHeaders [:array :string]]]
+                                      [:path :string]
+                                      [:port [:or :string [:range [1 65535]]]]
+                                      [:? [:scheme :string]]]]]
+               [:fixed-map [:tcpSocket
+                            [:fixed-map
+                             [:? [:host :string]]
+                             [:port [:or :string [:range [1 65535]]]]]]]]]
+  [:preStop [:or
+               [:fixed-map [:exec [:fixed-map [:command :string-array]]]]
+               [:fixed-map [:httpGet [:fixed-map
+                                      [:? [:host :string]]
+                                      [:? [:httpHeaders [:array :string]]]
+                                      [:path :string]
+                                      [:port [:or :string [:range [1 65535]]]]
+                                      [:? [:scheme :string]]]]]
+               [:fixed-map [:tcpSocket
+                            [:fixed-map
+                             [:? [:host :string]]
+                             [:port [:or :string [:range [1 65535]]]]]]]]])
+
+(defflat container-resources
+  [:container :uuid-ref :container "reference to container possessing resources"]
+  [:limits [:fixed-map
+            [:? [:memory :memory-value]]
+            [:? [:cpu :cpu-value]]]
+   :optional]
+  [:requests [:fixed-map
+              [:? [:memory :memory-value]]
+              [:? [:cpu :cpu-value]]]
+   :optional])
 
 (defflat image-pull-policy
   "When to pull a new image"
   [:value :string {:options ["Always" "IfNotPresent"]}]
   [:container :uuid-ref :container "reference to container using image"])
+
+(defflat ingress
+  "Manages external access to services in a cluster"
+  [:name :string]
+  [:metadata [:open-map
+              [:? [:annotations [:key-value :keyword-or-str :string]]]
+              [:? [:labels [:key-value :keyword-or-str :string]]]
+              [:? [:selector [:key-value :keyword-or-str :string]]]
+              [:name :string]
+              [:? [:namespace :string]]]]
+  [:spec [:or
+          [:fixed-map
+           [:backend [:fixed-map
+                      [:service-id :string]
+                      [:servicePort [:or :string [:range [1 65535]]]]]]
+           [:tls [:array [:fixed-map
+                          [:? [:hosts :string-array]]
+                          [:? [:secretName :string]]]]]]
+          [:fixed-map
+           [:rules [:array
+                    [:fixed-map
+                     [:host :string]
+                     [:http [:fixed-map
+                             [:paths [:array
+                                      [:fixed-map
+                                       [:backend
+                                        [:fixed-map
+                                         [:service-id :string]
+                                         [:servicePort
+                                          [:or :string [:range [1 65535]]]]]]
+                                       [:path :string]]]]]]]]]
+           [:tls [:array [:fixed-map
+                          [:? [:hosts :string-array]]
+                          [:? [:secretName :string]]]]]]
+          [:fixed-map
+           [:backend [:fixed-map
+                      [:service-id :string]
+                      [:servicePort [:or :string [:range [1 65535]]]]]]
+           [:rules [:array
+                    [:fixed-map
+                     [:host :string]
+                     [:http [:fixed-map
+                             [:paths [:array
+                                      [:fixed-map
+                                       [:backend
+                                        [:fixed-map
+                                         [:service-id :string]
+                                         [:servicePort
+                                          [:or :string [:range [1 65535]]]]]]
+                                       [:path :string]]]]]]]]]
+           [:tls [:array [:fixed-map
+                          [:? [:hosts :string-array]]
+                          [:? [:secretName :string]]]]]]]])
 
 (defflat k8s-namespace
   "Kubernetes supports explicit namespaces"
@@ -769,6 +926,12 @@
   [:default-mode :non-negative-integer-string
    "default mode for secret items in this volume"]
   [:secret-name :string "name of secret exposed by secret volume"])
+
+(defflat top-label
+  "Kubernetes supports labels at many levels. We mostly care about labels in selectors but you can also place labels at the top levels of constructs like *Deployments*. These are those auxiliary labels."
+  [:key :string]
+  [:value :string]
+  [:cgroup :uuid-ref :container-group "reference to labeled container group"])
 
 (defflat unknown-k8s-kind
   "Any item with a \"kind\" we don't recognize should be wrapped in one of these."

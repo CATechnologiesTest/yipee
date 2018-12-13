@@ -392,6 +392,7 @@
        (id-insert!
         (assoc
          (substitute-ingress-attributes ingress svcs f inkey outkey)
+         :name (:name (:metadata ingress))
          :type :ingress))))
   (id-remove! ?k8s)
   (id-insert! (dissoc ?k8s :ingresses)))

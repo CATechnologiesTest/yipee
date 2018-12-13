@@ -96,6 +96,12 @@ Specification for a check operation to perform on a container
 - *timeout* **non-negative-integer** 
 - *check-type* **string** (*liveness*, *readiness*, *both*)
 - *container* **uuid-ref** (reference to container)
+#### host-path-volume
+File or directory mounted from host node's filesystem
+- *name* **string** 
+- *cgroup* **uuid-ref** (reference to associated container group)
+- *host-path* **string** (path on host node filesystem)
+- *host-path-type* **string** (*DirectoryOrCreate*, *Directory*, *FileOrCreate*, *File*, *Socket*, *CharDevice*, *BlockDevice*)
 #### image
 Image run by a container
 - *value* **string** 
@@ -113,6 +119,10 @@ Mapping between container port and external port
 - *protocol* **string** (*tcp*, *udp*)
 - *container* **uuid-ref** (reference to container)
 - *defining-service* **uuid-ref** (explicit service that called out port; empty string if generated from compatibility mode)
+#### replication
+Number of instances of a container group to run
+- *count* **non-negative-integer** 
+- *cgroup* **uuid-ref** (reference to replicated container group)
 #### restart
 Conditions under which a container group should be restarted
 - *value* **string** (*always*, *none*, *unless-stopped*)
@@ -145,7 +155,7 @@ Storage specification
 - *volume-mode* **string** (*Filesystem*, *Block* -- default: *Filesystem*)
 - *access-modes* **[("ReadWriteMany" | "ReadWriteOnce" | "ReadOnlyMany")]** (one or more of: *ReadOnlyMany*, *ReadWriteOnce*, *ReadWriteMany*)
 - *storage-class* **string** (name of predefined cluster storage class)
-- *storage* **string** (amount of storage for a PersistentVolumeClaim -- allows units: E, P, T, G, M, K - powers of 10: Exa, Peta, Tera, Giga, Mega, Kilo and Ei, Pi, Ti, Gi, Mi, Ki - powers of two (i.e. Gi is 1024\*1024\*1024 while G is 1000\*1000\*1000)
+- *storage* **storage-value** (amount of storage for a PersistentVolumeClaim -- allows units: E, P, T, G, M, K - powers of 10: Exa, Peta, Tera, Giga, Mega, Kilo and Ei, Pi, Ti, Gi, Mi, Ki - powers of two (i.e. Gi is 1024\*1024\*1024 while G is 1000\*1000\*1000)
 - *selector* **{("matchExpressions"=>({"key"=>string, "operator"=>("In" | "NotIn"), "values"=>string-array} | {"key"=>string, "operator"=>("Exists" | "DoesNotExist"), "values"=>empty-string-array}))?, ("matchLabels"=>{"keyword-or-str"=>string, ...})?}** (used for PersistentVolumeClaims -- staying compatible with k8s-service for now... both matchLabels and matchExpressions for attributes of persistent volumes (see: [persistent volume docs](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistent-volumes)))
 #### volume-ref
 Reference from container to volume
@@ -157,15 +167,28 @@ Reference from container to volume
 - *container* **uuid-ref** (reference to container using volume)
 
 ### Kubernetes Only
-#### top-label
-Kubernetes supports labels at many levels. We mostly care about labels in selectors but you can also place labels at the top levels of constructs like *Deployments*. These are those auxiliary labels.
-- *key* **string** 
-- *value* **string** 
-- *cgroup* **uuid-ref** (reference to labeled container group)
+#### cronjob-data
+All data for a CronJob controller
+- *cgroup* **uuid-ref** (reference to associated container group)
+- *cronjob-spec* **{("concurrencyPolicy"=>("Allow" | "Forbid" | "Replace"))?, ("failedJobsHistoryLimit"=>non-negative-integer)?, "schedule"=>string, ("startingDeadlineSeconds"=>non-negative-integer)?, ("successfulJobsHistoryLimit"=>non-negative-integer)?, ("suspend"=>boolean)?}** 
+- *job-spec* **{"activeDeadlineSeconds"=>positive-integer, ("backoffLimit"=>non-negative-integer)?, ("completions"=>positive-integer)?, ("manualSelector"=>boolean)?, "parallelism"=>positive-integer, ("selector"=>{("matchExpressions"=>({"key"=>string, "operator"=>("In" | "NotIn"), "values"=>string-array} | {"key"=>string, "operator"=>("Exists" | "DoesNotExist"), "values"=>empty-string-array}))?, ("matchLabels"=>{"keyword-or-str"=>string, ...})?})?}** 
+#### container-lifecycle
+[:container :uuid-ref :container "reference to container with lifecycle"]
+- *postStart* **({"exec"=>{"command"=>string-array}} | {"httpGet"=>{("host"=>string)?, ("httpHeaders"=>[string])?, "path"=>string, "port"=>(string | 1..65535), ("scheme"=>string)?}} | {"tcpSocket"=>{("host"=>string)?, "port"=>(string | 1..65535)}})** 
+- *preStop* **({"exec"=>{"command"=>string-array}} | {"httpGet"=>{("host"=>string)?, ("httpHeaders"=>[string])?, "path"=>string, "port"=>(string | 1..65535), ("scheme"=>string)?}} | {"tcpSocket"=>{("host"=>string)?, "port"=>(string | 1..65535)}})** 
+#### container-resources
+[:container :uuid-ref :container "reference to container possessing resources"]
+- *limits* **{("memory"=>memory-value)?, ("cpu"=>cpu-value)?}** 
+- *requests* **{("memory"=>memory-value)?, ("cpu"=>cpu-value)?}** 
 #### image-pull-policy
 When to pull a new image
 - *value* **string** (*Always*, *IfNotPresent*)
 - *container* **uuid-ref** (reference to container using image)
+#### ingress
+Manages external access to services in a cluster
+- *name* **string** 
+- *metadata* **{("annotations"=>{"keyword-or-str"=>string, ...})?, ("labels"=>{"keyword-or-str"=>string, ...})?, ("selector"=>{"keyword-or-str"=>string, ...})?, "name"=>string, ("namespace"=>string)?...}** 
+- *spec* **({"backend"=>{"service-id"=>string, "servicePort"=>(string | 1..65535)}, "tls"=>[{("hosts"=>string-array)?, ("secretName"=>string)?}]} | {"rules"=>[{"host"=>string, "http"=>{"paths"=>[{"backend"=>{"service-id"=>string, "servicePort"=>(string | 1..65535)}, "path"=>string}]}}], "tls"=>[{("hosts"=>string-array)?, ("secretName"=>string)?}]} | {"backend"=>{"service-id"=>string, "servicePort"=>(string | 1..65535)}, "rules"=>[{"host"=>string, "http"=>{"paths"=>[{"backend"=>{"service-id"=>string, "servicePort"=>(string | 1..65535)}, "path"=>string}]}}], "tls"=>[{("hosts"=>string-array)?, ("secretName"=>string)?}]})** 
 #### k8s-namespace
 Kubernetes supports explicit namespaces
 - *name* **string** 
@@ -201,6 +224,11 @@ Volume holding secret item values
 - *source* **string** (*auto*, *k8s*)
 - *default-mode* **non-negative-integer-string** (default mode for secret items in this volume)
 - *secret-name* **string** (name of secret exposed by secret volume)
+#### top-label
+Kubernetes supports labels at many levels. We mostly care about labels in selectors but you can also place labels at the top levels of constructs like *Deployments*. These are those auxiliary labels.
+- *key* **string** 
+- *value* **string** 
+- *cgroup* **uuid-ref** (reference to labeled container group)
 #### unknown-k8s-kind
 Any item with a "kind" we don't recognize should be wrapped in one of these.
 - *body* **json** (entire definition of unknown object)
