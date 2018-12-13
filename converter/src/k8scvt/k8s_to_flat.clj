@@ -1115,7 +1115,7 @@
 (defrule extract-volume-claim-templates-from-podspec
   "Pull volume claim templates out of a podspec for a stateful set"
   [?pspec :podspec
-   (= (:controller-type ?pspec) :StatefulSet)
+   (= (:controller-type ?pspec) "StatefulSet")
    (not= (:claim-templates ?pspec) "")
    (not (seq (:volumes ?pspec)))]
   [?cgroup :container-group (= (:pod ?cgroup) (:id ?pspec))]
