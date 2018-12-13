@@ -51,7 +51,8 @@
               :deployment
               :pod
               :ingress
-              :unknown-k8s-kind]
+              :unknown-k8s-kind
+              :layout-annotations]
   :namespaced)
 
 (defn safe-name [x]
@@ -1626,12 +1627,14 @@
   (and (= "ui" (:key anno))
        (get-in anno [:value :canvas :position])))
 
+(def layout-priority (+ 1 *adjustment*))
 (defrule create-layout-anno-holder
-  {:priority *adjustment*}
+  {:priority layout-priority} ;; ahead of apply-model-namespace
   [:not [? :layout-annotations]]
   [?anno :annotation (is-layout-anno ?anno)]
   =>
-  (id-insert! {:type :layout-annotations :data {}}))
+  (id-insert! {:type :layout-annotations
+               :metadata {:name layout-config-name} :data {}}))
 
 (defrule collect-layout-annotations
   {:priority *adjustment*}
@@ -1664,5 +1667,5 @@
   (insert! {:apiVersion "v1"
             :type :layout-config-map
             :kind "ConfigMap"
-            :metadata {:name layout-config-name}
+            :metadata (:metadata ?layout-annos)
             :data (:data ?layout-annos)}))
