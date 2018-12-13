@@ -222,8 +222,9 @@
   "Add build holds into a service being constructed"
   {:priority -1} ;; XXX: after insert-build
   [?svc :service]
-  [?hfc :hold-for-compose (and (:build (:value ?hfc))
-                               (= (:container ?hfc) (:id ?svc)))]
+  [?hfc :hold-for-compose
+   (:build (:value ?hfc))
+   (= (:container ?hfc) (:id ?svc))]
   =>
   (let [build (:build ?svc)
         hfcval (:value ?hfc)

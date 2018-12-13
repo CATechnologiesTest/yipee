@@ -1,10 +1,10 @@
-Chart.yaml:
+multi-container/Chart.yaml:
 
-name: null
+name: multi-container
 version: 0.0.1
 
 ---
-values.yaml:
+multi-container/values.yaml:
 
 serviceMysql0Spec1Ports2_name_mysql_3Port4: "3306"
 serviceMysql0Spec1Ports2_name_mysql_3TargetPort4: "3306"
@@ -35,7 +35,7 @@ deploymentWeb0Spec1Template2Spec3Containers4_name_redis_5Ports6_name_redis_7Prot
 deploymentWeb0Spec1Template2Spec3Containers4_name_redis_5Ports6_name_redis_7Name8: "redis"
 
 ---
-templates/ServiceMysql.yaml:
+multi-container/templates/ServiceMysql.yaml:
 
 apiVersion: v1
 kind: Service
@@ -56,7 +56,7 @@ spec:
   type: ClusterIP
 
 ---
-templates/ServiceWeb.yaml:
+multi-container/templates/ServiceWeb.yaml:
 
 apiVersion: v1
 kind: Service
@@ -76,7 +76,7 @@ spec:
   type: NodePort
 
 ---
-templates/DeploymentMysql.yaml:
+multi-container/templates/DeploymentMysql.yaml:
 
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -120,7 +120,7 @@ spec:
   revisionHistoryLimit: 2
 
 ---
-templates/DeploymentWeb.yaml:
+multi-container/templates/DeploymentWeb.yaml:
 
 apiVersion: extensions/v1beta1
 kind: Deployment
