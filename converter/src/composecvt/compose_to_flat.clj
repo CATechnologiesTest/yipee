@@ -399,7 +399,9 @@
 (defrule remove-empty-networks
   "Remove networks when empty"
   {:priority 50}
-  [?compose :compose (and (:networks ?compose) (empty? (:networks ?compose)))]
+  [?compose :compose
+   (:networks ?compose)
+   (empty? (:networks ?compose))]
   =>
    (id-remove! ?compose)
    (id-insert! (dissoc ?compose :networks)))
@@ -407,7 +409,9 @@
 (defrule remove-empty-volumes
   "Remove volumes when empty"
   {:priority 50}
-  [?compose :compose (and (:volumes ?compose) (empty? (:volumes ?compose)))]
+  [?compose :compose
+   (:volumes ?compose)
+   (empty? (:volumes ?compose))]
   =>
    (id-remove! ?compose)
    (id-insert! (dissoc ?compose :volumes)))

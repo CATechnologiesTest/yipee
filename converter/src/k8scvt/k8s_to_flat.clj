@@ -932,8 +932,9 @@
 
 (defrule extract-config-volumes-from-podspec
   "Pull config volumes out of a podspec"
-  [?pspec :podspec (and (not (some :secret (:volumes ?pspec)))
-                        (some :configMap (:volumes ?pspec)))]
+  [?pspec :podspec
+   (not (some :secret (:volumes ?pspec)))
+   (some :configMap (:volumes ?pspec))]
   [?cgroup :container-group (= (:pod ?cgroup) (:id ?pspec))]
   [?container :container (= (:id ?cgroup) (:cgroup ?container))]
   =>
@@ -981,9 +982,10 @@
 
 (defrule extract-empty-dir-volumes-from-podspec
   "Pull empty dir volumes out of a podspec"
-  [?pspec :podspec (and (not (some :secret (:volumes ?pspec)))
-                        (not (some :configMap (:volumes ?pspec)))
-                        (some :emptyDir (:volumes ?pspec)))]
+  [?pspec :podspec
+   (not (some :secret (:volumes ?pspec)))
+   (not (some :configMap (:volumes ?pspec)))
+   (some :emptyDir (:volumes ?pspec))]
   [?cgroup :container-group (= (:pod ?cgroup) (:id ?pspec))]
   [?container :container (= (:id ?cgroup) (:cgroup ?container))]
   =>
@@ -1018,9 +1020,10 @@
 
 (defrule extract-host-path-volumes-from-podspec
   "Pull hostpath volumes out of a podspec"
-  [?pspec :podspec (and (not (some :secret (:volumes ?pspec)))
-                        (not (some :configMap (:volumes ?pspec)))
-                        (some :hostPath (:volumes ?pspec)))]
+  [?pspec :podspec
+   (not (some :secret (:volumes ?pspec)))
+   (not (some :configMap (:volumes ?pspec)))
+   (some :hostPath (:volumes ?pspec))]
   [?cgroup :container-group (= (:pod ?cgroup) (:id ?pspec))]
   [?container :container (= (:id ?cgroup) (:cgroup ?container))]
   =>
@@ -1059,10 +1062,11 @@
 
 (defrule extract-non-secret-volumes-from-podspec
   "Pull volumes out of a podspec"
-  [?pspec :podspec (and (seq (:volumes ?pspec))
-                        (not (some #(or (:secret %) (:configMap %)
-                                        (:emptyDir %) (:hostPath %))
-                                   (:volumes ?pspec))))]
+  [?pspec :podspec
+   (seq (:volumes ?pspec))
+   (not (some #(or (:secret %) (:configMap %)
+                   (:emptyDir %) (:hostPath %))
+              (:volumes ?pspec)))]
   [?cgroup :container-group (= (:pod ?cgroup) (:id ?pspec))]
   [?container :container (= (:id ?cgroup) (:cgroup ?container))]
   =>
@@ -1101,9 +1105,10 @@
 
 (defrule extract-volume-claim-templates-from-podspec
   "Pull volume claim templates out of a podspec for a stateful set"
-  [?pspec :podspec (and (= (:controller-type ?pspec) :StatefulSet)
-                        (not= (:claim-templates ?pspec) "")
-                        (not (seq (:volumes ?pspec))))]
+  [?pspec :podspec
+   (= (:controller-type ?pspec) :StatefulSet)
+   (not= (:claim-templates ?pspec) "")
+   (not (seq (:volumes ?pspec)))]
   [?cgroup :container-group (= (:pod ?cgroup) (:id ?pspec))]
   [?container :container
    (= (:id ?cgroup) (:cgroup ?container))
@@ -1207,8 +1212,9 @@
 
 (defrule resolve-ui-anno-target
   [?anno :annotation (:target ?anno)]
-  [?wme :wme (and (= (:type ?wme) (get-in ?anno [:target :type]))
-                  (= (:name ?wme) (get-in ?anno [:target :name])))]
+  [?wme :wme
+   (= (:type ?wme) (get-in ?anno [:target :type]))
+   (= (:name ?wme) (get-in ?anno [:target :name]))]
   =>
   (id-remove! ?anno)
   (id-insert! (assoc (dissoc ?anno :target) :annotated (:id ?wme))))
