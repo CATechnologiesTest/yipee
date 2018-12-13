@@ -1640,20 +1640,21 @@
   [?target :wme (= (:id ?target) (:annotated ?anno))]
   =>
   (remove! ?anno)
-  (remove! ?layout-annos)
-  (let [x (get-in ?anno [:value :canvas :position :x])
-        y (get-in ?anno [:value :canvas :position :y])
-        targname (name (:name ?target))
-        targtype (name (:type ?target))
-        ;; Map key is "type!name", value is "x!y".
-        ;; N.B. a unique name/key would require all of
-        ;; namespace!type!name but we ignore namespace since our
-        ;; imports require that all contained objects be in a single
-        ;; namespace
-        newdata (assoc (:data ?layout-annos)
-                       (encode-layout-value targtype targname)
-                       (encode-layout-value x y))]
-    (id-insert! (assoc ?layout-annos :data newdata))))
+  (when (:name ?target)
+    (remove! ?layout-annos)
+    (let [x (get-in ?anno [:value :canvas :position :x])
+          y (get-in ?anno [:value :canvas :position :y])
+          targname (name (:name ?target))
+          targtype (name (:type ?target))
+          ;; Map key is "type!name", value is "x!y".
+          ;; N.B. a unique name/key would require all of
+          ;; namespace!type!name but we ignore namespace since our
+          ;; imports require that all contained objects be in a single
+          ;; namespace
+          newdata (assoc (:data ?layout-annos)
+                         (encode-layout-value targtype targname)
+                         (encode-layout-value x y))]
+      (id-insert! (assoc ?layout-annos :data newdata)))))
 
 (defrule create-config-map-of-layout-annotations
   [?layout-annos :layout-annotations (> (count ?layout-annos) 0)]
