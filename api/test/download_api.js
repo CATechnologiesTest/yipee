@@ -13,7 +13,7 @@ function logAndThrow(err) {
 }
 
 describe('Yipee Download API Tests:', function() {
-    this.timeout(60000);
+    this.timeout(10000);
 
     after(function(done) {
         if (app.server) {
@@ -118,7 +118,7 @@ describe('Yipee Download API Tests:', function() {
             payload: flatYipee,
             retkey: 'helmFile',
             expectStatus: 200,
-            expectEntries: ["Chart.yaml", "values.yaml"]
+            expectEntries: ["flatYipee/Chart.yaml", "flatYipee/values.yaml"]
         }
     ];
 
