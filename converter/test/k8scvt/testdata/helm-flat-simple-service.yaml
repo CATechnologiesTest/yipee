@@ -1,10 +1,10 @@
-Chart.yaml:
+multi-container/Chart.yaml:
 
-name: null
+name: multi-container
 version: 0.0.1
 
 ---
-values.yaml:
+multi-container/values.yaml:
 
 serviceMysql0Metadata1Labels2Name3: "mysql"
 serviceMysql0Metadata1Labels2App3: "demo"
@@ -82,7 +82,7 @@ deploymentWeb0Spec1Replicas2: "2"
 deploymentWeb0Spec1RevisionHistoryLimit2: "2"
 
 ---
-templates/ServiceMysql.yaml:
+multi-container/templates/ServiceMysql.yaml:
 
 apiVersion: v1
 kind: Service
@@ -103,7 +103,7 @@ spec:
   type: {{.Values.serviceMysql0Spec1Type2}}
 
 ---
-templates/ServiceWeb.yaml:
+multi-container/templates/ServiceWeb.yaml:
 
 apiVersion: v1
 kind: Service
@@ -123,7 +123,7 @@ spec:
   type: {{.Values.serviceWeb0Spec1Type2}}
 
 ---
-templates/DeploymentMysql.yaml:
+multi-container/templates/DeploymentMysql.yaml:
 
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -167,7 +167,7 @@ spec:
   revisionHistoryLimit: {{int .Values.deploymentMysql0Spec1RevisionHistoryLimit2}}
 
 ---
-templates/DeploymentWeb.yaml:
+multi-container/templates/DeploymentWeb.yaml:
 
 apiVersion: extensions/v1beta1
 kind: Deployment

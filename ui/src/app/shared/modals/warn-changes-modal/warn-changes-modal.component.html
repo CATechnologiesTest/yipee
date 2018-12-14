@@ -1,0 +1,11 @@
+<clr-modal #warningModal [(clrModalOpen)]="show" [clrModalClosable]="false">
+  <h3 class="modal-title">Warning! Leaving this page will cause all your changes to be lost.</h3>
+  <div class="modal-body">
+    <p>Make sure you have downloaded your model before leaving.</p>
+    <p>Are you sure you would like to navigate away from this page?</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="navigateHome()">Yes</button>
+    <button type="button" class="btn btn-primary" (click)="cancel()">Cancel</button>
+  </div>
+</clr-modal>

@@ -10,7 +10,6 @@ export class AppInfo extends ParsedObject {
   public static OBJECT_NAME = 'app-info';
 
   description: string;
-  logo: string;
   name: string;
   helmSettingsAll: boolean;
   helmSettingsEnv: boolean;
@@ -42,7 +41,6 @@ export class AppInfo extends ParsedObject {
   fromFlat(flat: any): void {
     super.fromFlat(flat);
     this.description = flat['description'];
-    this.logo = flat['logo'];
     this.name = flat['name'];
     this.readme = flat['readme'];
 
@@ -61,7 +59,6 @@ export class AppInfo extends ParsedObject {
   toFlat(): any {
     const flat = super.toFlat();
     flat['description'] = this.description;
-    flat['logo'] = this.logo;
     flat['name'] = this.name;
     flat['readme'] = this.readme;
 

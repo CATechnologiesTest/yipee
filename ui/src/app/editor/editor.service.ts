@@ -26,6 +26,8 @@ import { NameStringValue } from '../models/common/Generic';
 @Injectable()
 export class EditorService {
 
+  static UNEXPECTED_RESPONSE = 'Unexpected response from server: ';
+
   private _dirty: boolean;
   editMode: string;
   readOnly: boolean;
@@ -33,8 +35,8 @@ export class EditorService {
   yipeeFileID: string;
   metadata: YipeeFileMetadata;
   k8sFile: K8sFile = new K8sFile();
-  yipeeFileLogo: string;
   fatalText: string[];
+  warningText: string[];
   alertText: string[];
   infoText: string[];
   invalidKeys: string[];
@@ -54,13 +56,14 @@ export class EditorService {
   constructor(
     private editorEventService: EditorEventService,
     private yipeeFileService: YipeeFileService,
-    private downloadService: DownloadService
+    public downloadService: DownloadService
   ) {
     this._dirty = false;
-    this.editMode = '';
+    this.editMode = 'k8s';
     this.readOnly = false;
     this.isWriter = false;
     this.fatalText = [];
+    this.warningText = [];
     this.alertText = [];
     this.infoText = [];
     this.invalidKeys = [];
@@ -78,20 +81,31 @@ export class EditorService {
 
   }
 
+  downloadModel(downloadFunc: string): void {
+    this.downloadService[downloadFunc](true, this.k8sFile.toFlat()).subscribe((successfulDownload) => {
+      if (successfulDownload) {
+        this.dirty = false;
+      } else {
+        this.warningText = [];
+        this.warningText.push(EditorService.UNEXPECTED_RESPONSE + 'failed to download');
+      }
+    });
+  }
+
   downloadCurrentModel(): void {
-    this.downloadService.downloadKubernetesFile(true, this.k8sFile.toFlat());
+    this.downloadModel('downloadKubernetesFile');
   }
 
   downloadKubernetes(): void {
-    this.downloadService.downloadKubernetesFile(true, this.k8sFile.toFlat());
+    this.downloadModel('downloadKubernetesFile');
   }
 
   downloadKubernetesArchive(): void {
-    this.downloadService.downloadKubernetesArchive(true, this.k8sFile.toFlat());
+    this.downloadModel('downloadKubernetesArchive');
   }
 
   downloadHelm(): void {
-    this.downloadService.downloadHelmArchive(true, this.k8sFile.toFlat());
+    this.downloadModel('downloadHelmArchive');
   }
 
   dumpK8sFile() {
@@ -130,7 +144,6 @@ export class EditorService {
     this.invalidKeys.length = 0;
     this.metadata = yipeeFile;
     this.k8sFile = yipeeFile.flatFile;
-    this.editMode = this.getEditMode();
     return of(true);
   }
 
@@ -265,26 +278,10 @@ export class EditorService {
     return name;
   }
 
-
-  getEditMode(): string {
-    if (this.metadata.isFlat) {
-      return 'k8s';
-    }
-    return 'compat';
-  }
-
-  getModelType(): string {
-    if (this.metadata.flatFile) {
-      return 'k8s';
-    } else {
-      return 'c11y';
-    }
-  }
-
   // go through the container group service names and clear them if the corresponding service no longer exists
   private initPodServiceNames(): void {
     this.k8sFile.containerGroups.forEach((containerGroup: ContainerGroup) => {
-      const serviceNameExistsInServiceMap = find(this.returnServiceMapByContainerGroupId(containerGroup.id), function(arrayValue) { return arrayValue.name === containerGroup.deployment_spec.service_name; });
+      const serviceNameExistsInServiceMap = find(this.returnServiceMapByContainerGroupId(containerGroup.id), function (arrayValue) { return arrayValue.name === containerGroup.deployment_spec.service_name; });
 
       if (!serviceNameExistsInServiceMap) {
         containerGroup.deployment_spec.service_name = '-- Select a service --';

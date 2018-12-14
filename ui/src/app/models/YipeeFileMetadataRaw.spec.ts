@@ -12,11 +12,9 @@ const jim2RawData: YipeeFileMetadataRaw[] = [
     'dateModified': '2018-02-06T16:36:07.035469+00:00',
     'downloads': 0,
     'fullname': 'jd3quist@github/e@no@ent/jd3quist/e1.yipee',
-    'hasLogo': false,
     'id': 'a1d44a6c-0b5b-11e8-ac11-f7adb5a8a038',
     'isPrivate': true,
     'likes': 0,
-    'logodata': null,
     'name': 'e1',
     'orgname': 'jd3quist',
     'ownerorg': '898b49ba-0b5b-11e8-bb9d-cfc6a6616afe',
@@ -27,7 +25,6 @@ const jim2RawData: YipeeFileMetadataRaw[] = [
       'appinfo': {
         'description': '',
         'id': '041bb5c1-75b8-4963-9532-b892659bc5f6',
-        'logo': '',
         'name': 'e1',
         'readme': '',
         'ui': {
@@ -79,7 +76,6 @@ const jim2RawData: YipeeFileMetadataRaw[] = [
       'app-info': {
         'description': '',
         'id': '041bb5c1-75b8-4963-9532-b892659bc5f6',
-        'logo': '',
         'name': 'e1',
         'readme': '',
         'ui': {
@@ -134,11 +130,9 @@ const jim2RawData: YipeeFileMetadataRaw[] = [
     'dateModified': '2018-02-06T16:39:15.053482+00:00',
     'downloads': 0,
     'fullname': 'jd3quist@github/e@no@ent/jd3quist/simple.yipee',
-    'hasLogo': false,
     'id': '28b19f76-0b5c-11e8-9669-53ba6e9ed833',
     'isPrivate': true,
     'likes': 0,
-    'logodata': null,
     'name': 'simple',
     'orgname': 'jd3quist',
     'ownerorg': '898b49ba-0b5b-11e8-bb9d-cfc6a6616afe',
@@ -149,7 +143,6 @@ const jim2RawData: YipeeFileMetadataRaw[] = [
       'appinfo': {
         'description': '[insert app description here]',
         'id': 'bf5f5ada-0607-4abb-bf6d-5155e55f90bc',
-        'logo': '[insert name of app logo image here]',
         'name': 'simple',
         'readme': '',
         'ui': {
@@ -204,7 +197,6 @@ const jim2RawData: YipeeFileMetadataRaw[] = [
       'app-info': {
         'description': '[insert app description here]',
         'id': 'bf5f5ada-0607-4abb-bf6d-5155e55f90bc',
-        'logo': '[insert name of app logo image here]',
         'name': 'simple',
         'readme': '',
         'ui': {
@@ -260,11 +252,9 @@ const jim2RawData: YipeeFileMetadataRaw[] = [
     'dateModified': '2018-02-06T16:42:03.164394+00:00',
     'downloads': 0,
     'fullname': 'jd3quist@github/e@no@ent/jd3quist/e2.yipee',
-    'hasLogo': false,
     'id': 'a8cc42ce-0b5c-11e8-893e-cf451c3b5465',
     'isPrivate': true,
     'likes': 0,
-    'logodata': null,
     'name': 'e2',
     'orgname': 'jd3quist',
     'ownerorg': '898b49ba-0b5b-11e8-bb9d-cfc6a6616afe',
@@ -275,7 +265,6 @@ const jim2RawData: YipeeFileMetadataRaw[] = [
       'appinfo': {
         'description': '',
         'id': '4024ccd0-d5a3-4d17-bbce-af8b4f3e6830',
-        'logo': '',
         'name': 'e2',
         'readme': '',
         'ui': {
@@ -292,7 +281,6 @@ const jim2RawData: YipeeFileMetadataRaw[] = [
       'app-info': {
         'description': '',
         'id': '4024ccd0-d5a3-4d17-bbce-af8b4f3e6830',
-        'logo': '',
         'name': 'e2',
         'readme': '',
         'ui': {
@@ -319,7 +307,6 @@ const jimRawData: YipeeFileMetadataRaw[] = [
     'dateModified': '2018-01-30T22:21:08.937111+00:00',
     'downloads': 1177,
     'fullname': 'jd3quist@github/e@no@ent/jd3quist/fork.yipee',
-    'hasLogo': true,
     'id': '66d4cc5d-d8c3-4052-85ba-1085888750f8',
     'isPrivate': true,
     'likes': 5477,
@@ -333,7 +320,6 @@ const jimRawData: YipeeFileMetadataRaw[] = [
       'appinfo': {
         'description': '',
         'id': 'e4e8d95e-f793-45a8-87e3-63014d4edfab',
-        'logo': 'cat-300572_960_720.jpg',
         'name': 'fork',
         'readme': '',
         'ui': {
@@ -566,7 +552,6 @@ const jimRawData: YipeeFileMetadataRaw[] = [
       'app-info': {
         'description': '',
         'id': 'e4e8d95e-f793-45a8-87e3-63014d4edfab',
-        'logo': 'cat-300572_960_720.jpg',
         'name': 'fork',
         'readme': '',
         'ui': {
@@ -792,11 +777,9 @@ const jimRawData: YipeeFileMetadataRaw[] = [
     'dateModified': '2018-01-31T22:09:00.919402+00:00',
     'downloads': 0,
     'fullname': 'jd3quist@github/e@no@ent/jd3quist/oink.yipee',
-    'hasLogo': false,
     'id': '5769b9b2-06d3-11e8-9fbf-8f616c2b770a',
     'isPrivate': true,
     'likes': 0,
-    'logodata': null,
     'name': 'oink',
     'orgname': 'jd3quist',
     'ownerorg': '812d420e-1558-11e7-a130-d3051574e881',
@@ -807,7 +790,6 @@ const jimRawData: YipeeFileMetadataRaw[] = [
       'appinfo': {
         'description': '[insert app description here]',
         'id': 'cc0d1f10-c911-4995-b103-282fa5be9b36',
-        'logo': '[insert name of app logo image here]',
         'name': 'oink'
       },
       'networks': [],
@@ -841,7 +823,6 @@ const jimRawData: YipeeFileMetadataRaw[] = [
       'app-info': {
         'description': '[insert app description here]',
         'id': 'cc0d1f10-c911-4995-b103-282fa5be9b36',
-        'logo': '[insert name of app logo image here]',
         'name': 'oink'
       },
       'networks': {},
@@ -878,11 +859,9 @@ const jimRawData: YipeeFileMetadataRaw[] = [
     'dateModified': '2018-01-31T22:39:54.930963+00:00',
     'downloads': 0,
     'fullname': 'jd3quist@github/e@no@ent/jd3quist/snort.yipee',
-    'hasLogo': false,
     'id': 'a87d55c6-06d7-11e8-90be-6b709116f176',
     'isPrivate': true,
     'likes': 0,
-    'logodata': null,
     'name': 'snort',
     'orgname': 'jd3quist',
     'ownerorg': '812d420e-1558-11e7-a130-d3051574e881',
@@ -893,7 +872,6 @@ const jimRawData: YipeeFileMetadataRaw[] = [
       'appinfo': {
         'description': '[insert app description here]',
         'id': '7e95daad-e42f-4a0e-bfa9-ac09814bdca9',
-        'logo': '[insert name of app logo image here]',
         'name': 'snort'
       },
       'networks': [],
@@ -927,7 +905,6 @@ const jimRawData: YipeeFileMetadataRaw[] = [
       'app-info': {
         'description': '[insert app description here]',
         'id': '7e95daad-e42f-4a0e-bfa9-ac09814bdca9',
-        'logo': '[insert name of app logo image here]',
         'name': 'snort'
       },
       'networks': {},
@@ -966,11 +943,9 @@ const jimRawData: YipeeFileMetadataRaw[] = [
     'dateModified': '2018-01-26T20:23:17.36261+00:00',
     'downloads': 0,
     'fullname': 'jd3quist@github/e@no@ent/jd3quist/bday4.yipee',
-    'hasLogo': false,
     'id': 'bc211a86-02d6-11e8-beef-6f5f0cf6babe',
     'isPrivate': true,
     'likes': 0,
-    'logodata': null,
     'name': 'bday4',
     'orgname': 'jd3quist',
     'ownerorg': '812d420e-1558-11e7-a130-d3051574e881',
@@ -981,7 +956,6 @@ const jimRawData: YipeeFileMetadataRaw[] = [
       'appinfo': {
         'description': '[insert app description here]',
         'id': 'd9206b6b-6e8d-4da4-92a6-f4597ec51996',
-        'logo': '[insert name of app logo image here]',
         'name': 'bday4',
         'readme': '',
         'ui': {
@@ -1250,7 +1224,6 @@ const jimRawData: YipeeFileMetadataRaw[] = [
       'app-info': {
         'description': '[insert app description here]',
         'id': 'd9206b6b-6e8d-4da4-92a6-f4597ec51996',
-        'logo': '[insert name of app logo image here]',
         'name': 'bday4',
         'readme': '',
         'ui': {
@@ -1517,11 +1490,9 @@ const jimRawData: YipeeFileMetadataRaw[] = [
     'dateModified': '2018-01-26T20:23:34.761883+00:00',
     'downloads': 0,
     'fullname': 'jd3quist@github/e@no@ent/jd3quist/eva.yipee',
-    'hasLogo': false,
     'id': 'c6753094-02d6-11e8-b983-2b37da2ef53a',
     'isPrivate': true,
     'likes': 0,
-    'logodata': null,
     'name': 'eva',
     'orgname': 'jd3quist',
     'ownerorg': '812d420e-1558-11e7-a130-d3051574e881',
@@ -1532,7 +1503,6 @@ const jimRawData: YipeeFileMetadataRaw[] = [
       'appinfo': {
         'description': '[insert app description here]',
         'id': 'a2d7df60-8075-4a17-99e8-68805f59d931',
-        'logo': '[insert name of app logo image here]',
         'name': 'eva',
         'readme': '',
         'ui': {
@@ -1822,7 +1792,6 @@ const jimRawData: YipeeFileMetadataRaw[] = [
       'app-info': {
         'description': '[insert app description here]',
         'id': 'a2d7df60-8075-4a17-99e8-68805f59d931',
-        'logo': '[insert name of app logo image here]',
         'name': 'eva',
         'readme': '',
         'ui': {
@@ -2101,11 +2070,9 @@ const jimRawData: YipeeFileMetadataRaw[] = [
     'dateModified': '2018-01-26T20:24:10.718637+00:00',
     'downloads': 0,
     'fullname': 'jd3quist@github/e@no@ent/jd3quist/simple.yipee',
-    'hasLogo': false,
     'id': 'dc1c013e-02d6-11e8-b479-47b32176503f',
     'isPrivate': true,
     'likes': 0,
-    'logodata': null,
     'name': 'simple',
     'orgname': 'jd3quist',
     'ownerorg': '812d420e-1558-11e7-a130-d3051574e881',
@@ -2116,7 +2083,6 @@ const jimRawData: YipeeFileMetadataRaw[] = [
       'appinfo': {
         'description': '[insert app description here]',
         'id': '5243a2e9-e8ca-4e15-9283-bd111faf0019',
-        'logo': '[insert name of app logo image here]',
         'name': 'simple',
         'readme': '',
         'ui': {
@@ -2166,7 +2132,6 @@ const jimRawData: YipeeFileMetadataRaw[] = [
       'app-info': {
         'description': '[insert app description here]',
         'id': '5243a2e9-e8ca-4e15-9283-bd111faf0019',
-        'logo': '[insert name of app logo image here]',
         'name': 'simple',
         'readme': '',
         'ui': {
@@ -2219,11 +2184,9 @@ const jimRawData: YipeeFileMetadataRaw[] = [
     'dateModified': '2018-01-26T20:32:26.644368+00:00',
     'downloads': 0,
     'fullname': 'jd3quist@github/e@no@ent/jd3quist/emptynomore.yipee',
-    'hasLogo': false,
     'id': '0665c6d2-02d7-11e8-a641-c34a4635c2fc',
     'isPrivate': true,
     'likes': 0,
-    'logodata': null,
     'name': 'emptynomore',
     'orgname': 'jd3quist',
     'ownerorg': '812d420e-1558-11e7-a130-d3051574e881',
@@ -2234,7 +2197,6 @@ const jimRawData: YipeeFileMetadataRaw[] = [
       'appinfo': {
         'description': '',
         'id': '557ad252-0fb9-48bd-bb10-539db6033bbd',
-        'logo': '',
         'name': 'emptynomore',
         'readme': '',
         'ui': {
@@ -2284,7 +2246,6 @@ const jimRawData: YipeeFileMetadataRaw[] = [
       'app-info': {
         'description': '',
         'id': '557ad252-0fb9-48bd-bb10-539db6033bbd',
-        'logo': '',
         'name': 'emptynomore',
         'readme': '',
         'ui': {
@@ -2335,11 +2296,9 @@ const jimRawData: YipeeFileMetadataRaw[] = [
     'dateModified': '2018-01-26T20:31:32.540998+00:00',
     'downloads': 0,
     'fullname': 'jd3quist@github/e@no@ent/jd3quist/empty3.yipee',
-    'hasLogo': false,
     'id': 'e5714eaa-02d7-11e8-9c6d-871769557661',
     'isPrivate': true,
     'likes': 0,
-    'logodata': null,
     'name': 'empty3',
     'orgname': 'jd3quist',
     'ownerorg': '812d420e-1558-11e7-a130-d3051574e881',
@@ -2350,7 +2309,6 @@ const jimRawData: YipeeFileMetadataRaw[] = [
       'appinfo': {
         'description': '',
         'id': 'acdaa063-844a-45c5-b8dc-18940c3d1bad',
-        'logo': '',
         'name': 'empty3',
         'readme': '',
         'ui': {
@@ -2367,7 +2325,6 @@ const jimRawData: YipeeFileMetadataRaw[] = [
       'app-info': {
         'description': '',
         'id': 'acdaa063-844a-45c5-b8dc-18940c3d1bad',
-        'logo': '',
         'name': 'empty3',
         'readme': '',
         'ui': {
@@ -2386,11 +2343,9 @@ const jimRawData: YipeeFileMetadataRaw[] = [
     'dateModified': '2018-01-24T17:54:18.415337+00:00',
     'downloads': 0,
     'fullname': 'jd3quist@github/e@no@ent/jd3quist/tiny.yipee',
-    'hasLogo': false,
     'id': '9970aedc-012f-11e8-9877-93bf26ce8a50',
     'isPrivate': true,
     'likes': 0,
-    'logodata': null,
     'name': 'tiny',
     'orgname': 'jd3quist',
     'ownerorg': '812d420e-1558-11e7-a130-d3051574e881',
@@ -2401,7 +2356,6 @@ const jimRawData: YipeeFileMetadataRaw[] = [
       'appinfo': {
         'description': '',
         'id': '460f005e-dc24-49be-b9b6-db9e1d87dfac',
-        'logo': '',
         'name': 'tiny',
         'readme': '',
         'ui': {
@@ -2418,7 +2372,6 @@ const jimRawData: YipeeFileMetadataRaw[] = [
       'app-info': {
         'description': '',
         'id': '460f005e-dc24-49be-b9b6-db9e1d87dfac',
-        'logo': '',
         'name': 'tiny',
         'readme': '',
         'ui': {
@@ -2444,11 +2397,9 @@ const jimRawData: YipeeFileMetadataRaw[] = [
     'dateModified': '2018-01-26T20:23:51.407947+00:00',
     'downloads': 0,
     'fullname': 'jd3quist@github/e@no@ent/jd3quist/evas.yipee',
-    'hasLogo': false,
     'id': 'd04c7258-02d6-11e8-b478-ff3efe9493ef',
     'isPrivate': true,
     'likes': 0,
-    'logodata': null,
     'name': 'evas',
     'orgname': 'jd3quist',
     'ownerorg': '812d420e-1558-11e7-a130-d3051574e881',
@@ -2459,7 +2410,6 @@ const jimRawData: YipeeFileMetadataRaw[] = [
       'appinfo': {
         'description': '[insert app description here]',
         'id': 'f52a7d90-d538-4406-8b41-f2cf700c629c',
-        'logo': '[insert name of app logo image here]',
         'name': 'evas',
         'readme': '',
         'ui': {
@@ -2806,7 +2756,6 @@ const jimRawData: YipeeFileMetadataRaw[] = [
       'app-info': {
         'description': '[insert app description here]',
         'id': 'f52a7d90-d538-4406-8b41-f2cf700c629c',
-        'logo': '[insert name of app logo image here]',
         'name': 'evas',
         'readme': '',
         'ui': {
@@ -3140,11 +3089,9 @@ const jimRawData: YipeeFileMetadataRaw[] = [
     'dateModified': '2018-01-26T20:27:02.203771+00:00',
     'downloads': 0,
     'fullname': 'jd3quist@github/e@no@ent/jd3quist/empty2.yipee',
-    'hasLogo': false,
     'id': '444f2998-02d7-11e8-b7b8-9b271f823221',
     'isPrivate': true,
     'likes': 0,
-    'logodata': null,
     'name': 'empty2',
     'orgname': 'jd3quist',
     'ownerorg': '812d420e-1558-11e7-a130-d3051574e881',
@@ -3155,7 +3102,6 @@ const jimRawData: YipeeFileMetadataRaw[] = [
       'appinfo': {
         'description': '',
         'id': 'a64c5335-f4bd-4559-a3dd-fd3de772ef71',
-        'logo': '',
         'name': 'empty2',
         'readme': '',
         'ui': {
@@ -3172,7 +3118,6 @@ const jimRawData: YipeeFileMetadataRaw[] = [
       'app-info': {
         'description': '',
         'id': 'a64c5335-f4bd-4559-a3dd-fd3de772ef71',
-        'logo': '',
         'name': 'empty2',
         'readme': '',
         'ui': {
@@ -3201,7 +3146,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
     'downloads': 0,
     'likes': 0,
     'canvasdata': '{\'containers\':{\'racket\':{\'top\':113,\'left\':78,\'author\':\'jackfirth\',\'description\':\'Docker images for the Racket programming language\',\'type\':\'default\',\'tagList\':[\'6.5-onbuild-test\',\'6.5-onbuild\',\'6.4-onbuild-test\',\'6.4-onbuild\',\'6.3-onbuild-test\',\'6.3-onbuild\',\'6.2-onbuild-test\',\'6.2-onbuild\',\'6.2.1-onbuild-test\',\'6.2.1-onbuild\'],\'repo\':\'DockerHub\',\'tag\':\'6.5-onbuild-test\',\'typeConversionHistory\':{\'default\':true}}},\'volumes\':{}}',
-    'logodata': null,
     'revcount': 2,
     'ownerorg': '6e0a6206-1558-11e7-a0fe-e7a448f880d1',
     'fullname': 'jrryjcksn@github/e@no@ent/jrryjcksn/rws2.yipee',
@@ -3273,7 +3217,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
       }
     },
     'id': '447f1cee-e6a2-11e7-8074-af76cca469b4',
-    'hasLogo': false,
     'flatFile': [],
     'uiFile': {
       'appinfo': {
@@ -3375,7 +3318,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
     'downloads': 0,
     'likes': 0,
     'canvasdata': null,
-    'logodata': null,
     'revcount': 0,
     'ownerorg': '6e0a6206-1558-11e7-a0fe-e7a448f880d1',
     'fullname': 'jrryjcksn@github/e@no@ent/jrryjcksn/wandaful.yipee',
@@ -3395,7 +3337,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
       },
       'volumes': {},
       'app-info': {
-        'logo': '[insert name of app logo image here]',
         'name': 'wandaful',
         'description': '[insert app description here]'
       },
@@ -3605,11 +3546,9 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
       }
     },
     'id': 'd6997766-8854-11e7-a847-cf3aef7e3cbf',
-    'hasLogo': false,
     'flatFile': [],
     'uiFile': {
       'appinfo': {
-        'logo': '[insert name of app logo image here]',
         'name': 'wandaful',
         'description': '[insert app description here]',
         'id': '2debccaa-95e4-43cc-b3a7-fd24b8311aec'
@@ -3895,7 +3834,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
     'downloads': 0,
     'likes': 0,
     'canvasdata': '{\'containers\':{\'clojure\':{\'top\':120,\'left\':326,\'author\':\'DockerHub\',\'description\':\'Clojure is a dialect of Lisp that runs on the JVM.\',\'type\':\'default\',\'tagList\':[\'latest\',\'onbuild\',\'lein-onbuild\',\'lein-alpine-onbuild\',\'lein-alpine\',\'lein-2.7.1-onbuild\',\'lein-2.7.1-alpine-onbuild\',\'lein-2.7.1-alpine\',\'alpine-onbuild\',\'alpine\'],\'repo\':\'DockerHub\',\'tag\':\'alpine\',\'typeConversionHistory\':{\'default\':true}}},\'volumes\':{\'volume_0\':{\'name\':\'volume_0\',\'top\':338.5,\'left\':503}}}',
-    'logodata': null,
     'revcount': 6,
     'ownerorg': '6e0a6206-1558-11e7-a0fe-e7a448f880d1',
     'fullname': 'jrryjcksn@github/e@no@ent/jrryjcksn/rules.yipee',
@@ -3953,7 +3891,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
       }
     },
     'id': 'cbdf2122-371e-11e7-a36f-7bcb1b2b7a48',
-    'hasLogo': false,
     'flatFile': [],
     'uiFile': {
       'volumes': [
@@ -4034,7 +3971,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
     'downloads': 0,
     'likes': 0,
     'canvasdata': '{\'containers\':{\'racket\':{\'top\':113,\'left\':78,\'author\':\'jackfirth\',\'description\':\'Docker images for the Racket programming language\',\'type\':\'default\',\'tagList\':[\'6.5-onbuild-test\',\'6.5-onbuild\',\'6.4-onbuild-test\',\'6.4-onbuild\',\'6.3-onbuild-test\',\'6.3-onbuild\',\'6.2-onbuild-test\',\'6.2-onbuild\',\'6.2.1-onbuild-test\',\'6.2.1-onbuild\'],\'repo\':\'DockerHub\',\'tag\':\'6.5-onbuild-test\',\'typeConversionHistory\':{\'default\':true}}},\'volumes\':{}}',
-    'logodata': null,
     'revcount': 12,
     'ownerorg': '6e0a6206-1558-11e7-a0fe-e7a448f880d1',
     'fullname': 'jrryjcksn@github/e@no@ent/jrryjcksn/racket.yipee',
@@ -4072,7 +4008,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
       }
     },
     'id': 'e7511f6c-206e-11e7-aced-17f5e692c583',
-    'hasLogo': false,
     'flatFile': [],
     'uiFile': {
       'appinfo': {
@@ -4132,7 +4067,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
     'yipeeFile': {
       'volumes': {},
       'app-info': {
-        'logo': 'bob_subgenius.jpg',
         'name': 'xyz',
         'description': ''
       },
@@ -4156,11 +4090,9 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
       }
     },
     'id': '060e25d4-2386-11e7-9041-e372b0e1fb58',
-    'hasLogo': true,
     'flatFile': [],
     'uiFile': {
       'appinfo': {
-        'logo': 'bob_subgenius.jpg',
         'name': 'xyz',
         'description': '',
         'id': 'fbc56462-7fa7-4eb9-8f35-d33ab3decb95'
@@ -4205,7 +4137,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
     'downloads': 0,
     'likes': 0,
     'canvasdata': '{\'containers\':{\'node\':{\'top\':150,\'left\':230,\'author\':\'DockerHub\',\'description\':\'Node.js is a JavaScript-based platform for server-side and networking applications.\',\'type\':\'default\',\'tagList\':[\'latest\',\'4-wheezy\',\'4-slim\',\'4-onbuild\',\'4.8-wheezy\',\'4.8-slim\',\'4.8.3-wheezy\',\'4.8.3-slim\',\'argon-wheezy\',\'argon-slim\',\'argon-onbuild\'],\'repo\':\'DockerHub\',\'tag\':\'latest\',\'typeConversionHistory\':{\'default\':true}}},\'volumes\':{}}',
-    'logodata': null,
     'revcount': 2,
     'ownerorg': '6e0a6206-1558-11e7-a0fe-e7a448f880d1',
     'fullname': 'jrryjcksn@github/e@no@ent/jrryjcksn/crud.yipee',
@@ -4237,7 +4168,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
       }
     },
     'id': 'f08002ee-2aad-11e7-a6cb-777358f79432',
-    'hasLogo': false,
     'flatFile': [],
     'uiFile': {
       'appinfo': {
@@ -4291,7 +4221,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
     'downloads': 0,
     'likes': 0,
     'canvasdata': '{\'containers\':{\'backend\':{\'top\':450,\'left\':500,\'description\':\'\',\'type\':\'default\',\'tag\':\'dbsecret\',\'typeConversionHistory\':{\'default\':true}},\'ui\':{\'top\':450,\'left\':250,\'description\':\'\',\'type\':\'default\',\'typeConversionHistory\':{\'default\':true}},\'composecvt\':{\'top\':253,\'left\':805,\'description\':\'\',\'type\':\'default\',\'typeConversionHistory\':{\'default\':true}},\'kubecvt\':{\'top\':450,\'left\':750,\'description\':\'\',\'type\':\'default\',\'typeConversionHistory\':{\'default\':true}},\'yipee_validator\':{\'top\':600,\'left\':500,\'description\':\'\',\'type\':\'default\',\'typeConversionHistory\':{\'default\':true}},\'db\':{\'top\':450,\'left\':0,\'description\':\'\',\'type\':\'default\',\'tag\':\'9.5.5-alpine\',\'typeConversionHistory\':{\'default\':true}},\'auth\':{\'top\':300,\'left\':0,\'description\':\'\',\'type\':\'default\',\'tag\':\'dbsecret\',\'typeConversionHistory\':{\'default\':true}},\'secret_scanner\':{\'top\':600,\'left\':250,\'description\':\'\',\'type\':\'default\',\'typeConversionHistory\':{\'default\':true}},\'oscvt\':{\'top\':150,\'left\':500,\'description\':\'\',\'type\':\'default\',\'typeConversionHistory\':{\'default\':true}}},\'volumes\':{}}',
-    'logodata': null,
     'revcount': 1,
     'ownerorg': '6e0a6206-1558-11e7-a0fe-e7a448f880d1',
     'fullname': 'jrryjcksn@github/e@no@ent/jrryjcksn/yaia.yipee',
@@ -4314,7 +4243,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
       },
       'volumes': {},
       'app-info': {
-        'logo': '[insert name of app logo image here]',
         'name': 'yaia',
         'readme': '# Yet Another Imported Application',
         'description': '[insert app description here]'
@@ -4543,11 +4471,9 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
       }
     },
     'id': 'ff251148-7ed3-11e7-a4aa-6f1116a90917',
-    'hasLogo': false,
     'flatFile': [],
     'uiFile': {
       'appinfo': {
-        'logo': '[insert name of app logo image here]',
         'name': 'yaia',
         'readme': '# Yet Another Imported Application',
         'description': '[insert app description here]',
@@ -4847,7 +4773,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
     'downloads': 0,
     'likes': 0,
     'canvasdata': '{\'containers\':{\'racket\':{\'top\':122,\'left\':323,\'author\':\'jackfirth\',\'description\':\'Docker images for the Racket programming language\',\'type\':\'default\',\'tagList\':[\'6.5-onbuild-test\',\'6.5-onbuild\',\'6.4-onbuild-test\',\'6.4-onbuild\',\'6.3-onbuild-test\',\'6.3-onbuild\',\'6.2-onbuild-test\',\'6.2-onbuild\',\'6.2.1-onbuild-test\',\'6.2.1-onbuild\'],\'repo\':\'DockerHub\',\'tag\':\'6.5-onbuild-test\',\'typeConversionHistory\':{\'default\':true}}},\'volumes\':{\'vaalyume\':{\'name\':\'vaalyume\',\'top\':303.5,\'left\':644.5}}}',
-    'logodata': null,
     'revcount': 11,
     'ownerorg': '6e0a6206-1558-11e7-a0fe-e7a448f880d1',
     'fullname': 'jrryjcksn@github/e@no@ent/jrryjcksn/rws-and-volume.yipee',
@@ -4909,7 +4834,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
       }
     },
     'id': '430b5c74-f0d4-11e7-84b7-137ccf4da3af',
-    'hasLogo': false,
     'flatFile': [],
     'uiFile': {
       'volumes': [
@@ -4991,7 +4915,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
     'downloads': 0,
     'likes': 0,
     'canvasdata': '{\'containers\':{\'redis\':{\'top\':184,\'left\':291,\'author\':\'DockerHub\',\'description\':\'Redis is an open source key-value store that functions as a data structure server.\',\'type\':\'default\',\'tagList\':[\'latest\',\'32bit\',\'3-alpine\',\'3-32bit\',\'3.2-alpine\',\'3.2-32bit\',\'3.2.9-alpine\',\'3.2.9-32bit\',\'3.0-alpine\',\'3.0.7-alpine\',\'alpine\'],\'repo\':\'DockerHub\',\'tag\':\'latest\',\'typeConversionHistory\':{\'default\':true}}},\'volumes\':{}}',
-    'logodata': null,
     'revcount': 1,
     'ownerorg': '6e0a6206-1558-11e7-a0fe-e7a448f880d1',
     'fullname': 'jrryjcksn@github/e@no@ent/jrryjcksn/redisit.yipee',
@@ -5037,7 +4960,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
       }
     },
     'id': '7258570a-65ad-11e7-8a3c-6b20ccbc6d89',
-    'hasLogo': false,
     'flatFile': [],
     'uiFile': {
       'appinfo': {
@@ -5101,7 +5023,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
     'downloads': 0,
     'likes': 0,
     'canvasdata': '{\'containers\':{\'joomla\':{\'top\':450,\'left\':1000,\'description\':\'[insert description of service here]\',\'type\':\'default\',\'tag\':\'latest\',\'typeConversionHistory\':{\'default\':true}},\'mariadb\':{\'top\':450,\'left\':750,\'description\':\'[insert description of service here]\',\'type\':\'default\',\'tag\':\'10.1.26-r2\',\'typeConversionHistory\':{\'default\':true}}},\'volumes\':{\'php_data\':{\'name\':\'php_data\',\'top\':600,\'left\':1058.3333333333333},\'apache_data\':{\'name\':\'apache_data\',\'top\':450,\'left\':1308.3333333333333},\'joomla_data\':{\'name\':\'joomla_data\',\'top\':300,\'left\':1058.3333333333333},\'mariadb_data\':{\'name\':\'mariadb_data\',\'top\':450,\'left\':558.3333333333334}}}',
-    'logodata': null,
     'revcount': 4,
     'ownerorg': '6e0a6206-1558-11e7-a0fe-e7a448f880d1',
     'fullname': 'jrryjcksn@github/e@no@ent/jrryjcksn/aa.yipee',
@@ -5130,7 +5051,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
         }
       },
       'app-info': {
-        'logo': '[insert name of app logo image here]',
         'name': 'aa',
         'readme': '',
         'description': '[insert app description here]'
@@ -5224,7 +5144,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
       }
     },
     'id': 'fec1d4c6-da03-11e7-9e8e-0f052da90746',
-    'hasLogo': false,
     'flatFile': [],
     'uiFile': {
       'volumes': [
@@ -5254,7 +5173,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
         }
       ],
       'appinfo': {
-        'logo': '[insert name of app logo image here]',
         'name': 'aa',
         'readme': '',
         'description': '[insert app description here]',
@@ -5372,7 +5290,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
     'downloads': 0,
     'likes': 0,
     'canvasdata': '{\'containers\':{\'racket\':{\'top\':113,\'left\':78,\'author\':\'jackfirth\',\'description\':\'Docker images for the Racket programming language\',\'type\':\'default\',\'tagList\':[\'6.5-onbuild-test\',\'6.5-onbuild\',\'6.4-onbuild-test\',\'6.4-onbuild\',\'6.3-onbuild-test\',\'6.3-onbuild\',\'6.2-onbuild-test\',\'6.2-onbuild\',\'6.2.1-onbuild-test\',\'6.2.1-onbuild\'],\'repo\':\'DockerHub\',\'tag\':\'6.5-onbuild-test\',\'typeConversionHistory\':{\'default\':true}}},\'volumes\':{\'vaalyume\':{\'name\':\'vaalyume\',\'top\':436,\'left\':954.5}}}',
-    'logodata': null,
     'revcount': 4,
     'ownerorg': '6e0a6206-1558-11e7-a0fe-e7a448f880d1',
     'fullname': 'jrryjcksn@github/e@no@ent/jrryjcksn/rws-and-volume2.yipee',
@@ -5450,7 +5367,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
       }
     },
     'id': 'bbce1492-f0d6-11e7-b70f-d70da64d999b',
-    'hasLogo': false,
     'flatFile': [],
     'uiFile': {
       'volumes': [
@@ -5553,7 +5469,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
     'downloads': 0,
     'likes': 0,
     'canvasdata': '{\'containers\':{\'joomla\':{\'top\':300,\'left\':500,\'description\':\'[insert description of service here]\',\'type\':\'default\',\'tag\':\'latest\',\'typeConversionHistory\':{\'default\':true}},\'mariadb\':{\'top\':300,\'left\':250,\'description\':\'[insert description of service here]\',\'type\':\'default\',\'tag\':\'latest\',\'typeConversionHistory\':{\'default\':true}}},\'volumes\':{\'php_data\':{\'name\':\'php_data\',\'top\':450,\'left\':558.3333333333334},\'apache_data\':{\'name\':\'apache_data\',\'top\':300,\'left\':808.3333333333334},\'joomla_data\':{\'name\':\'joomla_data\',\'top\':150,\'left\':558.3333333333334},\'mariadb_data\':{\'name\':\'mariadb_data\',\'top\':300,\'left\':58.333333333333336}}}',
-    'logodata': null,
     'revcount': 0,
     'ownerorg': '6e0a6206-1558-11e7-a0fe-e7a448f880d1',
     'fullname': 'jrryjcksn@github/e@no@ent/jrryjcksn/myjoomla.yipee',
@@ -5581,7 +5496,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
         }
       },
       'app-info': {
-        'logo': '[insert name of app logo image here]',
         'name': 'myjoomla',
         'description': '[insert app description here]'
       },
@@ -5647,7 +5561,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
       }
     },
     'id': 'd01f0a7c-5d20-11e7-bc6f-e77de9601848',
-    'hasLogo': false,
     'flatFile': [],
     'uiFile': {
       'volumes': [
@@ -5677,7 +5590,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
         }
       ],
       'appinfo': {
-        'logo': '[insert name of app logo image here]',
         'name': 'myjoomla',
         'description': '[insert app description here]',
         'id': '886535ee-4a13-4ac9-bff3-3677c6ca73c6'
@@ -5767,7 +5679,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
     'downloads': 0,
     'likes': 0,
     'canvasdata': '{\'containers\':{\'racket\':{\'top\':138,\'left\':100,\'author\':\'jackfirth\',\'description\':\'Docker images for the Racket programming language\',\'type\':\'default\',\'tagList\':[\'latest\',\'6.5-onbuild-test\',\'6.5-onbuild\',\'6.4-onbuild-test\',\'6.4-onbuild\',\'6.3-onbuild-test\',\'6.3-onbuild\',\'6.2-onbuild-test\',\'6.2-onbuild\',\'6.2.1-onbuild-test\',\'6.2.1-onbuild\'],\'repo\':\'DockerHub\',\'tag\':\'6.5-onbuild-test\',\'typeConversionHistory\':{\'default\':true}}},\'volumes\':{}}',
-    'logodata': null,
     'revcount': 3,
     'ownerorg': '6e0a6206-1558-11e7-a0fe-e7a448f880d1',
     'fullname': 'jrryjcksn@github/e@no@ent/jrryjcksn/moreinteresting.yipee',
@@ -5799,7 +5710,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
       }
     },
     'id': '0c4e8558-206e-11e7-9814-177ec2d6e906',
-    'hasLogo': false,
     'flatFile': [],
     'uiFile': {
       'appinfo': {
@@ -5847,7 +5757,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
     'downloads': 0,
     'likes': 0,
     'canvasdata': '{\'containers\':{\'influxdb\':{\'top\':450,\'left\':500,\'description\':\'\',\'type\':\'default\',\'tag\':\'1.1.4-alpine\',\'typeConversionHistory\':{\'default\':true}},\'grafana\':{\'top\':450,\'left\':250,\'description\':\'\',\'type\':\'default\',\'tag\':\'4.1.2\',\'typeConversionHistory\':{\'default\':true}},\'telegraf\':{\'top\':300,\'left\':500,\'description\':\'\',\'type\':\'default\',\'tag\':\'1.2\',\'typeConversionHistory\':{\'default\':true}}},\'volumes\':{}}',
-    'logodata': null,
     'revcount': 1,
     'ownerorg': '6e0a6206-1558-11e7-a0fe-e7a448f880d1',
     'fullname': 'jrryjcksn@github/e@no@ent/jrryjcksn/testsecrets.yipee',
@@ -5880,7 +5789,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
       },
       'volumes': {},
       'app-info': {
-        'logo': '[insert name of app logo image here]',
         'name': 'testsecrets',
         'readme': '',
         'description': '[insert appxxx description here]'
@@ -5974,11 +5882,9 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
       }
     },
     'id': 'ad200de2-8dad-11e7-9964-ff37597f6fe6',
-    'hasLogo': false,
     'flatFile': [],
     'uiFile': {
       'appinfo': {
-        'logo': '[insert name of app logo image here]',
         'name': 'testsecrets',
         'readme': '',
         'description': '[insert appxxx description here]',
@@ -6132,7 +6038,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
     'downloads': 0,
     'likes': 0,
     'canvasdata': null,
-    'logodata': null,
     'revcount': 0,
     'ownerorg': '6e0a6206-1558-11e7-a0fe-e7a448f880d1',
     'fullname': 'jrryjcksn@github/e@no@ent/jrryjcksn/goombah.yipee',
@@ -6153,7 +6058,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
         }
       },
       'app-info': {
-        'logo': '[insert name of app logo image here]',
         'name': 'goombah',
         'description': '[insert app description here]'
       },
@@ -6227,11 +6131,9 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
       }
     },
     'id': '6b725a54-e739-11e7-9999-43e9caebf180',
-    'hasLogo': false,
     'flatFile': [],
     'uiFile': {
       'appinfo': {
-        'logo': '[insert name of app logo image here]',
         'name': 'goombah',
         'description': '[insert app description here]',
         'id': 'e9737e40-54f1-480d-9b7f-62440ffe1527'
@@ -6355,7 +6257,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
     'downloads': 0,
     'likes': 0,
     'canvasdata': '{\'containers\':{\'adminer\':{\'top\':124,\'left\':615,\'author\':\'DockerHub\',\'description\':\'Database management in a single PHP file.\',\'type\':\'default\',\'tagList\':[\'latest\',\'4\',\'4-standalone\',\'4-fastcgi\',\'4.3\',\'4.3-fastcgi\',\'4.3.1\',\'4.3.1-fastcgi\',\'standalone\',\'fastcgi\'],\'repo\':\'DockerHub\',\'tag\':\'latest\',\'typeConversionHistory\':{\'default\':true}},\'grafana\':{\'top\':128,\'left\':131,\'author\':\'grafana\',\'description\':\'The official Grafana docker container\',\'type\':\'default\',\'tagList\':[\'latest\',\'4.4.3\',\'4.4.2\',\'4.4.1\',\'4.4.0\',\'4.3.2\',\'4.3.1\',\'4.3.0\',\'4.3.0-beta1\',\'master\'],\'repo\':\'DockerHub\',\'tag\':\'latest\',\'typeConversionHistory\':{\'default\':true}},\'mariadb\':{\'top\':302,\'left\':395,\'author\':\'DockerHub\',\'description\':\'MariaDB is a community-developed fork of MySQL intended to remain free under the GNU GPL.\',\'type\':\'default\',\'tagList\':[\'latest\',\'5\',\'5.5\',\'5.5.57\',\'10.3\',\'10.3.1\',\'10.1\',\'10.1.26\',\'10.0\',\'10.0.32\'],\'repo\':\'DockerHub\',\'tag\':\'latest\',\'typeConversionHistory\':{\'default\':true}}},\'volumes\':{\'dbstorage\':{\'name\':\'dbstorage\',\'top\':438,\'left\':473.5},\'grafanastorage\':{\'name\':\'grafanastorage\',\'top\':269,\'left\':120.5}}}',
-    'logodata': null,
     'revcount': 6,
     'ownerorg': '6e0a6206-1558-11e7-a0fe-e7a448f880d1',
     'fullname': 'jrryjcksn@github/e@no@ent/jrryjcksn/mygrafana.yipee',
@@ -6463,7 +6364,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
       }
     },
     'id': 'f198f5e2-973a-11e7-bef8-4b9bbc1a61c0',
-    'hasLogo': false,
     'flatFile': [],
     'uiFile': {
       'volumes': [
@@ -6607,7 +6507,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
     'downloads': 0,
     'likes': 0,
     'canvasdata': '{\'containers\':{\'backend\':{\'top\':450,\'left\':750,\'description\':\'\',\'type\':\'default\',\'tag\':\'dbsecret\',\'typeConversionHistory\':{\'default\':true}},\'ui\':{\'top\':450,\'left\':500,\'description\':\'\',\'type\':\'default\',\'typeConversionHistory\':{\'default\':true}},\'composecvt\':{\'top\':300,\'left\':750,\'description\':\'\',\'type\':\'default\',\'typeConversionHistory\':{\'default\':true}},\'kubecvt\':{\'top\':450,\'left\':1000,\'description\':\'\',\'type\':\'default\',\'typeConversionHistory\':{\'default\':true}},\'yipee_validator\':{\'top\':600,\'left\':750,\'description\':\'\',\'type\':\'default\',\'typeConversionHistory\':{\'default\':true}},\'db\':{\'top\':450,\'left\':250,\'description\':\'\',\'type\':\'default\',\'tag\':\'9.5.5-alpine\',\'typeConversionHistory\':{\'default\':true}},\'auth\':{\'top\':450,\'left\':0,\'description\':\'\',\'type\':\'default\',\'tag\':\'dbsecret\',\'typeConversionHistory\':{\'default\':true}},\'secret_scanner\':{\'top\':600,\'left\':500,\'description\':\'\',\'type\':\'default\',\'typeConversionHistory\':{\'default\':true}},\'oscvt\':{\'top\':150,\'left\':750,\'description\':\'\',\'type\':\'default\',\'typeConversionHistory\':{\'default\':true}}},\'volumes\':{}}',
-    'logodata': null,
     'revcount': 1,
     'ownerorg': '6e0a6206-1558-11e7-a0fe-e7a448f880d1',
     'fullname': 'jrryjcksn@github/e@no@ent/jrryjcksn/tester.yipee',
@@ -6630,7 +6529,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
       },
       'volumes': {},
       'app-info': {
-        'logo': '[insert name of app logo image here]',
         'name': 'tester',
         'readme': '',
         'description': '[insert app description here]'
@@ -6859,11 +6757,9 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
       }
     },
     'id': 'be8b138c-8854-11e7-930d-8bb3bb22e746',
-    'hasLogo': false,
     'flatFile': [],
     'uiFile': {
       'appinfo': {
-        'logo': '[insert name of app logo image here]',
         'name': 'tester',
         'readme': '',
         'description': '[insert app description here]',
@@ -7177,7 +7073,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
     'downloads': 0,
     'likes': 0,
     'canvasdata': '{\'containers\':{\'db\':{\'top\':600,\'left\':500,\'description\':\'[insert description of service here]\',\'type\':\'default\',\'tag\':\'9.5.5-alpine\',\'typeConversionHistory\':{\'default\':true}},\'ui\':{\'top\':450,\'left\':1000,\'description\':\'[insert description of service here]\',\'type\':\'default\',\'typeConversionHistory\':{\'default\':true}},\'auth\':{\'top\':600,\'left\':750,\'description\':\'[insert description of service here]\',\'type\':\'default\',\'typeConversionHistory\':{\'default\':true}},\'oscvt\':{\'top\':600,\'left\':250,\'description\':\'[insert description of service here]\',\'type\':\'default\',\'typeConversionHistory\':{\'default\':true}},\'uicvt\':{\'top\':150,\'left\':500,\'description\':\'[insert description of service here]\',\'type\':\'default\',\'typeConversionHistory\':{\'default\':true}},\'backend\':{\'top\':450,\'left\':500,\'description\':\'[insert description of service here]\',\'type\':\'default\',\'tag\':\'uifmt\',\'typeConversionHistory\':{\'default\':true}},\'kubecvt\':{\'top\':300,\'left\':500,\'description\':\'[insert description of service here]\',\'type\':\'default\',\'typeConversionHistory\':{\'default\':true}},\'composecvt\':{\'top\':450,\'left\':250,\'description\':\'[insert description of service here]\',\'type\':\'default\',\'typeConversionHistory\':{\'default\':true}},\'secret_scanner\':{\'top\':300,\'left\':250,\'description\':\'[insert description of service here]\',\'type\':\'default\',\'typeConversionHistory\':{\'default\':true}},\'yipeemon_caddy\':{\'top\':600,\'left\':1000,\'description\':\'[insert description of service here]\',\'type\':\'default\',\'typeConversionHistory\':{\'default\':true}},\'yipee_validator\':{\'top\':450,\'left\':750,\'description\':\'[insert description of service here]\',\'type\':\'default\',\'typeConversionHistory\':{\'default\':true}},\'yipeemon_grafana\':{\'top\':300,\'left\':750,\'description\':\'[insert description of service here]\',\'type\':\'default\',\'typeConversionHistory\':{\'default\':true}},\'yipeemon_cadvisor\':{\'top\':750,\'left\':1000,\'description\':\'[insert description of service here]\',\'type\':\'default\',\'tag\':\'v0.27.1\',\'typeConversionHistory\':{\'default\':true}},\'yipeemon_prometheus\':{\'top\':300,\'left\':1000,\'description\':\'[insert description of service here]\',\'type\':\'default\',\'typeConversionHistory\':{\'default\':true}},\'yipeemon_nodeexporter\':{\'top\':750,\'left\':750,\'description\':\'[insert description of service here]\',\'type\':\'default\',\'tag\':\'v0.15.0\',\'typeConversionHistory\':{\'default\':true}}},\'volumes\':{\'yipeemon_grafana_data\':{\'name\':\'yipeemon_grafana_data\',\'top\':150,\'left\':808.3333333333334},\'yipeemon_prometheus_data\':{\'name\':\'yipeemon_prometheus_data\',\'top\':150,\'left\':1058.3333333333333}}}',
-    'logodata': null,
     'revcount': 3,
     'ownerorg': '6e0a6206-1558-11e7-a0fe-e7a448f880d1',
     'fullname': 'jrryjcksn@github/e@no@ent/jrryjcksn/urg.yipee',
@@ -7196,7 +7091,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
         }
       },
       'app-info': {
-        'logo': '[insert name of app logo image here]',
         'name': 'urg',
         'readme': '',
         'description': '[insert app description here]'
@@ -7568,7 +7462,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
       }
     },
     'id': '4b8f5de2-ce14-11e7-991b-839ff17ec0ff',
-    'hasLogo': false,
     'flatFile': [],
     'uiFile': {
       'volumes': [
@@ -7590,7 +7483,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
         }
       ],
       'appinfo': {
-        'logo': '[insert name of app logo image here]',
         'name': 'urg',
         'readme': '',
         'description': '[insert app description here]',
@@ -8036,7 +7928,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
     'downloads': 0,
     'likes': 0,
     'canvasdata': '{\'containers\':{\'joomla\':{\'top\':450,\'left\':750,\'description\':\'[insert description of service here]\',\'type\':\'default\',\'tag\':\'latest\',\'typeConversionHistory\':{\'default\':true}},\'mariadb\':{\'top\':450,\'left\':500,\'description\':\'[insert description of service here]\',\'type\':\'default\',\'tag\':\'10.1.26-r2\',\'typeConversionHistory\':{\'default\':true}}},\'volumes\':{\'php_data\':{\'name\':\'php_data\',\'top\':600,\'left\':808.3333333333334},\'apache_data\':{\'name\':\'apache_data\',\'top\':450,\'left\':1058.3333333333333},\'joomla_data\':{\'name\':\'joomla_data\',\'top\':300,\'left\':808.3333333333334},\'mariadb_data\':{\'name\':\'mariadb_data\',\'top\':450,\'left\':308.3333333333333}}}',
-    'logodata': null,
     'revcount': 3,
     'ownerorg': '6e0a6206-1558-11e7-a0fe-e7a448f880d1',
     'fullname': 'jrryjcksn@github/e@no@ent/jrryjcksn/iii.yipee',
@@ -8065,7 +7956,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
         }
       },
       'app-info': {
-        'logo': '[insert name of app logo image here]',
         'name': 'iii',
         'readme': '',
         'description': '[insert app description here]'
@@ -8159,7 +8049,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
       }
     },
     'id': '3d2954c6-d51f-11e7-8160-df46d0655877',
-    'hasLogo': false,
     'flatFile': [],
     'uiFile': {
       'volumes': [
@@ -8189,7 +8078,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
         }
       ],
       'appinfo': {
-        'logo': '[insert name of app logo image here]',
         'name': 'iii',
         'readme': '',
         'description': '[insert app description here]',
@@ -8308,7 +8196,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
     'downloads': 0,
     'likes': 0,
     'canvasdata': '{\'containers\':{\'joomla\':{\'top\':450,\'left\':750,\'description\':\'\',\'type\':\'default\',\'tag\':\'latest\',\'typeConversionHistory\':{\'default\':true}},\'mariadb\':{\'top\':450,\'left\':500,\'description\':\'\',\'type\':\'default\',\'tag\':\'10.1.26-r2\',\'typeConversionHistory\':{\'default\':true}}},\'volumes\':{\'mariadb_data\':{\'name\':\'mariadb_data\',\'top\':450,\'left\':308.3333333333333},\'joomla_data\':{\'name\':\'joomla_data\',\'top\':300,\'left\':808.3333333333334},\'apache_data\':{\'name\':\'apache_data\',\'top\':450,\'left\':1058.3333333333333},\'php_data\':{\'name\':\'php_data\',\'top\':600,\'left\':808.3333333333334}}}',
-    'logodata': null,
     'revcount': 1,
     'ownerorg': '6e0a6206-1558-11e7-a0fe-e7a448f880d1',
     'fullname': 'jrryjcksn@github/e@no@ent/jrryjcksn/bar.yipee',
@@ -8337,7 +8224,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
         }
       },
       'app-info': {
-        'logo': '[insert name of app logo image here]',
         'name': 'bar',
         'readme': '',
         'description': '[insert app description here]'
@@ -8431,7 +8317,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
       }
     },
     'id': '7fb6c660-d520-11e7-8861-27010090ac55',
-    'hasLogo': false,
     'flatFile': [],
     'uiFile': {
       'volumes': [
@@ -8461,7 +8346,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
         }
       ],
       'appinfo': {
-        'logo': '[insert name of app logo image here]',
         'name': 'bar',
         'readme': '',
         'description': '[insert app description here]',
@@ -8581,7 +8465,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
     'downloads': 0,
     'likes': 0,
     'canvasdata': null,
-    'logodata': null,
     'revcount': 2,
     'ownerorg': '6e0a6206-1558-11e7-a0fe-e7a448f880d1',
     'fullname': 'jrryjcksn@github/e@no@ent/jrryjcksn/gurflunge.yipee',
@@ -8663,7 +8546,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
             }
           }
         },
-        'logo': '[insert name of app logo image here]',
         'name': 'Gurflunge',
         'readme': '# READ ME!!!!',
         'description': '[insert app description here]'
@@ -8804,7 +8686,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
       }
     },
     'id': '9bec4af8-d520-11e7-8234-975696d31c94',
-    'hasLogo': false,
     'flatFile': [],
     'uiFile': {
       'volumes': [
@@ -8888,7 +8769,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
             }
           }
         },
-        'logo': '[insert name of app logo image here]',
         'name': 'Gurflunge',
         'readme': '# READ ME!!!!',
         'description': '[insert app description here]',
@@ -9064,7 +8944,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
     'downloads': 0,
     'likes': 0,
     'canvasdata': '{\'containers\':{\'racket\':{\'top\':113,\'left\':78,\'author\':\'jackfirth\',\'description\':\'Docker images for the Racket programming language\',\'type\':\'default\',\'tagList\':[\'6.5-onbuild-test\',\'6.5-onbuild\',\'6.4-onbuild-test\',\'6.4-onbuild\',\'6.3-onbuild-test\',\'6.3-onbuild\',\'6.2-onbuild-test\',\'6.2-onbuild\',\'6.2.1-onbuild-test\',\'6.2.1-onbuild\'],\'repo\':\'DockerHub\',\'tag\':\'6.5-onbuild-test\',\'typeConversionHistory\':{\'default\':true}}},\'volumes\':{}}',
-    'logodata': null,
     'revcount': 5,
     'ownerorg': '6e0a6206-1558-11e7-a0fe-e7a448f880d1',
     'fullname': 'jrryjcksn@github/e@no@ent/jrryjcksn/racket-with-secret.yipee',
@@ -9120,7 +8999,6 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
       }
     },
     'id': 'a1551fcc-e69d-11e7-855c-87e77d2a5c44',
-    'hasLogo': false,
     'flatFile': [],
     'uiFile': {
       'appinfo': {
