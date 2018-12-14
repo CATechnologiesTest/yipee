@@ -28,8 +28,16 @@
           <tr>
             <td style="text-align: left; width: 90%">
               <div class="form-group">
-                <label>Host</label>
-                <input placeholder="Optional" maxlength="128" type="text" formControlName="host">
+
+                <label style="display: inline" class="table-input" [ngClass]="rule[i].controls.host.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">Host
+                  <input placeholder="Optional" maxlength="128" type="text" formControlName="host">
+                  <span class="tooltip-content">
+                    <span *ngIf="rule[i].controls.host.errors?.dnsValidator === true">Must be a valid dns name
+                      <br />
+                    </span>
+                  </span>
+                </label>
+
               </div>
             </td>
             <td style="width: 10%">
@@ -78,11 +86,13 @@
                       <label class="table-input" [ngClass]="rule[i].controls.paths.controls[j].controls.port.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
                         <input placeholder="Required" maxlength="128" class="table-input" type="number" formControlName="port">
                         <span class="tooltip-content">
-                          <span *ngIf="rule[i].controls.paths.controls[j].controls.port.errors?.required === true">Port is required
-                            <br/>
+                          <span *ngIf="rule[i].controls.paths.controls[j].controls.port.errors?.required === true">Port
+                            is required
+                            <br />
                           </span>
-                          <span *ngIf="rule[i].controls.paths.controls[j].controls.port.errors?.numericPortRangeIncludesZero === true">Must be a valid port number
-                            <br/>
+                          <span *ngIf="rule[i].controls.paths.controls[j].controls.port.errors?.numericPortRangeIncludesZero === true">Must
+                            be a valid port number
+                            <br />
                           </span>
                         </span>
                       </label>
