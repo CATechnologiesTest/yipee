@@ -1,6 +1,9 @@
 {
   "name": "yipee",
   "version": "2.0.229",
+  "peerDependencies": {
+    "@angular/core": "~7.0.2"
+  },
   "license": "MIT",
   "scripts": {
     "ng": "ng",
