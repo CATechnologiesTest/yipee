@@ -38,7 +38,6 @@ describe('NewAppModalComponent', () => {
     dateCreated: new Date().toDateString(),
     dateModified: new Date().toDateString(),
     id: '5551212',
-    hasLogo: false,
     flatFile: []
   };
   const yipeeFile1 = new YipeeFileMetadata(yipeeFileRaw1);
@@ -60,7 +59,6 @@ describe('NewAppModalComponent', () => {
     dateCreated: new Date().toDateString(),
     dateModified: new Date().toDateString(),
     id: 'string2',
-    hasLogo: false,
     flatFile: []
   };
   const yipeeFile2 = new YipeeFileMetadata(yipeeFileRaw2);
@@ -82,7 +80,6 @@ describe('NewAppModalComponent', () => {
     dateCreated: new Date().toDateString(),
     dateModified: new Date().toDateString(),
     id: 'string3',
-    hasLogo: false,
     flatFile: []
   };
   const yipeeFile3 = new YipeeFileMetadata(yipeeFileRaw3);

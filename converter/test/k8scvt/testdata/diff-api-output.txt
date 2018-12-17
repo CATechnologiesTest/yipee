@@ -67,6 +67,14 @@ from "JOOM_PASS" to: "JOOM_PASSWORD"
 
 'child' modified field:
 
+name
+
+from "parent" to: "child"
+
+---
+
+'child' modified field:
+
 elements
  (metadata/name:joomla)
   spec
@@ -81,12 +89,4 @@ elements
            key
 
 from "MARIA_PASS" to: "MARIA_PASSWORD"
-
----
-
-'child' modified field:
-
-name
-
-from "parent" to: "child"
 

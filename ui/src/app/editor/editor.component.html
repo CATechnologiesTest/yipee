@@ -61,7 +61,7 @@
                 </label>
               </div>
             </div>
-            <button type="button" class="btn btn-icon" title="Close" (click)="onClose()">
+            <button type="button" class="btn btn-icon" title="Close" (click)="exitEditor()">
               <clr-icon shape="times-circle" class="is-solid"></clr-icon>
             </button>
           </div>
@@ -92,8 +92,20 @@
             {{alert}}
           </span>
           <div class="alert-actions">
-            <button class="btn alert-action" (click)="fatalExit()">Return to Catalog</button>
+            <button class="btn alert-action" (click)="onFatalClose(alert); fatalExit();">OK</button>
           </div>
+        </div>
+      </clr-alert>
+    </clr-alerts>
+  </div>
+
+  <div *ngIf="editorService.warningText.length > 0">
+    <clr-alerts>
+      <clr-alert *ngFor="let alert of editorService.warningText" [clrAlertType]="'danger'" [clrAlertAppLevel]="true" (clrAlertClosedChange)="onWarningClose(alert)">
+        <div class="alert-item">
+          <span class="alert-text">
+            {{alert}}
+          </span>
         </div>
       </clr-alert>
     </clr-alerts>
@@ -120,3 +132,8 @@
 
 </div>
 
+<app-warn-changes-modal 
+  [show]="showWarningModal"
+  (onClose)="showWarningModal = false; disregardChanges = true; exitEditor();"
+  (onCancel)="showWarningModal = false;">
+</app-warn-changes-modal>

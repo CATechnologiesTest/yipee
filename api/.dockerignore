@@ -1,6 +1,6 @@
 *~
 node_modules
-Dockerfile
+Dockerfile*
 .nyc_output
 docker-compose*
 *build.sh

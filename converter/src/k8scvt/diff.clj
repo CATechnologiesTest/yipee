@@ -145,14 +145,19 @@
         (:port x) (str "(port:" (:port x) ")")
         :else x))
 
+;; Determine if a value is at the end of a path
+(defn leaf? [x] (not (or (map? x) (vector? x) (seq? x))))
+
 ;; Turn a structure into a set of fields containing paths and values.
 (defn extract-fields [obj role]
   (let [results (atom [])
         ext (fn ext-aux [obj stem cont]
               (cond (map? obj) (let [sorted (sort-by str obj)]
                                  (doseq [[k v] sorted]
-                                   (cont [:node (conj stem k) v])
-                                   (ext-aux v (conj stem k) cont)))
+                                   (if (leaf? v)
+                                     (cont [:leaf (conj stem k) v])
+                                     (do (cont [:node (conj stem k) v])
+                                         (ext-aux v (conj stem k) cont)))))
                     ;; sort here since there is no requirement that the
                     ;; arrays are in the same order
                     (or (vector? obj)
@@ -161,8 +166,10 @@
                                         (when (seq items)
                                           (let [v (first items)
                                                 path (conj stem (ident v))]
-                                            (cont [:node path v])
-                                            (ext-aux v path cont))
+                                            (if (leaf? v)
+                                              (cont [:leaf path v])
+                                              (do (cont [:node path v])
+                                                  (ext-aux v path cont))))
                                           (recur (rest items)))))
                     :else (cont [:leaf stem obj])))
         cont #(swap! results conj %)]

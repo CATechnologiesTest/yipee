@@ -8,7 +8,6 @@
 
 export interface AppInfoRaw {
   id: string;
-  logo?: string;
   name: string;
   description: string;
   ui?: AnnotationsRaw;

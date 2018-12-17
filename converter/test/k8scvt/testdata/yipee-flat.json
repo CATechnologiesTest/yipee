@@ -1,0 +1,657 @@
+{
+  "annotation": [
+    {
+      "type": "annotation",
+      "id": "1bd3d0d5-57cf-4f0b-900f-cc8722812942",
+      "key": "ui",
+      "value": {
+        "canvas": {
+          "position": {
+            "x": 100,
+            "y": 100
+          }
+        }
+      },
+      "annotated": "bb933bcf-f354-11e8-bca8-080027c6347a"
+    },
+    {
+      "type": "annotation",
+      "id": "881ba5f3-5311-40bc-8d0a-3e82b4acea9b",
+      "key": "ui",
+      "value": {
+        "canvas": {
+          "position": {
+            "x": 100,
+            "y": 275
+          }
+        }
+      },
+      "annotated": "bb96e1b9-f354-11e8-bca8-080027c6347a"
+    },
+    {
+      "type": "annotation",
+      "id": "1e0bf133-c94f-426b-8a92-eda4984d9951",
+      "key": "ui",
+      "value": {
+        "canvas": {
+          "position": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      },
+      "annotated": "4a500821-c01e-11e8-8e94-080027c6347a"
+    },
+    {
+      "type": "annotation",
+      "id": "d87fe024-6a5d-4d16-8961-dba58334b51e",
+      "key": "ui",
+      "value": {
+        "canvas": {
+          "position": {
+            "x": 225,
+            "y": 100
+          }
+        }
+      },
+      "annotated": "bb9a2da6-f354-11e8-bca8-080027c6347a"
+    },
+    {
+      "type": "annotation",
+      "id": "b2f0a5dc-4d6e-45f8-9b39-11bbdb529736",
+      "key": "ui",
+      "value": {
+        "canvas": {
+          "position": {
+            "x": 225,
+            "y": 275
+          }
+        }
+      },
+      "annotated": "bb988ad1-f354-11e8-bca8-080027c6347a"
+    },
+    {
+      "type": "annotation",
+      "id": "de4b8720-dbec-4536-a3e2-b7267e415995",
+      "key": "ui",
+      "value": {
+        "canvas": {
+          "position": {
+            "x": 250,
+            "y": 300
+          }
+        }
+      },
+      "annotated": "6bbbb958-229e-4493-913c-219eea2e8d95"
+    },
+    {
+      "type": "annotation",
+      "id": "600ab7b9-335c-49d1-a0e8-221a5621bb4b",
+      "key": "ui",
+      "value": {
+        "canvas": {
+          "position": {
+            "x": 250,
+            "y": 125
+          }
+        }
+      },
+      "annotated": "3c4b755a-84e1-4014-a56c-2e67fa97e9e9"
+    },
+    {
+      "type": "annotation",
+      "id": "af178f2c-8baf-403e-81ff-893bce180450",
+      "key": "ui",
+      "value": {
+        "canvas": {
+          "position": {
+            "x": 375,
+            "y": 125
+          }
+        }
+      },
+      "annotated": "1c9c98bb-006b-45e3-81b1-cf00f634f841"
+    },
+    {
+      "type": "annotation",
+      "id": "376ecf7a-8bd0-4fbd-826e-ae37bc01a0c1",
+      "key": "description",
+      "value": "",
+      "annotated": "6bbbb958-229e-4493-913c-219eea2e8d95"
+    },
+    {
+      "type": "annotation",
+      "id": "19570f4c-a434-40a1-80b4-99de6656884e",
+      "key": "override",
+      "value": "none",
+      "annotated": "6bbbb958-229e-4493-913c-219eea2e8d95"
+    },
+    {
+      "type": "annotation",
+      "id": "4109fb9b-be08-4505-b1ad-fdb51fb6ba59",
+      "key": "description",
+      "value": "",
+      "annotated": "3c4b755a-84e1-4014-a56c-2e67fa97e9e9"
+    },
+    {
+      "type": "annotation",
+      "id": "43a32388-a6f8-4e6c-b86f-3f80e0f3dce7",
+      "key": "override",
+      "value": "none",
+      "annotated": "3c4b755a-84e1-4014-a56c-2e67fa97e9e9"
+    },
+    {
+      "type": "annotation",
+      "id": "69c878fa-b588-48e1-bb50-5c9311fc4672",
+      "key": "description",
+      "value": "",
+      "annotated": "1c9c98bb-006b-45e3-81b1-cf00f634f841"
+    },
+    {
+      "type": "annotation",
+      "id": "bc93c869-759b-4fc7-b7ca-b815e415a136",
+      "key": "override",
+      "value": "none",
+      "annotated": "1c9c98bb-006b-45e3-81b1-cf00f634f841"
+    },
+    {
+      "type": "annotation",
+      "id": "ce7081a2-9595-44a8-b365-557e4e72fb51",
+      "key": "description",
+      "value": "",
+      "annotated": "bb9a2da6-f354-11e8-bca8-080027c6347a"
+    },
+    {
+      "type": "annotation",
+      "id": "6f7e689e-ae94-4df0-974c-fedb08595543",
+      "key": "description",
+      "value": "",
+      "annotated": "bb988ad1-f354-11e8-bca8-080027c6347a"
+    }
+  ],
+  "app-info": [
+    {
+      "type": "app-info",
+      "id": "f4a0dbb2-1c71-4dee-875e-e495d7d6cd67",
+      "description": "[insert app description here]",
+      "logo": "[insert name of app logo image here]",
+      "name": "default"
+    }
+  ],
+  "container": [
+    {
+      "type": "container",
+      "id": "6bbbb958-229e-4493-913c-219eea2e8d95",
+      "name": "yipee-ui",
+      "cgroup": "bb988ad1-f354-11e8-bca8-080027c6347a",
+      "position": -1
+    },
+    {
+      "type": "container",
+      "id": "3c4b755a-84e1-4014-a56c-2e67fa97e9e9",
+      "name": "yipee-api",
+      "cgroup": "bb9a2da6-f354-11e8-bca8-080027c6347a",
+      "position": -1
+    },
+    {
+      "type": "container",
+      "id": "1c9c98bb-006b-45e3-81b1-cf00f634f841",
+      "name": "yipee-converter",
+      "cgroup": "bb9a2da6-f354-11e8-bca8-080027c6347a",
+      "position": -1
+    }
+  ],
+  "container-group": [
+    {
+      "type": "container-group",
+      "id": "bb9a2da6-f354-11e8-bca8-080027c6347a",
+      "name": "yipee-backend",
+      "pod": "e7b6b689-4266-4f2d-9de0-c78819009d73",
+      "source": "k8s",
+      "controller-type": "Deployment",
+      "containers": [
+        "3c4b755a-84e1-4014-a56c-2e67fa97e9e9",
+        "1c9c98bb-006b-45e3-81b1-cf00f634f841"
+      ],
+      "container-names": [
+        "yipee-api",
+        "yipee-converter"
+      ]
+    },
+    {
+      "type": "container-group",
+      "id": "bb988ad1-f354-11e8-bca8-080027c6347a",
+      "name": "yipee-ui",
+      "pod": "2dbdbf3f-ef1f-4535-85ec-ba72edf6d517",
+      "source": "k8s",
+      "controller-type": "Deployment",
+      "containers": [
+        "6bbbb958-229e-4493-913c-219eea2e8d95"
+      ],
+      "container-names": [
+        "yipee-ui"
+      ]
+    }
+  ],
+  "deployment-spec": [
+    {
+      "type": "deployment-spec",
+      "id": "71716451-b27a-4710-a314-29a23072edab",
+      "count": 1,
+      "mode": "replicated",
+      "cgroup": "bb9a2da6-f354-11e8-bca8-080027c6347a",
+      "controller-type": "Deployment",
+      "service-name": "",
+      "termination-grace-period": 10,
+      "update-strategy": {
+        "rollingUpdate": {
+          "maxSurge": 1,
+          "maxUnavailable": 1
+        },
+        "type": "RollingUpdate"
+      },
+      "revisionHistoryLimit": 10,
+      "pod-management-policy": "OrderedReady",
+      "service-account-name": "yipee-service-account",
+      "image-pull-secrets": []
+    },
+    {
+      "type": "deployment-spec",
+      "id": "6a6b0bb2-ec1b-402a-b930-6a373df8a798",
+      "count": 1,
+      "mode": "replicated",
+      "cgroup": "bb988ad1-f354-11e8-bca8-080027c6347a",
+      "controller-type": "Deployment",
+      "service-name": "",
+      "termination-grace-period": 10,
+      "update-strategy": {
+        "rollingUpdate": {
+          "maxSurge": 1,
+          "maxUnavailable": 1
+        },
+        "type": "RollingUpdate"
+      },
+      "revisionHistoryLimit": 10,
+      "pod-management-policy": "OrderedReady",
+      "image-pull-secrets": []
+    }
+  ],
+  "environment-var": [
+    {
+      "type": "environment-var",
+      "id": "04bf1f10-5cd0-44e5-8507-35af699842d7",
+      "container": "3c4b755a-84e1-4014-a56c-2e67fa97e9e9",
+      "key": "LIVE_CLUSTER",
+      "value": "true"
+    }
+  ],
+  "image": [
+    {
+      "type": "image",
+      "id": "59c79ad1-2a43-40cb-9cf2-83dd2f1916b7",
+      "container": "6bbbb958-229e-4493-913c-219eea2e8d95",
+      "value": "yipee-tools-spoke-cos.ca.com:5000/korn-dashboard"
+    },
+    {
+      "type": "image",
+      "id": "e377fc5b-9253-4697-b678-298c6c5f887b",
+      "container": "3c4b755a-84e1-4014-a56c-2e67fa97e9e9",
+      "value": "jde/diffapi-live"
+    },
+    {
+      "type": "image",
+      "id": "10806e38-b12c-497e-9e44-6c38b4463f04",
+      "container": "1c9c98bb-006b-45e3-81b1-cf00f634f841",
+      "value": "yipeeio/converter"
+    }
+  ],
+  "image-pull-policy": [
+    {
+      "type": "image-pull-policy",
+      "id": "3d16cd60-9846-4656-947a-5eecc3215769",
+      "value": "IfNotPresent",
+      "container": "3c4b755a-84e1-4014-a56c-2e67fa97e9e9"
+    },
+    {
+      "type": "image-pull-policy",
+      "id": "7fa4fa3e-117a-4a61-8aed-a8c15f17a56d",
+      "value": "Always",
+      "container": "1c9c98bb-006b-45e3-81b1-cf00f634f841"
+    },
+    {
+      "type": "image-pull-policy",
+      "id": "0f99b633-184b-4eee-afdf-be4a3b7a1c2d",
+      "value": "IfNotPresent",
+      "container": "6bbbb958-229e-4493-913c-219eea2e8d95"
+    }
+  ],
+  "label": [
+    {
+      "type": "label",
+      "id": "52eaaeb8-49c5-4c82-ba67-2367a2f9778e",
+      "cgroup": "bb9a2da6-f354-11e8-bca8-080027c6347a",
+      "key": "component",
+      "value": "yipee-backend"
+    },
+    {
+      "type": "label",
+      "id": "a17bc1bd-bcc9-4db8-bf2e-b82236cb9562",
+      "cgroup": "bb9a2da6-f354-11e8-bca8-080027c6347a",
+      "key": "name",
+      "value": "yipee"
+    },
+    {
+      "type": "label",
+      "id": "df25847b-fe44-4a77-944c-31c3de8bf8e1",
+      "cgroup": "bb9a2da6-f354-11e8-bca8-080027c6347a",
+      "key": "yipee.io/yipee-backend",
+      "value": "generated"
+    },
+    {
+      "type": "label",
+      "id": "619cca21-4840-4ad6-8752-bae85dfe0d43",
+      "cgroup": "bb988ad1-f354-11e8-bca8-080027c6347a",
+      "key": "component",
+      "value": "yipee-ui"
+    },
+    {
+      "type": "label",
+      "id": "5f0220b2-1b99-46db-b5a1-013e14d96c16",
+      "cgroup": "bb988ad1-f354-11e8-bca8-080027c6347a",
+      "key": "name",
+      "value": "yipee"
+    },
+    {
+      "type": "label",
+      "id": "c977dc5e-5cea-461d-a0e1-11d2992d1db3",
+      "cgroup": "bb988ad1-f354-11e8-bca8-080027c6347a",
+      "key": "yipee.io/yipee-ui",
+      "value": "generated"
+    }
+  ],
+  "port-mapping": [
+    {
+      "type": "port-mapping",
+      "id": "76c9a327-b82c-4f9a-95b9-65bbf2261290",
+      "name": "",
+      "container": "3c4b755a-84e1-4014-a56c-2e67fa97e9e9",
+      "external": "",
+      "internal": "5000",
+      "node-port": "",
+      "protocol": "TCP",
+      "container-references": true,
+      "defining-service": ""
+    },
+    {
+      "type": "port-mapping",
+      "id": "658ed011-6e24-470a-8531-c9e798fef7de",
+      "name": "https",
+      "svc-port-name": "https",
+      "container": "",
+      "external": "443",
+      "internal": "8443",
+      "node-port": "",
+      "protocol": "TCP",
+      "container-references": false,
+      "defining-service": "4a500821-c01e-11e8-8e94-080027c6347a"
+    },
+    {
+      "type": "port-mapping",
+      "id": "f258e031-1494-4b74-9e7c-2721f10f13a5",
+      "name": "yipee-ui-8080",
+      "svc-port-name": "yipee-ui-8080",
+      "container": "",
+      "external": "8080",
+      "internal": "80",
+      "node-port": "32080",
+      "protocol": "TCP",
+      "container-references": false,
+      "defining-service": "bb96e1b9-f354-11e8-bca8-080027c6347a"
+    },
+    {
+      "type": "port-mapping",
+      "id": "a1853334-c726-47e7-9675-a8e7a881df6c",
+      "name": "backend-5000",
+      "svc-port-name": "backend-5000",
+      "container": "",
+      "external": "5000",
+      "internal": "5000",
+      "node-port": "32005",
+      "protocol": "TCP",
+      "container-references": false,
+      "defining-service": "bb933bcf-f354-11e8-bca8-080027c6347a"
+    },
+    {
+      "type": "port-mapping",
+      "id": "49700cce-f45c-4002-8799-d70b2df3f9b1",
+      "name": "",
+      "container": "6bbbb958-229e-4493-913c-219eea2e8d95",
+      "external": "",
+      "internal": "80",
+      "node-port": "",
+      "protocol": "TCP",
+      "container-references": true,
+      "defining-service": ""
+    }
+  ],
+  "replication": [
+    {
+      "type": "replication",
+      "id": "c6576196-b4a5-41ae-8946-03419e8ec57e",
+      "cgroup": "bb9a2da6-f354-11e8-bca8-080027c6347a",
+      "count": 1
+    },
+    {
+      "type": "replication",
+      "id": "fff5fb0d-9a45-43bc-989d-a033da8078ba",
+      "cgroup": "bb988ad1-f354-11e8-bca8-080027c6347a",
+      "count": 1
+    }
+  ],
+  "k8s-service": [
+    {
+      "type": "k8s-service",
+      "id": "bb933bcf-f354-11e8-bca8-080027c6347a",
+      "name": "backend",
+      "metadata": {
+        "name": "backend",
+        "uid": "bb933bcf-f354-11e8-bca8-080027c6347a"
+      },
+      "selector": {
+        "yipee.io/yipee-backend": "generated"
+      },
+      "service-type": "NodePort",
+      "cluster-ip": "10.111.228.225"
+    },
+    {
+      "type": "k8s-service",
+      "id": "bb96e1b9-f354-11e8-bca8-080027c6347a",
+      "name": "yipee-ui",
+      "metadata": {
+        "name": "yipee-ui",
+        "uid": "bb96e1b9-f354-11e8-bca8-080027c6347a"
+      },
+      "selector": {
+        "yipee.io/yipee-ui": "generated"
+      },
+      "service-type": "NodePort",
+      "cluster-ip": "10.99.139.213"
+    },
+    {
+      "type": "k8s-service",
+      "id": "4a500821-c01e-11e8-8e94-080027c6347a",
+      "name": "kubernetes",
+      "metadata": {
+        "name": "kubernetes",
+        "uid": "4a500821-c01e-11e8-8e94-080027c6347a",
+        "labels": {
+          "component": "apiserver",
+          "provider": "kubernetes"
+        }
+      },
+      "selector": {},
+      "service-type": "ClusterIP",
+      "cluster-ip": "10.96.0.1"
+    }
+  ],
+  "top-label": [
+    {
+      "type": "top-label",
+      "id": "1a6365f0-f7aa-41da-be2f-4c2bfe272fea",
+      "cgroup": "bb9a2da6-f354-11e8-bca8-080027c6347a",
+      "key": "component",
+      "value": "yipee-backend"
+    },
+    {
+      "type": "top-label",
+      "id": "7809c413-784f-4b6b-ad1b-d0690fc17c01",
+      "cgroup": "bb9a2da6-f354-11e8-bca8-080027c6347a",
+      "key": "name",
+      "value": "yipee"
+    },
+    {
+      "type": "top-label",
+      "id": "0cfafd5a-c820-47af-9221-0a56bd2042bd",
+      "cgroup": "bb9a2da6-f354-11e8-bca8-080027c6347a",
+      "key": "yipee.io/yipee-backend",
+      "value": "generated"
+    },
+    {
+      "type": "top-label",
+      "id": "00589561-2232-4440-9dd2-8f04dcaba014",
+      "cgroup": "bb988ad1-f354-11e8-bca8-080027c6347a",
+      "key": "component",
+      "value": "yipee-ui"
+    },
+    {
+      "type": "top-label",
+      "id": "712b6368-1b9b-4f2d-8d58-96c7d78751b2",
+      "cgroup": "bb988ad1-f354-11e8-bca8-080027c6347a",
+      "key": "name",
+      "value": "yipee"
+    },
+    {
+      "type": "top-label",
+      "id": "c141e900-bbc6-4d7e-a220-30472eaba616",
+      "cgroup": "bb988ad1-f354-11e8-bca8-080027c6347a",
+      "key": "yipee.io/yipee-ui",
+      "value": "generated"
+    }
+  ],
+  "model-namespace": [
+    {
+      "type": "model-namespace",
+      "name": "default"
+    }
+  ],
+  "k8s-annotation": [
+    {
+      "type": "k8s-annotation",
+      "id": "b0281b82-11aa-48a3-b729-63954553ab06",
+      "annotated": "bb96e1b9-f354-11e8-bca8-080027c6347a",
+      "key": "deployment.kubernetes.io/revision",
+      "value": "1",
+      "location": [
+        "metadata",
+        "annotations"
+      ],
+      "annotated-name": "yipee-ui",
+      "annotated-type": "deployment"
+    },
+    {
+      "type": "k8s-annotation",
+      "id": "2ceffa3e-6d30-4923-a395-bbd55811d7fa",
+      "key": "deployment.kubernetes.io/revision",
+      "value": "1",
+      "location": [
+        "metadata",
+        "annotations"
+      ],
+      "annotated-name": "yipee-backend",
+      "annotated-type": "deployment"
+    }
+  ],
+  "network-ref": [
+    {
+      "type": "network-ref",
+      "aliases": [],
+      "container": "3c4b755a-84e1-4014-a56c-2e67fa97e9e9",
+      "name": "default",
+      "id": "ccd0717f-0afb-4cfe-8720-34517c72b5cf"
+    },
+    {
+      "type": "network-ref",
+      "aliases": [],
+      "container": "1c9c98bb-006b-45e3-81b1-cf00f634f841",
+      "name": "default",
+      "id": "41f028a5-05ab-446d-89d2-db2d47bce797"
+    },
+    {
+      "type": "network-ref",
+      "aliases": [],
+      "container": "6bbbb958-229e-4493-913c-219eea2e8d95",
+      "name": "default",
+      "id": "a6fb4018-51c6-4364-9af2-6b765de7c528"
+    }
+  ],
+  "container-resources": [
+    {
+      "type": "container-resources",
+      "container": "6bbbb958-229e-4493-913c-219eea2e8d95",
+      "id": "a3c83c6b-5226-441a-ac82-0807f7b16dba"
+    },
+    {
+      "type": "container-resources",
+      "container": "3c4b755a-84e1-4014-a56c-2e67fa97e9e9",
+      "id": "08792390-06ec-4c90-ad73-c55683f36bd9"
+    },
+    {
+      "type": "container-resources",
+      "container": "1c9c98bb-006b-45e3-81b1-cf00f634f841",
+      "id": "029ac433-379e-40d8-b6c3-4f253e8e9b42"
+    }
+  ],
+  "restart-policy": [
+    {
+      "type": "restart-policy",
+      "cgroup": "bb9a2da6-f354-11e8-bca8-080027c6347a",
+      "value": "always",
+      "id": "89590659-4625-488d-a88d-1800e89bb13d"
+    },
+    {
+      "type": "restart-policy",
+      "cgroup": "bb988ad1-f354-11e8-bca8-080027c6347a",
+      "value": "always",
+      "id": "8443ffbb-cf29-4bdb-9fb2-3af809ca425b"
+    }
+  ],
+  "label-group": [
+    {
+      "type": "label-group",
+      "cgroup": "bb988ad1-f354-11e8-bca8-080027c6347a",
+      "id": "9d4e032a-030d-4cca-8012-bdc0c75c1188",
+      "labels": {
+        "yipee.io/yipee-ui": "generated",
+        "name": "yipee",
+        "component": "yipee-ui"
+      }
+    },
+    {
+      "type": "label-group",
+      "cgroup": "bb9a2da6-f354-11e8-bca8-080027c6347a",
+      "id": "78cf787a-474b-486e-817e-7e1ff46b295d",
+      "labels": {
+        "yipee.io/yipee-backend": "generated",
+        "name": "yipee",
+        "component": "yipee-backend"
+      }
+    }
+  ],
+    "model-namespace": [
+        {
+            "type": "model-namespace",
+            "id": "264e35aa-1a91-4827-9c72-706b58c8d9e5",
+            "name": "osyipee"
+        }
+    ]
+}

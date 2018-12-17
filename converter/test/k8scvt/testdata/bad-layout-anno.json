@@ -1,0 +1,26 @@
+{
+    "annotation": [
+        {
+            "type": "annotation",
+            "id": "2d22cffd-3f2e-4e17-b1a5-3e3b8076ac1a",
+            "key": "ui",
+            "value": {
+                "canvas": {
+                    "position": {
+                        "x": 100,
+                        "y": 1050
+                    }
+                }
+            },
+            "annotated": "ba998f52-018a-4ea0-ae23-c996774f3e82"
+        },
+    ],
+    "unknown-k8s-kind": [
+        {
+            "type": "unknown-k8s-kind",
+            "id": "ba998f52-018a-4ea0-ae23-c996774f3e82",
+            "body": "apiVersion: v1\nkind: ServiceAccount\nmetadata:\n  name: kubeiql-service-account\n"
+        }
+    ]
+}
+

@@ -1,21 +1,27 @@
 <app-header></app-header>
-<div class="row" style="padding-top:150px;">
-    <div class="col-md-12 ta-c">
-        <button class="btn btn-primary" (click)="showImportApplicationDialog = true">
-            Import
-        </button>
+
+<div class="content-container">
+    <div class="content-area">
+        <div class="clr-row" style="padding-top:150px;">
+            <div class="clr-col-12 ta-c">
+                <button class="btn btn-primary" (click)="showImportApplicationDialog = true">
+                    Import
+                </button>
+            </div>
+        </div>
+        <div class="clr-row">
+            <div class="clr-col-12 ta-c">
+                <button class="btn btn-primary" (click)="showNewApplicationDialog = true">
+                    New
+                </button>
+            </div>
+        </div>
+
+        <app-new-app-modal [show]="showNewApplicationDialog" (onCreate)="handleCreateNewApplicationCreated($event)"
+            (onCancel)="showNewApplicationDialog = false;">
+        </app-new-app-modal>
+
+        <app-import-app-modal [show]="showImportApplicationDialog" (onCreate)="importApplication($event)" (onCancel)="showImportApplicationDialog = false">
+        </app-import-app-modal>
     </div>
 </div>
-<div class="row">
-    <div class="col-md-12 ta-c">
-        <button class="btn btn-primary" (click)="showNewApplicationDialog = true">
-            New
-        </button>
-    </div>
-</div>
-
-<app-new-app-modal [show]="showNewApplicationDialog" (onCreate)="handleCreateNewApplicationCreated($event)" (onCancel)="showNewApplicationDialog = false;">
-</app-new-app-modal>
-
-<app-import-app-modal [show]="showImportApplicationDialog" (onCreate)="importApplication($event)" (onCancel)="showImportApplicationDialog = false">
-</app-import-app-modal>

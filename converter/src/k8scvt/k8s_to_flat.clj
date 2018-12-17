@@ -17,6 +17,7 @@
 (def known-types
   #{:type :__id :id :app-name :persistentvolumes :persistentvolumeclaims
     :services :daemonsets :deployments :pods :namespaces :statefulsets
+    :configmaps
     :cronjobs :ingresses :replicationcontrollers :validation-errors})
 
 (def default-k8s-secret-mode 420)
@@ -931,8 +932,9 @@
 
 (defrule extract-config-volumes-from-podspec
   "Pull config volumes out of a podspec"
-  [?pspec :podspec (and (not (some :secret (:volumes ?pspec)))
-                        (some :configMap (:volumes ?pspec)))]
+  [?pspec :podspec
+   (not (some :secret (:volumes ?pspec)))
+   (some :configMap (:volumes ?pspec))]
   [?cgroup :container-group (= (:pod ?cgroup) (:id ?pspec))]
   [?container :container (= (:id ?cgroup) (:cgroup ?container))]
   =>
@@ -980,9 +982,10 @@
 
 (defrule extract-empty-dir-volumes-from-podspec
   "Pull empty dir volumes out of a podspec"
-  [?pspec :podspec (and (not (some :secret (:volumes ?pspec)))
-                        (not (some :configMap (:volumes ?pspec)))
-                        (some :emptyDir (:volumes ?pspec)))]
+  [?pspec :podspec
+   (not (some :secret (:volumes ?pspec)))
+   (not (some :configMap (:volumes ?pspec)))
+   (some :emptyDir (:volumes ?pspec))]
   [?cgroup :container-group (= (:pod ?cgroup) (:id ?pspec))]
   [?container :container (= (:id ?cgroup) (:cgroup ?container))]
   =>
@@ -1017,9 +1020,10 @@
 
 (defrule extract-host-path-volumes-from-podspec
   "Pull hostpath volumes out of a podspec"
-  [?pspec :podspec (and (not (some :secret (:volumes ?pspec)))
-                        (not (some :configMap (:volumes ?pspec)))
-                        (some :hostPath (:volumes ?pspec)))]
+  [?pspec :podspec
+   (not (some :secret (:volumes ?pspec)))
+   (not (some :configMap (:volumes ?pspec)))
+   (some :hostPath (:volumes ?pspec))]
   [?cgroup :container-group (= (:pod ?cgroup) (:id ?pspec))]
   [?container :container (= (:id ?cgroup) (:cgroup ?container))]
   =>
@@ -1058,10 +1062,11 @@
 
 (defrule extract-non-secret-volumes-from-podspec
   "Pull volumes out of a podspec"
-  [?pspec :podspec (and (seq (:volumes ?pspec))
-                        (not (some #(or (:secret %) (:configMap %)
-                                        (:emptyDir %) (:hostPath %))
-                                   (:volumes ?pspec))))]
+  [?pspec :podspec
+   (seq (:volumes ?pspec))
+   (not (some #(or (:secret %) (:configMap %)
+                   (:emptyDir %) (:hostPath %))
+              (:volumes ?pspec)))]
   [?cgroup :container-group (= (:pod ?cgroup) (:id ?pspec))]
   [?container :container (= (:id ?cgroup) (:cgroup ?container))]
   =>
@@ -1100,9 +1105,10 @@
 
 (defrule extract-volume-claim-templates-from-podspec
   "Pull volume claim templates out of a podspec for a stateful set"
-  [?pspec :podspec (and (= (:controller-type ?pspec) :StatefulSet)
-                        (not= (:claim-templates ?pspec) "")
-                        (not (seq (:volumes ?pspec))))]
+  [?pspec :podspec
+   (= (:controller-type ?pspec) :StatefulSet)
+   (not= (:claim-templates ?pspec) "")
+   (not (seq (:volumes ?pspec)))]
   [?cgroup :container-group (= (:pod ?cgroup) (:id ?pspec))]
   [?container :container
    (= (:id ?cgroup) (:cgroup ?container))
@@ -1158,3 +1164,57 @@
                           :location [:metadata :annotations]
                           :annotated-name (:name (:metadata ?k8sanno))
                           :annotated-type (get-annotation-type ?k8sanno)})))))
+
+;; Support for our layout-saving gambit that is common between
+;; k8s-to-flat and flat-to-k8s.
+(def layout-config-name "yipee-layout-data")
+
+(defn string-to-hex [s]
+  (apply str (map #(format "%02x" (int %)) s)))
+
+(defn hex-to-string [hex]
+  (apply str
+    (map
+      (fn [[x y]] (char (Integer/parseInt (str x y) 16)))
+      (partition 2 hex))))
+
+(defn decode-layout-value [v]
+  (str/split (hex-to-string v) #"!" 2))
+
+(defn encode-layout-value [part1 part2]
+  (string-to-hex (str part1 "!" part2)))
+;; end common
+
+(defn get-layout-object [v]
+  (let [[xstr ystr] (decode-layout-value v)
+        xval (Integer/parseInt xstr 10)
+        yval (Integer/parseInt ystr 10)]
+    {:canvas {:position {:x xval :y yval}}}))
+
+(defrule extract-config-maps
+  [?k8s :k8s (:configmaps ?k8s)]
+  =>
+  (id-remove! ?k8s)
+  (id-insert! (dissoc ?k8s :configmaps))
+  (doseq [cm (:configmaps ?k8s)]
+    (if (= layout-config-name (:name (:metadata cm)))
+      (doseq [[k v] (:data cm)]
+        (let [[typ nm] (decode-layout-value (name k))]
+          (id-insert! {:type :annotation :key "ui"
+                       :target {:type (keyword typ) :name nm}
+                       :value (get-layout-object v)})))
+      ;; treat any other configmaps as unknown kinds, same as they
+      ;; would have been prior to this special canvas data config
+      (id-insert! {:type :unknown-k8s-kind
+                   :body (yaml/generate-string
+                          cm
+                          :dumper-options {:flow-style :block})}))))
+
+(defrule resolve-ui-anno-target
+  [?anno :annotation (:target ?anno)]
+  [?wme :wme
+   (= (:type ?wme) (get-in ?anno [:target :type]))
+   (= (:name ?wme) (get-in ?anno [:target :name]))]
+  =>
+  (id-remove! ?anno)
+  (id-insert! (assoc (dissoc ?anno :target) :annotated (:id ?wme))))
