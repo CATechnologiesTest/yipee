@@ -95,19 +95,15 @@ export class ApiService {
   /* -------------------------- */
 
   getKubernetesFileData(yipeeFile: YipeeFileRaw): Observable<KubernetesFile> {
-    console.log('API SERVICE kubernetes: ', yipeeFile);
     const api_endpoint = '/api/convert/kubernetes?format=flat';
     return this.http.post(api_endpoint, yipeeFile).map((response) => {
-      console.log('API SERVICE DATA: ', <KubernetesFile>response.json().data[0]);
       return <KubernetesFile>response.json().data[0];
     });
   }
 
   getKubernetesArchiveFileData(yipeeFile: YipeeFileRaw): Observable<KubernetesFile> {
-    console.log('API SERVICE kubernetesarchive: ', yipeeFile);
     const api_endpoint = '/api/download/k8sbundle';
     return this.http.post(api_endpoint, yipeeFile).map((response) => {
-      console.log('API SERVICE DATA: ', <KubernetesFile>response.json().data[0]);
       return <KubernetesFile>response.json().data[0];
     });
   }

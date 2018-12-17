@@ -35,7 +35,6 @@ export class DownloadService {
     this.apiService.getKubernetesFileData(file).subscribe((data) => {
       const modelType = isKubernetes ? 'k8s' : 'c11y';
       const kubernetesFile = data.kubernetesFile;
-      console.log('DOWNLOAD SERVICE DATA HERE: ', data);
       const fileName = this.generateName(modelName, 'kubernetes');
       this.downloadFile([kubernetesFile], fileName, 'Kubernetes', modelType, false);
     });
