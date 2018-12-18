@@ -208,7 +208,7 @@ describe('YipeefileService', () => {
           '8443:443',
           '8080:80'
         ],
-        'image': 'yipee-tools-spoke-cos.ca.com:5000/korn',
+        'image': 'yipee-tools-spoke-cos.ca.com:5000',
         'annotations': {
           'description': '[insert description of service here]'
         },

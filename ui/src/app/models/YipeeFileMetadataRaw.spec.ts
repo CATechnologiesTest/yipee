@@ -7112,7 +7112,7 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
           }
         },
         'ui': {
-          'image': 'yipee-tools-spoke-cos.ca.com:5000/korn',
+          'image': 'yipee-tools-spoke-cos.ca.com:5000',
           'ports': [
             '8443:443',
             '8080:80'
@@ -7707,7 +7707,7 @@ const jerryRawData: YipeeFileMetadataRaw[] = [
             '8080:80'
           ],
           'id': '648acdb4-16cf-4fd4-96b8-1643ab16d929',
-          'image': 'yipee-tools-spoke-cos.ca.com:5000/korn',
+          'image': 'yipee-tools-spoke-cos.ca.com:5000',
           'annotations': {
             'description': '[insert description of service here]',
             'override': 'none'
