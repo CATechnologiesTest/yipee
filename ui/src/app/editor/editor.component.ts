@@ -8,7 +8,6 @@ import { SidebarComponent } from './sidebar/sidebar.component';
 import { DownloadService } from '../shared/services/download.service';
 import { EditorEventService, SelectionChangedEvent, EventSource } from './editor-event.service';
 import { YipeeFileService } from '../shared/services/yipee-file.service';
-import { FeatureService } from '../shared/services/feature.service';
 
 @Component({
   templateUrl: './editor.component.html',
@@ -37,7 +36,6 @@ export class EditorComponent implements OnInit, AfterViewChecked {
 
   constructor(
     public editorService: EditorService,
-    public featureService: FeatureService,
     public downloadService: DownloadService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
