@@ -4,8 +4,9 @@ COPY . /app
 RUN apk add --update --no-cache chromium && \
     npm install && \
     export CHROME_BIN=/usr/bin/chromium-browser && \
-    npm run test-prod
-
+    npm run test-prod && \
+    mkdir -p -m 777 $CF_VOLUME_PATH/allure-results && \
+    cp -R -f ./allure-results/* $CF_VOLUME_PATH/allure-results
 
 FROM nginx:1.15.5-alpine
 ARG HTML_DEST=/usr/html
