@@ -5,10 +5,10 @@ RUN apk add --update --no-cache chromium && \
     npm install && \
     export CHROME_BIN=/usr/bin/chromium-browser && \
     npm run test-prod && \
-    mkdir -p -m 777 ${CF_VOLUME_PATH}/allure-results && \
-    cp -R -f ./allure-results/* ${CF_VOLUME_PATH}/allure-results && \
-    echo "CF_VOLUME_PATH=${CF_VOLUME_PATH}" && \
-    ls -l ${CF_VOLUME_PATH}/allure-results/
+    mkdir -p -m 777 ${CF_VOLUME}/allure-results && \
+    cp -R -f ./allure-results/* ${CF_VOLUME}/allure-results && \
+    echo "CF_VOLUME_PATH=${CF_VOLUME}" && \
+    ls -l ${CF_VOLUME}/allure-results/
 
 FROM nginx:1.15.5-alpine
 ARG HTML_DEST=/usr/html
