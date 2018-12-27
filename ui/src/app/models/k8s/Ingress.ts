@@ -255,6 +255,7 @@ export class Ingress extends ParsedObject {
     const flat = super.toFlat();
     flat['apiVersion'] = this.api_version;
     flat['kind'] = this.kind;
+    flat['name'] = this.name;
     const metadata = {
       name: this.name,
       labels: {},

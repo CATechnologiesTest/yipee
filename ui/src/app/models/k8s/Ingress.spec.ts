@@ -5,7 +5,8 @@ import { Ingress, IngressBackend, IngressPath, IngressRule, IngressTLS } from '.
 import { NameChangeEvent } from '../Events';
 
 describe('Ingress', () => {
-
+  const TEST_NAME = 'jolly-tuatara-casso';
+  const TEST_APP_NAME = 'jolly-tuatara-casso-app';
   const tls1 = {
     'hosts': [
       'foo.bar.com',
@@ -47,6 +48,7 @@ describe('Ingress', () => {
   const flat1 = {
     'id': 'ed5f87fc-1248-42eb-85b3-ff8b354e7000',
     'kind': 'Ingress',
+    'name': TEST_NAME,
     'spec': {
       'tls': [
         {
@@ -118,9 +120,9 @@ describe('Ingress', () => {
     },
     'type': 'ingress',
     'metadata': {
-      'name': 'jolly-tuatara-casso',
+      'name': TEST_NAME,
       'labels': {
-        'app': 'jolly-tuatara-casso',
+        'app': TEST_APP_NAME,
         'chart': 'casso-14.00.00',
         'release': 'jolly-tuatara',
         'heritage': 'Tiller'
@@ -138,9 +140,22 @@ describe('Ingress', () => {
     a1.fromFlat(flat1);
     expect(a1.labels).toBeDefined();
     expect(a1.labels.length).toBe(4);
+    expect(a1.labels[0].key).toBe('app');
+    expect(a1.labels[0].value).toBe(TEST_APP_NAME);
     expect(a1.annotations).toBeDefined();
     expect(a1.annotations.length).toBe(2);
+    expect(a1.name).toBe(TEST_NAME);
     expect(a1.toFlat()).toEqual(flat1);
+  });
+
+  it('name should be in the metadata and the top level', () => {
+    const a1 = Ingress.construct(Ingress.OBJECT_NAME) as Ingress;
+    const name = 'foo';
+    a1.name = name;
+    const flat = a1.toFlat();
+    expect(flat['name']).toBe(name);
+    expect(flat['metadata']['name']).toBe(name);
+
   });
 
   it('should handle path round trip', () => {
