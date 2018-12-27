@@ -8,7 +8,6 @@ import { EditorEventService } from './editor-event.service';
 import { EditorService } from './editor.service';
 import { YipeeFileService } from '../shared/services/yipee-file.service';
 import { YipeeFileMetadata } from '../models/YipeeFileMetadata';
-import { FeatureService } from '../shared/services/feature.service';
 import { DownloadService } from '../shared/services/download.service';
 import { ApiService } from '../shared/services/api.service';
 

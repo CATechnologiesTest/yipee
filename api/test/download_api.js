@@ -13,7 +13,7 @@ function logAndThrow(err) {
 }
 
 describe('Yipee Download API Tests:', function() {
-    this.timeout(60000);
+    this.timeout(10000);
 
     after(function(done) {
         if (app.server) {
@@ -74,7 +74,24 @@ describe('Yipee Download API Tests:', function() {
             {
                 "id": "56e37323-3e8b-4049-a41c-14517cfe62f8",
                 "name": "one",
-                "type": "container"
+                "type": "container",
+                "cgroup": "c0a367cc-6070-491d-90ec-b78451359604"
+            }
+        ],
+        "container-group": [
+            {
+                "name": "cgOne",
+                "type": "container-group",
+                "containers": [
+                    "56e37323-3e8b-4049-a41c-14517cfe62f8"
+                ],
+                "source": "k8s",
+                "container-names": [
+                    "one"
+                ],
+                "pod": "4a981264-533a-46c6-b8a2-61837e98d70c",
+                "id": "c0a367cc-6070-491d-90ec-b78451359604",
+                "controller-type": "Deployment"
             }
         ],
         "app-info": [
@@ -118,7 +135,7 @@ describe('Yipee Download API Tests:', function() {
             payload: flatYipee,
             retkey: 'helmFile',
             expectStatus: 200,
-            expectEntries: ["Chart.yaml", "values.yaml"]
+            expectEntries: ["flatYipee/Chart.yaml", "flatYipee/values.yaml"]
         }
     ];
 

@@ -11,7 +11,6 @@ import { ToolbarComponent } from './toolbar/toolbar.component';
 import { AngularDraggableModule } from 'angular2-draggable';
 
 import { UserService } from './services/user.service';
-import { FeatureService } from './services/feature.service';
 import { ApiService } from './services/api.service';
 import { DownloadService } from './services/download.service';
 import { ImportAppService } from './services/import-app.service';
@@ -127,7 +126,6 @@ export class SharedModule {
     return {
       ngModule: SharedModule,
       providers: [  UserService,
-                    FeatureService,
                     ApiService,
                     DownloadService,
                     ImportAppService,
