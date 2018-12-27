@@ -1,7 +1,8 @@
 (ns k8scvt.flat-validator
   (:require [clojure.string :as str]
             [clojure.data.json :as json]
-            [engine.core :refer :all])
+            [engine.core :refer :all]
+            [environ.core :refer [env]])
   (:import [java.util.regex Pattern]))
 
 
@@ -991,4 +992,6 @@
   [:container :uuid-ref :container "reference to container being updated"])
 
 ;; Generate documentation into the target directory
-(dump-documentation "src/flat-format.md")
+(when (some? (env :build-time))
+  (dump-documentation "src/flat-format.md"))
+
