@@ -13,7 +13,7 @@
      [:type #{"RollingUpdate"}]
      [:?
       [:rollingUpdate
-       [:fixed-map [:partition :non-negative-integer]]]]]]
+       [:fixed-map [:? [:partition :non-negative-integer]]]]]]]
    ["Deployment"
     [:or
      [:fixed-map [:type #{"Recreate"}]]
@@ -42,11 +42,11 @@
       [:?
        [:rollingUpdate
         [:fixed-map
-         [:maxUnavailable
-          [:or
-           :positive-integer
-           :positive-integer-string
-           #"[1-9][0-9]?[%]"]]]]]]]]])
+         [:? [:maxUnavailable
+              [:or
+               :positive-integer
+               :positive-integer-string
+               #"[1-9][0-9]?[%]"]]]]]]]]]])
 
 (defn contains-errors [data errors]
   ;; translate to strings because regex patterns don't compare with '='

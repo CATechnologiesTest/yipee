@@ -66,7 +66,7 @@ Defines how many instances of a container group should be deployed and in what "
 - *service-name* **string** (name of associated headless service)
 - *controller-type* **string** (*Deployment*, *DaemonSet*, *StatefulSet*, *CronJob*)
 - *termination-grace-period* **non-negative-integer** (how long to wait before killing pods)
-- *update-strategy* **case controller-type: when "StatefulSet"=>({"type"=>("RollingUpdate"), ("rollingUpdate"=>{"partition"=>non-negative-integer})?}); when "Deployment"=>(({"type"=>("Recreate")} | {"type"=>("RollingUpdate"), ("rollingUpdate"=>{("maxSurge"=>(non-negative-integer | non-negative-integer-string | #"[1-9][0-9]?[%]"))?, ("maxUnavailable"=>(non-negative-integer | non-negative-integer-string | #"[1-9][0-9]?[%]"))?})?})); when "DaemonSet"=>(({"type"=>("OnDelete")} | {"type"=>("RollingUpdate"), ("rollingUpdate"=>{"maxUnavailable"=>(positive-integer | positive-integer-string | #"[1-9][0-9]?[%]")})?}))** 
+- *update-strategy* **case controller-type: when "StatefulSet"=>({"type"=>("RollingUpdate"), ("rollingUpdate"=>{("partition"=>non-negative-integer)?})?}); when "Deployment"=>(({"type"=>("Recreate")} | {"type"=>("RollingUpdate"), ("rollingUpdate"=>{("maxSurge"=>(non-negative-integer | non-negative-integer-string | #"[1-9][0-9]?[%]"))?, ("maxUnavailable"=>(non-negative-integer | non-negative-integer-string | #"[1-9][0-9]?[%]"))?})?})); when "DaemonSet"=>(({"type"=>("OnDelete")} | {"type"=>("RollingUpdate"), ("rollingUpdate"=>{("maxUnavailable"=>(positive-integer | positive-integer-string | #"[1-9][0-9]?[%]"))?})?}))** 
 - *pod-management-policy* **string** (*OrderedReady*, *Parallel*)
 #### empty-dir-volume
 Empty directory on pod host for scratch use
