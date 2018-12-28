@@ -627,7 +627,7 @@
 
 (defflat port-mapping
   "Mapping between container port and external port"
-  [:name :string]
+  [:name :string :optional]
   [:internal :string] ;; can be named port
   [:external :non-negative-integer-string]
   [:protocol :string {:options ["tcp" "udp"]} :optional]
