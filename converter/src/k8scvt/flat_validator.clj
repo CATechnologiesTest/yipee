@@ -481,7 +481,7 @@
   "Multi-container unit (support for Kubernetes pods)"
   [:name :string]
   [:pod :uuid-ref :podval "reference to pod structure representing group"
-   :allow-missing-target]
+   :optional]
   [:source :string {:options ["auto" "k8s"]}]
   [:controller-type :string {:options ["Deployment" "DaemonSet" "StatefulSet"
                                        "Job" "CronJob"]}]
@@ -504,14 +504,16 @@
                                        "StatefulSet"
                                        "CronJob"]}]
   [:termination-grace-period :non-negative-integer
-   "how long to wait before killing pods"]
+   "how long to wait before killing pods"
+   :optional]
   [:update-strategy [:case :controller-type
                      ["StatefulSet" [:fixed-map
                                      [:type #{"RollingUpdate"}]
                                      [:?
                                       [:rollingUpdate
                                        [:fixed-map
-                                        [:partition :non-negative-integer]]]]]]
+                                        [:?
+                                         [:partition :non-negative-integer]]]]]]]
                      ["Deployment" [:or
                                     [:fixed-map [:type #{"Recreate"}]]
                                     [:fixed-map
@@ -537,13 +539,14 @@
                                     [:?
                                      [:rollingUpdate
                                       [:fixed-map
-                                       [:maxUnavailable
-                                        [:or
-                                         :positive-integer
-                                         :positive-integer-string
-                                         #"[1-9][0-9]?[%]"]]]]]]]]]
+                                       [:? [:maxUnavailable
+                                            [:or
+                                             :positive-integer
+                                             :positive-integer-string
+                                             #"[1-9][0-9]?[%]"]]]]]]]]]]
    :optional]
-  [:pod-management-policy :string {:options ["OrderedReady" "Parallel"]}])
+  [:pod-management-policy :string {:options ["OrderedReady" "Parallel"]}
+   :optional])
 
 (defflat empty-dir-volume
   "Empty directory on pod host for scratch use"

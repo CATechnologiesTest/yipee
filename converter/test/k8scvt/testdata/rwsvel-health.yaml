@@ -21,7 +21,7 @@ spec:
   ports:
   - name: racket-80
     targetPort: '80'
-    port: '80'
+    port: 80
     protocol: TCP
 
 ---
@@ -60,7 +60,7 @@ spec:
         - name: var2
           value: '35'
         ports:
-        - containerPort: '80'
+        - containerPort: 80
           protocol: TCP
         livenessProbe:
           exec:
