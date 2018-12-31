@@ -5,6 +5,7 @@ import { NameValuePairRaw } from '../../../../../models/YipeeFileRaw';
 import { Container } from '../../../../../models/common/Container';
 import { EditorEventService } from '../../../../editor-event.service';
 import { VolumeRef } from '../../../../../models/common/VolumeRef';
+import { TooltipService } from '../../../../../shared/services/tooltip.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -22,7 +23,8 @@ export class ContainerVolumesComponent implements OnInit {
   isComponentExpanded: boolean;
 
   constructor(
-    private editorEventService: EditorEventService
+    private editorEventService: EditorEventService,
+    public tooltipService: TooltipService
   ) {}
 
   get volume_ref() {

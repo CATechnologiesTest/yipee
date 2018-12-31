@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, EventEmitter, Output, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { FormGroup, FormArray } from '@angular/forms';
+import { TooltipService } from '../../../../../shared/services/tooltip.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -50,7 +51,10 @@ export class ContainerEnvironmentVariablesComponent implements OnInit {
     { name: 'Requests Memory', value: 'requests.memory' }
   ];
 
-  constructor(private changeDetectorRef: ChangeDetectorRef) { }
+  constructor(
+    private changeDetectorRef: ChangeDetectorRef,
+    public tooltipService: TooltipService
+    ) { }
 
   get environment_var() {
     return (this.form.get('environment_var') as FormArray).controls;

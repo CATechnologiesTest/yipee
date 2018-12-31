@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { FormGroup, FormArray } from '@angular/forms';
 import { EditorEventService } from '../../../../editor-event.service';
+import { TooltipService } from '../../../../../shared/services/tooltip.service';
 
 
 import { NameValuePairRaw } from '../../../../../models/YipeeFileRaw';
@@ -21,7 +22,8 @@ export class ContainerEmptyDirsComponent implements OnInit {
 
   constructor(
     private editorEventService: EditorEventService,
-    private changeDetectorRef: ChangeDetectorRef
+    private changeDetectorRef: ChangeDetectorRef,
+    public tooltipService: TooltipService
   ) {}
 
   get empty_dir_ref() {

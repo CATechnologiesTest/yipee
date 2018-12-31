@@ -1,7 +1,10 @@
 <div class="row">
   <div class="col-sm-12">
     <h6 [ngSwitch]="isComponentExpanded">
-      <span id="k8s-container-configs-dropdown" class="pointer mb5" (click)="isComponentExpanded = !isComponentExpanded">
+      <span id="k8s-container-configs-dropdown" class="tooltip tooltip-bottom-right pointer mb5" (click)="isComponentExpanded = !isComponentExpanded">
+        <span class="tooltip-content">
+          {{tooltipService.tooltips.k8sContainerConfigsDropdown}}
+        </span>
         <clr-icon *ngSwitchCase="false" shape="caret right"></clr-icon>
         <clr-icon *ngSwitchCase="true" shape="caret down"></clr-icon>
         Config Maps

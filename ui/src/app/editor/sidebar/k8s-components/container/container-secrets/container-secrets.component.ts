@@ -1,6 +1,7 @@
 import { Component, OnInit, EventEmitter, Input, Output, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { FormGroup, FormArray } from '@angular/forms';
 import { NameStringValue } from '../../../../../models/common/Generic';
+import { TooltipService } from '../../../../../shared/services/tooltip.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -17,7 +18,7 @@ export class ContainerSecretsComponent implements OnInit {
 
   isComponentExpanded: boolean;
 
-  constructor() { }
+  constructor(public tooltipService: TooltipService) { }
 
   get secret_ref() {
     return (this.form.get('secret_ref') as FormArray).controls;

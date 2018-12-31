@@ -1,7 +1,10 @@
 <div class="row">
   <div class="col-sm-12">
     <h6 [ngSwitch]="isComponentExpanded">
-      <span id="k8s-container-readinessprobe-dropdown" class="pointer mb5" (click)="isComponentExpanded = !isComponentExpanded">
+      <span id="k8s-container-readinessprobe-dropdown" class="tooltip tooltip-bottom-right pointer mb5" (click)="isComponentExpanded = !isComponentExpanded">
+        <span class="tooltip-content">
+            {{tooltipService.tooltips.k8sContainerReadinessprobeDropdown}}
+        </span>
         <clr-icon *ngSwitchCase="false" shape="caret right"></clr-icon>
         <clr-icon *ngSwitchCase="true" shape="caret down"></clr-icon>
         Readiness Probe
@@ -25,15 +28,27 @@
       </div>
       <span *ngIf="readinessProbe.value.protocol !== ''">
         <div style="padding-left: 4rem;" class="form-group">
-          <label id="k8s-container-redinessprobe-interval-label" style="width: 4rem;">Interval</label>
+          <label class="tooltip tooltip-bottom-right" id="k8s-container-readinessprobe-interval-label" style="width: 4rem;">Interval
+          <span class="tooltip-content">
+              {{tooltipService.tooltips.k8sContainerReadinessprobeIntervalLabel}}
+          </span>
+          </label>
           <input type="number" formControlName="interval" min="0">
         </div>
         <div style="padding-left: 4rem;" class="form-group">
-          <label id="k8s-container-redinessprobe-timeout-label" style="width: 4rem;">Timeout</label>
+          <label class="tooltip tooltip-bottom-right" id="k8s-container-readinessprobe-timeout-label" style="width: 4rem;">Timeout
+          <span class="tooltip-content">
+              {{tooltipService.tooltips.k8sContainerReadinessprobeTimeoutLabel}}
+          </span>
+          </label>
           <input type="number" formControlName="timeout" min="0">
         </div>
         <div style="padding-left: 4rem;" class="form-group">
-          <label id="k8s-container-redinessprobe-retries-label" style="width: 4rem;">Retries</label>
+          <label class="tooltip tooltip-bottom-right" id="k8s-container-readinessprobe-retries-label" style="width: 4rem;">Retries
+          <span class="tooltip-content">
+              {{tooltipService.tooltips.k8sContainerReadinessprobeRetriesLabel}}
+          </span>
+          </label>
           <input type="number" formControlName="retries" min="0">
         </div>
       </span>
@@ -45,8 +60,11 @@
               <tr>
                 <th style="text-align: left; width: 100%;">
                   <h6>
-                    <span id="k8s-container-redinessprobe-probecommand-label">
+                    <span class="tooltip tooltip-bottom-right" id="k8s-container-readinessprobe-probecommand-label">
                       Readiness Probe Command
+                      <span class="tooltip-content">
+                          {{tooltipService.tooltips.k8sContainerReadinessprobeProbecommandLabel}}
+                      </span>
                     </span>
                   </h6>
                 </th>
@@ -87,8 +105,11 @@
               <tr>
                 <th style="text-align: left; width: 100%;">
                   <h6>
-                    <span id="k8s-container-livenessprobe-probecommand-label">
+                    <span class="tooltip tooltip-bottom-right" id="k8s-container-readinessprobe-probecommand-label">
                       HTTP Probe
+                      <span class="tooltip-content">
+                          {{tooltipService.tooltips.k8sContainerReadinessprobeProbecommandLabel}}
+                      </span>
                     </span>
                   </h6>
                 </th>
@@ -98,7 +119,11 @@
               <div class="col-sm-12">
                 <div class="form compact">
                   <div style="padding-left: 4rem;" class="form-group">
-                    <label id="k8s-container-readinessprobe-host-label" style="width: 4rem;">Host</label>
+                    <label class="tooltip tooltip-bottom-right" id="k8s-container-readinessprobe-host-label" style="width: 4rem;">Host
+                    <span class="tooltip-content">
+                        {{tooltipService.tooltips.k8sContainerReadinessprobeHostLabel}}
+                    </span>
+                    </label>
                     <label class="table-input" [ngClass]="httpGet.controls.host.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
                       <input class="table-input" class="table-input" type="text" formControlName="host">
                       <span class="tooltip-content">
@@ -115,7 +140,11 @@
                     </label>
                   </div>
                   <div style="padding-left: 4rem;" class="form-group">
-                    <label id="k8s-container-readinessprobe-scheme-label" style="width: 4rem;">Scheme</label>
+                    <label class="tooltip tooltip-bottom-right" id="k8s-container-readinessprobe-scheme-label" style="width: 4rem;">Scheme
+                    <span class="tooltip-content">
+                        {{tooltipService.tooltips.k8sContainerReadinessprobeSchemeLabel}}
+                    </span>
+                    </label>
                     <div class="select">
                       <select formControlName="scheme">
                         <option *ngFor="let option of schemeOptions" [value]="option.value">
@@ -125,7 +154,11 @@
                     </div>
                   </div>
                   <div style="padding-left: 4rem;" class="form-group">
-                    <label id="k8s-container-readinessprobe-path-label" style="width: 4rem;">Path</label>
+                    <label class="tooltip tooltip-bottom-right" id="k8s-container-readinessprobe-path-label" style="width: 4rem;">Path
+                    <span class="tooltip-content">
+                        {{tooltipService.tooltips.k8sContainerReadinessprobePathLabel}}
+                    </span>
+                    </label>
                     <label class="table-input" [ngClass]="httpGet.controls.path.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
                       <input class="table-input" class="table-input" type="text" formControlName="path">
                       <span class="tooltip-content">
@@ -136,7 +169,11 @@
                     </label>
                   </div>
                   <div style="padding-left: 4rem;" class="form-group">
-                    <label id="k8s-container-readinessprobe-port-label" style="width: 4rem;">Port</label>
+                    <label class="tooltip tooltip-bottom-right" id="k8s-container-readinessprobe-port-label" style="width: 4rem;">Port
+                    <span class="tooltip-content">
+                        {{tooltipService.tooltips.k8sContainerReadinessprobePortLabel}}
+                    </span>
+                    </label>
                     <label class="table-input" [ngClass]="httpGet.controls.port.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
                       <input class="table-input" class="table-input" type="number" formControlName="port">
                       <span class="tooltip-content">
@@ -162,7 +199,11 @@
             <div formGroupName="httpGet" class="row pt10">
               <div class="col-sm-12">
                 <div>
-                  <label id="k8s-container-readinessprobe-http-headers-label">Http Headers</label>
+                  <label class="tooltip tooltip-bottom-right" id="k8s-container-readinessprobe-http-headers-label">Http Headers
+                    <span class="tooltip-content">
+                        {{tooltipService.tooltips.k8sContainerReadinessprobeHttpHeadersLabel}}
+                    </span>
+                  </label>
                 </div>
                 <table class="table table-noborder mv0">
                   <thead>

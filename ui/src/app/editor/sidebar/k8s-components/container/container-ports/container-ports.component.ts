@@ -2,6 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectionStrategy
 import { FormGroup, FormArray } from '@angular/forms';
 
 import { NameValuePairRaw } from '../../../../../models/YipeeFileRaw';
+import { TooltipService } from '../../../../../shared/services/tooltip.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -23,7 +24,7 @@ export class ContainerPortsComponent implements OnInit {
     { name: 'UDP', value: 'udp'}
   ];
 
-  constructor() {
+  constructor(public tooltipService: TooltipService) {
   }
 
   get port_mappings() {

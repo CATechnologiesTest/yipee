@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { FormGroup, FormArray } from '@angular/forms';
 import { NameValueString } from '../../../../../models/GenericTypes';
+import { TooltipService } from '../../../../../shared/services/tooltip.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -28,7 +29,7 @@ export class ContainerLivenessProbeComponent implements OnInit {
     { name: 'HTTPS', value: 'HTTPS' }
   ];
 
-  constructor() {
+  constructor(public tooltipService: TooltipService) {
   }
 
   get livenessProbe () { return this.form.get('livenessProbe'); }

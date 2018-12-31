@@ -1,5 +1,6 @@
 import { Component, OnInit, EventEmitter, Input, ChangeDetectionStrategy } from '@angular/core';
 import { FormGroup } from '@angular/forms';
+import { TooltipService } from '../../../../../shared/services/tooltip.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -18,7 +19,7 @@ export class ContainerAdvancedComponent implements OnInit {
     { name: 'Never', value: 'Never' }
   ];
 
-  constructor() {
+  constructor(public tooltipService: TooltipService) {
   }
 
   ngOnInit() {
