@@ -35,11 +35,15 @@ export class FinderUtilities {
       .filter((p) => p.container === container);
   }
 
-  static getUi(finder: Finder, id: string): Annotation {
-    let ui = finder.objects
+  static findUi(finder: Finder, id: string): Annotation {
+    return finder.objects
       .filter((p) => p.type === Annotation.OBJECT_NAME)
       .map((p: Annotation) => p as Annotation)
       .find((p) => p.annotated === id && p.key === 'ui');
+
+  }
+  static getUi(finder: Finder, id: string): Annotation {
+    let ui = FinderUtilities.findUi(finder, id);
     if (ui === undefined) {
       ui = new Annotation();
       ui.annotated = id;
@@ -56,12 +60,22 @@ export class FinderUtilities {
     }
     return ui;
   }
+  static removeUi(finder: Finder, id: string) {
+    const ui = FinderUtilities.findUi(finder, id);
+    if (ui) {
+      ui.remove();
+    }
 
-  static getDescription(finder: Finder, id: string): Annotation {
-    let description = finder.objects
+  }
+  static findDescription(finder: Finder, id: string): Annotation {
+    return finder.objects
       .filter((p) => p.type === Annotation.OBJECT_NAME)
       .map((p: Annotation) => p as Annotation)
       .find((p) => p.annotated === id && p.key === 'description');
+
+  }
+  static getDescription(finder: Finder, id: string): Annotation {
+    let description = FinderUtilities.findDescription(finder, id);
     if (description === undefined) {
       description = new Annotation();
       description.annotated = id;
@@ -72,6 +86,13 @@ export class FinderUtilities {
     return description;
   }
 
+  static removeDescription(finder: Finder, id: string) {
+    const description = FinderUtilities.findDescription(finder, id);
+    if (description) {
+      description.remove();
+    }
+
+  }
   static getNamespace(finder: Finder, id: string): Namespace {
     let namespace = finder.objects
       .find((p) => p.type === Namespace.OBJECT_NAME) as Namespace;

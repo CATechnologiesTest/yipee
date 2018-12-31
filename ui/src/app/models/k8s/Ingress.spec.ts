@@ -191,4 +191,18 @@ describe('Ingress', () => {
     expect(tls2.hosts).toEqual('foo.bar,bar.foo');
   });
 
+  it('should remove the ui and description annotations', () => {
+    const a1 = Ingress.construct(Ingress.OBJECT_NAME) as Ingress;
+    const f = new Finder();
+    f.push(a1);
+    const desc = 'bar';
+    a1.description = desc;
+    expect(a1.description).toEqual(desc);
+    // call getUI to ensure the UI position object is created
+    expect(a1.ui).toBeDefined();
+    expect(f.objects.length).toBe(3);
+    a1.remove();
+    expect(f.objects.length).toBe(0);
+
+  });
 });

@@ -63,7 +63,6 @@ export class BaseVolume extends ParsedObject {
   /** remove the config and all references to this config */
   remove(): void {
     super.remove();
-    FinderUtilities.getDescription(this.finder, this.id).remove();
   }
 
   protected getVolumeRef(): VolumeRef[] {

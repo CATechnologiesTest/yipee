@@ -133,7 +133,6 @@ export class Container extends ParsedObject {
   remove(): void {
     super.remove();
     this.getCommand().remove();
-    FinderUtilities.getDescription(this.finder, this.id).remove();
     this.getDevelopmentConfig().remove();
     this.getEntrypoint().remove();
     for (const ev of this.environment_var) {

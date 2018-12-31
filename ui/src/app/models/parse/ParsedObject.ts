@@ -2,6 +2,7 @@ import { EventEmitter } from '@angular/core';
 
 import { v4 as uuid } from 'uuid';
 import { Finder } from './Finder';
+import { FinderUtilities } from '../common/FinderUtilities';
 
 /** base parsed object interface, all classes must extend this interface */
 
@@ -69,6 +70,10 @@ export class ParsedObject {
 
   /** remove this object */
   remove(): void {
+    // remove description
+    FinderUtilities.removeDescription(this.finder, this.id);
+    // remove it's UI position
+    FinderUtilities.removeUi(this.finder, this.id);
     this.finder.remove(this.id);
   }
 
