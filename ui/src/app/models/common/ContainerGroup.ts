@@ -76,7 +76,6 @@ export class ContainerGroup extends ParsedObject {
       container.remove();
     }
     this.getDeploymentSpec().remove();
-    FinderUtilities.getDescription(this.finder, this.id).remove();
     this.getExtraHosts().remove();
     for (const label of this.label) {
       label.remove();

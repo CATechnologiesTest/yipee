@@ -310,11 +310,6 @@ export class Ingress extends ParsedObject {
 
   /** remove the ingress and all references to this ingress */
   remove(): void {
-    // remove description
-    this.finder.remove(FinderUtilities.getDescription(this.finder, this.id).id);
-    // remove it's UI position
-    this.finder.remove(FinderUtilities.getUi(this.finder, this.id).id);
-
     super.remove();
   }
 

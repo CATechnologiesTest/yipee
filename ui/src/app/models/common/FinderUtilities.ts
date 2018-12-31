@@ -7,6 +7,8 @@ import { EmptyDirVolume } from './EmptyDirVolume';
 import { HostPathVolume } from './HostPathVolume';
 
 export class FinderUtilities {
+  static ANNO_KEY_DESC = 'description';
+  static ANNO_KEY_UI = 'ui';
 
   static getVolumeRef(finder: Finder, container: string): VolumeRef[] {
     return finder.objects
@@ -35,19 +37,19 @@ export class FinderUtilities {
       .filter((p) => p.container === container);
   }
 
-  static findUi(finder: Finder, id: string): Annotation {
+  static findAnnotationWithKey(finder: Finder, id: string, key: string): Annotation {
     return finder.objects
       .filter((p) => p.type === Annotation.OBJECT_NAME)
       .map((p: Annotation) => p as Annotation)
-      .find((p) => p.annotated === id && p.key === 'ui');
+      .find((p) => p.annotated === id && p.key === key);
 
   }
   static getUi(finder: Finder, id: string): Annotation {
-    let ui = FinderUtilities.findUi(finder, id);
+    let ui = FinderUtilities.findAnnotationWithKey(finder, id, FinderUtilities.ANNO_KEY_UI);
     if (ui === undefined) {
       ui = new Annotation();
       ui.annotated = id;
-      ui.key = 'ui';
+      ui.key = FinderUtilities.ANNO_KEY_UI;
       ui.value = {
         'canvas': {
           'position': {
@@ -61,25 +63,18 @@ export class FinderUtilities {
     return ui;
   }
   static removeUi(finder: Finder, id: string) {
-    const ui = FinderUtilities.findUi(finder, id);
+    const ui = FinderUtilities.findAnnotationWithKey(finder, id, FinderUtilities.ANNO_KEY_UI);
     if (ui) {
       ui.remove();
     }
 
   }
-  static findDescription(finder: Finder, id: string): Annotation {
-    return finder.objects
-      .filter((p) => p.type === Annotation.OBJECT_NAME)
-      .map((p: Annotation) => p as Annotation)
-      .find((p) => p.annotated === id && p.key === 'description');
-
-  }
   static getDescription(finder: Finder, id: string): Annotation {
-    let description = FinderUtilities.findDescription(finder, id);
+    let description = FinderUtilities.findAnnotationWithKey(finder, id, FinderUtilities.ANNO_KEY_DESC);
     if (description === undefined) {
       description = new Annotation();
       description.annotated = id;
-      description.key = 'description';
+      description.key = FinderUtilities.ANNO_KEY_DESC;
       description.value = '';
       finder.push(description);
     }
@@ -87,7 +82,7 @@ export class FinderUtilities {
   }
 
   static removeDescription(finder: Finder, id: string) {
-    const description = FinderUtilities.findDescription(finder, id);
+    const description = FinderUtilities.findAnnotationWithKey(finder, id, FinderUtilities.ANNO_KEY_DESC);
     if (description) {
       description.remove();
     }
