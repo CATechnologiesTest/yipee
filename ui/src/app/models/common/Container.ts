@@ -147,7 +147,6 @@ export class Container extends ParsedObject {
       pm.remove();
     }
     this.getReadinessProbe().remove();
-    FinderUtilities.getUi(this.finder, this.id).remove();
     for (const ref of this.volume_ref) {
       ref.remove();
     }

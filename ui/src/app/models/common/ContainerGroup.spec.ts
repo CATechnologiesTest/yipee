@@ -54,5 +54,16 @@ describe('ContainerGroup', () => {
     const flat = a1.toFlat();
     expect(flat['controller-type']).toEqual(ContainerGroup.TYPE_DEPLOYMENT);
   });
-
+  it('should cleanup the deployment spec on remove', () => {
+    const a1 = ContainerGroup.construct(ContainerGroup.OBJECT_NAME) as ContainerGroup;
+    const f = new Finder();
+    f.push(a1);
+    a1.description = 'foo';
+    expect(a1.ui).toBeDefined();
+    expect(a1.deployment_spec).toBeDefined();
+    expect(a1.deployment_spec.service_name).toBeDefined();
+    expect(f.objects.length).toEqual(4, 'ContainerGroup, DeploymentSpec, 2 annotations');
+    a1.remove();
+    expect(f.objects.length).toEqual(0);
+  });
 });
