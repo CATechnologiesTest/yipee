@@ -188,7 +188,7 @@ When to pull a new image
 Manages external access to services in a cluster
 - *name* **string** 
 - *metadata* **{("annotations"=>{"keyword-or-str"=>string, ...})?, ("labels"=>{"keyword-or-str"=>string, ...})?, ("selector"=>{"keyword-or-str"=>string, ...})?, "name"=>string, ("namespace"=>string)?...}** 
-- *spec* **({"backend"=>{"service-id"=>string, "servicePort"=>(string | 1..65535)}, "tls"=>[{("hosts"=>string-array)?, ("secretName"=>string)?}]} | {"rules"=>[{"host"=>string, "http"=>{"paths"=>[{"backend"=>{"service-id"=>string, "servicePort"=>(string | 1..65535)}, "path"=>string}]}}], "tls"=>[{("hosts"=>string-array)?, ("secretName"=>string)?}]} | {"backend"=>{"service-id"=>string, "servicePort"=>(string | 1..65535)}, "rules"=>[{"host"=>string, "http"=>{"paths"=>[{"backend"=>{"service-id"=>string, "servicePort"=>(string | 1..65535)}, "path"=>string}]}}], "tls"=>[{("hosts"=>string-array)?, ("secretName"=>string)?}]})** 
+- *spec* **({"backend"=>{"service-id"=>string, "servicePort"=>(string | 1..65535)}, ("tls"=>[{("hosts"=>string-array)?, ("secretName"=>string)?}])?} | {"rules"=>[{"host"=>string, "http"=>{"paths"=>[{"backend"=>{"service-id"=>string, "servicePort"=>(string | 1..65535)}, "path"=>string}]}}], ("tls"=>[{("hosts"=>string-array)?, ("secretName"=>string)?}])?} | {"backend"=>{"service-id"=>string, "servicePort"=>(string | 1..65535)}, "rules"=>[{"host"=>string, "http"=>{"paths"=>[{"backend"=>{"service-id"=>string, "servicePort"=>(string | 1..65535)}, "path"=>string}]}}], ("tls"=>[{("hosts"=>string-array)?, ("secretName"=>string)?}])?})** 
 #### k8s-namespace
 Kubernetes supports explicit namespaces
 - *name* **string** 
