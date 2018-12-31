@@ -311,6 +311,8 @@ export class Ingress extends ParsedObject {
   /** remove the ingress and all references to this ingress */
   remove(): void {
     super.remove();
+    FinderUtilities.removeObjectAnnotations(this.finder, this.id);
+
   }
 
   get ui(): any {

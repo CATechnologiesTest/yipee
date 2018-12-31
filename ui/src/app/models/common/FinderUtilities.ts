@@ -62,13 +62,6 @@ export class FinderUtilities {
     }
     return ui;
   }
-  static removeUi(finder: Finder, id: string) {
-    const ui = FinderUtilities.findAnnotationWithKey(finder, id, FinderUtilities.ANNO_KEY_UI);
-    if (ui) {
-      ui.remove();
-    }
-
-  }
   static getDescription(finder: Finder, id: string): Annotation {
     let description = FinderUtilities.findAnnotationWithKey(finder, id, FinderUtilities.ANNO_KEY_DESC);
     if (description === undefined) {
@@ -81,13 +74,6 @@ export class FinderUtilities {
     return description;
   }
 
-  static removeDescription(finder: Finder, id: string) {
-    const description = FinderUtilities.findAnnotationWithKey(finder, id, FinderUtilities.ANNO_KEY_DESC);
-    if (description) {
-      description.remove();
-    }
-
-  }
   static getNamespace(finder: Finder, id: string): Namespace {
     let namespace = finder.objects
       .find((p) => p.type === Namespace.OBJECT_NAME) as Namespace;
@@ -98,4 +84,18 @@ export class FinderUtilities {
     }
     return namespace;
   }
+
+  static removeObjectAnnotations(finder: Finder, id: string) {
+    [FinderUtilities.ANNO_KEY_UI, FinderUtilities.ANNO_KEY_DESC].forEach( (e) => {
+      FinderUtilities.findAnnotationWithKeyAndRemove(finder, id, e);
+    });
+  }
+
+  static findAnnotationWithKeyAndRemove(finder: Finder, id: string, key: string) {
+    const anno = FinderUtilities.findAnnotationWithKey(finder, id, key);
+    if (anno) {
+      anno.remove();
+    }
+  }
+
 }

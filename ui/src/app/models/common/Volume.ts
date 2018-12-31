@@ -2,6 +2,7 @@ import { BaseVolume } from './BaseVolume';
 import { ParsedObject } from '../parse/ParsedObject';
 import { VolumeRef } from './VolumeRef';
 import { Container } from './Container';
+import { FinderUtilities } from './FinderUtilities';
 
 /** common volume entry */
 
@@ -75,6 +76,8 @@ export class Volume extends BaseVolume {
     for (const ref of this.volume_ref) {
       ref.remove();
     }
+    FinderUtilities.removeObjectAnnotations(this.finder, this.id);
+
   }
 
   get volume_ref(): VolumeRef[] {

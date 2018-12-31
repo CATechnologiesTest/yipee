@@ -84,7 +84,8 @@ export class ContainerGroup extends ParsedObject {
     for (const label of this.top_label) {
       label.remove();
     }
-    FinderUtilities.getUi(this.finder, this.id).remove();
+    FinderUtilities.removeObjectAnnotations(this.finder, this.id);
+
     this.onContainerGroupDelete.emit(this.id);
   }
 

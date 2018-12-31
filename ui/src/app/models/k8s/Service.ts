@@ -113,6 +113,8 @@ export class Service extends ParsedObject {
     for (const mapping of this.service_port_mapping) {
       mapping.remove();
     }
+    FinderUtilities.removeObjectAnnotations(this.finder, this.id);
+
   }
 
   get service_type(): string {

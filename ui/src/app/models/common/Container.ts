@@ -157,6 +157,8 @@ export class Container extends ParsedObject {
     for (const ref of this.host_path_ref) {
       ref.remove();
     }
+    FinderUtilities.removeObjectAnnotations(this.finder, this.id);
+
   }
 
   get cgroup(): string {
