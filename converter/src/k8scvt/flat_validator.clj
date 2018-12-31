@@ -796,9 +796,9 @@
            [:backend [:fixed-map
                       [:service-id :string]
                       [:servicePort [:or :string [:range [1 65535]]]]]]
-           [:tls [:array [:fixed-map
-                          [:? [:hosts :string-array]]
-                          [:? [:secretName :string]]]]]]
+           [:? [:tls [:array [:fixed-map
+                              [:? [:hosts :string-array]]
+                              [:? [:secretName :string]]]]]]]
           [:fixed-map
            [:rules [:array
                     [:fixed-map
@@ -812,9 +812,9 @@
                                          [:servicePort
                                           [:or :string [:range [1 65535]]]]]]
                                        [:path :string]]]]]]]]]
-           [:tls [:array [:fixed-map
-                          [:? [:hosts :string-array]]
-                          [:? [:secretName :string]]]]]]
+           [:? [:tls [:array [:fixed-map
+                              [:? [:hosts :string-array]]
+                              [:? [:secretName :string]]]]]]]
           [:fixed-map
            [:backend [:fixed-map
                       [:service-id :string]
@@ -831,9 +831,9 @@
                                          [:servicePort
                                           [:or :string [:range [1 65535]]]]]]
                                        [:path :string]]]]]]]]]
-           [:tls [:array [:fixed-map
-                          [:? [:hosts :string-array]]
-                          [:? [:secretName :string]]]]]]]])
+           [:? [:tls [:array [:fixed-map
+                              [:? [:hosts :string-array]]
+                              [:? [:secretName :string]]]]]]]]])
 
 (defflat k8s-namespace
   "Kubernetes supports explicit namespaces"
