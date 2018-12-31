@@ -207,7 +207,7 @@
     (loop [current body]
       (let [[curval & tail] current
             [k v] (if (list? curval) (first curval) curval)]
-        (cond (nil? k) false
+        (cond (or (nil? k) (not (or (string? key) (keyword? key)))) false
               (nil? v) (type-check k item)
               (= (name k) (name key)) (type-check v item)
               :else (recur tail))))))
