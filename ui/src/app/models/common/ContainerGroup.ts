@@ -75,7 +75,6 @@ export class ContainerGroup extends ParsedObject {
     for (const container of this.containers) {
       container.remove();
     }
-    this.getDeploymentSpec().remove();
     this.getExtraHosts().remove();
     for (const label of this.label) {
       label.remove();
@@ -84,9 +83,10 @@ export class ContainerGroup extends ParsedObject {
     for (const label of this.top_label) {
       label.remove();
     }
-    FinderUtilities.removeObjectAnnotations(this.finder, this.id);
 
     this.onContainerGroupDelete.emit(this.id);
+    this.getDeploymentSpec().remove();
+    FinderUtilities.removeObjectAnnotations(this.finder, this.id);
   }
 
   get controller_type(): string {
