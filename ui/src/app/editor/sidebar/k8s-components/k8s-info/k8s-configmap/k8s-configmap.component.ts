@@ -1,5 +1,6 @@
 import { Component, OnInit, EventEmitter, Output, Input, ChangeDetectionStrategy } from '@angular/core';
 import { FormGroup, FormArray } from '@angular/forms';
+import { TooltipService } from '../../../../../shared/services/tooltip.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -16,7 +17,7 @@ export class K8sConfigmapComponent implements OnInit {
 
   isComponentExpanded: boolean;
 
-  constructor() { }
+  constructor(public tooltipService: TooltipService) { }
 
   get configmaps() {
     return (this.form.get('configs') as FormArray).controls;

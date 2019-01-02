@@ -4,6 +4,7 @@ import { FormGroup, FormBuilder, FormArray, FormControl, Validators } from '@ang
 import { HostPathVolume } from '../../../../models/common/HostPathVolume';
 import { CustomValidators } from '../../../../shared/validators/custom-validators.validators';
 import { EditorService } from '../../../editor.service';
+import { TooltipService } from '../../../../shared/services/tooltip.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -30,7 +31,8 @@ export class K8sHostPathComponent implements OnInit {
 
   constructor(
     private formBuilder: FormBuilder,
-    private editorService: EditorService
+    private editorService: EditorService,
+    public tooltipService: TooltipService
   ) { }
 
   ngOnInit() {

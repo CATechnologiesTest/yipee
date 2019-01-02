@@ -1,6 +1,6 @@
 <div class="container">
   <form [formGroup]="form" class="form compact mh300">
-      <label class="mb10 fw600 black" style="width: 5rem;">Host Path</label>
+    <label class="mb10 fw600 black" style="width: 5rem;">Host Path</label>
     <div style="padding-left: 4rem;" class="form-group">
       <label style="width: 4rem;">
         Name
@@ -9,28 +9,30 @@
         <input maxlength="253" class="table-input" placeholder="Required" formControlName="name" type="text">
         <span class="tooltip-content">
           <span *ngIf="this.form.controls.name.errors?.required == true">Name is Required
-            <br/>
+            <br />
           </span>
           <span *ngIf="this.form.controls.name.errors?.maxLength253 === true">Name must be 253 characters or less
-            <br/>
+            <br />
           </span>
-          <span *ngIf="this.form.controls.name.errors?.lowercaseAlphaNumericDashPeriod === true">Name may only contain lowercase letters, numbers, dashes, and periods
-            <br/>
+          <span *ngIf="this.form.controls.name.errors?.lowercaseAlphaNumericDashPeriod === true">Name may only contain
+            lowercase letters, numbers, dashes, and periods
+            <br />
           </span>
           <span *ngIf="this.form.controls.name.errors?.startsWithDash === true">Name may not begin with a dash
-            <br/>
+            <br />
           </span>
           <span *ngIf="this.form.controls.name.errors?.endsWithDash === true">Name may not end with a dash
-            <br/>
+            <br />
           </span>
           <span *ngIf="this.form.controls.name.errors?.startsWithPeriod === true">Name may not begin with a period
-            <br/>
+            <br />
           </span>
           <span *ngIf="this.form.controls.name.errors?.endsWithPeriod === true">Name may not end with a period
-            <br/>
+            <br />
           </span>
-          <span *ngIf="this.form.controls.name.errors?.duplicateNameValidator === true">Name must be unique, a host path volume already exists with this name
-            <br/>
+          <span *ngIf="this.form.controls.name.errors?.duplicateNameValidator === true">Name must be unique, a host
+            path volume already exists with this name
+            <br />
           </span>
         </span>
       </label>
@@ -44,7 +46,12 @@
       </div>
     </div>
     <div style="padding-left: 4rem;" class="form-group">
-      <label id="k8s-hostpath-host-path-type-label">Host Path Type</label>
+      <label class="tooltip tooltip-bottom-right" id="k8s-hostpath-host-path-type-label">
+        <span class="tooltip-content">
+          {{tooltipService.tooltips.k8sHostpathHostPathTypeLabel}}
+        </span>
+        Host Path Type
+      </label>
       <div class="select">
         <select formControlName="host_path_type">
           <option *ngFor="let option of hostPathTypeOptions" [value]="option.value">
@@ -54,12 +61,17 @@
       </div>
     </div>
     <div style="padding-left: 4rem;" class="form-group">
-      <label>Host Path</label>
+      <label class="tooltip tooltip-bottom-right" id="k8s-hostpath-host-path-label">
+        <span class="tooltip-content">
+          {{tooltipService.tooltips.k8sHostpathHostPathLabel}}
+        </span>
+        Host Path
+      </label>
       <label aria-haspopup="true" role="tooltip" [ngClass]="form.controls.host_path.invalid ? 'tooltip tooltip-validation tooltip-bottom-left invalid' : 'tooltip tooltip-validation tooltip-top-left' ">
-        <input id="k8s-hostpath-host-path-input" type="text" formControlName="host_path" size="36">
+        <input type="text" formControlName="host_path" size="36">
         <span class="tooltip-content">
           <span *ngIf="this.form.controls.host_path.errors?.required == true">Host Path is Required
-            <br/>
+            <br />
           </span>
         </span>
       </label>

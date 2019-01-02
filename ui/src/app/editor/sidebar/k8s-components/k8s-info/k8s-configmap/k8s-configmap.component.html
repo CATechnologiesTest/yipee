@@ -1,7 +1,10 @@
 <div class="row">
   <div class="col-sm-12">
     <h6 [ngSwitch]="isComponentExpanded">
-      <span id="k8s-info-configmaps-dropdown" class="pointer mb5" (click)="isComponentExpanded = !isComponentExpanded">
+      <span id="k8s-info-configmaps-dropdown" class="tooltip tooltip-bottom-right pointer mb5" (click)="isComponentExpanded = !isComponentExpanded">
+        <span class="tooltip-content">
+          {{tooltipService.tooltips.k8sInfoConfigmapsDropdown}}
+        </span>
         <clr-icon *ngSwitchCase="false" shape="caret right"></clr-icon>
         <clr-icon *ngSwitchCase="true" shape="caret down"></clr-icon>
         Config Maps
@@ -37,31 +40,38 @@
                 <input placeholder="Required" class="table-input" size="128" type="text" formControlName="name">
                 <span class="tooltip-content">
                   <span *ngIf="configmaps[i].controls.name.errors?.required === true">Name is required
-                    <br/>
+                    <br />
                   </span>
-                  <span *ngIf="configmaps[i].controls.name.errors?.alphaNumericUnderscoreDashPeriod === true">Name may only contain letters, numbers, underscores, dashes, and periods
-                    <br/>
+                  <span *ngIf="configmaps[i].controls.name.errors?.alphaNumericUnderscoreDashPeriod === true">Name may
+                    only contain letters, numbers, underscores, dashes, and periods
+                    <br />
                   </span>
-                  <span *ngIf="configmaps[i].controls.name.errors?.containsDoubleDash === true">A name cannot have two or more consecutive dashes
-                    <br/>
+                  <span *ngIf="configmaps[i].controls.name.errors?.containsDoubleDash === true">A name cannot have two
+                    or more consecutive dashes
+                    <br />
                   </span>
-                  <span *ngIf="configmaps[i].controls.name.errors?.containsDoublePeriod === true">A name cannot have two or more consecutive periods
-                    <br/>
+                  <span *ngIf="configmaps[i].controls.name.errors?.containsDoublePeriod === true">A name cannot have
+                    two or more consecutive periods
+                    <br />
                   </span>
-                  <span *ngIf="configmaps[i].controls.name.errors?.containsDoubleUnderscore === true">A name cannot have two or more consecutive underscores
-                    <br/>
+                  <span *ngIf="configmaps[i].controls.name.errors?.containsDoubleUnderscore === true">A name cannot
+                    have two or more consecutive underscores
+                    <br />
                   </span>
-                  <span *ngIf="configmaps[i].controls.name.errors?.startsWithDash === true">Name cannot start with a dash
-                    <br/>
+                  <span *ngIf="configmaps[i].controls.name.errors?.startsWithDash === true">Name cannot start with a
+                    dash
+                    <br />
                   </span>
-                  <span *ngIf="configmaps[i].controls.name.errors?.startsWithUnderscore === true">Name cannot start with an underscore
-                    <br/>
+                  <span *ngIf="configmaps[i].controls.name.errors?.startsWithUnderscore === true">Name cannot start
+                    with an underscore
+                    <br />
                   </span>
                   <span *ngIf="configmaps[i].controls.name.errors?.endsWithDash === true">Name cannot end with a dash
-                    <br/>
+                    <br />
                   </span>
-                  <span *ngIf="configmaps[i].controls.name.errors?.endsWithUnderscore === true">Name cannot end with an underscore
-                    <br/>
+                  <span *ngIf="configmaps[i].controls.name.errors?.endsWithUnderscore === true">Name cannot end with an
+                    underscore
+                    <br />
                   </span>
                 </span>
               </label>
@@ -71,7 +81,7 @@
                 <input class="table-input" size="128" type="text" formControlName="map_name">
                 <span class="tooltip-content">
                   <span *ngIf="configmaps[i].controls.map_name.errors?.required === true">Map name is required
-                    <br/>
+                    <br />
                   </span>
                 </span>
               </label>
