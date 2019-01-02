@@ -6,7 +6,6 @@ RUN apk add --update --no-cache chromium && \
     export CHROME_BIN=/usr/bin/chromium-browser && \
     npm run test-prod
 
-
 FROM nginx:1.15.5-alpine
 ARG HTML_DEST=/usr/html
 ARG DEFAULT_CFG=default.conf
