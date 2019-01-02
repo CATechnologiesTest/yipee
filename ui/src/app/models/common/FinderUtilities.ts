@@ -84,18 +84,27 @@ export class FinderUtilities {
     }
     return namespace;
   }
-
   static removeObjectAnnotations(finder: Finder, id: string) {
-    [FinderUtilities.ANNO_KEY_UI, FinderUtilities.ANNO_KEY_DESC].forEach( (e) => {
-      FinderUtilities.findAnnotationWithKeyAndRemove(finder, id, e);
-    });
+    FinderUtilities.removeObjectReferences(finder, id, 'annotated');
   }
 
-  static findAnnotationWithKeyAndRemove(finder: Finder, id: string, key: string) {
-    const anno = FinderUtilities.findAnnotationWithKey(finder, id, key);
-    if (anno) {
-      anno.remove();
+  static removeObjectReferences(finder: Finder, id: string, fieldName: string) {
+    const containerReferences = finder.objects
+      .filter((p) => p[fieldName] === id);
+    containerReferences.forEach( (e) => {
+      e.remove();
+    });
+    FinderUtilities.removeParsedObjectReferences(finder, id, fieldName);
+  }
+
+  static removeParsedObjectReferences(finder: Finder, id: string, fieldName: string) {
+    for (const entry of finder.getParsedForOutputObjects()) {
+      Object.keys(entry).forEach((key) => {
+        entry[key] = entry[key].filter((p) => {
+          return p[fieldName] &&
+            p[fieldName] !== id;
+        });
+      });
     }
   }
-
 }

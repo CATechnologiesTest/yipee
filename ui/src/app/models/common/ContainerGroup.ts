@@ -79,13 +79,12 @@ export class ContainerGroup extends ParsedObject {
     for (const label of this.label) {
       label.remove();
     }
-    this.getReplication().remove();
     for (const label of this.top_label) {
       label.remove();
     }
 
     this.onContainerGroupDelete.emit(this.id);
-    this.getDeploymentSpec().remove();
+    FinderUtilities.removeObjectReferences(this.finder, this.id, 'cgroup');
     FinderUtilities.removeObjectAnnotations(this.finder, this.id);
   }
 

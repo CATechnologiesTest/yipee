@@ -132,21 +132,14 @@ export class Container extends ParsedObject {
   /** remove the container and all references to this container */
   remove(): void {
     super.remove();
-    this.getCommand().remove();
-    this.getDevelopmentConfig().remove();
-    this.getEntrypoint().remove();
+    FinderUtilities.removeObjectReferences(this.finder, this.id, 'container');
+    FinderUtilities.removeObjectAnnotations(this.finder, this.id);
     for (const ev of this.environment_var) {
       ev.remove();
     }
-    this.getExternalConfig().remove();
-    this.getImage().remove();
-    this.getImagePullPolicy().remove();
-    this.getLivenessProbe().remove();
-    this.getOverride().remove();
     for (const pm of this.port_mapping) {
       pm.remove();
     }
-    this.getReadinessProbe().remove();
     for (const ref of this.volume_ref) {
       ref.remove();
     }
@@ -156,8 +149,6 @@ export class Container extends ParsedObject {
     for (const ref of this.host_path_ref) {
       ref.remove();
     }
-    FinderUtilities.removeObjectAnnotations(this.finder, this.id);
-
   }
 
   get cgroup(): string {

@@ -83,7 +83,6 @@ export class K8sFile {
     new ClassLookupEntry(K8sAnnotation.OBJECT_NAME, K8sAnnotation.construct)
   ];
 
-  private heldObjects = [];
   private parser: Parser;
 
   constructor() {
@@ -182,7 +181,7 @@ export class K8sFile {
 
   /** covert to a flat file object */
   toFlat(): any {
-    return this.parser.toFlat(this.parser.finder.objects, this.heldObjects);
+    return this.parser.toFlat(this.parser.finder.objects, this.parser.finder.getParsedForOutputObjects());
   }
 
   /** store a single parsed object for use by the application */
@@ -193,7 +192,7 @@ export class K8sFile {
   /** hold a group of objects that are unknown or not wanted */
   hold(context: any, object: any): void {
     // store held objects locally, no need expose them
-    context.heldObjects.push(object);
+    context.parser.finder.hold(object);
   }
 
   push(object: ParsedObject): void {
