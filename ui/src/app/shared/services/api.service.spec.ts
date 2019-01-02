@@ -566,7 +566,7 @@ describe('ApiService', () => {
       expect(data).toEqual(deleteAppResponse);
     });
 
-    backend.expectOne({method: 'DELETE', url: '/api/yipeefiles/' + appId + '?source=korn'}).flush(yipeeFileResponse);
+    backend.expectOne({method: 'DELETE', url: '/api/yipeefiles/' + appId}).flush(yipeeFileResponse);
   })));
 
   // xit('should make create a new application', inject([ApiService, HttpTestingController], (service: ApiService, backend: HttpTestingController) => {
@@ -594,7 +594,7 @@ describe('ApiService', () => {
     service.updateApp(yipeeMetadata).subscribe(data => {
       expect(data).toEqual(makePublicResponse);
     });
-    const req = backend.expectOne({method: 'PUT', url: '/api/yipeefiles/' + yipeeMetadata.id + '?source=korn'}).flush(yipeeFileResponse);
+    const req = backend.expectOne({method: 'PUT', url: '/api/yipeefiles/' + yipeeMetadata.id}).flush(yipeeFileResponse);
 
   })));
 
