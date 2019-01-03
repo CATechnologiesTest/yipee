@@ -122,7 +122,7 @@ describe('EditorComponent', () => {
       ar.addId('foo');
       expect(component.ui.loading).toBeTruthy();
       fixture.detectChanges();
-      backend.expectOne('/api/import/foo?source=korn').flush({
+      backend.expectOne('/api/import/foo').flush({
         success: true,
         total: 1,
         data: [{
@@ -140,7 +140,7 @@ describe('EditorComponent', () => {
       ar.addId(MockApiService.BAD_MODEL);
       expect(component.ui.loading).toBeTruthy();
       fixture.detectChanges();
-      backend.expectOne('/api/import/' + MockApiService.BAD_MODEL + '?source=korn').flush({
+      backend.expectOne('/api/import/' + MockApiService.BAD_MODEL).flush({
         success: false,
         total: 1,
         data: [MockApiService.BAD_MODEL_ERROR]
@@ -156,7 +156,7 @@ describe('EditorComponent', () => {
       expect(component.ui.loading).toBeTruthy();
       fixture.detectChanges();
 
-      backend.expectOne('/api/import/foo?source=korn')
+      backend.expectOne('/api/import/foo')
         .flush({success: false, total: 1, data: [MockApiService.BAD_MODEL_ERROR]}, {status: 404, statusText: 'Not found'});
       expect(component.ui.loading).toBeFalsy();
       expect(component.ui.error).toBeTruthy();
@@ -168,7 +168,7 @@ describe('EditorComponent', () => {
     (service: MockEditorService, ar: MockActivatedRoute, backend: HttpTestingController, ngZone: NgZone) => {
       ar.addId('foo');
       fixture.detectChanges();
-      const req = ngZone.run(() => backend.expectOne('/api/import/foo?source=korn') );
+      const req = ngZone.run(() => backend.expectOne('/api/import/foo') );
       const emsg = 'simulated network error';
 
       const mockError = new ErrorEvent('Network error', {

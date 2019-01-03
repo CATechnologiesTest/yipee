@@ -137,29 +137,22 @@ export class ApiService {
   /* ************************ */
   getApp(appId: string): Observable<YipeeFileResponse> {
     const api_endpoint = '/api/import/' + appId;
-    const source_query = '?source=korn'; // TODO &format=flat
-    return this.http.get<YipeeFileResponse>(api_endpoint + source_query);
+    return this.http.get<YipeeFileResponse>(api_endpoint);
   }
 
   deleteApp(appId: string): Observable<YipeeFileResponse> {
     const api_endpoint = '/api/yipeefiles/' + appId;
-    const source_query = '?source=korn';
-    return this.http.delete<YipeeFileResponse>(api_endpoint + source_query);
+    return this.http.delete<YipeeFileResponse>(api_endpoint);
   }
 
   updateApp(yipeeFile: YipeeFileMetadataRaw): Observable<YipeeFileResponse> {
     const api_endpoint = '/api/yipeefiles/' + yipeeFile.id;
-    let query = '?source=korn';
-    if (yipeeFile.isFlat) {
-      query += '&format=flat';
-    }
-    return this.http.put<YipeeFileResponse>(api_endpoint + query, yipeeFile);
+    return this.http.put<YipeeFileResponse>(api_endpoint, yipeeFile);
   }
 
   forkk8sApp(yipeeFile: YipeeFileMetadataRaw): Observable<YipeeFileResponse> {
     const api_endpoint = '/api/yipeefiles/forktok8s/';
-    const query = '?source=korn';
-    return this.http.post<YipeeFileResponse>(api_endpoint + query, yipeeFile);
+    return this.http.post<YipeeFileResponse>(api_endpoint, yipeeFile);
   }
   /* **************************** */
   /* END YIPEEFILE CRUD ENDPOINTS */
