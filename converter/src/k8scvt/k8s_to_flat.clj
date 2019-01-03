@@ -392,10 +392,7 @@
        (id-insert!
         (assoc
          (substitute-ingress-attributes ingress svcs f inkey outkey)
-<<<<<<< HEAD
          :name (:name (:metadata ingress))
-=======
->>>>>>> Make sure all non-key values in flat objects are strings, rather than keywords
          :type :ingress))))
   (id-remove! ?k8s)
   (id-insert! (dissoc ?k8s :ingresses)))
