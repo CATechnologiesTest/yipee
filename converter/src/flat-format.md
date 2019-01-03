@@ -60,7 +60,7 @@ Startup ordering relationship
 - *dependee* **uuid-ref** (reference to independent container)
 #### deployment-spec
 Defines how many instances of a container group should be deployed and in what "mode" (*replicated* or *allnodes*)
-- *count* **case controller-type: when "DaemonSet"=>((non-negative-integer)?); otherwise=>(non-negative-integer)** (Ignored for DaemonSet)
+- *count* **case controller-type: when "CronJob"=>((non-negative-integer)?); when "DaemonSet"=>((non-negative-integer)?); otherwise=>(non-negative-integer)** (Ignored for DaemonSet)
 - *mode* **string** (*replicated*, *allnodes*)
 - *cgroup* **uuid-ref** (reference to container group)
 - *service-name* **case controller-type: when "StatefulSet"=>(string); otherwise=>((string)?)** (name of associated headless service)

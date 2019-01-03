@@ -496,6 +496,7 @@
 (defflat deployment-spec
   "Defines how many instances of a container group should be deployed and in what \"mode\" (*replicated* or *allnodes*)"
   [:count [:case :controller-type
+           ["CronJob" [:? :non-negative-integer]]
            ["DaemonSet" [:? :non-negative-integer]]
            [:non-negative-integer]]
    "Ignored for DaemonSet"]

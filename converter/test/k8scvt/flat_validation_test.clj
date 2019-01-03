@@ -50,7 +50,14 @@
 
 (defn contains-errors [data errors]
   ;; translate to strings because regex patterns don't compare with '='
-  (= (str (set (:validation-error data))) (str (set errors))))
+  (let [data-errors (sort-by str (:validation-error data))
+        expected-errors (sort-by str errors)
+        data-error-str (str data-errors)
+        expected-error-str (str expected-errors)]
+  (or (= data-error-str expected-error-str)
+      (do (println "DATA ERRORS:    " data-error-str)
+          (println "EXPECTED ERRORS:" expected-error-str)
+          false))))
 
 (deftest test-checks
   (testing "field primitive type checks work"
@@ -366,6 +373,7 @@
              :expected
              [:case
               :controller-type
+              ["CronJob" [:? :non-negative-integer]]
               ["DaemonSet" [:? :non-negative-integer]]
               [:non-negative-integer]],
              :wme
@@ -487,7 +495,7 @@
              :value
              {:type "RollingUpdate", :rollingUpdate {:maxUnavailable "0"}}}]))
 
-            ;; matching case type with bad positive-integer-string
+      ;; matching case type with bad positive-integer-string
       (is (contains-errors
            (flat-validator :run [{:type :deployment-spec
                                   :count 3
@@ -645,7 +653,7 @@
                                                            :baz "quux"}
                                              :name "yowza"
                                              :abcde "yes"}
-                                 :service-type "NodePort"}])
+                                  :service-type "NodePort"}])
            []))
       ;; missing discriminator field
       (is (contains-errors
@@ -678,11 +686,23 @@
               :service-name ""},
              :value {:type "RollingUpdate"}}
             {:type :validation-error,
+             :validation-type :missing-required-field,
+             :missing-field :controller-type,
+             :wme
+             {:type :deployment-spec,
+              :name "service",
+              :update-strategy {:type "RollingUpdate"},
+              :count 1,
+              :mode "replicated",
+              :cgroup "62849681-2862-8496-8128-628496812862",
+              :service-name ""}}
+            {:type :validation-error,
              :validation-type :invalid-type,
              :field :count,
              :expected
              [:case
               :controller-type
+              ["CronJob" [:? :non-negative-integer]]
               ["DaemonSet" [:? :non-negative-integer]]
               [:non-negative-integer]],
              :wme
@@ -693,15 +713,4 @@
               :mode "replicated",
               :cgroup "62849681-2862-8496-8128-628496812862",
               :service-name ""},
-             :value 1},
-            {:type :validation-error,
-             :validation-type :missing-required-field,
-             :missing-field :controller-type,
-             :wme
-             {:type :deployment-spec,
-              :name "service",
-              :update-strategy {:type "RollingUpdate"},
-              :count 1,
-              :mode "replicated",
-              :cgroup "62849681-2862-8496-8128-628496812862",
-              :service-name ""}}])))))
+             :value 1}])))))
