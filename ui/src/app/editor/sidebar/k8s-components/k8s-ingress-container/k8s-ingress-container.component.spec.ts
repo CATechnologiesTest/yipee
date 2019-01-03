@@ -270,9 +270,9 @@ describe('IngressComponent', () => {
     expect(((component.form.controls.rule) as FormArray).controls[0].value.paths.length).toEqual(1);
     expect(component.ingress.rules[0].paths[0].path).toEqual('');
     expect(component.ingress.rules[0].paths[0].service_id).toEqual('-- Select a service --');
-    expect(component.ingress.rules[0].paths[0].service_port).toEqual(0);
+    expect(component.ingress.rules[0].paths[0].service_port).toEqual(1);
     expect(component.ingress.rules[0].paths[0].id).toEqual(newPathId);
-    expect((((component.form.controls.rule as FormArray).controls[0] as FormGroup).controls.paths as FormArray).controls[0].value).toEqual({ id: newPathId, path: '', port: 0, service: '-- Select a service --' });
+    expect((((component.form.controls.rule as FormArray).controls[0] as FormGroup).controls.paths as FormArray).controls[0].value).toEqual({ id: newPathId, path: '', port: 1, service: '-- Select a service --' });
   });
 
 });
