@@ -15,7 +15,7 @@ export class IngressBackend {
 
   constructor() {
     this.service_id = null;
-    this.service_port = 0;
+    this.service_port = 1;
   }
 
   /** convert from a flat object */
