@@ -809,7 +809,7 @@
           [:fixed-map
            [:rules [:array
                     [:fixed-map
-                     [:host :string]
+                     [:? [:host :string]]
                      [:http [:fixed-map
                              [:paths [:array
                                       [:fixed-map
@@ -828,7 +828,7 @@
                       [:servicePort [:or :string [:range [1 65535]]]]]]
            [:rules [:array
                     [:fixed-map
-                     [:host :string]
+                     [:? [:host :string]]
                      [:http [:fixed-map
                              [:paths [:array
                                       [:fixed-map
