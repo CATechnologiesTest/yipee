@@ -46,6 +46,13 @@ export class VolumeRef extends ParsedObject {
     // For proper validation, the backend requires the container name to be passed
     flat['container-name'] = this.findContainerNameById(this.container);
     flat['volume'] = this.volume;
+    if (!this.access_mode) {
+      const v = this.getVolume();
+      if (v) {
+        this.access_mode = v.access_modes[0];
+      }
+
+    }
     flat['access-mode'] = this.access_mode;
     flat['volume-name'] = this.volume_name;
     return flat;

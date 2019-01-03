@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { VolumeRef } from './VolumeRef';
 import { Container } from './Container';
 import { Finder } from '../parse/Finder';
+import { Volume } from './Volume';
 
 
 describe('VolumeRef', () => {
@@ -49,6 +50,25 @@ describe('VolumeRef', () => {
     flat = v1.toFlat();
     expect(flat['container-name']).toBeDefined();
     expect(flat['container-name']).toEqual('foo2');
+
+  });
+  it('should default the access_mode from the volume if one is not choosen', () => {
+    const f = new Finder();
+    const vr = VolumeRef.construct(VolumeRef.OBJECT_NAME) as VolumeRef;
+    const c = Container.construct(Container.OBJECT_NAME) as Container;
+    const v = Volume.construct(Volume.OBJECT_NAME) as Volume;
+    [vr, c, v].forEach((o) => f.push(o));
+    c.name = 'foo';
+    vr.container = c.id;
+    vr.volume = v.id;
+    v.access_modes = ['bar'];
+    let flat = vr.toFlat();
+    expect(flat['volume']).toBeDefined();
+    expect(flat['access-mode']).toEqual(v.access_modes[0]);
+    vr.access_mode = 'foo';
+    flat = vr.toFlat();
+    expect(flat['access-mode']).toEqual('foo');
+
 
   });
 
