@@ -7,6 +7,8 @@ import { EmptyDirVolume } from './EmptyDirVolume';
 import { HostPathVolume } from './HostPathVolume';
 
 export class FinderUtilities {
+  static ANNO_KEY_DESC = 'description';
+  static ANNO_KEY_UI = 'ui';
 
   static getVolumeRef(finder: Finder, container: string): VolumeRef[] {
     return finder.objects
@@ -35,15 +37,19 @@ export class FinderUtilities {
       .filter((p) => p.container === container);
   }
 
-  static getUi(finder: Finder, id: string): Annotation {
-    let ui = finder.objects
+  static findAnnotationWithKey(finder: Finder, id: string, key: string): Annotation {
+    return finder.objects
       .filter((p) => p.type === Annotation.OBJECT_NAME)
       .map((p: Annotation) => p as Annotation)
-      .find((p) => p.annotated === id && p.key === 'ui');
+      .find((p) => p.annotated === id && p.key === key);
+
+  }
+  static getUi(finder: Finder, id: string): Annotation {
+    let ui = FinderUtilities.findAnnotationWithKey(finder, id, FinderUtilities.ANNO_KEY_UI);
     if (ui === undefined) {
       ui = new Annotation();
       ui.annotated = id;
-      ui.key = 'ui';
+      ui.key = FinderUtilities.ANNO_KEY_UI;
       ui.value = {
         'canvas': {
           'position': {
@@ -56,16 +62,12 @@ export class FinderUtilities {
     }
     return ui;
   }
-
   static getDescription(finder: Finder, id: string): Annotation {
-    let description = finder.objects
-      .filter((p) => p.type === Annotation.OBJECT_NAME)
-      .map((p: Annotation) => p as Annotation)
-      .find((p) => p.annotated === id && p.key === 'description');
+    let description = FinderUtilities.findAnnotationWithKey(finder, id, FinderUtilities.ANNO_KEY_DESC);
     if (description === undefined) {
       description = new Annotation();
       description.annotated = id;
-      description.key = 'description';
+      description.key = FinderUtilities.ANNO_KEY_DESC;
       description.value = '';
       finder.push(description);
     }
@@ -81,5 +83,28 @@ export class FinderUtilities {
       finder.push(namespace);
     }
     return namespace;
+  }
+  static removeObjectAnnotations(finder: Finder, id: string) {
+    FinderUtilities.removeObjectReferences(finder, id, 'annotated');
+  }
+
+  static removeObjectReferences(finder: Finder, id: string, fieldName: string) {
+    const containerReferences = finder.objects
+      .filter((p) => p[fieldName] === id);
+    containerReferences.forEach( (e) => {
+      e.remove();
+    });
+    FinderUtilities.removeParsedObjectReferences(finder, id, fieldName);
+  }
+
+  static removeParsedObjectReferences(finder: Finder, id: string, fieldName: string) {
+    for (const entry of finder.getParsedForOutputObjects()) {
+      Object.keys(entry).forEach((key) => {
+        entry[key] = entry[key].filter((p) => {
+          return p[fieldName] &&
+            p[fieldName] !== id;
+        });
+      });
+    }
   }
 }

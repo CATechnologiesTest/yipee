@@ -20,15 +20,17 @@
                  [prismatic/schema "1.1.7"]
                  [potemkin "0.4.5"]
                  [com.networknt/json-schema-validator "0.1.7"]
+                 [environ "1.1.0"]
                  [inflections "0.13.0"]
-                 [arete "0.6.0"]]
+                 [arete "0.6.1"]]
 
   :main ^:skip-aot converter.core
-  :plugins [[lein-cloverage "1.0.9"]]
+  :plugins [[lein-cloverage "1.0.9"] [lein-environ "1.1.0"]]
   :jvm-opts ["-Xmx1g" "-server"]
   :target-path "target/%s"
   :repositories [["buildrepo" {:url "file:buildrepo" :username "" :password ""}]]
   :resource-paths ["logconfig" "resources/tools.jar"]
   :profiles {:uberjar {:aot :all}
-             :dev {:dependencies
+             :dev {:env {:build-time "true"}
+                   :dependencies
                    [[clj-http/clj-http "3.7.0"]]}})

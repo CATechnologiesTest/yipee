@@ -34,7 +34,7 @@ export class AppInfo extends ParsedObject {
   /** remove the container and all references to this container */
   remove(): void {
     super.remove();
-    FinderUtilities.getUi(this.finder, this.id).remove();
+    FinderUtilities.removeObjectAnnotations(this.finder, this.id);
   }
 
   /** convert from a flat object */

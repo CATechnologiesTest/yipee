@@ -18,6 +18,7 @@
             [k8scvt.k8s-to-flat]
             [k8scvt.file-import :as fi]
             [k8scvt.validators :as v]
+            [k8scvt.flat-validator :as fv]
             [k8scvt.util :as u]
             [k8scvt.diff :as diff]
             [helm.core :as helm]
@@ -43,19 +44,16 @@
   (fi/protect-qualified-keywords
    (json/read-str (body-as-string ctx) :key-fn keyword)))
 
-;; Generic convert call that can be passed different converters and will
-;; run them and prepare the results by removing unused working memory elements
-;; and type tags
-(defn do-convert [converter valid-results]
-  (let [retmap (converter :run-map valid-results)
-        allowed (u/k8skeys retmap)]
-    {::retval (u/remove-types allowed)}))
-
 ;; Format and return any errors generated during processing
-(defn return-errors [results]
-  (let [errmsgs
-        (clojure.string/join "\n" (map u/format-validation-error results))]
+(defn return-formatted-errors [results formatter]
+  (let [errmsgs (str/join "\n" (map formatter results))]
     {::reterr errmsgs}))
+
+(defn return-errors [results]
+  (return-formatted-errors results u/format-validation-error))
+
+(defn return-fv-errors [results]
+  (return-formatted-errors results fv/format-flat-validation-error))
 
 (defn wmes-of-type [srclist typ]
   (filter #(= (:type %) typ) srclist))
@@ -66,6 +64,17 @@
     (if (empty? errors)
       [results true]
       [errors false])))
+
+;; Generic convert call that can be passed different converters and will
+;; run them and prepare the results by removing unused working memory elements
+;; and type tags
+(defn do-convert [validator converter valid-results]
+  (let [[vresults ok] (results-and-errors (validator :run-list valid-results))]
+    (if ok
+      (let [retmap (converter :run-map valid-results)
+            allowed (u/k8skeys retmap)]
+        {::retval (u/remove-types allowed)})
+      (return-fv-errors vresults))))
 
 ;; Perform an import given the translation to be performed
 (defn do-import [errs k8s-elements translator]
@@ -152,7 +161,12 @@
           input (list k8sobj)
           [results ok] (results-and-errors (to-flat :run-list input))]
       (if ok
-        {::retval (group-by :type results)}
+        (let [fvalidate (engine :k8scvt.flat-validator)
+              [fv-results fv-ok] (results-and-errors
+                                  (fvalidate :run-list results))]
+             (if fv-ok
+               {::retval (group-by :type results)}
+               (return-fv-errors fv-results)))
         (return-errors results)))))
 
 (defn b64decode-if-possible [instr]
@@ -185,13 +199,14 @@
   (binding [u/*wmes-by-id* (atom {})]
     (let [flatlist (map #(assoc % :type (keyword (:type %)))
                         (mapcat second data))
+          fvalidate (engine :k8scvt.flat-validator)
           to-k8s (engine :k8scvt.flat-to-k8s)]
-      (do-convert to-k8s flatlist))))
+      (do-convert fvalidate to-k8s flatlist))))
 
 (defn flat-to-k8s [ctx]
-    (let [input (fi/protect-qualified-keywords
-                 (json/read-str (body-as-string ctx) :key-fn keyword))]
-      (cvt-flat-to-k8s input)))
+  (let [input (fi/protect-qualified-keywords
+               (json/read-str (body-as-string ctx) :key-fn keyword))]
+    (cvt-flat-to-k8s input)))
 
 ;; Perform a diff across a set of Kubernetes models.
 (defn diff-models [ctx]

@@ -15,8 +15,10 @@
             [k8scvt.util :as u]
             [k8scvt.flat-to-k8s]
             [k8scvt.k8s-to-flat]
+            [k8scvt.flat-validator :as fv]
             [helm.core :as helm]
-            [k8scvt.diff :as diff])
+            [k8scvt.diff :as diff]
+            [clojure.data.json :as json])
   (:import java.nio.file.FileSystems java.io.File))
 
 (defn every-pair? [pred x y]
@@ -260,7 +262,7 @@
       (doseq [[field val] [[:updateStrategy
                             {:type "RollingUpdate"
                              :rollingUpdate {:partition 0}}]
-                           [:podManagementPolicy :OrderedReady]]]
+                           [:podManagementPolicy "OrderedReady"]]]
         (when (and (not (contains? (:spec @i) field))
                    (= (field (:spec @o)) val))
           (swap! o update :spec dissoc field)))
@@ -280,6 +282,20 @@
                     (contains? @o :storageClass)
                     (contains? @o :selector)))
       (swap! o dissoc :accessModes :storageClass :selector))
+    ;; If the input contains the default value, it's okay that the output doesn't
+    (when (and (:volumeName @i)
+               (:volumeName @o)
+               (contains? @i :accessModes)
+               (= (:accessModes @i) ["ReadWriteOnce"])
+               (not (contains? @o :accessModes)))
+      (swap! i dissoc :accessModes))
+    (when (and (:volumeName @i)
+               (:volumeName @o)
+               (contains? @i :volumeMode)
+               (= (:volumeMode @i) "Filesystem")
+               (not (contains? @o :volumeMode)))
+      (swap! i dissoc :volumeMode))
+
     (when (and (= (:namespace @i) "default")
                (or (not (:namespace @o)) (= (:namespace @o) "")))
       (swap! o assoc :namespace "default"))
@@ -401,6 +417,7 @@
     (binding [u/*wmes-by-id* (atom {})]
       (let [to-flat (engine :k8scvt.k8s-to-flat)
             from-flat (engine :k8scvt.flat-to-k8s)
+            flat-validator (engine :k8scvt.flat-validator)
             index (atom 0)]
         (doseq [file [
                       "racket.yaml"
@@ -437,6 +454,12 @@
             (let [[fname record] (check-recording file)]
               (binding [*record-rule-output-flag* record]
                 (let [k8s (fi/get-k8s-from-yaml-testdata fname)
+                      raw (apply concat
+                                 (vals (dissoc k8s :type :app-name :id :__id)))
+                      serrors (v/validate
+                               raw
+                               (map-indexed (fn [idx val] (str "element" idx))
+                                            raw))
                       _ (to-flat :configure
                                  {*record-rule-output-flag*
                                   (str "./tmp/toflat" (swap! index inc))})
@@ -445,6 +468,7 @@
                                      (str "./tmp/fromflat" @index)})
                       _ (System/gc)
                       wmes (time (to-flat :run-list [k8s]))
+                      verrors (:validation-error (flat-validator :run wmes))
                       _ (System/gc)
                       results (time
                                (map #(dissoc % :type :id)
@@ -452,6 +476,8 @@
                                            (vals (u/k8skeys
                                                   (from-flat :run-map wmes))))))]
                   (println "-----------------------------------------")
+                  (is (empty? serrors))
+                  (is (empty? verrors))
                   (is (empty? (filter (comp fi/output-only-metadata :metadata)
                                       results)))
                   (is (empty? (filter #(fi/output-only-toplevel (keys %))

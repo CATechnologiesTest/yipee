@@ -1,6 +1,7 @@
 import { BaseVolume } from './BaseVolume';
 import { ParsedObject } from '../parse/ParsedObject';
 import { VolumeRef } from './VolumeRef';
+import { FinderUtilities } from './FinderUtilities';
 
 /** common host-path-volume entry */
 
@@ -43,6 +44,8 @@ export class HostPathVolume extends BaseVolume {
   /** remove this volume and any references to this volume */
   remove(): void {
     super.remove();
+    FinderUtilities.removeObjectAnnotations(this.finder, this.id);
+
   }
 
   get volume_ref(): VolumeRef[] {

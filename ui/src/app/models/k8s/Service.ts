@@ -8,6 +8,7 @@ import { NameChangeEvent } from '../Events';
 import { ParsedObject } from '../parse/ParsedObject';
 import { PortMapping } from '../common/PortMapping';
 import { K8sAnnotation } from './K8sAnnotation';
+import { map } from 'rxjs-compat/operator/map';
 
 /** common service entry */
 
@@ -67,7 +68,7 @@ export class Service extends ParsedObject {
       selector[label.key] = label.value;
     }
     flat['name'] = this.name;
-    flat['metadata'] = this.metadata;
+    flat['metadata'] = this.updateMetadata();
     flat['selector'] = selector;
     flat['service-type'] = this._service_type;
     if (this._service_type === 'ExternalName') {
@@ -78,12 +79,42 @@ export class Service extends ParsedObject {
     return flat;
   }
 
+  updateMetadata(): {name: string, labels: {}, annotations: {}} {
+    if (!this.metadata) {
+      // this object wasn't imported and hasn't been processed toFlat yet,
+      // so we need to create a new set of metadata
+      this.metadata = {
+        name: '',
+        labels: {},
+        annotations: {}
+      };
+    }
+    this.metadata.name = this.name;
+    // It's possible the import didn't contain labels, add them
+    if (!this.metadata.labels) {
+      this.metadata.labels = {};
+    }
+    for (const label of this.labels) {
+      this.metadata.labels[label.key] = label.value;
+    }
+    // It's possible the import didn't contain annotations, add them
+    if (!this.metadata.annotations) {
+      this.metadata.annotations = {};
+    }
+    for (const label of this.annotations) {
+      this.metadata.annotations[label.key] = label.value;
+    }
+    return this.metadata;
+  }
+
   /** remove the service and all references to this service */
   remove(): void {
     super.remove();
     for (const mapping of this.service_port_mapping) {
       mapping.remove();
     }
+    FinderUtilities.removeObjectAnnotations(this.finder, this.id);
+
   }
 
   get service_type(): string {
