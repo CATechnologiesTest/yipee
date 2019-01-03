@@ -22,7 +22,7 @@
                  [com.networknt/json-schema-validator "0.1.7"]
                  [environ "1.1.0"]
                  [inflections "0.13.0"]
-                 [arete "0.6.0"]]
+                 [arete "0.6.1"]]
 
   :main ^:skip-aot converter.core
   :plugins [[lein-cloverage "1.0.9"] [lein-environ "1.1.0"]]

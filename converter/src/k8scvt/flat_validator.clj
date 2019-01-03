@@ -222,7 +222,7 @@
         (array-type? typ)           (array-type typ item)
         (range-type? typ)           (range-type typ item)
         (singleton-array-type? typ) (singleton-array-type typ item)
-        (optional-type? typ)        (optional-type (first typ) item)
+        (optional-type? typ)        (optional-type (second typ) item)
         (set? typ)                  (typ item)
         (= (type typ) Pattern)      (and (string? item) (re-matches typ item))
         :else                       ((or (predicates typ)
@@ -495,10 +495,16 @@
 
 (defflat deployment-spec
   "Defines how many instances of a container group should be deployed and in what \"mode\" (*replicated* or *allnodes*)"
-  [:count :non-negative-integer]
+  [:count [:case :controller-type
+           ["DaemonSet" [:? :non-negative-integer]]
+           [:non-negative-integer]]
+   "Ignored for DaemonSet"]
   [:mode :string {:options ["replicated", "allnodes"]}]
   [:cgroup :uuid-ref :container-group "reference to container group"]
-  [:service-name :string "name of associated headless service"]
+  [:service-name [:case :controller-type
+                  ["StatefulSet" :string]
+                  [[:? :string]]]
+   "name of associated headless service"]
   [:controller-type :string {:options ["Deployment"
                                        "DaemonSet"
                                        "StatefulSet"

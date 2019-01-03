@@ -60,10 +60,10 @@ Startup ordering relationship
 - *dependee* **uuid-ref** (reference to independent container)
 #### deployment-spec
 Defines how many instances of a container group should be deployed and in what "mode" (*replicated* or *allnodes*)
-- *count* **non-negative-integer** 
+- *count* **case controller-type: when "DaemonSet"=>((non-negative-integer)?); otherwise=>(non-negative-integer)** (Ignored for DaemonSet)
 - *mode* **string** (*replicated*, *allnodes*)
 - *cgroup* **uuid-ref** (reference to container group)
-- *service-name* **string** (name of associated headless service)
+- *service-name* **case controller-type: when "StatefulSet"=>(string); otherwise=>((string)?)** (name of associated headless service)
 - *controller-type* **string** (*Deployment*, *DaemonSet*, *StatefulSet*, *CronJob*)
 - *termination-grace-period* **non-negative-integer** (how long to wait before killing pods)
 - *update-strategy* **case controller-type: when "StatefulSet"=>({"type"=>("RollingUpdate"), ("rollingUpdate"=>{("partition"=>non-negative-integer)?})?}); when "Deployment"=>(({"type"=>("Recreate")} | {"type"=>("RollingUpdate"), ("rollingUpdate"=>{("maxSurge"=>(non-negative-integer | non-negative-integer-string | #"[1-9][0-9]?[%]"))?, ("maxUnavailable"=>(non-negative-integer | non-negative-integer-string | #"[1-9][0-9]?[%]"))?})?})); when "DaemonSet"=>(({"type"=>("OnDelete")} | {"type"=>("RollingUpdate"), ("rollingUpdate"=>{("maxUnavailable"=>(positive-integer | positive-integer-string | #"[1-9][0-9]?[%]"))?})?}))** 

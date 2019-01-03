@@ -343,6 +343,41 @@
                                   :container-names ["yep"]}])
            []))
 
+      ;; matching optional entry containing bad value
+      (is (contains-errors
+           (flat-validator :run [{:type :deployment-spec
+                                  :count -10
+                                  :mode "replicated"
+                                  :cgroup a-uuid
+                                  :service-name "service"
+                                  :controller-type "DaemonSet"
+                                  :update-strategy {:type "OnDelete"}}
+                                 {:type :container-group
+                                  :name "xxx"
+                                  :id a-uuid
+                                  :pod a-uuid ;; allows missing target
+                                  :source "auto"
+                                  :controller-type "DaemonSet"
+                                  :containers [a-uuid]
+                                  :container-names ["yep"]}])
+           [{:type :validation-error,
+             :validation-type :invalid-type,
+             :field :count,
+             :expected
+             [:case
+              :controller-type
+              ["DaemonSet" [:? :non-negative-integer]]
+              [:non-negative-integer]],
+             :wme
+             {:type :deployment-spec,
+              :count -10,
+              :mode "replicated",
+              :cgroup "62849681-2862-8496-8128-628496812862",
+              :service-name "service",
+              :controller-type "DaemonSet",
+              :update-strategy {:type "OnDelete"}},
+             :value -10}]))
+
       ;; matching case type with non-negative-integer and regex match
       (is (contains-errors
            (flat-validator :run [{:type :deployment-spec
@@ -642,6 +677,23 @@
               :cgroup "62849681-2862-8496-8128-628496812862",
               :service-name ""},
              :value {:type "RollingUpdate"}}
+            {:type :validation-error,
+             :validation-type :invalid-type,
+             :field :count,
+             :expected
+             [:case
+              :controller-type
+              ["DaemonSet" [:? :non-negative-integer]]
+              [:non-negative-integer]],
+             :wme
+             {:type :deployment-spec,
+              :name "service",
+              :update-strategy {:type "RollingUpdate"},
+              :count 1,
+              :mode "replicated",
+              :cgroup "62849681-2862-8496-8128-628496812862",
+              :service-name ""},
+             :value 1},
             {:type :validation-error,
              :validation-type :missing-required-field,
              :missing-field :controller-type,
