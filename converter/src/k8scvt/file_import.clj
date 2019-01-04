@@ -5,7 +5,9 @@
             [clojure.data.json :as json]
             [clj-yaml.core :as yaml]
             [k8scvt.validators :as v]
-            [inflections.core :as inf])
+            [inflections.core :as inf]
+            [engine.core :refer [engine]]
+            [k8scvt.flat-validator])
   (:import [java.io File]))
 
 (def output-only-toplevel #{:status})
@@ -82,15 +84,23 @@
    (get-k8s-from-yaml (str "test/k8scvt/testdata/" k8s-file))))
 
 (defn get-flat-from-json [file]
-  (protect-qualified-keywords
-   (json/read-str (slurp file)
-                  :key-fn keyword
-                  :value-fn (fn [k v]
-                              ;; all our actual types start with a lower
-                              ;; case letter. Some k8s constructs include
-                              ;; "type" fields and we don't want their
-                              ;; values keywordized
-                              (if (and (= k :type) (re-matches #"^[a-z].*$" v))
-                                (keyword v)
-                                v)))))
-
+  (let [data
+        (remove-output-only-metadata
+         (protect-qualified-keywords
+          (json/read-str (slurp file)
+                         :key-fn keyword
+                         :value-fn (fn [k v]
+                                     ;; all our actual types start with a lower
+                                     ;; case letter. Some k8s constructs include
+                                     ;; "type" fields and we don't want their
+                                     ;; values keywordized
+                                     (if (and (= k :type)
+                                              (re-matches #"^[a-z].*$" v))
+                                       (keyword v)
+                                       v)))))
+        eng (engine :k8scvt.flat-validator)]
+    (let [val-result (eng :run (apply concat (vals data)))]
+      (if-let [errors (:validation-error val-result)]
+        (throw (RuntimeException. (with-out-str
+                                    (clojure.pprint/pprint errors))))
+        val-result))))

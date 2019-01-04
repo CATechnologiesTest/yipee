@@ -971,6 +971,7 @@ describe('K8sFile', () => {
         'volume': '1b4b57f2-0733-4d06-a583-d4136df8e7cf',
         'id': '9deb3bab-4067-439c-a2e8-d4939c8ccf9a',
         'container': '236cd645-4cba-461f-876d-1aeed5063471',
+        'container-name': 'parse-server',
         'volume-name': 'v3'
       },
       {
@@ -981,6 +982,7 @@ describe('K8sFile', () => {
         'volume': '6fdf2a3a-816e-4419-b2bc-d3434c82f82a',
         'id': '3cc480c4-3930-466c-94e6-c4fcabfa79ac',
         'container': '236cd645-4cba-461f-876d-1aeed5063471',
+        'container-name': 'parse-server',
         'volume-name': 'volume'
       },
       {
@@ -991,6 +993,7 @@ describe('K8sFile', () => {
         'volume': '636ea9c4-309c-48e0-937d-155fe51ebc1d',
         'id': 'e029279d-02b0-4bbc-98a8-c51cf38158ac',
         'container': 'b419df5f-7f66-4a9f-a456-22aaef6ab415',
+        'container-name': 'mongodb',
         'volume-name': 'volume2'
       }
     ],

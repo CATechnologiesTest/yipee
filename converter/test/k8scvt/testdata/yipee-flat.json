@@ -378,7 +378,7 @@
       "external": "",
       "internal": "5000",
       "node-port": "",
-      "protocol": "TCP",
+      "protocol": "tcp",
       "container-references": true,
       "defining-service": ""
     },
@@ -391,7 +391,7 @@
       "external": "443",
       "internal": "8443",
       "node-port": "",
-      "protocol": "TCP",
+      "protocol": "tcp",
       "container-references": false,
       "defining-service": "4a500821-c01e-11e8-8e94-080027c6347a"
     },
@@ -404,7 +404,7 @@
       "external": "8080",
       "internal": "80",
       "node-port": "32080",
-      "protocol": "TCP",
+      "protocol": "tcp",
       "container-references": false,
       "defining-service": "bb96e1b9-f354-11e8-bca8-080027c6347a"
     },
@@ -417,7 +417,7 @@
       "external": "5000",
       "internal": "5000",
       "node-port": "32005",
-      "protocol": "TCP",
+      "protocol": "tcp",
       "container-references": false,
       "defining-service": "bb933bcf-f354-11e8-bca8-080027c6347a"
     },
@@ -429,7 +429,7 @@
       "external": "",
       "internal": "80",
       "node-port": "",
-      "protocol": "TCP",
+      "protocol": "tcp",
       "container-references": true,
       "defining-service": ""
     }

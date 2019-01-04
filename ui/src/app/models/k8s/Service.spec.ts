@@ -5,17 +5,17 @@ import { Service } from './Service';
 import { NameChangeEvent } from '../Events';
 
 describe('Service', () => {
-
+  const TEST_LABELS = {
+    'app': 'demo',
+    'name': 'mysql'
+  };
   const flat1 = {
     'type': 'k8s-service',
     'id': '2a07aeac-43bb-4ddf-8e0b-2dbb6067f47e',
     'name': 'mysql',
     'metadata': {
       'name': 'mysql',
-      'labels': {
-        'app': 'demo',
-        'name': 'mysql'
-      }
+      'labels': TEST_LABELS
     },
     'selector': {
       'app': 'demo',
@@ -66,4 +66,35 @@ describe('Service', () => {
     expect(a1.finder.objects.length).toBe(0);
   });
 
+  it('should handle meta data when generating flatfile', () => {
+    const finder = new Finder();
+    const a1 = Service.construct(Service.OBJECT_NAME) as Service;
+    finder.push(a1);
+    const flat = a1.toFlat();
+    expect(flat.metadata).toBeDefined('Metadata section not added to flat file');
+    expect(flat.metadata.name).toEqual(a1.name);
+    expect(flat.metadata.labels).toEqual({});
+    expect(flat.metadata.annotations).toEqual({});
+  });
+  it('should perserve imported metadata when generating flatfile', () => {
+    const finder = new Finder();
+    const a1 = Service.construct(Service.OBJECT_NAME) as Service;
+    finder.push(a1);
+    a1.fromFlat(flat1);
+    const flat = a1.toFlat();
+    expect(flat.metadata).toBeDefined('Metadata section not added to flat file');
+    expect(flat.metadata.name).toEqual(a1.name);
+    expect(flat.metadata.labels).toEqual(TEST_LABELS, 'Labels from import not perserved');
+    expect(flat.metadata.annotations).toEqual({}, 'Annotations not perserved from import');
+  });
+  it('should update the metadata name if the service name changes', () => {
+    const finder = new Finder();
+    const a1 = Service.construct(Service.OBJECT_NAME) as Service;
+    finder.push(a1);
+    a1.fromFlat(flat1);
+    a1.name = 'newFoo';
+    const flat = a1.toFlat();
+    expect(flat.metadata.name).toEqual('newFoo');
+
+  });
 });

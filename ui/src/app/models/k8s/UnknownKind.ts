@@ -92,4 +92,9 @@ export class UnknownKind extends ParsedObject {
     return flat;
   }
 
+  remove() {
+    super.remove();
+    FinderUtilities.removeObjectAnnotations(this.finder, this.id);
+  }
+
 }

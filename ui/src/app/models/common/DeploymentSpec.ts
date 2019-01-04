@@ -43,7 +43,9 @@ export class DeploymentSpec extends ParsedObject {
     this.mode = 'replicated';
     this.image_pull_secrets = [];
   }
-
+  remove() {
+    super.remove();
+  }
   get service_name(): string {
     return this._service_name;
   }

@@ -226,11 +226,6 @@ export class K8sInfoContainerComponent implements OnInit {
   /* END CONFIGMAP ARRAY */
   /* ******************* */
 
-  shareModel() {
-    const emailBody = `${this.userService.userInfo.githubUsername} just shared a model with you on yipee.io! Check it out here ${window.location.href}`;
-    window.open(`mailto:?Subject=View%20${this.k8sFile.appInfo.name}%20on%20yipee.io&body=${emailBody}`, '_top');
-  }
-
   ngOnInit() {
 
     /* ***************************** */

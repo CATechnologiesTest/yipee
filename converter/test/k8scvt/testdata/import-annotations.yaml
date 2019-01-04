@@ -124,7 +124,7 @@ metadata:
 spec:
   serviceName: "mongo"
   updateStrategy:
-    type: OnDelete
+    type: RollingUpdate
   podManagementPolicy: Parallel
   replicas: 3
   selector:

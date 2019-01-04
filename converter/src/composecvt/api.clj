@@ -15,6 +15,7 @@
             [clojure.pprint :as pprint]
             [k8scvt.api :as k8s]
             [k8scvt.util :as util]
+            [k8scvt.flat-validator :as fv]
             [composecvt.compose-to-flat]
             [composecvt.flat-to-compose]
             [composecvt.validators :as v]))
@@ -29,28 +30,17 @@
 (defn wmes-of-type [srclist typ]
   (filter #(= (:type %) typ) srclist))
 
-(defn results-and-errors [wmes]
-  (let [results wmes
-        errors (wmes-of-type results :validation-error)]
-    (if (empty? errors)
-      [results true]
-      [errors false])))
-
-(defn do-convert [converter valid-results]
-  (let [retlist (converter :run-list valid-results)]
-    {::retval (dissoc (first retlist) :type)}))
-
-(defn return-errors [results]
-  (let [errmsgs (str/join
-                 "\n" (map util/format-validation-error results))]
-    {::reterr errmsgs}))
-
 (defn cvtc2f [composeobj]
   (binding [util/*wmes-by-id* (atom {})]
     (let [to-flat (engine :composecvt.compose-to-flat)
           inputobj (list (assoc composeobj :type :compose))
-          results (to-flat :run-list inputobj)]
-      {::retval (group-by :type results)})))
+          results (to-flat :run-list inputobj)
+          fvalidate (engine :k8scvt.flat-validator)
+          [fv-results fv-ok] (k8s/results-and-errors
+                              (fvalidate :run-list results))]
+      (if fv-ok
+        {::retval (group-by :type results)}
+        (k8s/return-fv-errors fv-results)))))
 
 (defn load-and-validate-import [ctx]
   (let [body (k8s/b64decode-if-possible (body-as-string ctx))

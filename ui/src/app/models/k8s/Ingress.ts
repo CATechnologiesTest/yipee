@@ -15,7 +15,7 @@ export class IngressBackend {
 
   constructor() {
     this.service_id = null;
-    this.service_port = 0;
+    this.service_port = 1;
   }
 
   /** convert from a flat object */
@@ -255,6 +255,7 @@ export class Ingress extends ParsedObject {
     const flat = super.toFlat();
     flat['apiVersion'] = this.api_version;
     flat['kind'] = this.kind;
+    flat['name'] = this.name;
     const metadata = {
       name: this.name,
       labels: {},
@@ -310,6 +311,8 @@ export class Ingress extends ParsedObject {
   /** remove the ingress and all references to this ingress */
   remove(): void {
     super.remove();
+    FinderUtilities.removeObjectAnnotations(this.finder, this.id);
+
   }
 
   get ui(): any {

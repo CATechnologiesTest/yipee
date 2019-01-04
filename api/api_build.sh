@@ -1,7 +1,7 @@
 #!/bin/bash
 
 CVT_NAME=api-build-converter
-API_IMG=node:8.12.0-alpine
+API_IMG=node:8.14.0-alpine
 # sleep to make sure converter starts before we try to use it...
 API_CMD="npm install && sleep 5 && npm test"
 

@@ -1,10 +1,13 @@
 import { ParsedObject } from './ParsedObject';
+import { Parser } from './Parser';
 
 /** finder objectt */
 
 export class Finder {
 
   public objects: ParsedObject[] = [];
+  // Objects imported that don't have a corresponding yipee representation
+  private _parsedObjectsNeededForOutput = [];
 
   constructor() { }
 
@@ -14,6 +17,13 @@ export class Finder {
       this.objects.push(object);
       this.objectAdded(object);
     }
+  }
+
+  hold(object: any): void {
+    this._parsedObjectsNeededForOutput.push(object);
+  }
+  getParsedForOutputObjects(): any[] {
+    return this._parsedObjectsNeededForOutput;
   }
 
   remove(id: string): void {

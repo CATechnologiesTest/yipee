@@ -27,6 +27,9 @@
 (def ^:dynamic *specs-created* -100)
 (def ^:dynamic *cleanup* -10000)
 
+(defn to-lower-if [s]
+  (when s (str/lower-case s)))
+
 (defn to-octal [n]
   (if (string? n)
     n
@@ -79,13 +82,13 @@
 (defn label-key-name [val] (label-name (keyword val)))
 
 (defn translate-controller-type [ct]
-  (or ({:deployment :Deployment
-        :daemonset :DaemonSet
-        :statefulset :StatefulSet
-        :job :Job
-        :cronjob :CronJob}
+  (or ({:deployment "Deployment"
+        :daemonset "DaemonSet"
+        :statefulset "StatefulSet"
+        :job "Job"
+        :cronjob "CronJob"}
        ct)
-      :Deployment))
+      "Deployment"))
 
 (defn get-id! [] (str (UUID/randomUUID)))
 
@@ -195,7 +198,8 @@
 
 (defn strat-stringify [strat]
   (if-let [strat-type (:type strat)]
-    (if (= (name strat-type) "RollingUpdate")
+    (if (and (= (name strat-type) "RollingUpdate")
+             (filled-in? (:rollingUpdate strat)))
       (update
        strat
        :rollingUpdate
@@ -297,8 +301,8 @@
                    :claim-name (:name (:metadata pvc))
                    :name (:name (:metadata pvc))
                    :physical-volume-name (or (:volumeName spec) "")
-                   :volume-mode (or (:volumeMode spec) :Filesystem)
-                   :access-modes (or (:accessModes spec) [:ReadWriteOnce])
+                   :volume-mode (or (:volumeMode spec) "Filesystem")
+                   :access-modes (or (:accessModes spec) ["ReadWriteOnce"])
                    :storage-class (or (:storageClassName spec) "")
                    :storage (or (get-in spec [:resources :requests :storage]) "")
                    :selector (or (:selector spec) {:matchLabels {}})
@@ -388,7 +392,8 @@
        (id-insert!
         (assoc
          (substitute-ingress-attributes ingress svcs f inkey outkey)
-                       :type :ingress))))
+         :name (:name (:metadata ingress))
+         :type :ingress))))
   (id-remove! ?k8s)
   (id-insert! (dissoc ?k8s :ingresses)))
 
@@ -409,15 +414,15 @@
 
 (defn stateful [cont field-chain default-val]
   (let [cont-type (translate-controller-type (:type cont))]
-    (if (= cont-type :StatefulSet)
+    (if (= cont-type "StatefulSet")
       (or (get-in (:spec cont) field-chain) default-val)
       default-val)))
 
 (defn type-specific-fetch [cont field-chain-map default-map]
   (let [cont-type (translate-controller-type (:type cont))
-        field-chain (or (cont-type field-chain-map)
+        field-chain (or (get field-chain-map cont-type)
                         (:default field-chain-map))
-        default-val (or (cont-type default-map)
+        default-val (or (get default-map cont-type)
                         (:default default-map))]
     (or (get-in (:spec cont) field-chain) default-val)))
 
@@ -455,7 +460,7 @@
   [?cont :controller (:spec ?cont)]
   =>
   (let [cont-type (translate-controller-type (:type ?cont))
-        ptemp (if (= cont-type :CronJob)
+        ptemp (if (= cont-type "CronJob")
                 (get-in ?cont [:spec :jobTemplate :spec :template])
                 (:template (:spec ?cont)))
         pspec (:spec ptemp)]
@@ -477,12 +482,15 @@
              :update-strategy (strat-stringify
                                (type-specific-fetch
                                 ?cont
-                                {:StatefulSet [:updateStrategy]
+                                {"StatefulSet" [:updateStrategy]
                                  :default [:strategy]}
-                                {:CronJob ""
-                                 :StatefulSet {:type "RollingUpdate"
+                                {"CronJob" ""
+                                 "StatefulSet" {:type "RollingUpdate"
                                                :rollingUpdate
                                                {:partition 0}}
+                                 "DaemonSet" {:type "RollingUpdate"
+                                             :rollingUpdate
+                                             {:maxUnavailable "1"}}
                                  :default {:type "RollingUpdate"
                                            :rollingUpdate
                                            {:maxSurge "1"
@@ -490,14 +498,14 @@
              :pod-management-policy (type-specific-fetch
                                      ?cont
                                      {:default [:podManagementPolicy]}
-                                     {:CronJob "" :default :OrderedReady})
+                                     {"CronJob" "" :default "OrderedReady"})
              :termination-grace-period (type-specific-fetch
                                         ?cont
-                                        {:StatefulSet
+                                        {"StatefulSet"
                                          [:template :spec
                                           :terminationGracePeriodSeconds]
                                          :default [:-invalid-path-]}
-                                        {:CronJob "" :default 10})
+                                        {"CronJob" "" :default 10})
              :claim-templates (stateful ?cont [:volumeClaimTemplates] "")
              :image-pull-secrets (or (:imagePullSecrets pspec) "")
              :service-account-name (or (:serviceAccountName pspec) "")
@@ -507,8 +515,8 @@
              :top-labels (or (:labels (:metadata ?cont)) "")
              :labels (or (:labels (:metadata ptemp)) "")
              :replicas (or (:replicas (:spec ?cont))
-                           (if (= cont-type :DaemonSet) 0 1))
-             :cronjob-spec (if (= cont-type :CronJob)
+                           (if (= cont-type "DaemonSet") 0 1))
+             :cronjob-spec (if (= cont-type "CronJob")
                              (assoc
                               (select-keys (:spec ?cont)
                                            [:suspend
@@ -518,11 +526,11 @@
                                             :concurrencyPolicy])
                               :schedule (type-specific-fetch
                                          ?cont
-                                         {:CronJob [:schedule]
+                                         {"CronJob" [:schedule]
                                           :default [:-invalid-path-]}
                                          {:default ""}))
                              "")
-             :job-spec (if (= cont-type :CronJob)
+             :job-spec (if (= cont-type "CronJob")
                          (select-keys
                           (get-in ?cont [:spec :jobTemplate :spec])
                           [:backoffLimit :activeDeadlineSeconds :parallelism
@@ -538,7 +546,7 @@
     (id-remove! ?pod)
     (id-insert! (assoc pspec
                        :type :podspec
-                       :controller-type :Deployment
+                       :controller-type "Deployment"
                        :image-pull-secrets (or (:imagePullSecrets pspec) "")
                        :service-account-name (or (:serviceAccountName pspec) "")
                        :automount-service-account-token
@@ -605,7 +613,8 @@
                            :internal (str (:containerPort port))
                            :external ""
                            :node-port ""
-                           :protocol (or (:protocol port) "tcp")}))))))
+                           :protocol (or (to-lower-if (:protocol port))
+                                         "tcp")}))))))
     (id-insert!
      (assoc-if-filled
       (apply assoc {:type :deployment-spec :cgroup cgroup
@@ -688,7 +697,7 @@
                  :internal (str (or (:targetPort port) (:port port)))
                  :external (str (:port port))
                  :node-port (str (or (:nodePort port) ""))
-                 :protocol (or (:protocol port) "")}))
+                 :protocol (or (to-lower-if (:protocol port)) "")}))
   (id-insert! (update ?svc :spec #(dissoc % :ports))))
 
 (defrule update-service-defined-only-port-mappings
@@ -887,7 +896,7 @@
                              {:type :secret
                               :name secret-name
                               :secret-volume svol-id
-                              :default-mode (or (:mode secret) default-mode "")
+                              :default-mode (to-octal (or (:mode secret) default-mode ""))
                               :source ""
                               :alternate-name ""})]
               (doseq [cont (collect! :container #(= (:id ?cgroup) (:cgroup %)))]
@@ -1007,7 +1016,7 @@
                          :volume empty-dir-id
                          :volume-name volname
                          :path path
-                         :access-mode :ReadWriteOnce})
+                         :access-mode "ReadWriteOnce"})
             (swap! conts conj cont)))))
     (doseq [cont @conts]
       (id-remove! cont)
@@ -1049,7 +1058,7 @@
                          :volume host-path-id
                          :volume-name volname
                          :path path
-                         :access-mode :ReadWriteOnce})
+                         :access-mode "ReadWriteOnce"})
             (swap! conts conj cont)))))
     (doseq [cont @conts]
       (id-remove! cont)
@@ -1091,8 +1100,8 @@
                              :path path
                              :sub-path (or (:subPath mount) "")
                              :access-mode (if (:readOnly mount)
-                                            :ReadOnlyMany
-                                            :ReadWriteOnce)}))))
+                                            "ReadOnlyMany"
+                                            "ReadWriteOnce")}))))
           (swap! conts conj cont))))
     (doseq [[v vname] @vols]
       (id-remove! v)
@@ -1106,7 +1115,7 @@
 (defrule extract-volume-claim-templates-from-podspec
   "Pull volume claim templates out of a podspec for a stateful set"
   [?pspec :podspec
-   (= (:controller-type ?pspec) :StatefulSet)
+   (= (:controller-type ?pspec) "StatefulSet")
    (not= (:claim-templates ?pspec) "")
    (not (seq (:volumes ?pspec)))]
   [?cgroup :container-group (= (:pod ?cgroup) (:id ?pspec))]
@@ -1128,8 +1137,7 @@
                       :name volname
                       :physical-volume-name ""
                       :claim-name ""
-                      :access-modes (or (:accessModes spec)
-                                        [:ReadWriteOnce])
+                      :access-modes (or (:accessModes spec) ["ReadWriteOnce"])
                       :storage-class (or (:storageClassName spec) "")
                       :storage (or (get-in spec [:resources :requests :storage])
                                    "")
@@ -1143,8 +1151,8 @@
                              :volume-name volname
                              :path path
                              :access-mode (if (:readOnly mount)
-                                            :ReadOnlyMany
-                                            :ReadWriteOnce)}))))
+                                            "ReadOnlyMany"
+                                            "ReadWriteOnce")}))))
             (swap! conts conj cont))))
     (doseq [cont @conts]
       (id-remove! cont)

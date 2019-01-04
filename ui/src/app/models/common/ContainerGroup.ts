@@ -20,6 +20,7 @@ import { TopLabel } from '../k8s/TopLabel';
 export class ContainerGroup extends ParsedObject {
 
   public static OBJECT_NAME = 'container-group';
+  public static TYPE_DEPLOYMENT = 'Deployment';
 
   _name: string;
   pod: string;
@@ -36,6 +37,7 @@ export class ContainerGroup extends ParsedObject {
 
   constructor() {
     super(ContainerGroup.OBJECT_NAME);
+    this._controller_type = ContainerGroup.TYPE_DEPLOYMENT;
   }
 
   /** is the object empty */
@@ -73,18 +75,17 @@ export class ContainerGroup extends ParsedObject {
     for (const container of this.containers) {
       container.remove();
     }
-    this.getDeploymentSpec().remove();
-    FinderUtilities.getDescription(this.finder, this.id).remove();
     this.getExtraHosts().remove();
     for (const label of this.label) {
       label.remove();
     }
-    this.getReplication().remove();
     for (const label of this.top_label) {
       label.remove();
     }
-    FinderUtilities.getUi(this.finder, this.id).remove();
+
     this.onContainerGroupDelete.emit(this.id);
+    FinderUtilities.removeObjectReferences(this.finder, this.id, 'cgroup');
+    FinderUtilities.removeObjectAnnotations(this.finder, this.id);
   }
 
   get controller_type(): string {

@@ -1,7 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 
 // import custom services
-import { FeatureService } from '../../../../../shared/services/feature.service';
 import { EditorService } from '../../../../editor.service';
 
 @Component({
@@ -16,7 +15,6 @@ export class NerdmodeViewerComponent {
   @Output() downloadByType: EventEmitter<string> = new EventEmitter<string>();
 
   constructor(
-    public featureService: FeatureService,
     public editorService: EditorService
   ) { }
 
