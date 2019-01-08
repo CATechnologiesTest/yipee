@@ -12,7 +12,7 @@ import { OpenShiftFile } from '../../models/OpenShiftFile';
 import { KubernetesFile } from '../../models/KubernetesFile';
 import { OpenShiftFileResponse } from '../../models/OpenShiftFileResponse';
 import { KubernetesFileResponse } from '../../models/KubernetesFileResponse';
-import { YipeeFileResponse } from '../../models/YipeeFileResponse';
+import { YipeeFileResponse, NamespaceResponse } from '../../models/YipeeFileResponse';
 import { ApiService } from './api.service';
 
 describe('ApiService', () => {
@@ -476,14 +476,16 @@ describe('ApiService', () => {
       expect(data).toEqual(validateGithubIdResponse._body.data.userByIdentity.id);
     });
 
-    const req = backend.expectOne({method: 'POST', url: '/api/query'});
+    const req = backend.expectOne({ method: 'POST', url: '/api/query' });
     // make sure the id is in the body
     expect(req.request.body).toMatch('.*' + userId + '.*');
     req.flush({
       data: {
         userByIdentity: {
           id: 'c1f2b694-97d9-11e7-9215-73a85b907ae8'
-      }}});
+        }
+      }
+    });
   })));
 
   it('should return githubUsername is invalid in yipee and return null', async(inject([ApiService, HttpTestingController], (service: ApiService, backend: HttpTestingController) => {
@@ -491,14 +493,16 @@ describe('ApiService', () => {
     service.validateGithubId(userId).subscribe(data => {
       expect(data).toEqual(null);
     });
-    const req = backend.expectOne({method: 'POST', url: '/api/query'});
+    const req = backend.expectOne({ method: 'POST', url: '/api/query' });
     // make sure the id is in the body
     expect(req.request.body).toMatch('.*' + userId + '.*');
     req.flush({
       data: {
         userByIdentity: {
           id: null
-      }}});
+        }
+      }
+    });
   })));
 
   /* ----------------------- */
@@ -514,7 +518,7 @@ describe('ApiService', () => {
     service.importApp(yipeeMetadata.uiFile).subscribe(data => {
       expect(data).toEqual(importAppResponse);
     });
-    backend.expectOne({method: 'POST', url: '/api/import'}).flush(yipeeFileResponse);
+    backend.expectOne({ method: 'POST', url: '/api/import' }).flush(yipeeFileResponse);
   })));
 
   /* -------------------------- */
@@ -531,7 +535,7 @@ describe('ApiService', () => {
       expect(data).toEqual(downloadKubernetesResponse._body.kubernetesFileResponse1.data[0]);
 
     });
-    backend.expectOne({method: 'POST', url: '/api/convert/kubernetes?format=flat'}).flush(kubernetesFileResponse1);
+    backend.expectOne({ method: 'POST', url: '/api/convert/kubernetes?format=flat' }).flush(kubernetesFileResponse1);
     tick(50);
   })));
 
@@ -541,7 +545,7 @@ describe('ApiService', () => {
       expect(data).toEqual(downloadKubernetesResponse._body.kubernetesFileResponse1.data[0]);
     });
 
-    backend.expectOne({method: 'POST', url: '/api/download/k8sbundle'}).flush(kubernetesFileResponse1);
+    backend.expectOne({ method: 'POST', url: '/api/download/k8sbundle' }).flush(kubernetesFileResponse1);
     tick(50);
   })));
   /* ----------------------------------- */
@@ -566,7 +570,7 @@ describe('ApiService', () => {
       expect(data).toEqual(deleteAppResponse);
     });
 
-    backend.expectOne({method: 'DELETE', url: '/api/yipeefiles/' + appId}).flush(yipeeFileResponse);
+    backend.expectOne({ method: 'DELETE', url: '/api/yipeefiles/' + appId }).flush(yipeeFileResponse);
   })));
 
   // xit('should make create a new application', inject([ApiService, HttpTestingController], (service: ApiService, backend: HttpTestingController) => {
@@ -594,7 +598,7 @@ describe('ApiService', () => {
     service.updateApp(yipeeMetadata).subscribe(data => {
       expect(data).toEqual(makePublicResponse);
     });
-    const req = backend.expectOne({method: 'PUT', url: '/api/yipeefiles/' + yipeeMetadata.id}).flush(yipeeFileResponse);
+    const req = backend.expectOne({ method: 'PUT', url: '/api/yipeefiles/' + yipeeMetadata.id }).flush(yipeeFileResponse);
 
   })));
 
@@ -637,5 +641,23 @@ describe('ApiService', () => {
     expect(file3.volumes[0].driver_opts.length).toEqual(2);
 
   });
+
+  it('should get namespaces when getNamespaceApps() is called', async(inject([ApiService, HttpTestingController], (service: ApiService, backend: HttpTestingController) => {
+
+    service.getNamespaceApps().subscribe(data => {
+      expect(data[0].name).toEqual('foo');
+    });
+    const req = backend.expectOne({ method: 'GET', url: '/api/namespaces' }).flush(<NamespaceResponse>{
+      success: true,
+      total: 0,
+      data: [
+         {
+          name: 'foo',
+          dateCreated: '2018-12-20T18:01:35Z'
+        }
+      ]
+    });
+
+  })));
 
 });

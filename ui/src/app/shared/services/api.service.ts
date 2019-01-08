@@ -6,9 +6,9 @@ import 'rxjs/add/operator/map';
 import { YipeeFileMetadataRaw } from '../../models/YipeeFileMetadataRaw';
 import { KubernetesFile } from '../../models/KubernetesFile';
 import { HelmFile } from '../../models/HelmFile';
-import { YipeeFileResponse } from '../../models/YipeeFileResponse';
+import { YipeeFileResponse, NamespaceResponse } from '../../models/YipeeFileResponse';
 import { UserInfoResponse } from '../../models/UserInfo';
-import { YipeeFileRaw } from '../../models/YipeeFileRaw';
+import { YipeeFileRaw, NamespaceRaw } from '../../models/YipeeFileRaw';
 
 @Injectable()
 export class ApiService {
@@ -58,9 +58,21 @@ export class ApiService {
   /* END USER ENDPOINTS */
   /* ------------------ */
 
+  /* ----------------------- */
+  /* BEGIN CATALOG ENDPOINTS */
+  /* ----------------------- */
+
   importApp(yipeeFile: any): Observable<YipeeFileResponse> {
     const api_endpoint = '/api/import';
     return this.http.post<YipeeFileResponse>(api_endpoint, yipeeFile);
+  }
+
+  getNamespaceApps(): Observable<NamespaceRaw[]> {
+    const api_endpoint = '/api/namespaces';
+    return this.http.get(api_endpoint).map((response: NamespaceResponse) => {
+      return <NamespaceRaw[]>response.data;
+    });
+
   }
 
   /* --------------------- */
