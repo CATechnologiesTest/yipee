@@ -3,7 +3,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { NamespaceDiffModalComponent } from './namespace-diff-modal.component';
 import { MarkdownService } from 'ngx-markdown';
-import { NamespaceRaw } from 'src/app/models/YipeeFileRaw';
+import { NamespaceRaw } from '../../../models/YipeeFileRaw';
 import { FormBuilder } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { NamespaceService } from '../../services/namespace.service';

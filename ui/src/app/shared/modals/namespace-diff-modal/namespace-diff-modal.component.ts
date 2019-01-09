@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { ApiService } from '../../services/api.service';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { NamespaceService } from '../../services/namespace.service';
-import { NamespaceRaw } from 'src/app/models/YipeeFileRaw';
+import { NamespaceRaw } from '../../../models/YipeeFileRaw';
 
 @Component({
     selector: 'app-namespace-diff-modal',
