@@ -2,9 +2,9 @@
 
 Welcome! We're excited that you're interested in contributing. 
 
-Below you will find some basic steps required to be able to contribute to the project. If you have any questions about this process or any other aspect of contributing to a Yipee open source project, please open an [issue](https://github.com/yipeeio/yipee/issues) and we'll get your questions answered as quickly as we can.
+Below you will find some basic steps required to be able to contribute to the project. If you have any questions about this process or any other aspect of contributing to a Yipee open source project, please open an [issue](./issues) and we'll get your questions answered as quickly as we can.
 
-Pull Requests are always welcome, however they will only be accepted if they provide a reasonable test coverage.
+Pull Requests are always welcome, however they will only be accepted if they provide reasonable test coverage.
 
 ## Workflow
 
