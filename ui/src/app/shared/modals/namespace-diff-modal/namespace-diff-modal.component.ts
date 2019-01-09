@@ -36,7 +36,6 @@ export class NamespaceDiffModalComponent {
         });
 
         this.namespaces = this.namespaceService.currentNamespaces;
-        console.log(this.namespaces);
     }
 
 
