@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { NamespaceRaw } from '../../models/YipeeFileRaw';
+import 'rxjs/add/operator/map';
 
 @Injectable({
   providedIn: 'root'
@@ -16,8 +17,8 @@ export class NamespaceService {
     return this.apiService.getNamespaceApps().map((response: NamespaceRaw[]) => {
       this.currentNamespaces = response;
       return this.currentNamespaces;
-    })
+    });
   }
 
-  
+
 }

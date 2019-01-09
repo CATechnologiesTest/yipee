@@ -17,7 +17,7 @@ export class HomeComponent implements OnInit {
   showNamespaceDiffDialog = false;
   isLoading = true;
   hasError = false;
-  parentNamespace = "";
+  parentNamespace = '';
 
   namespaces: NamespaceRaw[];
 
@@ -54,6 +54,6 @@ export class HomeComponent implements OnInit {
     this.namespaceService.loadAndReturnNamespaces().subscribe((namespaces: NamespaceRaw[]) => {
       this.namespaces = namespaces;
       this.isLoading = false;
-    })
+    });
   }
 }
