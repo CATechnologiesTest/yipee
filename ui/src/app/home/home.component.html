@@ -1,27 +1,135 @@
-<app-header></app-header>
+<div class="catalog-page">
+    <div class="catalog-container">
 
-<div class="content-container">
-    <div class="content-area">
-        <div class="clr-row" style="padding-top:150px;">
-            <div class="clr-col-12 ta-c">
-                <button class="btn btn-primary" (click)="showImportApplicationDialog = true">
-                    Import
-                </button>
-            </div>
+        <!-- catalog toolbar -->
+        <div class="top">
+            <app-header title="Namespace Catalog"></app-header>
+            <app-toolbar>
+                <div class="flex-left">
+                    <button class="btn btn-primary" (click)="showNewApplicationDialog = true">
+                        New
+                    </button>
+                    <button class="btn btn-primary" (click)="showImportApplicationDialog = true">
+                        Import
+                    </button>
+                </div>
+                <div class="flex-center">
+                </div>
+                <div class="flex-right">
+                    <div class="btn-group toolbar-button-group">
+                    </div>
+                </div>
+            </app-toolbar>
         </div>
-        <div class="clr-row">
-            <div class="clr-col-12 ta-c">
-                <button class="btn btn-primary" (click)="showNewApplicationDialog = true">
-                    New
-                </button>
-            </div>
+        <!-- end catalog toolbar -->
+
+        <!-- loading spinner -->
+        <div *ngIf="isLoading && !hasError" class="spinner-container">
+            <span class="spinner">
+                Loading...
+            </span>
         </div>
 
-        <app-new-app-modal [show]="showNewApplicationDialog" (onCreate)="handleCreateNewApplicationCreated($event)"
-            (onCancel)="showNewApplicationDialog = false;">
-        </app-new-app-modal>
+        <div *ngIf="!isLoading && !hasError" class="scrolling">
+            <div class="scrolled icon-view">
+                <div class="flex-grid">
+                    <div *ngFor="let namespace of namespaces">
 
-        <app-import-app-modal [show]="showImportApplicationDialog" (onCreate)="importApplication($event)" (onCancel)="showImportApplicationDialog = false">
-        </app-import-app-modal>
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-text">
+                                    <img class="logo" src="{{ './assets/images/' + namespace.status + '-status.svg' }}">
+                                    <a class="editor-link" [routerLink]="[ '/namespace', namespace.name ]">{{namespace.name}}</a>
+                                </div>
+                            </div>
+                            <div class="card-block">
+                                <div class="card-text">
+                                    <div class="owner">
+                                        <div class="username">{{namespace.phase}}</div>&nbsp;
+                                    </div>
+                                    <div class="services">{{namespace.podCount}} Pods</div>
+                                    <div class="services">{{namespace.containerCount}} Containers</div>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <clr-dropdown>
+                                    <button clrDropdownTrigger type="button" class="btn btn-icon-link btn-link">
+                                        <clr-icon shape="bars" size="18"></clr-icon>
+                                    </button>
+                                    <clr-dropdown-menu *clrIfOpen>
+                                        <clr-dropdown>
+                                            <button clrDropdownItem type="button" (click)="diffNamespace(namespace.name)">Diff
+                                                with...</button>
+                                            <button clrDropdownItem type="button" (click)="onOpen(namespace)">Open</button>
+                                        </clr-dropdown>
+                                    </clr-dropdown-menu>
+                                </clr-dropdown>
+
+                                <button type="button" class="btn btn-icon-link btn-link" (click)="downloadService.downloadKubernetesFileByNamespace(namespace.name)">
+                                    <label for="download-model" title="Download Model">
+                                        <clr-icon shape="download" style="cursor: pointer;"></clr-icon>
+                                    </label>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <app-namespace-diff-modal [show]="showNamespaceDiffDialog" [parentNamespace]="parentNamespace" (onClose)="closeNamespaceDiff()">
+            </app-namespace-diff-modal>
+
+        </div>
+
+        <!--
+        <div *ngIf="catalogService.ui.error" class="scrolled icon-view" style="height: 10000px;">&nbsp;</div>
+        <div class="bottom">
+            <app-footer></app-footer>
+        </div>
+
+        <div class="fixed-top" *ngIf="catalogService.fatalText.length > 0">
+            <clr-alerts>
+                <clr-alert *ngFor="let alert of catalogService.fatalText" [clrAlertType]="'danger'" [clrAlertAppLevel]="true"
+                    [clrAlertClosable]="false">
+                    <div class="alert-item">
+                        <span class="alert-text">
+                            {{alert}}
+                        </span>
+                        <div class="alert-actions">
+                            <button class="btn alert-action" (click)="fatalExit()">Retry</button>
+                        </div>
+                    </div>
+                </clr-alert>
+            </clr-alerts>
+        </div>
+
+        <div class="fixed-top" *ngIf="catalogService.alertText.length > 0 || catalogService.infoText.length > 0">
+            <clr-alerts>
+                <clr-alert *ngFor="let alert of catalogService.alertText" [clrAlertType]="'danger'" [clrAlertAppLevel]="true"
+                    (clrAlertClosedChange)="onAlertClose(alert)">
+                    <div class="alert-item">
+                        <span class="alert-text">
+                            {{alert}}
+                        </span>
+                    </div>
+                </clr-alert>
+                <clr-alert *ngFor="let alert of catalogService.infoText" [clrAlertType]="'info'" [clrAlertAppLevel]="true"
+                    (clrAlertClosedChange)="onInfoClose(alert)">
+                    <div class="alert-item">
+                        <span class="alert-text">
+                            {{alert}}
+                        </span>
+                    </div>
+                </clr-alert>
+            </clr-alerts>
+        </div> -->
+
     </div>
+
 </div>
+
+<app-new-app-modal [show]="showNewApplicationDialog" (onCreate)="handleCreateNewApplicationCreated($event)" (onCancel)="showNewApplicationDialog = false;">
+</app-new-app-modal>
+
+<app-import-app-modal [show]="showImportApplicationDialog" (onCreate)="importApplication($event)" (onCancel)="showImportApplicationDialog = false">
+</app-import-app-modal>

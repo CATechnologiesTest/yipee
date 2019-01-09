@@ -1,0 +1,19 @@
+<clr-modal #namespaceDiffModal [clrModalClosable]="false" [(clrModalOpen)]="show" [clrModalSize]="'lg'"
+    [clrModalHeight]="'lg'">
+    <h3 class="modal-title">Namespace Diff</h3>
+    <div class="modal-body" [formGroup]="diffForm">
+        Compare namespace {{ parentNamespace }} with
+        <select formControlName="childNamespace">
+            <option *ngFor="let ns of namespaces" [value]="ns.name">
+                {{ ns.name }}
+            </option>
+        </select>
+        <pre *ngIf="showDiffResults">{{ diffResults }}
+        </pre>
+    </div>
+
+    <div class="modal-footer">
+        <button class="btn btn-primary" (click)="close()">Close</button>
+        <button class="btn btn-primary" (click)="compare()">Compare</button>
+    </div>
+</clr-modal>

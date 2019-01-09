@@ -1,7 +1,9 @@
-import { Component, OnInit, ViewChild, ChangeDetectorRef, AfterViewChecked } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Component, OnInit} from '@angular/core';
+import { Router } from '@angular/router';
 import { YipeeFileMetadata } from '../models/YipeeFileMetadata';
+import { NamespaceService } from '../shared/services/namespace.service';
+import { DownloadService } from '../shared/services/download.service';
+import { NamespaceRaw } from '../models/YipeeFileRaw';
 
 
 @Component({
@@ -12,9 +14,17 @@ export class HomeComponent implements OnInit {
 
   showNewApplicationDialog = false;
   showImportApplicationDialog = false;
+  showNamespaceDiffDialog = false;
+  isLoading = true;
+  hasError = false;
+  parentNamespace = "";
+
+  namespaces: NamespaceRaw[];
 
   constructor(
-    private router: Router
+    private router: Router,
+    private namespaceService: NamespaceService,
+    private downloadService: DownloadService
   ) { }
 
   handleCreateNewApplicationCreated(metadata: YipeeFileMetadata): void {
@@ -27,6 +37,23 @@ export class HomeComponent implements OnInit {
     this.router.navigate(['/editor']);
   }
 
+  diffNamespace(parentNamespace: string) {
+    this.parentNamespace = parentNamespace;
+    this.showNamespaceDiffDialog = true;
+  }
+
+  closeNamespaceDiff() {
+    this.showNamespaceDiffDialog = false;
+  }
+
+  onOpen(namespace): void {
+    this.router.navigate(['namespace', namespace.name]);
+  }
+
   ngOnInit() {
+    this.namespaceService.loadAndReturnNamespaces().subscribe((namespaces: NamespaceRaw[]) => {
+      this.namespaces = namespaces;
+      this.isLoading = false;
+    })
   }
 }

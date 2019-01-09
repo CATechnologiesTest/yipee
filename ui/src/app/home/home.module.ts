@@ -15,6 +15,7 @@ export const editorRoutes: Routes = [
 
 @NgModule({
     imports: [
+        CommonModule,
         RouterModule.forChild(editorRoutes),
         ClarityModule,
         SharedModule

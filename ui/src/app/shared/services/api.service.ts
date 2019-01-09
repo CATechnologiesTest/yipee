@@ -75,6 +75,22 @@ export class ApiService {
 
   }
 
+  getKubernetesNamespaceData(namespace: string): Observable<KubernetesFile> {
+    const api_endpoint = '/api/namespaces/' + namespace + '/kubernetes';
+    return this.http.get(api_endpoint).map((response: any) => {
+      return <KubernetesFile>response.data[0];
+    });
+  }
+
+  getNamespaceDiff(ns1: string, ns2: string): Observable<any> {
+    const api_endpoint = '/api/namespaces/diff';
+    const diffPayload = { parent: ns1, children: [ ns2 ]};
+
+    return this.http.post(api_endpoint, diffPayload).map((response: Response) => {
+      return response.json();
+    });
+  }
+
   /* --------------------- */
   /* END CATALOG ENDPOINTS */
   /* --------------------- */
