@@ -2,17 +2,17 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { NamespaceDiffModalComponent } from './namespace-diff-modal.component';
-import { MetricsService, MockMetricsService } from '../../services/metrics.service';
 import { MarkdownService } from 'ngx-markdown';
+import { NamespaceRaw } from 'src/app/models/YipeeFileRaw';
 import { FormBuilder } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
-import { CatalogService } from '../../../catalog/catalog.service';
+import { NamespaceService } from '../../services/namespace.service';
 
 class MockApiService {
   constructor() { }
 }
 
-class MockCatalogService {
+class MockNamespaceService {
   constructor() { }
 }
 
@@ -26,7 +26,7 @@ describe('NamespaceDiffModalComponent', () => {
       schemas: [NO_ERRORS_SCHEMA],
       providers: [
         { provide: FormBuilder, useClass: FormBuilder },
-        { provide: CatalogService, useClass: MockCatalogService },
+        { provide: NamespaceService, useClass: MockNamespaceService },
         { provide: ApiService, useClass: MockApiService },
       ]
     }).compileComponents();
