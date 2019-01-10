@@ -257,7 +257,3 @@ How a compose container should be deployed
 - *value* **string** (*global*, *replicated*)
 - *source* **string** 
 - *container* **uuid-ref** (reference to container being deployed)
-#### placement
-How containers should be assigned to nodes
-- *value* **{"keyword-or-str"=>string, ...}** 
-- *container* **uuid-ref** (reference to container being placed)

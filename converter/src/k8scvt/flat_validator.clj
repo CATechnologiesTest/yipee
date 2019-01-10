@@ -985,11 +985,6 @@
   [:source :string]
   [:container :uuid-ref :container "reference to container being deployed"])
 
-(defflat placement
-  "How containers should be assigned to nodes"
-  [:value [:key-value :keyword-or-str :string]]
-  [:container :uuid-ref :container "reference to container being placed"])
-
 ;; Generate documentation into the target directory
 (when (some? (env :build-time))
   (dump-documentation "src/flat-format.md"))
