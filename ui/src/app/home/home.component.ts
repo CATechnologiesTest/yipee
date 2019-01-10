@@ -51,9 +51,15 @@ export class HomeComponent implements OnInit {
   }
 
   ngOnInit() {
+    // get initial set of namespaces
     this.namespaceService.loadAndReturnNamespaces().subscribe((namespaces: NamespaceRaw[]) => {
       this.namespaces = namespaces;
       this.isLoading = false;
+    });
+
+    // poll namespaces every 5 seconds to refresh namespaces on page
+    this.namespaceService.pollNamespaces().subscribe(() => {
+      this.namespaces = this.namespaceService.currentNamespaces;
     });
   }
 }
