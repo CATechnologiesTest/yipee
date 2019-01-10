@@ -1,7 +1,7 @@
 #!/bin/bash
 CVT_NAME=goapi-test-converter
 docker run -d -p 3000:3000 --name ${CVT_NAME} yipeeio/converter
-sleep 5
+sleep 10
 go test -coverprofile coverage.txt
 rc=$?
 go tool cover -html=coverage.txt -o coverage.html

@@ -57,7 +57,7 @@ func TestImports(t *testing.T) {
 	successTests := []*importTest{
 		&importTest{"bday-from-yaml", "bday4.yml"},
 		&importTest{"testbday-tar", "bday.tgz"},
-		&importTest{"from-compose", "compose.yml"},
+		// &importTest{"from-compose", "compose.yml"},
 	}
 	for _, td := range successTests {
 		req := makeImportRequest(t, td.filename, td.appname, false)
