@@ -42,7 +42,7 @@ img {
   }
   
   .services {
-    display: inline-block;
+    display: block;
     max-width: 210px;
     overflow: hidden;
     text-overflow: ellipsis;
