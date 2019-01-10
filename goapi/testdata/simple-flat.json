@@ -1,0 +1,24 @@
+{
+    "container": [
+        {
+            "id": "56e37323-3e8b-4049-a41c-14517cfe62f8",
+            "name": "one",
+            "type": "container"
+        }
+    ],
+    "app-info": [
+        {
+            "id": "b62052ed-6c89-44e3-a3e9-ba24cc38172c",
+            "name": "flatYipee",
+            "type": "app-info"
+        }
+    ],
+    "image": [
+        {
+            "container": "56e37323-3e8b-4049-a41c-14517cfe62f8",
+            "id": "f050ba15-b311-4467-bed9-db02fcf2ee90",
+            "type": "image",
+            "value": "one"
+        }
+    ]
+}

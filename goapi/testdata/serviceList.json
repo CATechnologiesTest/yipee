@@ -1,0 +1,46 @@
+{
+  "kind": "ServiceList",
+  "apiVersion": "v1",
+  "metadata": {
+    "selfLink": "/api/v1/namespaces/simple/services",
+    "resourceVersion": "31687"
+  },
+  "items": [
+    {
+      "metadata": {
+        "name": "nginx-svc",
+        "namespace": "simple",
+        "selfLink": "/api/v1/namespaces/simple/services/nginx-svc",
+        "uid": "0b870652-6f59-11e8-8348-025000000001",
+        "resourceVersion": "29558",
+        "creationTimestamp": "2018-06-13T22:28:07Z",
+        "annotations": {
+          "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{\"yipee.io.lastModelUpdate\":\"2018-06-13T22:27:39.282Z\",\"yipee.io.modelURL\":\"https://app.yipee.io/catalog\"},\"name\":\"nginx-svc\",\"namespace\":\"simple\"},\"spec\":{\"ports\":[{\"name\":\"nginx-svc-8080\",\"port\":8080,\"protocol\":\"TCP\",\"targetPort\":80}],\"selector\":{\"yipee.io/nginx-svc\":\"generated\"},\"type\":\"ClusterIP\"}}\n",
+          "yipee.io.lastModelUpdate": "2018-06-13T22:27:39.282Z",
+          "yipee.io.modelURL": "https://app.yipee.io/catalog"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "nginx-svc-8080",
+            "protocol": "TCP",
+            "port": 8080,
+            "targetPort": 80
+          }
+        ],
+        "selector": {
+          "yipee.io/nginx-svc": "generated"
+        },
+        "clusterIP": "10.103.48.233",
+        "type": "ClusterIP",
+        "sessionAffinity": "None"
+      },
+      "status": {
+        "loadBalancer": {
+
+        }
+      }
+    }
+  ]
+}
