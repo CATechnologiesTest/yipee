@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { NamespaceRaw } from '../../models/YipeeFileRaw';
+import 'rxjs/add/operator/map';
 import { map, concatMap } from 'rxjs/operators';
-import { timer, Observable, Subject, asapScheduler, pipe, of, from, interval, merge, fromEvent } from 'rxjs'
+import { timer, pipe, from} from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
