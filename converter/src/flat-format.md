@@ -125,11 +125,11 @@ Number of instances of a container group to run
 - *cgroup* **uuid-ref** (reference to replicated container group)
 #### restart
 Conditions under which a container group should be restarted
-- *value* **string** (*always*, *none*, *unless-stopped*)
+- *value* **string** (*always*, *none*, *unless-stopped*, *on-failure*)
 - *cgroup* **uuid-ref** (reference to restarting container group)
 #### restart-policy
 How containers should be restarted
-- *value* **string** (*always*, *none*, *unless-stopped*)
+- *value* **string** (*always*, *none*, *unless-stopped*, *on-failure*)
 - *cgroup* **uuid-ref** (reference to associated container group)
 #### secret
 Definition of secret value (needs work as the set of fields is not currently fixed - *external*, *file*, *alternate-name* vary depending on the secret
@@ -261,7 +261,3 @@ How a compose container should be deployed
 How containers should be assigned to nodes
 - *value* **{"keyword-or-str"=>string, ...}** 
 - *container* **uuid-ref** (reference to container being placed)
-#### update-config
-How a service should be updated
-- *value* **{"parallelism"=>non-negative-integer, "delay"=>compose-duration, ("failure-action"=>("pause" | "continue" | "rollback"))?, ("monitor"=>compose-duration)?, "max_failure_ratio"=>json, ("order"=>("stop-first" | "start-first"))?}** 
-- *container* **uuid-ref** (reference to container being updated)
