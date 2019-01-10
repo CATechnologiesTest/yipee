@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpResponse, HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 
 import { YipeeFileMetadataRaw } from '../../models/YipeeFileMetadataRaw';
 import { KubernetesFile } from '../../models/KubernetesFile';
 import { HelmFile } from '../../models/HelmFile';
-import { YipeeFileResponse } from '../../models/YipeeFileResponse';
+import { YipeeFileResponse, YipeeResponse } from '../../models/YipeeFileResponse';
 import { UserInfoResponse } from '../../models/UserInfo';
 import { YipeeFileRaw } from '../../models/YipeeFileRaw';
 
@@ -171,5 +171,22 @@ export class ApiService {
   /* *********************** */
   /* END DOCKERHUB ENDPOINTS */
   /* *********************** */
+
+
+  /* ******************* */
+  /* DASHBOARD API CALLS */
+  /* ******************* */
+  applyManifest(metadataRaw: YipeeFileMetadataRaw, namespace: String, manifestIsNewNamespace: Boolean): Observable<YipeeResponse> {
+    const endpoint = manifestIsNewNamespace ? `/api/namespaces/apply/${namespace}?createNamespace=true` : `/api/namespaces/apply/${namespace}`;
+    const body = {
+      flatFile: metadataRaw.flatFile
+    };
+    return this.http.post<YipeeResponse>(endpoint, body);
+  }
+
+  /* ******************* */
+  /* END DASHBOARD API CALLS */
+  /* ******************* */
+
 
 }

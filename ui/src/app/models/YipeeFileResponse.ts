@@ -18,3 +18,9 @@ export interface YipeeFileErrorResponse {
   total: number;
   data: string[];
 }
+
+export interface YipeeResponse {
+  success: boolean;
+  total: number;
+  data: any[];
+}

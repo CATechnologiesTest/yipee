@@ -14,6 +14,7 @@ import { OpenShiftFileResponse } from '../../models/OpenShiftFileResponse';
 import { KubernetesFileResponse } from '../../models/KubernetesFileResponse';
 import { YipeeFileResponse } from '../../models/YipeeFileResponse';
 import { ApiService } from './api.service';
+import { stringify } from '@angular/core/src/render3/util';
 
 describe('ApiService', () => {
 
@@ -311,92 +312,6 @@ describe('ApiService', () => {
     }
   };
 
-  const removeUserFromOrgResponse = {
-    headers: {
-      Headers: { _headers: [], _normalizedNames: [] }
-    },
-    ok: true,
-    status: 200,
-    statusText: 'OK',
-    type: 2,
-    url: 'http://localhost:8080/api/query',
-    _body: {
-      data: {
-        updateOrg: {
-          errors: []
-        }
-      }
-    }
-  };
-
-  const addUserToOrgResponse = {
-    headers: {
-      Headers: { _headers: [], _normalizedNames: [] }
-    },
-    ok: true,
-    status: 200,
-    statusText: 'OK',
-    type: 2,
-    url: 'http://localhost:8080/api/query',
-    _body: {
-      data: {
-        updateOrg: {
-          errors: []
-        }
-      }
-    }
-  };
-
-  const updateOrgNameResponse = {
-    headers: {
-      Headers: { _headers: [], _normalizedNames: [] }
-    },
-    ok: true,
-    status: 200,
-    statusText: 'OK',
-    type: 2,
-    url: 'http://localhost:8080/api/query',
-    _body: {
-      data: {
-        updateOrg: {
-          errors: []
-        }
-      }
-    }
-  };
-
-  const createOrgResponse = {
-    headers: {
-      Headers: { _headers: [], _normalizedNames: [] }
-    },
-    ok: true,
-    status: 200,
-    statusText: 'OK',
-    type: 2,
-    url: 'http://localhost:8080/api/query',
-    _body: {
-      data: {
-        addTeam: {
-          errors: []
-        }
-      }
-    }
-  };
-
-  const downloadOpenShiftResponse = {
-    headers: {
-      Headers: { _headers: [], _normalizedNames: [] }
-    },
-    ok: true,
-    status: 200,
-    statusText: 'OK',
-    type: 2,
-    url: 'http://localhost:8080/api/yipeefiles/6a379f42-9d50-11e7-99a2-e3878023cbd7/compose',
-    _body: {
-      openShiftFileResponse1
-    }
-  };
-
   const downloadKubernetesResponse = {
     headers: {
       Headers: { _headers: [], _normalizedNames: [] }
@@ -418,19 +333,9 @@ describe('ApiService', () => {
   const userInfoResponse = userInfo1;
   const deleteAppResponse = yipeeFileResponse;
   const makePublicResponse = yipeeFileResponse;
-  const newAppResponse = yipeeFileResponse;
-  const updateAppResponse = yipeeFileResponse;
   const importAppResponse = yipeeFileResponse;
-  const getAppResponse = yipeeFileResponse;
-
-  const githubCode = '45454545';
   const userId = 'testy02';
-  const orgName = 'Team1';
   const appId = '6a379f42-9d50-11e7-99a2-e3878023cbd7';
-  const orgId = 'ca804b54-97da-11e7-8353-571828076bea';
-  const loginStatusTrue = { loggedIn: true };
-  const isAdmin = true;
-  const isWriter = true;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -638,4 +543,26 @@ describe('ApiService', () => {
 
   });
 
+  //
+  // Tests for live capabilities
+  //
+  it('should successfully apply a new manifest to a new namespace', fakeAsync(inject([ApiService, HttpTestingController], (service: ApiService, backend: HttpTestingController) => {
+    callAndVerifySuccess(service, backend, 'foo', true);
+  })));
+
+  it('should successfully apply a new manifest to an existing namespace', fakeAsync(inject([ApiService, HttpTestingController], (service: ApiService, backend: HttpTestingController) => {
+    callAndVerifySuccess(service, backend, 'foo');
+  })));
+
 });
+
+function callAndVerifySuccess(s: ApiService, b: HttpTestingController, ns: String, createNS?: Boolean) {
+  s.applyManifest({name: 'rawYipeeFile'}, ns, createNS).subscribe(res => {
+    expect(res.success).toBeTruthy();
+  });
+
+  b.expectOne({method: 'POST', url: '/api/namespaces/apply/' + ns + ((createNS) ? '?createNamespace=true' : '') })
+    .flush({success: true, count: 0, data: ['did it']});
+  tick(50);
+
+}

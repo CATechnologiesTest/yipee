@@ -27,6 +27,12 @@ export class EditorComponent implements OnInit, AfterViewChecked {
   disregardChanges = false;
   resizing = false;
   viewType = 'app';
+  isDashboard: boolean;
+  isApplyingManifest = false;
+  showErrorModal = false;
+  errorModalTitle = '';
+  errorModalMessage = '';
+
 
   ui = {
     loading: true,
@@ -177,5 +183,26 @@ export class EditorComponent implements OnInit, AfterViewChecked {
       return false;
     }
   }
+
+  onApplyManifestClicked() {
+    const manifestIsNewNamespace = true;
+    this.isApplyingManifest = true;
+    // Right now we will always create the namespace
+    this.editorService.applyManifest(manifestIsNewNamespace)
+      .subscribe((response: Response) => {
+        this.isApplyingManifest = false;
+        if (response.status !== 200) {
+          this.isApplyingManifest = false;
+          this.editorService.alertText.length = 0;
+          this.editorService.alertText.push('Failure applying kubernetes manifest.');
+        }
+      }, (err) => {
+        this.isApplyingManifest = false;
+        this.errorModalTitle = 'Failure applying kubernetes manifest.';
+        this.errorModalMessage = err._body;
+        this.showErrorModal = true;
+      });
+  }
+
 
 }
