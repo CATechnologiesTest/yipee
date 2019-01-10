@@ -14,6 +14,7 @@ docker rm -f ${CVT_NAME}
 
 if [ $TESTRC -eq 0 ]; then
     docker build -t $2 .
+    docker build --build-arg from_image=$2 -t $2-experimental -f Dockerfile.experimental .
 else
     exit $TESTRC
 fi
