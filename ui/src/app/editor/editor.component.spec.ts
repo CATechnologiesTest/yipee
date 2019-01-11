@@ -183,13 +183,16 @@ describe('EditorComponent', () => {
       service.metadata = new YipeeFileMetadata();
       service.metadata.name = ns;
       service.metadata.flatFile.appInfo.namespace = ns;
-      expect(component.editorService.infoText.length).toBe(0);
-      component.onApplyManifestClicked();
-
-      backend.expectOne({method: 'POST', url: '/api/namespaces/apply/' + ns + '?createNamespace=true' })
-        .flush({success: true, total: 1, data: ['applied successfully']});
-      tick(50);
-      expect(component.editorService.infoText.length).toBe(1);
+      [true, false].forEach( createNs => {
+        expect(component.editorService.infoText.length).toBe(0);
+        service.metadata.flatFile.appInfo.createNs = createNs;
+        component.onApplyManifestClicked();
+        backend.expectOne({method: 'POST', url: '/api/namespaces/apply/' + ns + ((createNs) ? '?createNamespace=true' : '' )})
+          .flush({success: true, total: 1, data: ['applied successfully']});
+        tick(50);
+        expect(component.editorService.infoText.length).toBe(1);
+        component.editorService.infoText.length = 0;
+      });
     })));
 
     it('should handle an error from a namespace apply', fakeAsync(inject([HttpTestingController, EditorService], (backend: HttpTestingController, service: EditorService) => {
@@ -199,6 +202,7 @@ describe('EditorComponent', () => {
       service.metadata = new YipeeFileMetadata();
       service.metadata.name = ns;
       service.metadata.flatFile.appInfo.namespace = ns;
+      service.metadata.flatFile.appInfo.createNs = true;
       component.onApplyManifestClicked();
       expect(component.editorService.warningText.length).toBe(0);
       backend.expectOne({method: 'POST', url: '/api/namespaces/apply/' + ns + '?createNamespace=true'})
@@ -222,7 +226,7 @@ describe('EditorComponent', () => {
       component.onApplyManifestClicked();
 
       expect(component.editorService.warningText.length).toBe(0);
-      backend.expectOne({method: 'POST', url: '/api/namespaces/apply/' + ns + '?createNamespace=true'})
+      backend.expectOne({method: 'POST', url: '/api/namespaces/apply/' + ns})
          .error(new ErrorEvent('Network issue'));
       tick(50);
       expect(component.editorService.warningText.length).toBe(2);

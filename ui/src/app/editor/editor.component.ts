@@ -184,10 +184,8 @@ export class EditorComponent implements OnInit, AfterViewChecked {
 
 
   onApplyManifestClicked() {
-    const manifestIsNewNamespace = true;
     this.isApplyingManifest = true;
-    // Right now we will always create the namespace
-    this.editorService.applyManifest(manifestIsNewNamespace)
+    this.editorService.applyManifest()
       .subscribe((response: Response) => {
         this.editorService.infoText.length = 0;
         this.editorService.infoText.push(EditorComponent.APPLY_SUCCESS);

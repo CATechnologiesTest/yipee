@@ -312,8 +312,8 @@ export class EditorService {
     this._dirty = value;
   }
 
-  applyManifest(manifestIsNewNamespace: boolean): Observable<any> {
-    return this.yipeeFileService.applyManifest(this.metadata, manifestIsNewNamespace);
+  applyManifest(): Observable<any> {
+    return this.yipeeFileService.applyManifest(this.metadata, this.metadata.flatFile.appInfo.createNs);
   }
 
 
