@@ -72,7 +72,9 @@ func (client *CacheClient) Remove(key string) interface{} {
 	return runOnServer(
 		func() interface{} {
 			if val, ok := client.cache[key]; ok {
-				val.timer.Stop()
+				if val.timer != nil {
+					val.timer.Stop()
+				}
 				delete(client.cache, key)
 				return val.obj
 			}
@@ -83,16 +85,30 @@ func (client *CacheClient) Remove(key string) interface{} {
 func (client *CacheClient) Add(key string, obj interface{}) bool {
 	return runOnServer(
 		func() interface{} {
-			if len(client.cache) >= client.maxSize {
+			if !client.hasSpace() {
 				return false
 			}
-			t := time.AfterFunc(time.Duration(client.timeoutSecs)*time.Second,
-				func() {
-					client.Remove(key)
-				})
+			t := client.getTimeoutFun(key)
 			client.cache[key] = cacheEntry{t, obj}
 			return true
 		}, client.serverMbox).(bool)
+}
+
+func (client *CacheClient) hasSpace() bool {
+	if client.maxSize > 0 {
+		return len(client.cache) < client.maxSize
+	}
+	return true
+}
+
+func (client *CacheClient) getTimeoutFun(key string) *time.Timer {
+	if client.timeoutSecs > 0 {
+		return time.AfterFunc(time.Duration(client.timeoutSecs)*time.Second,
+			func() {
+				client.Remove(key)
+			})
+	}
+	return nil
 }
 
 // compilation error if we don't implement the i/f properly

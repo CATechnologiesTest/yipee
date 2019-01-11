@@ -18,6 +18,7 @@ func Router() *mux.Router {
 		initImports(router)
 		initConverts(router)
 		initNamespaces(router)
+		initStatus(router)
 	})
 	return router
 }
