@@ -554,6 +554,17 @@ describe('ApiService', () => {
     callAndVerifySuccess(service, backend, 'foo');
   })));
 
+  it('should error if namespace undefined or empty', fakeAsync(inject([ApiService, HttpTestingController], (service: ApiService, backend: HttpTestingController) => {
+    [undefined, ''].forEach( ns => {
+      service.applyManifest({name: 'rawYipeeFile'}, ns, true).subscribe(res => {},
+        err => {
+          expect(err.error.data[0]).toEqual(ApiService.MISSING_NAMESPACE);
+        }
+      );
+  
+    });
+  })));
+
 });
 
 function callAndVerifySuccess(s: ApiService, b: HttpTestingController, ns: String, createNS?: Boolean) {
@@ -562,7 +573,7 @@ function callAndVerifySuccess(s: ApiService, b: HttpTestingController, ns: Strin
   });
 
   b.expectOne({method: 'POST', url: '/api/namespaces/apply/' + ns + ((createNS) ? '?createNamespace=true' : '') })
-    .flush({success: true, count: 0, data: ['did it']});
+    .flush({success: true, total: 0, data: ['did it']});
   tick(50);
 
 }

@@ -178,18 +178,34 @@ describe('EditorComponent', () => {
       expect(location.path()).toBe('/');
     })));
 
-    it('should handle an error from a namespace apply', fakeAsync(inject([HttpTestingController, EditorService], (backend: HttpTestingController, service: EditorService) => {
-
+    it('should handle a successful apply', fakeAsync(inject([HttpTestingController, EditorService], (backend: HttpTestingController, service: EditorService) => {
       const ns = 'foo';
       service.metadata = new YipeeFileMetadata();
       service.metadata.name = ns;
       service.metadata.flatFile.appInfo.namespace = ns;
+      expect(component.editorService.infoText.length).toBe(0);
       component.onApplyManifestClicked();
-      expect(component.showErrorModal).toBeFalsy();
-      backend.expectOne({method: 'POST', url: '/api/namespaces/apply/' + ns + '?createNamespace=true'})
-        .flush('bad namespace', {status: 500, statusText: 'badDev'});
+
+      backend.expectOne({method: 'POST', url: '/api/namespaces/apply/' + ns + '?createNamespace=true' })
+        .flush({success: true, total: 1, data: ['applied successfully']});
       tick(50);
-      expect(component.showErrorModal).toBeTruthy();
+      expect(component.editorService.infoText.length).toBe(1);
+    })));
+
+    it('should handle an error from a namespace apply', fakeAsync(inject([HttpTestingController, EditorService], (backend: HttpTestingController, service: EditorService) => {
+
+      const ns = 'foo';
+      const err = 'bad apply';
+      service.metadata = new YipeeFileMetadata();
+      service.metadata.name = ns;
+      service.metadata.flatFile.appInfo.namespace = ns;
+      component.onApplyManifestClicked();
+      expect(component.editorService.warningText.length).toBe(0);
+      backend.expectOne({method: 'POST', url: '/api/namespaces/apply/' + ns + '?createNamespace=true'})
+        .flush({success: false, total: 0, data: [err]}, {status: 500, statusText: 'badDev'});
+      tick(50);
+      expect(component.editorService.warningText.length).toBe(2);
+      expect(component.editorService.warningText[1]).toBe(err);
     })));
 
     it('should handle an network error from a namespace apply',
@@ -205,12 +221,26 @@ describe('EditorComponent', () => {
 
       component.onApplyManifestClicked();
 
-      expect(component.showErrorModal).toBeFalsy();
+      expect(component.editorService.warningText.length).toBe(0);
       backend.expectOne({method: 'POST', url: '/api/namespaces/apply/' + ns + '?createNamespace=true'})
-         .error(new ErrorEvent('network issue'));
+         .error(new ErrorEvent('Network issue'));
       tick(50);
-      expect(component.showErrorModal).toBeTruthy();
+      expect(component.editorService.warningText.length).toBe(2);
     })));
+
+    it('should throw an error if namespace is empty', fakeAsync(inject([HttpTestingController, EditorService], (backend: HttpTestingController, service: EditorService) => {
+      const ns = 'namespace';
+      service.metadata = new YipeeFileMetadata();
+      service.metadata.name = ns;
+
+      expect(component.editorService.warningText.length).toBe(0);
+      component.onApplyManifestClicked();
+      tick(50);
+      expect(component.editorService.warningText.length).toBe(2);
+      expect(component.editorService.warningText[1]).toBe(ApiService.MISSING_NAMESPACE);
+
+    })));
+
 
 
 });

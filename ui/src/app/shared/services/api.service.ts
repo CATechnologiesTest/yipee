@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse, HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
+import { Observer } from 'rxjs/Observer';
 import 'rxjs/add/operator/map';
 
 import { YipeeFileMetadataRaw } from '../../models/YipeeFileMetadataRaw';
@@ -12,6 +13,8 @@ import { YipeeFileRaw } from '../../models/YipeeFileRaw';
 
 @Injectable()
 export class ApiService {
+  static MISSING_NAMESPACE = 'Namespace must be defined';
+
   currentContextHeaderId: string;
 
   constructor(private http: HttpClient) { }
@@ -177,6 +180,13 @@ export class ApiService {
   /* DASHBOARD API CALLS */
   /* ******************* */
   applyManifest(metadataRaw: YipeeFileMetadataRaw, namespace: String, manifestIsNewNamespace: Boolean): Observable<YipeeResponse> {
+    if (!namespace || namespace ==='') {
+      const res = {success: false, total:0, data: [ApiService.MISSING_NAMESPACE]};
+      return Observable.create( (observer: Observer<Object>) => {
+        observer.error({error: res})
+      });
+  
+    }
     const endpoint = manifestIsNewNamespace ? `/api/namespaces/apply/${namespace}?createNamespace=true` : `/api/namespaces/apply/${namespace}`;
     const body = {
       flatFile: metadataRaw.flatFile

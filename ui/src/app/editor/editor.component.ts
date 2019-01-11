@@ -14,6 +14,8 @@ import { YipeeFileService } from '../shared/services/yipee-file.service';
   styleUrls: ['./editor.component.css']
 })
 export class EditorComponent implements OnInit, AfterViewChecked {
+  static APPLY_FAIL = 'Failure applying kubernetes manifest. - ';
+  static APPLY_SUCCESS = 'Successfully applied kubernetes manifest.';
 
   showWarningModal: boolean;
 
@@ -29,10 +31,6 @@ export class EditorComponent implements OnInit, AfterViewChecked {
   viewType = 'app';
   isDashboard: boolean;
   isApplyingManifest = false;
-  showErrorModal = false;
-  errorModalTitle = '';
-  errorModalMessage = '';
-
 
   ui = {
     loading: true,
@@ -184,23 +182,25 @@ export class EditorComponent implements OnInit, AfterViewChecked {
     }
   }
 
+
   onApplyManifestClicked() {
     const manifestIsNewNamespace = true;
     this.isApplyingManifest = true;
     // Right now we will always create the namespace
     this.editorService.applyManifest(manifestIsNewNamespace)
       .subscribe((response: Response) => {
+        this.editorService.infoText.length = 0;
+        this.editorService.infoText.push(EditorComponent.APPLY_SUCCESS);
         this.isApplyingManifest = false;
-        if (response.status !== 200) {
-          this.isApplyingManifest = false;
-          this.editorService.alertText.length = 0;
-          this.editorService.alertText.push('Failure applying kubernetes manifest.');
-        }
       }, (err) => {
         this.isApplyingManifest = false;
-        this.errorModalTitle = 'Failure applying kubernetes manifest.';
-        this.errorModalMessage = err._body;
-        this.showErrorModal = true;
+        this.editorService.warningText.length = 0;
+        // a network error won't have the error text so we need to guard against that
+        if (err.error && err.error.data) {
+          this.editorService.warningText.push(EditorComponent.APPLY_FAIL, err.error.data[0]);
+        } else {
+          this.editorService.warningText.push(EditorComponent.APPLY_FAIL, err.message);
+        }
       });
   }
 
