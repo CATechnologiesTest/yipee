@@ -1,0 +1,29 @@
+{
+    "kind": "PodList",
+    "apiVersion": "v1",
+    "metadata": {
+        "selfLink": "/api/v1/namespaces/simple/pods",
+        "resourceVersion": "214034"
+    },
+    "items": [
+        {
+            "metadata": {
+                "name": "auth-76bfb587b8-cch7b",
+                "generateName": "auth-76bfb587b8-",
+                "namespace": "simple"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "name": "first",
+                        "image": "yipee-tools-spoke-cos.ca.com:5000/first"
+                    },
+                    {
+                        "name": "second",
+                        "image": "yipee-tools-spoke-cos.ca.com:5000/second"
+                    }
+                ]
+            }
+        }
+    ]
+}

@@ -1,0 +1,35 @@
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "Ingress",
+            "metadata": {
+                "annotations": {
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"extensions/v1beta1\",\"kind\":\"Ingress\",\"metadata\":{\"annotations\":{},\"name\":\"yipee-ingress\",\"namespace\":\"default\"},\"spec\":{\"backend\":{\"serviceName\":\"ui\",\"servicePort\":80}}}\n"
+                },
+                "creationTimestamp": "2018-10-16T00:15:37Z",
+                "generation": 1,
+                "name": "yipee-ingress",
+                "namespace": "simple",
+                "resourceVersion": "639064",
+                "selfLink": "/apis/extensions/v1beta1/namespaces/default/ingresses/yipee-ingress",
+                "uid": "9b4a59d1-d0d8-11e8-846c-080027c6347a"
+            },
+            "spec": {
+                "backend": {
+                    "serviceName": "ui",
+                    "servicePort": 80
+                }
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": "",
+        "selfLink": ""
+    }
+}

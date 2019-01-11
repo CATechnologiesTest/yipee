@@ -4,6 +4,8 @@
             [clj-yaml.core :as yaml]
             [engine.core :refer :all]
             [k8scvt.util :as util]
+            [k8scvt.flat-validator]
+            [k8scvt.flat-to-k8s]
             [composecvt.compose-to-flat]
             [composecvt.flat-to-compose]))
 
@@ -20,9 +22,13 @@
           to-flat (engine :composecvt.compose-to-flat)
           _ (to-flat :configure {:record "/tmp/cttf"})
           flatwmes (to-flat :run-list composelist)
+          flat-validator (engine :k8scvt.flat-validator)
+          _ (flat-validator :configure {:record "/tmp/fv"})
+          verrors (:validation-error (flat-validator :run flatwmes))
           to-compose (engine :composecvt.flat-to-compose)
           _ (to-compose :configure {:record "/tmp/cttc"})
           composewmes (to-compose :run-list flatwmes)]
+      (is (empty? verrors))
       (is (not-any? #(= (:type %) :validation-error) composewmes))
       ;; (is (= 1 (count composewmes)))
       (println "--- compose-flat-compose:" yaml-file "---")

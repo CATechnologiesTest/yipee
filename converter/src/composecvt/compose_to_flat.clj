@@ -71,8 +71,8 @@
          :type :volume
          :is-template false
          :name name
-         :volume-mode :Filesystem
-         :access-modes [:ReadWriteOnce]
+         :volume-mode "Filesystem"
+         :access-modes ["ReadWriteOnce"]
          :physical-volume-name ""
          :claim-name (str name "-claim")
          :storage-class ""
@@ -150,7 +150,8 @@
   [?compose :compose (:secrets ?compose)]
   =>
   (doseq [[key val] (vec (:secrets ?compose))]
-    (let [base-secret {:type :secret :name (name key)}
+    (let [secret-name (name key)
+          base-secret {:type :secret :name secret-name}
           annotated (if (:annotations val)
                       (assoc base-secret :annotations (:annotations val))
                       base-secret)
@@ -161,25 +162,27 @@
              {:type :validation-error
               :value :inconsistent-fields
               :fields [:file :external]
-              :path [{:secret (name key)}]}
+              :path [{:secret secret-name}]}
 
              (and (map? ext)
                   (= (count ext) 1)
                   (= (first (keys ext)) :name))
              (assoc annotated
                     :source ""
-                    :alternate-name (first (vals ext)))
+                    :alternate-name (first (vals ext))
+                    :default-mode "420")
 
              (nil? ext)
              (if (nil? file)
                {:type :validation-error
                 :value :missing-required-field
-                :path [{:secret (name key)} :file-or-external]}
-               (assoc annotated :source file :alternate-name ""))
+                :path [{:secret secret-name} :file-or-external]}
+               (assoc annotated :source file :alternate-name ""
+                      :default-mode "420"))
 
              true
              (assoc annotated :source "" :alternate-name ""
-                    :default-mode 420)))))
+                    :default-mode "420")))))
   (id-remove! ?compose)
   (id-insert! (dissoc ?compose :secrets)))
 
@@ -254,6 +257,7 @@
         labelval "generated"]
     (id-insert! {:type :k8s-service
                  :name (:name ?svc)
+                 :metadata {:name (:name ?svc)}
                  :selector {labelkey labelval}
                  :service-type "NodePort"})
     (id-remove! ?svc)
@@ -284,7 +288,7 @@
     (doseq [[k v] lpairs]
       (id-insert!
        {:type :label :cgroup (:cgroup ?svc)
-        :key (name k) :value v}))  ;; :ismap ismap}))
+        :key (name k) :value (or v "")}))  ;; :ismap ismap}))
     (id-insert! (dissoc ?svc :labels))))
 
 (defrule extract-entrypoint
@@ -345,19 +349,13 @@
         [mode count] (case (:mode composedeploy)
                        "global" ["allnodes" nil]
                        ["replicated" (:replicas composedeploy 1)])
-        placement (:placement composedeploy)
-        update-config (:update_config composedeploy)
-        restart (:restart_policy composedeploy)]
+        restart-val (:restart_policy composedeploy)
+        restart (:condition restart-val restart-val)]
     (id-insert! (merge {:mode mode :type :deployment-spec
                         :cgroup (:cgroup ?svc)
                         :service-name ""
                         :controller-type "Deployment"}
-                       (if count {:count count})))
-    (when placement
-      (id-insert! {:type :placement :cgroup (:cgroup ?svc) :value placement}))
-    (when update-config
-      (id-insert! {:type :update-config :cgroup (:cgroup ?svc)
-                   :value update-config}))
+                       {:count (or count 1)}))
     (when restart
       (id-insert! {:type :restart-policy :cgroup (:cgroup ?svc) :value restart})))
   (id-remove! ?svc)
@@ -431,13 +429,13 @@
     (id-insert! {:type :container-group
                  :id cgroup-id
                  :source "auto"
-                 :controller-type :Deployment
+                 :controller-type "Deployment"
                  :containers [(:id ?svc)]
                  :name (:name ?svc)
                  :container-names [(:name ?svc)]})))
 
 (defrule add-default-deployment-spec
-  [?cg :container-group (= :Deployment (:controller-type ?cg))]
+  [?cg :container-group (= "Deployment" (:controller-type ?cg))]
   [:not [?dspec :deployment-spec (= (:id ?cg) (:cgroup ?dspec))]]
   =>
   (id-insert! {:type :deployment-spec
@@ -476,7 +474,7 @@
                 :path p
                 :sub-path ""
                 :volume (:id (first (collect! :volume #(= (:name %) k8s-vname))))
-                :access-mode (if (some? ro) :ReadOnlyMany :ReadWriteOnce)}
+                :access-mode (if (some? ro) "ReadOnlyMany" "ReadWriteOnce")}
           ref-id (id-insert! base)]
       (when-not (= v k8s-vname)
         (id-insert! {:type :name-mapping :compose v :k8s k8s-vname
@@ -496,23 +494,31 @@
   {:priority 50}
   [?svc :service (:secrets ?svc)]
   =>
-  (loop [index 0 slist (:secrets ?svc)]
-    (when-not (empty? slist)
-      (let [s (first slist)
-            smap (if (string? s) {:source s} s)
-            target (:target smap (:source smap))
-            uid (str (:uid smap 0))
-            gid (str (:gid smap 0))
-            ;; XXX: more/better octal translation?
-            mode (let [m (:mode smap 292)] (format "%o" m))
-            sref (assoc smap :target target :uid uid :gid gid :mode mode)
-            secret (first (collect! :secret #(= (:name %) (:source smap))))]
-        (id-insert! (assoc sref :type :secret-ref :container (:id ?svc)
-                           :secret (:id secret) :index index
-                           :readonly false)))
-      (recur (inc index) (rest slist))))
-  (id-remove! ?svc)
-  (id-insert! (dissoc ?svc :secrets)))
+  (let [secret-name (str "generated-secret-name-" (get-id!))
+        svol (id-insert! {:type :secret-volume
+                          :default-mode ""
+                          :name "secrets"
+                          :secret-name secret-name
+                          :source "auto"})]
+    (loop [index 0 slist (:secrets ?svc)]
+      (when-not (empty? slist)
+        (let [s (first slist)
+              smap (if (string? s) {:source s} s)
+              target (:target smap (:source smap))
+              uid (str (:uid smap 0))
+              gid (str (:gid smap 0))
+              ;; XXX: more/better octal translation?
+              mode (let [m (:mode smap 292)] (format "%o" m))
+              sref (assoc smap :target target :uid uid :gid gid :mode mode)
+              secret (first (collect! :secret #(= (:name %) (:source smap))))]
+          (id-insert! (assoc sref :type :secret-ref :container (:id ?svc)
+                             :secret (:id secret) :index index
+                             :mount-path "/mnt/run"
+                             :secret-volume svol
+                             :readonly false)))
+        (recur (inc index) (rest slist))))
+    (id-remove! ?svc)
+    (id-insert! (dissoc ?svc :secrets))))
 
 (defrule extract-restarts
   "Pull restarts out of a service"
@@ -520,7 +526,9 @@
   [?svc :service (contains? ?svc :restart)]
   =>
   (let [rs (:restart ?svc)
-        restart (if (string? rs) rs "no")]
+        restart (if (string? rs)
+                  (if (= rs "no") "none" rs)
+                  "none")]
     (id-insert! {:type :restart :cgroup (:cgroup ?svc) :value restart}))
   (id-remove! ?svc)
   (id-insert! (dissoc ?svc :restart)))
