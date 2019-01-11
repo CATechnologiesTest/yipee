@@ -180,12 +180,12 @@ export class ApiService {
   /* DASHBOARD API CALLS */
   /* ******************* */
   applyManifest(metadataRaw: YipeeFileMetadataRaw, namespace: String, manifestIsNewNamespace: Boolean): Observable<YipeeResponse> {
-    if (!namespace || namespace ==='') {
-      const res = {success: false, total:0, data: [ApiService.MISSING_NAMESPACE]};
+    if (!namespace || namespace === '') {
+      const res = {success: false, total: 0, data: [ApiService.MISSING_NAMESPACE]};
       return Observable.create( (observer: Observer<Object>) => {
-        observer.error({error: res})
+        observer.error({error: res});
       });
-  
+
     }
     const endpoint = manifestIsNewNamespace ? `/api/namespaces/apply/${namespace}?createNamespace=true` : `/api/namespaces/apply/${namespace}`;
     const body = {

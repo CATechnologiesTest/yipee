@@ -561,7 +561,6 @@ describe('ApiService', () => {
           expect(err.error.data[0]).toEqual(ApiService.MISSING_NAMESPACE);
         }
       );
-  
     });
   })));
 
