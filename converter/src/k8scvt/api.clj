@@ -45,15 +45,15 @@
    (json/read-str (body-as-string ctx) :key-fn keyword)))
 
 ;; Format and return any errors generated during processing
-(defn return-formatted-errors [results formatter]
+(defn return-formatted-errors [results tag formatter]
   (let [errmsgs (str/join "\n" (map formatter results))]
-    {::reterr errmsgs}))
+    {tag errmsgs}))
 
 (defn return-errors [results]
-  (return-formatted-errors results u/format-validation-error))
+  (return-formatted-errors results ::reterr u/format-validation-error))
 
 (defn return-fv-errors [results]
-  (return-formatted-errors results fv/format-flat-validation-error))
+  (return-formatted-errors results ::reterr fv/format-flat-validation-error))
 
 (defn wmes-of-type [srclist typ]
   (filter #(= (:type %) typ) srclist))
@@ -79,7 +79,7 @@
 ;; Perform an import given the translation to be performed
 (defn do-import [errs k8s-elements translator]
   (if (seq errs)
-      {::reterr (clojure.string/join "\n" errs)}
+      {::reterr (str/join "\n" errs)}
       (translator
        (fi/prepare-yipee
         {:name "unknown"
