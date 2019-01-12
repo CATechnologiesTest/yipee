@@ -15,6 +15,7 @@ var (
 func Router() *mux.Router {
 	once.Do(func() {
 		router = mux.NewRouter()
+		initLogger(router)
 		initImports(router)
 		initConverts(router)
 		initNamespaces(router)

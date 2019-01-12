@@ -94,6 +94,16 @@ func (client *CacheClient) Add(key string, obj interface{}) bool {
 		}, client.serverMbox).(bool)
 }
 
+func (client *CacheClient) ForEach(op func(key string, data interface{})) {
+	runOnServer(
+		func() interface{} {
+			for k, v := range client.cache {
+				op(k, v.obj)
+			}
+			return nil
+		}, client.serverMbox)
+}
+
 func (client *CacheClient) hasSpace() bool {
 	if client.maxSize > 0 {
 		return len(client.cache) < client.maxSize
