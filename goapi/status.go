@@ -15,9 +15,9 @@ import (
 var (
 	statusOnce    sync.Once
 	upgrader      *websocket.Upgrader
-	listenersByNS map[string][]chan bool
+	listenersByNS map[string][]chan updatemsg
 	listenerLock  sync.Mutex
-	objCache      *CacheClient
+	objectsByNS   *CacheClient
 )
 
 func initStatus(router *mux.Router) {
@@ -31,10 +31,51 @@ func initStatus(router *mux.Router) {
 				return true
 			},
 		}
-		listenersByNS = make(map[string][]chan bool)
-		objCache = NewCache(0, 0)
+		listenersByNS = make(map[string][]chan updatemsg)
+		objectsByNS = NewCache(0, 0)
 		go startWatchers()
 	})
+}
+
+func makeStatusMessages(nsname string) []*updatemsg {
+	cv := objectsByNS.Lookup(nsname)
+	if cv == nil {
+		return nil
+	}
+	nsobjs := cv.(*CacheClient)
+	var allmsgs []*updatemsg
+	controllers, pods := getNSControllersAndPods(nsobjs)
+	for _, c := range controllers {
+		meta := c["metadata"].(map[string]interface{})
+		replicas := getReplicaCount(c)
+		active := getActiveCount(c)
+		cid := meta["uid"].(string)
+		udata := updatedata{
+			"deployment-status", // xxx
+			calculateStatus(replicas, active),
+			replicas,
+			active,
+			// xxx: this is currently using all pods in namespace.
+			// it's gotta just use the pods belonging to current controller
+			// (resolve that by following owner refs through replicasets
+			// back to controller, ala findProgenitor in js version)
+			// testcase for this is kube-system namespace where a number
+			// of pods have restarts.  We currently show every controller
+			// in the namespace with the same number of restarts...
+			getRestartCount(pods),
+			cid,
+		}
+		msg := &updatemsg{udata}
+		allmsgs = append(allmsgs, msg)
+	}
+	return allmsgs
+}
+
+func sendInitialStatus(nsname string, statusChan chan updatemsg) {
+	msglist := makeStatusMessages(nsname)
+	for _, m := range msglist {
+		statusChan <- *m
+	}
 }
 
 func startWatchers() {
@@ -46,18 +87,34 @@ func startWatchers() {
 		n := <-notifs
 		obj := n.Object
 		meta := obj["metadata"].(map[string]interface{})
+		nsname := meta["namespace"].(string)
 		id := meta["uid"].(string)
 		if n.Type == "ADDED" || n.Type == "MODIFIED" {
-			objCache.Add(id, obj)
+			var nscache *CacheClient
+			if oc := objectsByNS.Lookup(nsname); oc != nil {
+				nscache = oc.(*CacheClient)
+			} else {
+				nscache = NewCache(0, 0)
+				objectsByNS.Add(nsname, nscache)
+			}
+			nscache.Add(id, obj)
 		} else if n.Type == "DELETED" {
-			objCache.Remove(id)
+			if oc := objectsByNS.Lookup(nsname); oc != nil {
+				nscache := oc.(*CacheClient)
+				nscache.Remove(id)
+			}
 		}
-		nsname := meta["namespace"].(string)
 		listenerLock.Lock()
+		// xxx: build update object once here and send it to
+		// all listeners.  Seems dumb for them to all build it
+		// themselves
 		if llist, ok := listenersByNS[nsname]; ok {
+			updlist := makeStatusMessages(nsname)
 			log.Infof("notify listeners for %s", nsname)
 			for _, c := range llist {
-				c <- true
+				for _, msg := range updlist {
+					c <- *msg
+				}
 			}
 		}
 		listenerLock.Unlock()
@@ -126,29 +183,34 @@ type nsobjs struct {
 	pods        []JsonObject
 }
 
-func getNamespaceObjects(nsname string) ([]JsonObject, []JsonObject) {
+func isController(kind string) bool {
+	switch kind {
+	case "Deployment", "DaemonSet", "StatefulSet":
+		return true
+	default:
+		return false
+	}
+}
+
+func getNSControllersAndPods(nsobjs *CacheClient) ([]JsonObject, []JsonObject) {
 	var controllers []JsonObject
 	var pods []JsonObject
-	objCache.ForEach(
+	nsobjs.ForEach(
 		func(key string, data interface{}) {
 			obj := data.(JsonObject)
 			kind := obj["kind"].(string)
-			meta := obj["metadata"].(map[string]interface{})
-			ons := meta["namespace"].(string)
-			if ons == nsname {
-				if kind == "Pod" {
-					pods = append(pods, obj)
-				} else {
-					controllers = append(controllers, obj)
-				}
+			if kind == "Pod" {
+				pods = append(pods, obj)
+			} else if isController(kind) {
+				controllers = append(controllers, obj)
 			}
 		})
 	return controllers, pods
 }
 
-func addListener(nsname string, lchan chan bool) {
+func addListener(nsname string, lchan chan updatemsg) {
 	listenerLock.Lock()
-	var listeners []chan bool
+	var listeners []chan updatemsg
 	if l, ok := listenersByNS[nsname]; ok {
 		listeners = l
 	}
@@ -157,7 +219,7 @@ func addListener(nsname string, lchan chan bool) {
 	listenerLock.Unlock()
 }
 
-func removeListener(nsname string, lchan chan bool) {
+func removeListener(nsname string, lchan chan updatemsg) {
 	listenerLock.Lock()
 	if listeners, ok := listenersByNS[nsname]; ok {
 		idx := -1
@@ -179,80 +241,61 @@ func removeListener(nsname string, lchan chan bool) {
 	listenerLock.Unlock()
 }
 
-func getControllerCounts(ctlr JsonObject) (int, int) {
+func getReplicaCount(ctlr JsonObject) int {
 	spec := ctlr["spec"].(map[string]interface{})
-	status := ctlr["status"].(map[string]interface{})
-	active := 0
-	if nr, ok := status["readyReplicas"].(float64); ok {
-		active = int(nr)
-	} else {
-		log.Error("can't get readyReplicas")
-	}
+	kind := ctlr["kind"].(string)
 	replicas := 1
-	if rep, ok := spec["replicas"].(float64); ok {
-		replicas = int(rep)
-	} else {
-		log.Error("can't get replicas")
+	if kind != "DaemonSet" {
+		if rep, ok := spec["replicas"].(float64); ok {
+			replicas = int(rep)
+		} else {
+			log.Error("can't get replicas")
+		}
 	}
-	return replicas, active
+	return replicas
+}
+
+func getActiveCount(ctlr JsonObject) int {
+	status := ctlr["status"].(map[string]interface{})
+	kind := ctlr["kind"].(string)
+	active := 0
+	if kind == "DaemonSet" {
+		if ready, ok := status["numberReady"].(float64); ok {
+			active = int(ready)
+		} else {
+			log.Error("can't get numberReady")
+		}
+	} else {
+		if ready, ok := status["readyReplicas"].(float64); ok {
+			active = int(ready)
+		} else {
+			log.Error("can't get readyReplicas")
+		}
+	}
+	return active
 }
 
 func getRestartCount(pods []JsonObject) int {
 	restarts := 0
 	for _, p := range pods {
 		if status, ok := p["status"].(map[string]interface{}); ok {
-			if cstats, ok :=
-				status["containerStatuses"].([]map[string]interface{}); ok {
-				for _, cs := range cstats {
-					crs := cs["restartCount"].(float64)
-					restarts = restarts + int(crs)
+			fmt.Println("got pod status")
+			if v, ok := status["containerStatuses"]; ok {
+				if cstats, ok := v.([]interface{}); ok {
+					fmt.Println("got containerstatuses")
+					for _, cs := range cstats {
+						if cstat, ok := cs.(map[string]interface{}); ok {
+							if crs, ok := cstat["restartCount"].(float64); ok {
+								fmt.Println("got a container stat", crs)
+								restarts = restarts + int(crs)
+							}
+						}
+					}
 				}
 			}
 		}
 	}
 	return restarts
-}
-
-func sendStatusMessages(status chan updatemsg, nsname string) {
-	controllers, pods := getNamespaceObjects(nsname)
-	for _, c := range controllers {
-		meta := c["metadata"].(map[string]interface{})
-		replicas, active := getControllerCounts(c)
-		cid := meta["uid"].(string)
-		udata := updatedata{
-			"deployment-status", // xxx
-			calculateStatus(replicas, active),
-			replicas,
-			active,
-			getRestartCount(pods),
-			cid,
-		}
-		msg := updatemsg{udata}
-		status <- msg
-	}
-}
-
-func nsListen(nsname string, status chan updatemsg, stop chan bool) {
-	myupdates := make(chan bool)
-	addListener(nsname, myupdates)
-	defer removeListener(nsname, myupdates)
-	defer close(myupdates)
-
-	log.Infof("send initial status for %s", nsname)
-	// send current status to new subscriber
-	sendStatusMessages(status, nsname)
-
-	for {
-		select {
-		case <-myupdates:
-			// namespace updated -- send current status
-			sendStatusMessages(status, nsname)
-		case _, ok := <-stop:
-			if !ok {
-				return
-			}
-		}
-	}
 }
 
 func websocketHandler(w http.ResponseWriter, r *http.Request) {
@@ -266,7 +309,6 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 	stopper := make(chan bool)
 	defer close(stopper)
 	statusChan := makeStatusWriter(conn, stopper)
-	var subscribeStopper chan bool
 	for {
 		_, msgbytes, err := conn.ReadMessage()
 		if err != nil {
@@ -288,17 +330,15 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 			action := jobj["msg"].(string)
 			switch action {
 			case "subscribe":
-				log.Infof("subscribe for ns %s", jobj["namespace"])
 				nsname := jobj["namespace"].(string)
-				subscribeStopper = make(chan bool)
-				go nsListen(nsname, statusChan, subscribeStopper)
+				log.Infof("subscribe for ns %s", nsname)
+				addListener(nsname, statusChan)
+				sendInitialStatus(nsname, statusChan)
 			case "unsubscribe":
 				// remove my channel from listeners
-				log.Infof("unsubscribe for ns %s", jobj["namespace"])
-				if subscribeStopper != nil {
-					close(subscribeStopper)
-					subscribeStopper = nil
-				}
+				nsname := jobj["namespace"].(string)
+				log.Infof("unsubscribe for ns %s", nsname)
+				removeListener(nsname, statusChan)
 			}
 		} else {
 			log.Errorf("bad/unknown message -- neither string nor obj",
