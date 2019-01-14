@@ -14,6 +14,8 @@ import { YipeeFileService } from '../shared/services/yipee-file.service';
   styleUrls: ['./editor.component.css']
 })
 export class EditorComponent implements OnInit, AfterViewChecked {
+  static APPLY_FAIL = 'Failure applying kubernetes manifest. - ';
+  static APPLY_SUCCESS = 'Successfully applied kubernetes manifest.';
 
   showWarningModal: boolean;
 
@@ -27,6 +29,8 @@ export class EditorComponent implements OnInit, AfterViewChecked {
   disregardChanges = false;
   resizing = false;
   viewType = 'app';
+  isDashboard: boolean;
+  isApplyingManifest = false;
 
   ui = {
     loading: true,
@@ -177,5 +181,26 @@ export class EditorComponent implements OnInit, AfterViewChecked {
       return false;
     }
   }
+
+
+  onApplyManifestClicked() {
+    this.isApplyingManifest = true;
+    this.editorService.applyManifest()
+      .subscribe((response: Response) => {
+        this.editorService.infoText.length = 0;
+        this.editorService.infoText.push(EditorComponent.APPLY_SUCCESS);
+        this.isApplyingManifest = false;
+      }, (err) => {
+        this.isApplyingManifest = false;
+        this.editorService.warningText.length = 0;
+        // a network error won't have the error text so we need to guard against that
+        if (err.error && err.error.data) {
+          this.editorService.warningText.push(EditorComponent.APPLY_FAIL, err.error.data[0]);
+        } else {
+          this.editorService.warningText.push(EditorComponent.APPLY_FAIL, err.message);
+        }
+      });
+  }
+
 
 }
