@@ -103,12 +103,6 @@ func runWatcher(def watchdef) {
 			break
 		}
 		def.data <- notif
-
-		// if notif.Type == "ADDED" || notif.Type == "MODIFIED" {
-		//  def.data <- notif.Object
-		// } else if notif.Type == "DELETED" {
-		//  log.Infof("deleted object in watcher")
-		// }
 	}
 	watchdog <- def
 }

@@ -37,52 +37,11 @@ func initStatus(router *mux.Router) {
 	})
 }
 
-func makeStatusMessages(nsname string) []*updatemsg {
-	cv := objectsByNS.Lookup(nsname)
-	if cv == nil {
-		return nil
-	}
-	nsobjs := cv.(*CacheClient)
-	var allmsgs []*updatemsg
-	controllers, pods := getNSControllersAndPods(nsobjs)
-	for _, c := range controllers {
-		meta := c["metadata"].(map[string]interface{})
-		replicas := getReplicaCount(c)
-		active := getActiveCount(c)
-		cid := meta["uid"].(string)
-		udata := updatedata{
-			"deployment-status", // xxx
-			calculateStatus(replicas, active),
-			replicas,
-			active,
-			// xxx: this is currently using all pods in namespace.
-			// it's gotta just use the pods belonging to current controller
-			// (resolve that by following owner refs through replicasets
-			// back to controller, ala findProgenitor in js version)
-			// testcase for this is kube-system namespace where a number
-			// of pods have restarts.  We currently show every controller
-			// in the namespace with the same number of restarts...
-			getRestartCount(pods),
-			cid,
-		}
-		msg := &updatemsg{udata}
-		allmsgs = append(allmsgs, msg)
-	}
-	return allmsgs
-}
-
-func sendInitialStatus(nsname string, statusChan chan updatemsg) {
-	msglist := makeStatusMessages(nsname)
-	for _, m := range msglist {
-		statusChan <- *m
-	}
-}
-
 func startWatchers() {
 	notifs := make(chan Notification)
 	watchAll(notifs, "Pod", "ReplicaSet", "Deployment",
 		"StatefulSet", "DaemonSet")
-	log.Info("started all watchers")
+	log.Debug("started all watchers")
 	for {
 		n := <-notifs
 		obj := n.Object
@@ -105,54 +64,19 @@ func startWatchers() {
 			}
 		}
 		listenerLock.Lock()
-		// xxx: build update object once here and send it to
-		// all listeners.  Seems dumb for them to all build it
-		// themselves
 		if llist, ok := listenersByNS[nsname]; ok {
 			updlist := makeStatusMessages(nsname)
-			log.Infof("notify listeners for %s", nsname)
+			log.Debugf("notify %d listeners for %s", len(llist), nsname)
 			for _, c := range llist {
 				for _, msg := range updlist {
 					c <- *msg
 				}
 			}
+		} else {
+			log.Debugf("no listeners for ns %s", nsname)
 		}
 		listenerLock.Unlock()
 	}
-}
-
-func statusWriter(
-	conn *websocket.Conn,
-	updates <-chan updatemsg,
-	stop <-chan bool) {
-
-	log.Debug("ws statusWriter running")
-	for {
-		var msg interface{}
-		select {
-		case u, ok := <-updates:
-			if !ok {
-				return
-			}
-			msg = u
-		case _, ok := <-stop:
-			if !ok {
-				return
-			}
-		case <-time.After(time.Second * 10):
-			msg = fmt.Sprintf("primus::ping::%d", time.Now().Unix())
-		}
-		if err := conn.WriteJSON(msg); err != nil {
-			log.Error("statusWriter WriteJSON error", err, msg)
-			break
-		}
-	}
-}
-
-func makeStatusWriter(conn *websocket.Conn, stop <-chan bool) chan updatemsg {
-	updateChan := make(chan updatemsg)
-	go statusWriter(conn, updateChan, stop)
-	return updateChan
 }
 
 type updatedata struct {
@@ -168,6 +92,34 @@ type updatemsg struct {
 	Update updatedata `json:"update"`
 }
 
+func makeStatusMessages(nsname string) []*updatemsg {
+	cv := objectsByNS.Lookup(nsname)
+	if cv == nil {
+		return nil
+	}
+	nsobjs := cv.(*CacheClient)
+	var allmsgs []*updatemsg
+	controllers, pods := getNSControllersAndPods(nsobjs)
+	for _, c := range controllers {
+		meta := c["metadata"].(map[string]interface{})
+		replicas := getReplicaCount(c)
+		active := getActiveCount(c)
+		cid := meta["uid"].(string)
+		cpods := getPodsForController(nsobjs, pods, cid)
+		udata := updatedata{
+			"deployment-status", // xxx
+			calculateStatus(replicas, active),
+			replicas,
+			active,
+			getRestartCount(cpods),
+			cid,
+		}
+		msg := &updatemsg{udata}
+		allmsgs = append(allmsgs, msg)
+	}
+	return allmsgs
+}
+
 func calculateStatus(replicas, active int) string {
 	if active == 0 {
 		return "red"
@@ -176,11 +128,6 @@ func calculateStatus(replicas, active int) string {
 	} else {
 		return "green"
 	}
-}
-
-type nsobjs struct {
-	controllers []JsonObject
-	pods        []JsonObject
 }
 
 func isController(kind string) bool {
@@ -206,6 +153,95 @@ func getNSControllersAndPods(nsobjs *CacheClient) ([]JsonObject, []JsonObject) {
 			}
 		})
 	return controllers, pods
+}
+
+func getReplicaCount(ctlr JsonObject) int {
+	spec := ctlr["spec"].(map[string]interface{})
+	kind := ctlr["kind"].(string)
+	replicas := 1
+	if kind != "DaemonSet" {
+		if rep, ok := spec["replicas"].(float64); ok {
+			replicas = int(rep)
+		} else {
+			log.Errorf("can't get replicas for kind %s in spec %v",
+				kind, spec)
+		}
+	}
+	return replicas
+}
+
+func getActiveCount(ctlr JsonObject) int {
+	status := ctlr["status"].(map[string]interface{})
+	kind := ctlr["kind"].(string)
+	active := 0
+	if kind == "DaemonSet" {
+		if ready, ok := status["numberReady"].(float64); ok {
+			active = int(ready)
+		} else {
+			log.Errorf("can't get numberReady from daemonset status %v", status)
+		}
+	} else {
+		if ready, ok := status["readyReplicas"].(float64); ok {
+			active = int(ready)
+		} else {
+			log.Errorf("can't get readyReplicas from status %v", status)
+		}
+	}
+	return active
+}
+
+func getRestartCount(pods []JsonObject) int {
+	restarts := 0
+	for _, p := range pods {
+		if status, ok := p["status"].(map[string]interface{}); ok {
+			if v, ok := status["containerStatuses"]; ok {
+				if cstats, ok := v.([]interface{}); ok {
+					for _, cs := range cstats {
+						if cstat, ok := cs.(map[string]interface{}); ok {
+							if crs, ok := cstat["restartCount"].(float64); ok {
+								restarts = restarts + int(crs)
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return restarts
+}
+
+func findProgenitor(nsobjs *CacheClient, uid string) string {
+	o := nsobjs.Lookup(uid)
+	if o == nil {
+		return uid
+	}
+	obj := o.(JsonObject)
+	meta := obj["metadata"].(map[string]interface{})
+	if or, ok := meta["ownerReferences"].([]interface{}); ok {
+		for _, r := range or {
+			ref := r.(map[string]interface{})
+			if ref["controller"].(bool) {
+				return findProgenitor(nsobjs, ref["uid"].(string))
+			}
+		}
+	}
+	return uid
+}
+
+func getPodsForController(
+	nsobjs *CacheClient,
+	pods []JsonObject,
+	cid string) []JsonObject {
+
+	var psForC []JsonObject
+	for _, p := range pods {
+		pmeta := p["metadata"].(map[string]interface{})
+		pid := pmeta["uid"].(string)
+		if findProgenitor(nsobjs, pid) == cid {
+			psForC = append(psForC, p)
+		}
+	}
+	return psForC
 }
 
 func addListener(nsname string, lchan chan updatemsg) {
@@ -241,87 +277,90 @@ func removeListener(nsname string, lchan chan updatemsg) {
 	listenerLock.Unlock()
 }
 
-func getReplicaCount(ctlr JsonObject) int {
-	spec := ctlr["spec"].(map[string]interface{})
-	kind := ctlr["kind"].(string)
-	replicas := 1
-	if kind != "DaemonSet" {
-		if rep, ok := spec["replicas"].(float64); ok {
-			replicas = int(rep)
-		} else {
-			log.Error("can't get replicas")
+func statusWriter(conn *websocket.Conn, updates <-chan updatemsg) {
+	log.Debug("websocket statusWriter running")
+	for {
+		var msg interface{}
+		select {
+		case u, ok := <-updates:
+			if !ok {
+				log.Debug("statusWriter terminating")
+				return
+			}
+			msg = u
+		case <-time.After(time.Second * 30):
+			// send a ping
+			break
 		}
-	}
-	return replicas
-}
-
-func getActiveCount(ctlr JsonObject) int {
-	status := ctlr["status"].(map[string]interface{})
-	kind := ctlr["kind"].(string)
-	active := 0
-	if kind == "DaemonSet" {
-		if ready, ok := status["numberReady"].(float64); ok {
-			active = int(ready)
-		} else {
-			log.Error("can't get numberReady")
-		}
-	} else {
-		if ready, ok := status["readyReplicas"].(float64); ok {
-			active = int(ready)
-		} else {
-			log.Error("can't get readyReplicas")
-		}
-	}
-	return active
-}
-
-func getRestartCount(pods []JsonObject) int {
-	restarts := 0
-	for _, p := range pods {
-		if status, ok := p["status"].(map[string]interface{}); ok {
-			fmt.Println("got pod status")
-			if v, ok := status["containerStatuses"]; ok {
-				if cstats, ok := v.([]interface{}); ok {
-					fmt.Println("got containerstatuses")
-					for _, cs := range cstats {
-						if cstat, ok := cs.(map[string]interface{}); ok {
-							if crs, ok := cstat["restartCount"].(float64); ok {
-								fmt.Println("got a container stat", crs)
-								restarts = restarts + int(crs)
-							}
-						}
-					}
-				}
+		if msg != nil {
+			if err := conn.WriteJSON(msg); err != nil {
+				log.Error("statusWriter WriteJSON error", err, msg)
+				break
 			}
 		}
+		msg = fmt.Sprintf("primus::ping::%d", time.Now().Unix())
+		if err := conn.WriteJSON(msg); err != nil {
+			log.Error("statusWriter WriteJSON error", err, msg)
+			break
+		}
 	}
-	return restarts
+}
+
+func sendInitialStatus(nsname string, statusChan chan updatemsg) {
+	msglist := makeStatusMessages(nsname)
+	for _, m := range msglist {
+		statusChan <- *m
+	}
+}
+
+func makeStatusWriter(conn *websocket.Conn) chan updatemsg {
+	updateChan := make(chan updatemsg)
+	go statusWriter(conn, updateChan)
+	return updateChan
 }
 
 func websocketHandler(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Errorf("ws upgrade error %v\n", err)
+		log.Errorf("websocket upgrade error %v\n", err)
 		return
 	}
 	defer conn.Close()
 
-	stopper := make(chan bool)
-	defer close(stopper)
-	statusChan := makeStatusWriter(conn, stopper)
+	log.Debug("created websocket connection")
+	statusChan := makeStatusWriter(conn)
+	defer func() {
+		log.Debug("closing statusChan for closed websocket")
+		close(statusChan)
+	}()
+
+	// Keep track of most recent subscription.  If a subscription is active
+	// when websocket closes we could end up closing statusChan without
+	// having removed it from listener list
+	subscribed := ""
+	defer func() {
+		// N.B. defer's are executed in LIFO order so this should
+		// run before we close statusChan
+		if subscribed != "" {
+			log.Warnf("removing listener for '%s' on websocket close", subscribed)
+			removeListener(subscribed, statusChan)
+		}
+	}()
+
 	for {
 		_, msgbytes, err := conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway) {
-				log.Infof("error: %v, user-agent: %v", err, r.Header.Get("User-Agent"))
+				log.Warnf("websocket error: %v, user-agent: %v",
+					err, r.Header.Get("User-Agent"))
 			} else {
 				log.Debug("websocket closed")
 			}
-			return
+			break
 		}
 		var jmsg interface{}
 		if err := json.Unmarshal(msgbytes, &jmsg); err != nil {
-			log.Errorf("json unmarshal error", err)
+			log.Errorf("websocket json unmarshal error", err)
 			continue
 		}
 		if s, ok := jmsg.(string); ok && strings.HasPrefix(s, "primus::") {
@@ -331,18 +370,33 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 			switch action {
 			case "subscribe":
 				nsname := jobj["namespace"].(string)
-				log.Infof("subscribe for ns %s", nsname)
+				log.Debugf("subscribe for ns '%s'", nsname)
+				if subscribed != "" {
+					log.Warnf(
+						"subscription botch.  Prev subscribed '%s', new subscribe '%s'",
+						subscribed, nsname)
+					removeListener(subscribed, statusChan)
+				}
 				addListener(nsname, statusChan)
 				sendInitialStatus(nsname, statusChan)
+				subscribed = nsname
 			case "unsubscribe":
 				// remove my channel from listeners
 				nsname := jobj["namespace"].(string)
-				log.Infof("unsubscribe for ns %s", nsname)
+				log.Debugf("unsubscribe for ns '%s'", nsname)
 				removeListener(nsname, statusChan)
+				if subscribed != "" && nsname != subscribed {
+					log.Warnf(
+						"subscription botch.  Prev subscribed '%s', unsubscribe '%s'",
+						subscribed, nsname)
+					removeListener(subscribed, statusChan)
+				}
+				subscribed = ""
 			}
 		} else {
-			log.Errorf("bad/unknown message -- neither string nor obj",
+			log.Errorf("bad/unknown websocket message -- neither string nor obj",
 				string(msgbytes))
 		}
 	}
+	log.Debug("websocket handler terminating")
 }
