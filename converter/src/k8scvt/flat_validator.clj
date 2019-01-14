@@ -649,13 +649,13 @@
 
 (defflat restart
   "Conditions under which a container group should be restarted"
-  [:value :string {:options ["always" "none" "unless-stopped"]}]
+  [:value :string {:options ["always" "none" "unless-stopped" "on-failure"]}]
   [:cgroup :uuid-ref :container-group
    "reference to restarting container group"])
 
 (defflat restart-policy
   "How containers should be restarted"
-  [:value :string {:options ["always" "none" "unless-stopped"]}]
+  [:value :string {:options ["always" "none" "unless-stopped" "on-failure"]}]
   [:cgroup :uuid-ref :container-group "reference to associated container group"])
 
 (defflat secret
@@ -708,7 +708,7 @@
   "Reference from container to volume"
   [:path :string]
   [:volume-name :string]
-  [:volume :uuid-ref :referable-volume "reference to volume"]
+  [:volume :uuid-ref :referable-volume "reference to volume" :optional]
   [:access-mode :string {:options ["ReadOnlyMany" "ReadWriteOnce"
                                    "ReadWriteMany"]}]
   [:container-name :string "name of container using volume"]
@@ -965,7 +965,7 @@
 (defflat network-ref
   "Reference from a container to a network"
   [:name :string]
-  [:aliases :string-array]
+  [:aliases :string-array :optional]
   [:container :uuid-ref :container "reference to associated container"])
 
 (defflat logging
@@ -984,22 +984,6 @@
   [:value :string {:options ["global" "replicated"]}]
   [:source :string]
   [:container :uuid-ref :container "reference to container being deployed"])
-
-(defflat placement
-  "How containers should be assigned to nodes"
-  [:value [:key-value :keyword-or-str :string]]
-  [:container :uuid-ref :container "reference to container being placed"])
-
-(defflat update-config
-  "How a service should be updated"
-  [:value [:fixed-map
-           [:parallelism :non-negative-integer]
-           [:delay :compose-duration]
-           [:? [:failure-action #{"continue" "rollback" "pause"}]]
-           [:? [:monitor :compose-duration]]
-           [:max_failure_ratio :json]
-           [:? [:order #{"stop-first" "start-first"}]]]]
-  [:container :uuid-ref :container "reference to container being updated"])
 
 ;; Generate documentation into the target directory
 (when (some? (env :build-time))

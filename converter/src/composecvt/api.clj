@@ -15,6 +15,7 @@
             [clojure.pprint :as pprint]
             [k8scvt.api :as k8s]
             [k8scvt.util :as util]
+            [k8scvt.file-import :as fi]
             [k8scvt.flat-validator :as fv]
             [composecvt.compose-to-flat]
             [composecvt.flat-to-compose]
@@ -30,6 +31,9 @@
 (defn wmes-of-type [srclist typ]
   (filter #(= (:type %) typ) srclist))
 
+(defn return-fv-errors [results]
+  (k8s/return-formatted-errors results ::reterr fv/format-flat-validation-error))
+
 (defn cvtc2f [composeobj]
   (binding [util/*wmes-by-id* (atom {})]
     (let [to-flat (engine :composecvt.compose-to-flat)
@@ -40,7 +44,7 @@
                               (fvalidate :run-list results))]
       (if fv-ok
         {::retval (group-by :type results)}
-        (k8s/return-fv-errors fv-results)))))
+        (return-fv-errors fv-results)))))
 
 (defn load-and-validate-import [ctx]
   (let [body (k8s/b64decode-if-possible (body-as-string ctx))
@@ -61,6 +65,21 @@
       {::reterr (str/join "\n" errors)}
       (cvtc2f composeobj))))
 
+(defn flat-test [ctx]
+  (binding [util/*wmes-by-id* (atom {})]
+    (let [results (map #(assoc % :type (keyword (:type %)))
+                       (mapcat second
+                               (fi/protect-qualified-keywords
+                                (json/read-str
+                                 (body-as-string ctx)
+                                 :key-fn keyword))))
+          fvalidate (engine :k8scvt.flat-validator)
+          [fv-results fv-ok] (k8s/results-and-errors
+                              (fvalidate :run-list results))]
+      (if fv-ok
+        {::retval (group-by :type results)}
+        (return-fv-errors fv-results)))))
+
 (defresource c2f
   :allowed-methods [:post]
   :available-media-types ["application/json"]
@@ -70,9 +89,19 @@
                       (json/write-str (::retval ctx))
                       (ring-response {:body (::reterr ctx) :status 422}))))
 
+(defresource badf
+  :allowed-methods [:post]
+  :available-media-types ["application/json"]
+  :post! flat-test
+  :handle-created (fn [ctx]
+                    (if (contains? ctx ::retval)
+                      (json/write-str (::retval ctx))
+                      (ring-response {:body (::reterr ctx) :status 422}))))
+
 (def api-routes
   (routes
    (ANY "/c2f" [] c2f)
+   (ANY "/badf" [] badf)
    (route/not-found (format (json/write-str {:message "Page not found"})))))
 
 (def handler

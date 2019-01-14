@@ -176,4 +176,9 @@ export class YipeeFileService {
     return metadata = new YipeeFileMetadata(response);
   }
 
+  applyManifest(metadata: YipeeFileMetadata, manifestIsNewNamespace: boolean): Observable<any> {
+
+    return this.apiService.applyManifest(metadata.toRaw(), metadata.flatFile.appInfo.namespace, manifestIsNewNamespace);
+  }
+
 }

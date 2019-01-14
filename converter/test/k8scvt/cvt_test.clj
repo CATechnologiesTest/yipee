@@ -18,6 +18,7 @@
             [k8scvt.flat-validator :as fv]
             [helm.core :as helm]
             [k8scvt.diff :as diff]
+            [composecvt.compose-to-flat]
             [clojure.data.json :as json])
   (:import java.nio.file.FileSystems java.io.File))
 
@@ -106,6 +107,13 @@
 (defn transform-maps [in out]
   (let [i (atom in) o (atom out)]
     (allow-for-secrets-not-specified-as-readonly i o)
+    ;; ignore differing guid-based secret names
+    (when (and (:secretName @i)
+               (.startsWith (:secretName @i) "generated-")
+               (:secretName @o)
+               (.startsWith (:secretName @o) "generated-"))
+      (swap! i assoc :secretName "secret")
+      (swap! o assoc :secretName "secret"))
     ;; yipee annotations are dropped from imported input files so they
     ;; can't be expected in conversion outputs...
     (when (get-in @i [:metadata :annotations])
@@ -427,6 +435,7 @@
                       "racket-with-secret-volume-env-and-label.yaml"
                       "racket-with-secret-volume-env-label-and-replicated.yaml"
                       "racket-with-secret-volume-env-label-and-all-nodes.yaml"
+                      "new-secrets.yaml"
                       "rwsvelhn-entrypoint.yaml"
                       "yah-for-k8s.yaml"
                       "cluster-dns.yaml"
@@ -623,3 +632,22 @@
       (is (inst-match inst1 "InstantiatedJoomla.yaml"))
       (is (inst-match inst2 "InstantiatedJoomla2.yaml"))
       (sh "rm" "-rf" testdir))))
+
+(deftest compose-generates-secrets
+  (testing "secrets come through to k8s"
+    (binding [u/*wmes-by-id* (atom {})]
+      (let [composelist [(assoc
+                          (yaml/parse-string
+                           (slurp (str "test/composecvt/testdata/secrets.yml")))
+                          :type :compose)]
+            k8s (fi/get-k8s-from-yaml-testdata "new-secrets.yaml")
+            to-flat (engine :composecvt.compose-to-flat)
+            flatwmes (to-flat :run-list composelist)
+            from-flat (engine :k8scvt.flat-to-k8s)
+            results (map #(dissoc % :type :id)
+                         (apply concat
+                                (vals (u/k8skeys
+                                       (from-flat :run-map flatwmes)))))]
+        (assert-match 0
+                      (apply concat (vals (dissoc k8s :type :app-name)))
+                      results)))))

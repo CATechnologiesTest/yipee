@@ -61,6 +61,12 @@
                 </label>
               </div>
             </div>
+            <button type="button" class="btn btn-icon" title="Apply" (click)='onApplyManifestClicked()' [disabled]="this.editorService.invalidKeys.length > 0">
+              <clr-icon *ngIf="!isApplyingManifest" shape="upload-cloud" class="is-solid"></clr-icon>
+              <span *ngIf="isApplyingManifest" class="spinner spinner-inline">
+              </span>
+            </button>
+
             <button type="button" class="btn btn-icon" title="Close" (click)="exitEditor()">
               <clr-icon shape="times-circle" class="is-solid"></clr-icon>
             </button>
@@ -137,3 +143,4 @@
   (onClose)="showWarningModal = false; disregardChanges = true; exitEditor();"
   (onCancel)="showWarningModal = false;">
 </app-warn-changes-modal>
+

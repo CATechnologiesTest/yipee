@@ -1,7 +1,11 @@
 (ns k8scvt.flat-validation-test
   (:require [clojure.test :refer :all]
+            [clj-http.client :as client]
+            [ring.adapter.jetty :as jetty]
             [engine.core :refer :all]
-            [k8scvt.flat-validator :refer :all]))
+            [composecvt.api :as capi]
+            [k8scvt.flat-validator :refer :all]
+            [k8scvt.testutil :refer [base-url test-port with-server]]))
 
 (def a-uuid "62849681-2862-8496-8128-628496812862")
 
@@ -714,3 +718,29 @@
               :cgroup "62849681-2862-8496-8128-628496812862",
               :service-name ""},
              :value 1}])))))
+
+(defmacro with-c-server [& body]
+  `(do
+     (let [server# (jetty/run-jetty capi/handler {:join? false :port test-port})]
+       (try ~@body (finally (do (.stop server#)))))))
+
+(deftest errors-come-through-api
+  (let [arg-body "{\"config\": [{\"type\": \"config\",
+                                 \"default-mode\": \"-1\",
+                                 \"name\": \"name\",
+                                 \"map-name\": \"map-name\"}]}"
+        expected (str "Object ({\"type\":\"config\",\"default-mode\":\"-1\","
+                      "\"name\":\"name\",\"map-name\":\"map-name\"}): "
+                      "invalid type -- field: 'default-mode', expected: "
+                      "'non-negative-integer-string'")
+        arg-data {:accept :json
+                  :content-type :json
+                  :body arg-body
+                  :throw-exceptions false}
+        doit #(let [{:keys [status body]}
+                    (client/post (str base-url %) arg-data)]
+                (is (= 422 status))
+                (is (= body expected)))]
+    (with-server (doit "/f2k"))
+    (with-c-server (doit "/badf"))))
+

@@ -312,4 +312,9 @@ export class EditorService {
     this._dirty = value;
   }
 
+  applyManifest(): Observable<any> {
+    return this.yipeeFileService.applyManifest(this.metadata, this.metadata.flatFile.appInfo.createNs);
+  }
+
+
 }
