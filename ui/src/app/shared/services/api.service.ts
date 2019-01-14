@@ -165,7 +165,7 @@ export class ApiService {
   /* ************************ */
   getApp(appId: string, isNamespace?: boolean): Observable<YipeeFileResponse> {
     // if isNamespace is true then use the namespace endpoint otherwise use import endpoint
-    const api_endpoint = `/api/${ isNamespace ? 'namespaces' : 'import'}/${appId}`
+    const api_endpoint = `/api/${ isNamespace ? 'namespaces' : 'import'}/${appId}`;
     return this.http.get<YipeeFileResponse>(api_endpoint);
   }
 

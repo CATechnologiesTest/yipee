@@ -218,7 +218,7 @@ describe('EditorComponent', () => {
     if (isNamespace) {
       api = '/api/namespaces/';
       ar.setUrl({ path: 'namespace' });
-    };
+    }
 
     if (id) {
       ar.addId(id);
