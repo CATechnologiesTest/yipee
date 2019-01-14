@@ -33,7 +33,9 @@ func initStatus(router *mux.Router) {
 		}
 		listenersByNS = make(map[string][]chan updatemsg)
 		objectsByNS = NewCache(0, 0)
-		go startWatchers()
+		if envBoolean("LIVE_CLUSTER") {
+			go startWatchers()
+		}
 	})
 }
 
@@ -360,7 +362,7 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		var jmsg interface{}
 		if err := json.Unmarshal(msgbytes, &jmsg); err != nil {
-			log.Errorf("websocket json unmarshal error", err)
+			log.Errorf("websocket json unmarshal error %v", err)
 			continue
 		}
 		if s, ok := jmsg.(string); ok && strings.HasPrefix(s, "primus::") {
@@ -394,7 +396,7 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 				subscribed = ""
 			}
 		} else {
-			log.Errorf("bad/unknown websocket message -- neither string nor obj",
+			log.Errorf("bad/unknown websocket message -- neither string nor obj: %s",
 				string(msgbytes))
 		}
 	}
