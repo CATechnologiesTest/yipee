@@ -330,23 +330,18 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 	defer conn.Close()
 
 	log.Debug("created websocket connection")
-	statusChan := makeStatusWriter(conn)
-	defer func() {
-		log.Debug("closing statusChan for closed websocket")
-		close(statusChan)
-	}()
-
 	// Keep track of most recent subscription.  If a subscription is active
 	// when websocket closes we could end up closing statusChan without
 	// having removed it from listener list
 	subscribed := ""
+	statusChan := makeStatusWriter(conn)
 	defer func() {
-		// N.B. defer's are executed in LIFO order so this should
-		// run before we close statusChan
 		if subscribed != "" {
 			log.Warnf("removing listener for '%s' on websocket close", subscribed)
 			removeListener(subscribed, statusChan)
 		}
+		log.Debug("closing statusChan for closed websocket")
+		close(statusChan)
 	}()
 
 	for {
