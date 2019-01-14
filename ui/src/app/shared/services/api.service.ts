@@ -163,8 +163,14 @@ export class ApiService {
   /* ************************ */
   /* YIPEEFILE CRUD ENDPOINTS */
   /* ************************ */
-  getApp(appId: string): Observable<YipeeFileResponse> {
-    const api_endpoint = '/api/import/' + appId;
+  getApp(appId: string, isNamespace?: boolean): Observable<YipeeFileResponse> {
+    // if isNamespace is true then use the namespace endpoint otherwise use import endpoint
+    const api_endpoint = `/api/${ isNamespace ? 'namespaces' : 'import'}/${appId}`
+    return this.http.get<YipeeFileResponse>(api_endpoint);
+  }
+
+  getNamespace(namespaceName: string): Observable<YipeeFileResponse> {
+    const api_endpoint = '/api/namespaces/' + namespaceName;
     return this.http.get<YipeeFileResponse>(api_endpoint);
   }
 

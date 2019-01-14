@@ -49,8 +49,11 @@ export class EditorComponent implements OnInit, AfterViewChecked {
   ngOnInit() {
     // Are we "deep linking" into a model that is saved on the backend?
     const deepLinkId = this.activatedRoute.snapshot.params['id'];
+
     if (deepLinkId) {
-      this.yipeeFileService.read(deepLinkId).subscribe(
+      const isNamespaceUrl = this.activatedRoute.snapshot.url && this.activatedRoute.snapshot.url[0].path === 'namespace';
+
+      this.yipeeFileService.read(deepLinkId, isNamespaceUrl).subscribe(
         (yipeeFile) => {
           this.editorService.loadYipeeFile(yipeeFile).subscribe(
             (response) => {

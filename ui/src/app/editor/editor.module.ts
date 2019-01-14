@@ -66,6 +66,7 @@ import { CanDeactivateGuard } from '../can-deactivate.guard';
 export const editorRoutes: Routes = [
   {path: 'editor', component: EditorComponent, canDeactivate: [CanDeactivateGuard] },
   {path: 'editor/:id', component: EditorComponent, canDeactivate: [CanDeactivateGuard] },
+  {path: 'namespace/:id', component: EditorComponent, canDeactivate: [CanDeactivateGuard] }
 ];
 
 @NgModule({

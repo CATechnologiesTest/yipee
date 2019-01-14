@@ -21,6 +21,7 @@ import { EventEmitter } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../shared/services/api.service';
 import { UserService } from '../shared/services/user.service';
+import { balancePreviousStylesIntoKeyframes } from '@angular/animations/browser/src/util';
 
 describe('EditorComponent', () => {
   let component: EditorComponent;
@@ -40,6 +41,9 @@ describe('EditorComponent', () => {
     addId(id) {
       this.snapshot.params['id'] = id;
     }
+    setUrl(url) {
+      this.snapshot['url'] = [url];
+    }
   }
   class MockApiService {
     static BAD_MODEL = 'bad_model';
@@ -47,9 +51,9 @@ describe('EditorComponent', () => {
     static BAD_MODEL_ERROR = 'Missing or invalid model';
 
     constructor() { }
-    }
+  }
 
-    class MockEditorService {
+  class MockEditorService {
     yipeeFileID: string;
     metadata: YipeeFileMetadata;
     fatalText: string[] = [];
@@ -99,7 +103,7 @@ describe('EditorComponent', () => {
       ]
     })
       .compileComponents();
-      location = TestBed.get(Location);
+    location = TestBed.get(Location);
   }));
 
   beforeEach(() => {
@@ -119,20 +123,17 @@ describe('EditorComponent', () => {
 
   it('should load model from URL', async(inject([EditorService, ApiService, ActivatedRoute, HttpTestingController],
     (service: MockEditorService, apiService: ApiService, ar: MockActivatedRoute, backend: HttpTestingController) => {
-      ar.addId('foo');
-      expect(component.ui.loading).toBeTruthy();
-      fixture.detectChanges();
-      backend.expectOne('/api/import/foo').flush({
-        success: true,
-        total: 1,
-        data: [{
-          name: 'App Name',
-          _id: '1010',
-          author: '',
-          username: ''
-        }]
-      });
-      expect(component.ui.loading).toBeFalsy();
+      loadUrl(ar, backend, false, 'foo');
+    })));
+
+  it('should load namespace from URL', async(inject([EditorService, ApiService, ActivatedRoute, HttpTestingController],
+    (service: MockEditorService, apiService: ApiService, ar: MockActivatedRoute, backend: HttpTestingController) => {
+      loadUrl(ar, backend, true, 'foo');
+    })));
+
+  it('should handle missing model id from URL', async(inject([EditorService, ApiService, ActivatedRoute, HttpTestingController],
+    (service: MockEditorService, apiService: ApiService, ar: MockActivatedRoute, backend: HttpTestingController) => {
+      loadUrl(ar, backend, true, undefined);
     })));
 
   it('should handle invalid model error, where 200 is returned', async(inject([EditorService, ApiService, ActivatedRoute, HttpTestingController],
@@ -157,18 +158,18 @@ describe('EditorComponent', () => {
       fixture.detectChanges();
 
       backend.expectOne('/api/import/foo')
-        .flush({success: false, total: 1, data: [MockApiService.BAD_MODEL_ERROR]}, {status: 404, statusText: 'Not found'});
+        .flush({ success: false, total: 1, data: [MockApiService.BAD_MODEL_ERROR] }, { status: 404, statusText: 'Not found' });
       expect(component.ui.loading).toBeFalsy();
       expect(component.ui.error).toBeTruthy();
       expect(service.fatalText[0].indexOf('404') > 0).toBeTruthy('no 404 in the error message');
       expect(service.fatalText[0].indexOf('Not found') > 0).toBeTruthy('Not found - not in the error message');
-      })));
+    })));
 
   it('should handle a network error', async(inject([EditorService, ActivatedRoute, HttpTestingController, NgZone],
     (service: MockEditorService, ar: MockActivatedRoute, backend: HttpTestingController, ngZone: NgZone) => {
       ar.addId('foo');
       fixture.detectChanges();
-      const req = ngZone.run(() => backend.expectOne('/api/import/foo') );
+      const req = ngZone.run(() => backend.expectOne('/api/import/foo'));
       const emsg = 'simulated network error';
 
       const mockError = new ErrorEvent('Network error', {
@@ -182,33 +183,59 @@ describe('EditorComponent', () => {
       expect(service.fatalText[0].indexOf(EditorService.UNEXPECTED_RESPONSE) >= 0).toBeTruthy();
     })));
 
-    it('should set dirty flag and route to home when exitEditor is called with disregardChanges set to true', fakeAsync(inject([EditorService, NgZone], (service: MockEditorService, ngZone: NgZone) => {
-      expect(component).toBeTruthy();
-      expect(location.path() === '').toBeTruthy();
-      service.dirty = true;
-      component.disregardChanges = true;
-      ngZone.run(() => component.canDeactivate());
-      expect(service.dirty).toBeFalsy();
-      expect(component.showWarningModal).toBeFalsy();
-      ngZone.run(() => component.exitEditor());
-      tick(500);
-      expect(location.path()).toBe('/');
-    })));
+  it('should set dirty flag and route to home when exitEditor is called with disregardChanges set to true', fakeAsync(inject([EditorService, NgZone], (service: MockEditorService, ngZone: NgZone) => {
+    expect(component).toBeTruthy();
+    expect(location.path() === '').toBeTruthy();
+    service.dirty = true;
+    component.disregardChanges = true;
+    ngZone.run(() => component.canDeactivate());
+    expect(service.dirty).toBeFalsy();
+    expect(component.showWarningModal).toBeFalsy();
+    ngZone.run(() => component.exitEditor());
+    tick(500);
+    expect(location.path()).toBe('/');
+  })));
 
-    it('should set showWarningModal to true when exitEditor is called with EditorService dirty flag set to true', fakeAsync(inject([EditorService, NgZone], (service: MockEditorService, ngZone: NgZone) => {
-      expect(component.showWarningModal).toEqual(false);
-      service.dirty = true;
-      ngZone.run(() => component.canDeactivate());
-      expect(component.showWarningModal).toEqual(true);
-    })));
+  it('should set showWarningModal to true when exitEditor is called with EditorService dirty flag set to true', fakeAsync(inject([EditorService, NgZone], (service: MockEditorService, ngZone: NgZone) => {
+    expect(component.showWarningModal).toEqual(false);
+    service.dirty = true;
+    ngZone.run(() => component.canDeactivate());
+    expect(component.showWarningModal).toEqual(true);
+  })));
 
-    it('should call router.navigate home when exitEditor is called with EditorService dirty flag set to false', fakeAsync(inject([EditorService, NgZone], (service: MockEditorService, ngZone: NgZone) => {
-      expect(location.path() === '').toBeTruthy();
-      expect(component.showWarningModal).toEqual(false);
-      expect(service.dirty).toBeFalsy();
-      ngZone.run(() => component.exitEditor());
-      tick(500);
-      expect(location.path()).toBe('/');
-    })));
+  it('should call router.navigate home when exitEditor is called with EditorService dirty flag set to false', fakeAsync(inject([EditorService, NgZone], (service: MockEditorService, ngZone: NgZone) => {
+    expect(location.path() === '').toBeTruthy();
+    expect(component.showWarningModal).toEqual(false);
+    expect(service.dirty).toBeFalsy();
+    ngZone.run(() => component.exitEditor());
+    tick(500);
+    expect(location.path()).toBe('/');
+  })));
 
+  function loadUrl(ar: MockActivatedRoute, backend: HttpTestingController, isNamespace: boolean, id: string) {
+    let api = '/api/import/';
+
+    if (isNamespace) {
+      api = '/api/namespaces/';
+      ar.setUrl({ path: 'namespace' });
+    };
+
+    if (id) {
+      ar.addId(id);
+      expect(component.ui.loading).toBeTruthy();
+      fixture.detectChanges();
+      backend.expectOne(api + (id ? id : '')).flush({
+        success: true,
+        total: 1,
+        data: [{
+          name: 'App Name',
+          _id: '1010',
+          author: '',
+          username: ''
+        }]
+      });
+    }
+    fixture.detectChanges();
+    expect(component.ui.loading).toBeFalsy();
+  }
 });
