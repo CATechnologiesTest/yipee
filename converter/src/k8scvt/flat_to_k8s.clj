@@ -323,8 +323,7 @@
                       :resources {:requests {:storage (:storage ?vol)}}
                       :selector (:selector ?vol)
                       :volumeMode (:volume-mode ?vol)}
-                     {:accessModes ["ReadWriteOnce"]
-                      :resources {:requests {:storage ""}}
+                     {:resources {:requests {:storage ""}}
                       :selector {:matchLabels {}}
                       :storageClassName ""
                       :volumeMode "Filesystem"})}]
