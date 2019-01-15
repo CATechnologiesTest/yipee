@@ -10,6 +10,7 @@ import { NamespaceRaw } from '../../../models/YipeeFileRaw';
     styleUrls: ['./namespace-diff-modal.component.css']
 })
 export class NamespaceDiffModalComponent {
+    static ERROR_MSG = 'Diff call failed - ';
     @Input() show: boolean;
     @Input() parentNamespace: string;
     @Output() onClose = new EventEmitter<string>();
@@ -52,10 +53,13 @@ export class NamespaceDiffModalComponent {
                 if (response.success) {
                     this.diffResults = response.data[0];
                 } else {
-                    this.diffResults = 'Diff call failed - ' + response.data[0];
+                    this.diffResults = NamespaceDiffModalComponent.ERROR_MSG + response.data[0];
                 }
             }, (err) => {
-                this.diffResults = 'Diff call failed - ' + err._body;
+                this.diffResults = NamespaceDiffModalComponent.ERROR_MSG;
+                if (err.error.data) {
+                    this.diffResults += err.error.data[0];
+                }
             });
         this.showDiffResults = true;
     }

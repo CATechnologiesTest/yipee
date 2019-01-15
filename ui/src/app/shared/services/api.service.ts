@@ -88,10 +88,7 @@ export class ApiService {
   getNamespaceDiff(ns1: string, ns2: string): Observable<any> {
     const api_endpoint = '/api/namespaces/diff';
     const diffPayload = { parent: ns1, children: [ ns2 ]};
-
-    return this.http.post(api_endpoint, diffPayload).map((response: Response) => {
-      return response.json();
-    });
+    return this.http.post(api_endpoint, diffPayload);
   }
 
   /* --------------------- */
