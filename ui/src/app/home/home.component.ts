@@ -1,16 +1,17 @@
-import { Component, OnInit} from '@angular/core';
+import { Component, OnInit, OnDestroy} from '@angular/core';
 import { Router } from '@angular/router';
 import { YipeeFileMetadata } from '../models/YipeeFileMetadata';
 import { NamespaceService } from '../shared/services/namespace.service';
 import { DownloadService } from '../shared/services/download.service';
 import { NamespaceRaw } from '../models/YipeeFileRaw';
+import { Subscription } from 'rxjs';
 
 
 @Component({
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
 
   showNewApplicationDialog = false;
   showImportApplicationDialog = false;
@@ -18,6 +19,7 @@ export class HomeComponent implements OnInit {
   isLoading = true;
   hasError = false;
   parentNamespace = '';
+  private nsPollTimer: Subscription;
 
   namespaces: NamespaceRaw[];
 
@@ -58,8 +60,11 @@ export class HomeComponent implements OnInit {
     });
 
     // poll namespaces every 5 seconds to refresh namespaces on page
-    this.namespaceService.pollNamespaces().subscribe(() => {
+    this.nsPollTimer = this.namespaceService.pollNamespaces().subscribe(() => {
       this.namespaces = this.namespaceService.currentNamespaces;
     });
+  }
+  ngOnDestroy() {
+    this.nsPollTimer.unsubscribe();
   }
 }
