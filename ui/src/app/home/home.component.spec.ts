@@ -7,7 +7,6 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ApiService } from '../shared/services/api.service';
 import { DownloadService } from '../shared/services/download.service';
-import { Location } from '@angular/common';
 
 describe('HomeComponent', () => {
     let component: HomeComponent;
@@ -28,12 +27,10 @@ describe('HomeComponent', () => {
         providers: [
           NamespaceService,
           ApiService,
-          DownloadService,
-          Location
+          DownloadService
         ]
       })
         .compileComponents();
-      location = TestBed.get(Location);
     }));
 
     beforeEach(() => {
