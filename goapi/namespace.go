@@ -237,6 +237,7 @@ func applyNamespace(w http.ResponseWriter, r *http.Request) {
 	if tmpname == "" {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(makeErrorResponse("error writing tempfile for apply"))
+		return
 	}
 	defer os.Remove(tmpname)
 
