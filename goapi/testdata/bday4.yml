@@ -1,0 +1,235 @@
+# Generated 2017-12-07T22:00:30.230Z by Yipee.io
+# Application: bday4
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mysql-data
+spec:
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: 300Mi
+  hostPath:
+    path: /var/yipee/volumes/mysql-data
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: redmine-files
+spec:
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: 300Mi
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: redmine-public
+spec:
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: 300Mi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-dataclaim
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 300Mi
+  volumeName: mysql-data
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redmine-filesclaim
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 300Mi
+  volumeName: redmine-files
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redmine-publicclaim
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 300Mi
+  volumeName: redmine-public
+
+---
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: nginx
+spec:
+  selector:
+    matchLabels:
+      app: bday4
+      component: nginx
+  template:
+    metadata:
+      labels:
+        app: bday4
+        component: nginx
+    spec:
+      containers:
+      - image: bday4-4:5000/nginx:1.0
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - curl -f http://localhost/ || exit 1
+          failureThreshold: 30
+          periodSeconds: 60
+          timeoutSeconds: 10
+        name: nginx
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - curl -f http://localhost/ || exit 1
+          failureThreshold: 3
+          periodSeconds: 600
+          timeoutSeconds: 10
+        volumeMounts:
+        - mountPath: /usr/src/redmine/public
+          name: redmine-public
+      restartPolicy: Always
+      volumes:
+      - name: redmine-public
+        persistentVolumeClaim:
+          claimName: redmine-publicclaim
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: db
+spec:
+  replicas: 1
+  rollbackTo:
+    revision: 0
+  selector:
+    matchLabels:
+      app: bday4
+      component: db
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: bday4
+        component: db
+    spec:
+      containers:
+      - env:
+        - name: MYSQL_DATABASE
+          value: redmine
+        - name: MYSQL_PASSWORD
+          value: r3dmin3
+        - name: MYSQL_ROOT_PASSWORD
+          value: s3cr3t
+        - name: MYSQL_USER
+          value: redmine
+        image: birthday_mysql:1.0
+        name: db
+        volumeMounts:
+        - mountPath: /var/lib/mysql
+          name: mysql-data
+      restartPolicy: Always
+      volumes:
+      - name: mysql-data
+        persistentVolumeClaim:
+          claimName: mysql-dataclaim
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: redmine
+spec:
+  replicas: 1
+  rollbackTo:
+    revision: 0
+  selector:
+    matchLabels:
+      app: bday4
+      component: redmine
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: bday4
+        component: redmine
+    spec:
+      containers:
+      - env:
+        - name: REDMINE_DB_MYSQL
+          value: bday_db
+        - name: REDMINE_DB_PASSWORD
+          value: r3dmin3
+        - name: REDMINE_DB_USERNAME
+          value: redmine
+        image: bday4-4:5000/redmine:1.0
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - curl -f http://localhost:3000/ || exit 1
+          failureThreshold: 3
+          periodSeconds: 60
+          timeoutSeconds: 10
+        name: redmine
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - curl -f http://localhost:3000/ || exit 1
+          failureThreshold: 3
+          periodSeconds: 60
+          timeoutSeconds: 10
+        volumeMounts:
+        - mountPath: /usr/src/redmine/files
+          name: redmine-files
+        - mountPath: /usr/src/redmine/public
+          name: redmine-public
+      restartPolicy: Always
+      volumes:
+      - name: redmine-files
+        persistentVolumeClaim:
+          claimName: redmine-filesclaim
+      - name: redmine-public
+        persistentVolumeClaim:
+          claimName: redmine-publicclaim

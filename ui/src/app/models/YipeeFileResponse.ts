@@ -25,3 +25,9 @@ export interface NamespaceResponse {
   total: number;
   data: NamespaceRaw[];
 }
+
+export interface YipeeResponse {
+  success: boolean;
+  total: number;
+  data: any[];
+}

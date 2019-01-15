@@ -5,19 +5,13 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { RouterTestingModule } from '@angular/router/testing';
 import { Location } from '@angular/common';
 
-import { Observable } from 'rxjs/Observable';
-import { of } from 'rxjs';
-
 import { EditorComponent } from './editor.component';
 
 import { EditorService } from './editor.service';
 import { YipeeFileService } from '../shared/services/yipee-file.service';
 import { YipeeFileMetadata } from '../models/YipeeFileMetadata';
-import { YipeeFileMetadataRaw } from '../models/YipeeFileMetadataRaw';
-import { YipeeFileResponse, YipeeFileErrorResponse } from '../models/YipeeFileResponse';
 import { DownloadService } from '../shared/services/download.service';
-import { EditorEventService, SelectionChangedEvent, EventSource } from './editor-event.service';
-import { EventEmitter } from '@angular/core';
+import { EditorEventService } from './editor-event.service';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../shared/services/api.service';
 import { UserService } from '../shared/services/user.service';
@@ -30,10 +24,6 @@ describe('EditorComponent', () => {
 
   class MockDownloadService {
     constructor() { }
-  }
-  class MockYipeeFileService {
-    constructor() { }
-    onSelectionChange: EventEmitter<SelectionChangedEvent> = new EventEmitter();
   }
   class MockActivatedRoute {
     constructor() { }
@@ -53,32 +43,6 @@ describe('EditorComponent', () => {
     constructor() { }
   }
 
-  class MockEditorService {
-    yipeeFileID: string;
-    metadata: YipeeFileMetadata;
-    fatalText: string[] = [];
-    alertText: string[] = [];
-    warningText: string[] = [];
-    infoText: string[] = [];
-    invalidKeys: string[];
-    lastYipeeId: string;
-    dirty: boolean;
-
-    constructor() {
-      this.invalidKeys = [];
-      this.metadata = new YipeeFileMetadata();
-      this.dirty = false;
-    }
-    setYipeeFileID(yipeeFileId: string): Observable<boolean> {
-      this.yipeeFileID = yipeeFileId;
-      return of(true);
-    }
-    loadYipeeFile(id): Observable<boolean> {
-      this.lastYipeeId = id;
-      this.metadata = YipeeFileService.newTestYipeeFileMetadata('test');
-      return of(true);
-    }
-  }
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [
@@ -98,8 +62,8 @@ describe('EditorComponent', () => {
         YipeeFileService,
         ApiService,
         { provide: DownloadService, useClass: MockDownloadService },
-        { provide: EditorService, useClass: MockEditorService },
-        { provide: ActivatedRoute, useClass: MockActivatedRoute }
+        { provide: ActivatedRoute, useClass: MockActivatedRoute },
+        EditorService
       ]
     })
       .compileComponents();
@@ -117,27 +81,30 @@ describe('EditorComponent', () => {
   }));
 
   it('should be created', () => {
+    // Since we are using the real editor service, we need to initialize the metadata
+    component.editorService.metadata = new YipeeFileMetadata();
+
     fixture.detectChanges();
     expect(component).toBeTruthy();
   });
 
   it('should load model from URL', async(inject([EditorService, ApiService, ActivatedRoute, HttpTestingController],
-    (service: MockEditorService, apiService: ApiService, ar: MockActivatedRoute, backend: HttpTestingController) => {
+    (service: EditorService, apiService: ApiService, ar: MockActivatedRoute, backend: HttpTestingController) => {
       loadUrl(ar, backend, false, 'foo');
     })));
 
   it('should load namespace from URL', async(inject([EditorService, ApiService, ActivatedRoute, HttpTestingController],
-    (service: MockEditorService, apiService: ApiService, ar: MockActivatedRoute, backend: HttpTestingController) => {
+    (service: EditorService, apiService: ApiService, ar: MockActivatedRoute, backend: HttpTestingController) => {
       loadUrl(ar, backend, true, 'foo');
     })));
 
   it('should handle missing model id from URL', async(inject([EditorService, ApiService, ActivatedRoute, HttpTestingController],
-    (service: MockEditorService, apiService: ApiService, ar: MockActivatedRoute, backend: HttpTestingController) => {
+    (service: EditorService, apiService: ApiService, ar: MockActivatedRoute, backend: HttpTestingController) => {
       loadUrl(ar, backend, true, undefined);
     })));
 
-  it('should handle invalid model error, where 200 is returned', async(inject([EditorService, ApiService, ActivatedRoute, HttpTestingController],
-    (service: MockEditorService, apiService: ApiService, ar: MockActivatedRoute, backend: HttpTestingController) => {
+  it('should handle invalid model error, where 200 is returned', async(inject([EditorService, ActivatedRoute, HttpTestingController],
+    (service: EditorService, ar: MockActivatedRoute, backend: HttpTestingController) => {
       ar.addId(MockApiService.BAD_MODEL);
       expect(component.ui.loading).toBeTruthy();
       fixture.detectChanges();
@@ -152,7 +119,7 @@ describe('EditorComponent', () => {
     })));
 
   it('should handle invalid model error, where 4xx is returned', async(inject([EditorService, ActivatedRoute, HttpTestingController],
-    (service: MockEditorService, ar: MockActivatedRoute, backend: HttpTestingController) => {
+    (service: EditorService, ar: MockActivatedRoute, backend: HttpTestingController) => {
       ar.addId('foo');
       expect(component.ui.loading).toBeTruthy();
       fixture.detectChanges();
@@ -166,7 +133,7 @@ describe('EditorComponent', () => {
     })));
 
   it('should handle a network error', async(inject([EditorService, ActivatedRoute, HttpTestingController, NgZone],
-    (service: MockEditorService, ar: MockActivatedRoute, backend: HttpTestingController, ngZone: NgZone) => {
+    (service: EditorService, ar: MockActivatedRoute, backend: HttpTestingController, ngZone: NgZone) => {
       ar.addId('foo');
       fixture.detectChanges();
       const req = ngZone.run(() => backend.expectOne('/api/import/foo'));
@@ -182,35 +149,6 @@ describe('EditorComponent', () => {
       expect(component.ui.error).toBeTruthy();
       expect(service.fatalText[0].indexOf(EditorService.UNEXPECTED_RESPONSE) >= 0).toBeTruthy();
     })));
-
-  it('should set dirty flag and route to home when exitEditor is called with disregardChanges set to true', fakeAsync(inject([EditorService, NgZone], (service: MockEditorService, ngZone: NgZone) => {
-    expect(component).toBeTruthy();
-    expect(location.path() === '').toBeTruthy();
-    service.dirty = true;
-    component.disregardChanges = true;
-    ngZone.run(() => component.canDeactivate());
-    expect(service.dirty).toBeFalsy();
-    expect(component.showWarningModal).toBeFalsy();
-    ngZone.run(() => component.exitEditor());
-    tick(500);
-    expect(location.path()).toBe('/');
-  })));
-
-  it('should set showWarningModal to true when exitEditor is called with EditorService dirty flag set to true', fakeAsync(inject([EditorService, NgZone], (service: MockEditorService, ngZone: NgZone) => {
-    expect(component.showWarningModal).toEqual(false);
-    service.dirty = true;
-    ngZone.run(() => component.canDeactivate());
-    expect(component.showWarningModal).toEqual(true);
-  })));
-
-  it('should call router.navigate home when exitEditor is called with EditorService dirty flag set to false', fakeAsync(inject([EditorService, NgZone], (service: MockEditorService, ngZone: NgZone) => {
-    expect(location.path() === '').toBeTruthy();
-    expect(component.showWarningModal).toEqual(false);
-    expect(service.dirty).toBeFalsy();
-    ngZone.run(() => component.exitEditor());
-    tick(500);
-    expect(location.path()).toBe('/');
-  })));
 
   function loadUrl(ar: MockActivatedRoute, backend: HttpTestingController, isNamespace: boolean, id: string) {
     let api = '/api/import/';
@@ -238,4 +176,103 @@ describe('EditorComponent', () => {
     fixture.detectChanges();
     expect(component.ui.loading).toBeFalsy();
   }
+
+  it('should set dirty flag and route to home when exitEditor is called with disregardChanges set to true', fakeAsync(inject([EditorService, NgZone], (service: EditorService, ngZone: NgZone) => {
+    expect(component).toBeTruthy();
+    expect(location.path() === '').toBeTruthy();
+    service.dirty = true;
+    component.disregardChanges = true;
+    ngZone.run(() => component.canDeactivate());
+    expect(service.dirty).toBeFalsy();
+    expect(component.showWarningModal).toBeFalsy();
+    ngZone.run(() => component.exitEditor());
+    tick(500);
+    expect(location.path()).toBe('/');
+  })));
+
+  it('should set showWarningModal to true when exitEditor is called with EditorService dirty flag set to true', fakeAsync(inject([EditorService, NgZone], (service: EditorService, ngZone: NgZone) => {
+    expect(component.showWarningModal).toEqual(false);
+    service.dirty = true;
+    ngZone.run(() => component.canDeactivate());
+    expect(component.showWarningModal).toEqual(true);
+  })));
+
+  it('should call router.navigate home when exitEditor is called with EditorService dirty flag set to false', fakeAsync(inject([EditorService, NgZone], (service: EditorService, ngZone: NgZone) => {
+    expect(location.path() === '').toBeTruthy();
+    expect(component.showWarningModal).toEqual(false);
+    expect(service.dirty).toBeFalsy();
+    ngZone.run(() => component.exitEditor());
+    tick(500);
+    expect(location.path()).toBe('/');
+  })));
+
+  it('should handle a successful apply', fakeAsync(inject([HttpTestingController, EditorService], (backend: HttpTestingController, service: EditorService) => {
+    const ns = 'foo';
+    service.metadata = new YipeeFileMetadata();
+    service.metadata.name = ns;
+    service.metadata.flatFile.appInfo.namespace = ns;
+    [true, false].forEach(createNs => {
+      expect(component.editorService.infoText.length).toBe(0);
+      service.metadata.flatFile.appInfo.createNs = createNs;
+      component.onApplyManifestClicked();
+      backend.expectOne({ method: 'POST', url: '/api/namespaces/apply/' + ns + ((createNs) ? '?createNamespace=true' : '') })
+        .flush({ success: true, total: 1, data: ['applied successfully'] });
+      tick(50);
+      expect(component.editorService.infoText.length).toBe(1);
+      component.editorService.infoText.length = 0;
+    });
+  })));
+
+  it('should handle an error from a namespace apply', fakeAsync(inject([HttpTestingController, EditorService], (backend: HttpTestingController, service: EditorService) => {
+
+    const ns = 'foo';
+    const err = 'bad apply';
+    service.metadata = new YipeeFileMetadata();
+    service.metadata.name = ns;
+    service.metadata.flatFile.appInfo.namespace = ns;
+    service.metadata.flatFile.appInfo.createNs = true;
+    component.onApplyManifestClicked();
+    expect(component.editorService.warningText.length).toBe(0);
+    backend.expectOne({ method: 'POST', url: '/api/namespaces/apply/' + ns + '?createNamespace=true' })
+      .flush({ success: false, total: 0, data: [err] }, { status: 500, statusText: 'badDev' });
+    tick(50);
+    expect(component.editorService.warningText.length).toBe(2);
+    expect(component.editorService.warningText[1]).toBe(err);
+  })));
+
+  it('should handle an network error from a namespace apply',
+    fakeAsync(
+      inject([HttpTestingController],
+        (backend: HttpTestingController) => {
+          const ns = 'foo';
+          const md = new YipeeFileMetadata();
+          md.name = ns;
+          md.flatFile.appInfo.namespace = ns;
+
+          component.editorService.metadata = md;
+
+          component.onApplyManifestClicked();
+
+          expect(component.editorService.warningText.length).toBe(0);
+          backend.expectOne({ method: 'POST', url: '/api/namespaces/apply/' + ns })
+            .error(new ErrorEvent('Network issue'));
+          tick(50);
+          expect(component.editorService.warningText.length).toBe(2);
+        })));
+
+  it('should throw an error if namespace is empty', fakeAsync(inject([HttpTestingController, EditorService], (backend: HttpTestingController, service: EditorService) => {
+    const ns = 'namespace';
+    service.metadata = new YipeeFileMetadata();
+    service.metadata.name = ns;
+
+    expect(component.editorService.warningText.length).toBe(0);
+    component.onApplyManifestClicked();
+    tick(50);
+    expect(component.editorService.warningText.length).toBe(2);
+    expect(component.editorService.warningText[1]).toBe(ApiService.MISSING_NAMESPACE);
+
+  })));
+
+
+
 });

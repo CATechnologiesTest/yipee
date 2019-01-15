@@ -1,0 +1,55 @@
+{
+  "kind": "PersistentVolumeClaimList",
+  "apiVersion": "v1",
+  "metadata": {
+    "selfLink": "/api/v1/namespaces/chartmuseum/persistentvolumeclaims",
+    "resourceVersion": "2060528"
+  },
+  "items": [
+    {
+      "metadata": {
+        "name": "nodehelmstorage-claim",
+        "namespace": "simple",
+        "selfLink": "/api/v1/namespaces/chartmuseum/persistentvolumeclaims/nodehelmstorage-claim",
+        "uid": "c6b502d8-b6d9-11e8-9a76-080027614e1f",
+        "resourceVersion": "2060003",
+        "creationTimestamp": "2018-09-12T22:18:29Z",
+        "annotations": {
+          "control-plane.alpha.kubernetes.io/leader": "{\"holderIdentity\":\"a04c50b5-b125-11e8-9f4a-080027614e1f\",\"leaseDurationSeconds\":15,\"acquireTime\":\"2018-09-12T22:18:29Z\",\"renewTime\":\"2018-09-12T22:18:59Z\",\"leaderTransitions\":0}",
+          "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"PersistentVolumeClaim\",\"metadata\":{\"annotations\":{\"yipee.io.contextId\":\"4bf3a466-1558-11e7-a85c-af51914269f8\",\"yipee.io.lastModelUpdate\":\"2018-09-12T20:50:46.159Z\",\"yipee.io.modelId\":\"25e0e2cc-6226-11e8-9869-7f3c6d851623\",\"yipee.io.modelURL\":\"https://app.yipee.io/editor/25e0e2cc-6226-11e8-9869-7f3c6d851623/4bf3a466-1558-11e7-a85c-af51914269f8\"},\"name\":\"nodehelmstorage-claim\",\"namespace\":\"chartmuseum\"},\"spec\":{\"accessModes\":[\"ReadWriteOnce\"],\"resources\":{\"requests\":{\"storage\":\"250M\"}},\"volumeMode\":\"Filesystem\"}}\n",
+          "pv.kubernetes.io/bind-completed": "yes",
+          "pv.kubernetes.io/bound-by-controller": "yes",
+          "volume.beta.kubernetes.io/storage-provisioner": "k8s.io/minikube-hostpath",
+          "yipee.io.contextId": "4bf3a466-1558-11e7-a85c-af51914269f8",
+          "yipee.io.lastModelUpdate": "2018-09-12T20:50:46.159Z",
+          "yipee.io.modelId": "25e0e2cc-6226-11e8-9869-7f3c6d851623",
+          "yipee.io.modelURL": "https://app.yipee.io/editor/25e0e2cc-6226-11e8-9869-7f3c6d851623/4bf3a466-1558-11e7-a85c-af51914269f8"
+        },
+        "finalizers": [
+          "kubernetes.io/pvc-protection"
+        ]
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "250M"
+          }
+        },
+        "volumeName": "pvc-c6b502d8-b6d9-11e8-9a76-080027614e1f",
+        "storageClassName": "standard"
+      },
+      "status": {
+        "phase": "Bound",
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "capacity": {
+          "storage": "250M"
+        }
+      }
+    }
+  ]
+}

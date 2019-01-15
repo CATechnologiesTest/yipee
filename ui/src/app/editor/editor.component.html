@@ -13,8 +13,8 @@
     <div class="canvas-paper"></div>
     <div class="editor-description">
       <div class="editor-text">
-        <span class="txt" style="font-weight: bold;">{{editorService.metadata.name}}</span>
-        <span class="txt small-txt">{{editorService.metadata.author}}</span>
+        <span class="txt" style="font-weight: bold;">{{editorService.metadata?.name}}</span>
+        <span class="txt small-txt">{{editorService.metadata?.author}}</span>
       </div>
     </div>
     <div class="canvas-navigator"></div>
@@ -61,6 +61,12 @@
                 </label>
               </div>
             </div>
+            <button type="button" class="btn btn-icon" title="Apply" (click)='onApplyManifestClicked()' [disabled]="this.editorService.invalidKeys.length > 0">
+              <clr-icon *ngIf="!isApplyingManifest" shape="upload-cloud" class="is-solid"></clr-icon>
+              <span *ngIf="isApplyingManifest" class="spinner spinner-inline">
+              </span>
+            </button>
+
             <button type="button" class="btn btn-icon" title="Close" (click)="exitEditor()">
               <clr-icon shape="times-circle" class="is-solid"></clr-icon>
             </button>
@@ -137,3 +143,4 @@
   (onClose)="showWarningModal = false; disregardChanges = true; exitEditor();"
   (onCancel)="showWarningModal = false;">
 </app-warn-changes-modal>
+

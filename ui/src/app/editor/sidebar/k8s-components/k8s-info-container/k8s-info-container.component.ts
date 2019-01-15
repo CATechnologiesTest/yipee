@@ -245,6 +245,7 @@ export class K8sInfoContainerComponent implements OnInit {
         CustomValidators.startsWithDash,
         CustomValidators.endsWithDash
       ]],
+      createNs: [{ value: this.k8sFile.appInfo.createNs, disabled: this.isReadOnly }, []],
       description: [{ value: this.k8sFile.appInfo.description, disabled: this.isReadOnly }, [ /* add validations here */]],
       readme: [{ value: this.k8sFile.appInfo.readme, disabled: this.isReadOnly }, [ /* add validations here */]],
       helmSettingsAll: [{ value: this.k8sFile.appInfo.helmSettingsAll, disabled: this.isReadOnly }, [ /* no validations */ ]],
@@ -266,6 +267,7 @@ export class K8sInfoContainerComponent implements OnInit {
     // TODO: if anyone knows any better shorthand for all of these value changes please impliment it, just make sure you do all of them.
     this.form.get('name').valueChanges.subscribe((newVal) => this.k8sFile.appInfo.name = newVal);
     this.form.get('namespace').valueChanges.subscribe((newVal) => this.k8sFile.appInfo.namespace = newVal);
+    this.form.get('createNs').valueChanges.subscribe((newVal) => this.k8sFile.appInfo.createNs = newVal);
     this.form.get('description').valueChanges.subscribe((newVal) => this.k8sFile.appInfo.description = newVal);
     this.form.get('readme').valueChanges.subscribe((newVal) => this.k8sFile.appInfo.readme = newVal);
     this.form.get('helmSettingsAll').valueChanges.subscribe((newVal) => this.k8sFile.appInfo.helmSettingsAll = newVal);

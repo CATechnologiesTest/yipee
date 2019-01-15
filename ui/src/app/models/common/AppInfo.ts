@@ -17,6 +17,7 @@ export class AppInfo extends ParsedObject {
   helmSettingsPorts: boolean;
   readme: string;
   model_id: string;
+  createNs = false;
 
   public static construct(type: string): ParsedObject {
     return new AppInfo();
