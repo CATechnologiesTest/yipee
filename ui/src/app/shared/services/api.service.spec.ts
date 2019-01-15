@@ -562,6 +562,7 @@ describe('ApiService', () => {
         }
       ]
     });
+  })));
 
   //
   // Tests for live capabilities

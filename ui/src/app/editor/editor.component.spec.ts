@@ -176,6 +176,7 @@ describe('EditorComponent', () => {
     fixture.detectChanges();
     expect(component.ui.loading).toBeFalsy();
   }
+
   it('should set dirty flag and route to home when exitEditor is called with disregardChanges set to true', fakeAsync(inject([EditorService, NgZone], (service: EditorService, ngZone: NgZone) => {
     expect(component).toBeTruthy();
     expect(location.path() === '').toBeTruthy();
