@@ -29,7 +29,7 @@ func readSecret(name string) []byte {
 	var sbytes []byte
 	var err error
 
-	if envBoolean("LIVE_CLUSTER") {
+	if getFromEnv(INSTALL_TYPE, STATIC_INSTALL) == LIVE_INSTALL {
 		sbytes, err = ioutil.ReadFile(secretDir + name)
 		if err != nil {
 			// XXX: log
