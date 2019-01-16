@@ -224,7 +224,7 @@
       (is (= (count origannos) (count newannos)))
       ;; Assert that we have all the original x/y values.
       ;; We can't compare much else since all the IDs will be different
-      (is (= (count (clojure.set/intersection origannos newannos))
+      (is (= (count (set/intersection origannos newannos))
              (count origannos)))
       ;; the "bad-layout-annos" file contains a single unknown-kind and
       ;; its associated layout annotation.  Since the unknown-kind object
