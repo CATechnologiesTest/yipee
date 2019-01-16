@@ -21,6 +21,7 @@ import { TopLabel } from '../k8s/TopLabel';
 export class ContainerGroup extends ParsedObject {
 
   public static OBJECT_NAME = 'container-group';
+  public static TYPE_DEPLOYMENT = 'Deployment';
 
   private _name: string;
   pod: string;
