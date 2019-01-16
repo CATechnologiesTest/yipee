@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -31,7 +33,7 @@ type ObjResp struct {
 func bytesToJsonObject(data []byte) JsonObject {
 	var flatFile JsonObject
 	if err := json.Unmarshal(data, &flatFile); err != nil {
-		panic("json unmarshal")
+		log.Errorf("bytesToJsonObject: %v", err)
 	}
 	return flatFile
 }
@@ -39,7 +41,7 @@ func bytesToJsonObject(data []byte) JsonObject {
 func toJsonBytes(payload interface{}) []byte {
 	outbytes, err := json.Marshal(payload)
 	if err != nil {
-		panic("json marshal makeErrorResponse")
+		log.Errorf("toJsonBytes: %v", err)
 	}
 	return outbytes
 }
@@ -101,4 +103,28 @@ type CvtResult struct {
 func doAsyncConvert(path string, data []byte, result chan<- CvtResult) {
 	payload, errstr := doConvert(path, data)
 	result <- CvtResult{payload, errstr}
+}
+
+func hasQueryVal(r *http.Request, name string, val string) bool {
+	qvals := r.URL.Query()
+	if qv, ok := qvals[name]; ok {
+		return len(qv) > 0 && qv[0] == val
+	}
+	return false
+}
+
+func mkTemp(data []byte) string {
+	tmp, err := ioutil.TempFile("", "yipee-kubectl-*.yml")
+	if err != nil {
+		log.Errorf("kubectl mktemp error %v", err)
+		return ""
+	}
+	defer tmp.Close()
+	fname := tmp.Name()
+	if _, err = tmp.Write(data); err != nil {
+		log.Errorf("kubectl mktemp file write: %v", err)
+		os.Remove(fname)
+		return ""
+	}
+	return fname
 }
