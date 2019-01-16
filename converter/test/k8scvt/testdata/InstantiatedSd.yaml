@@ -1,0 +1,4 @@
+---
+# Source: sd2/templates/DeploymentRacket.yaml
+{"apiVersion":"extensions/v1beta1","kind":"Deployment","metadata":{"name":"racket"},"spec":{"replicas":1,"rollbackTo":{"revision":0},"revisionHistoryLimit":2,"selector":{"matchLabels":{"name":"racket","component":"racket"}},"strategy":{"rollingUpdate":{"maxSurge":1,"maxUnavailable":1},"type":"RollingUpdate"},"template":{"metadata":{"labels":{"name":"racket","component":"racket"}},"spec":{"containers":[{"image":"jackfirth/racket:6.5-onbuild-test","name":"racket","ports":[{"containerPort":80,"protocol":"TCP"}]}],"restartPolicy":"Always"}}}}
+

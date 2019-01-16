@@ -3,9 +3,11 @@
   (:require [clj-http.client :as client]
             [clojure.pprint :as pprint]
             [clojure.string :as string]
+            [clojure.set :as set]
             [clj-yaml.core :as yaml]
             [clojure.data.json :as json]
             [clojure.java.io :as io]
+            [k8scvt.file-import :as fi]
             [helm.core :as helm]
             [engine.core :refer [ppwrap]])
   (:import [java.util
@@ -151,7 +153,7 @@
 
 (defn- wrap [name yaml] {:name name :yaml yaml})
 
-(deftest test-diff-api
+(deftest test-diff-apis
   (with-server
     (let [parent (test-slurp "helm_model_1.yaml")
           child (test-slurp "helm_model_2.yaml")
@@ -166,7 +168,30 @@
                                          {:parent (wrap "parent" parent)
                                           :children [(wrap "child" child)]})))]
       (is (= 201 status))
-      (is (= body (test-slurp "diff-api-output.txt"))))))
+      (is (= (sort (string/split body #"[\n]"))
+             (sort (string/split (test-slurp "diff-api-output.txt") #"[\n]")))))
+    (let [chart-name "chart"
+          models (map (fn [[name file]]
+                        {:name name :yaml (slurp (test-file-name file))})
+                      [["sd" "sd.yaml"] ["sd2" "sd2.yaml"]])
+          url (str base-url "/m2hbundle")
+          arg-data {:accept :json :content-type "json"}
+          {status :status body :body} (client/post
+                                       url
+                                       (assoc
+                                        arg-data
+                                        :body
+                                        (json/write-str
+                                         {:chart-name chart-name
+                                          :models models})))
+          entries (get-tar-entries (helm/decode-bytes
+                                    (test-slurp "m2hbundle-api-output.tgz64")))
+          ret-entries (get-tar-entries (helm/decode-bytes body))]
+      (is (= 201 status))
+      (doseq [entry entries]
+        (doseq [rentry ret-entries]
+          (when (= (:name entry) (:name rentry))
+            (is (= (:contents entry) (:contents rentry)))))))))
 
 (defn fetch-annos [jsonstr]
   ;; return a set containing the value objects from the given json

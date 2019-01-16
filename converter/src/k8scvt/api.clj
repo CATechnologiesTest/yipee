@@ -11,6 +11,7 @@
             [clj-yaml.core :as yaml]
             [clojure.java.io :as io]
             [clojure.string :as str]
+            [clojure.set :as set]
             [clojure.walk :as walk]
             [compojure.core :refer [routes ANY]]
             [engine.core :refer :all]
@@ -214,6 +215,15 @@
                (json/read-str (body-as-string ctx) :key-fn keyword))]
     {::retval (diff/formatted-diff (:parent input) (:children input))}))
 
+;; Generate a helm model from diffs
+(defn model-diff-to-helm [ctx]
+  (let [input (fi/protect-qualified-keywords
+               (json/read-str (body-as-string ctx) :key-fn keyword))]
+    {::retval (helm/models-to-helm
+               (:chart-name input)
+               (mapv #(fi/import-combined (:yaml %) (:name %))
+                     (:models input)))}))
+
 (defn format-results [results]
   (reduce-kv (fn [m k v] (assoc m k (map u/gen-string v))) {} results))
 
@@ -328,6 +338,12 @@
   :post! diff-models
   :handle-created #(conversion-base % identity))
 
+(defresource m2hbundle
+  :allowed-methods [:post]
+  :available-media-types ["application/json"]
+  :post! model-diff-to-helm
+  :handle-created #(conversion-base % identity))
+
 ;; Routes handled by the Kubernetes subsystem. Only used in testing. In
 ;; mainline operation, the converter api bypasses this.
 (def api-routes
@@ -341,6 +357,7 @@
    (ANY "/f2hbundle" [] (f2hbundle "default"))
    (ANY "/f2hbundle/:wtp" [wtp] (f2hbundle wtp))
    (ANY "/m2d" [] m2d)
+   (ANY "/m2hbundle" [] m2hbundle)
    (route/not-found (format (json/write-str {:message "Page not found"})))))
 
 (defn wrap-fallback-exception [handler]
