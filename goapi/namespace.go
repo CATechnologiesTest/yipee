@@ -4,17 +4,26 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/gorilla/mux"
+	log "github.com/sirupsen/logrus"
+	"io/ioutil"
 	"net/http"
+	"os"
+	"os/exec"
 	"sync"
 )
 
+var kubectlPath = "/usr/local/bin/kubectl"
+
 func initNamespaces(router *mux.Router) {
+	router.HandleFunc("/namespaces/apply/{name}",
+		applyNamespace).Methods(http.MethodPost)
 	router.HandleFunc("/namespaces/{name}", getNamespace).Methods(http.MethodGet)
+	router.HandleFunc("/namespaces/{name}",
+		deleteNamespace).Methods(http.MethodDelete)
 	router.HandleFunc("/namespaces", getNamespaceList).Methods(http.MethodGet)
 }
 
-func getNamespace(w http.ResponseWriter, r *http.Request) {
-	nsname := mux.Vars(r)["name"]
+func getNamespaceObjects(nsname string) ([]byte, string) {
 	nsurls := []string{
 		fmt.Sprintf("/apis/apps/v1/namespaces/%s/deployments", nsname),
 		fmt.Sprintf("/apis/apps/v1/namespaces/%s/statefulsets", nsname),
@@ -35,13 +44,22 @@ func getNamespace(w http.ResponseWriter, r *http.Request) {
 				allobjs.WriteString("\n---\n")
 			}
 		} else {
-			w.WriteHeader(http.StatusRequestTimeout)
-			w.Write(makeErrorResponse("getNamespace timed out after 30 seconds"))
-			return
+			return nil, "getNamespace timed out"
 		}
 	}
 	close(resultchan)
-	flatBytes, errstr := doConvert("/k2f", allobjs.Bytes())
+	return allobjs.Bytes(), ""
+}
+
+func getNamespace(w http.ResponseWriter, r *http.Request) {
+	nsname := mux.Vars(r)["name"]
+	nsBytes, errstr := getNamespaceObjects(nsname)
+	if errstr != "" {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write(makeErrorResponse(errstr))
+		return
+	}
+	flatBytes, errstr := doConvert("/k2f", nsBytes)
 	if errstr != "" {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(makeErrorResponse(errstr))
@@ -135,6 +153,14 @@ func rollupNamespace(nsobj *Nsobj) {
 	}
 }
 
+func getExecErrorMsg(err error) string {
+	msg := err.Error()
+	if exiterr, ok := err.(*exec.ExitError); ok {
+		msg = string(exiterr.Stderr)
+	}
+	return msg
+}
+
 func getNamespaceList(w http.ResponseWriter, r *http.Request) {
 	nslist := k8sGetList("/api/v1/namespaces")
 	retlist := make([]*Nsobj, len(nslist))
@@ -162,4 +188,105 @@ func getNamespaceList(w http.ResponseWriter, r *http.Request) {
 	resp["total"] = len(retlist)
 	resp["data"] = retlist
 	w.Write(toJsonBytes(resp))
+}
+
+func getFlatBytesFromPayload(w http.ResponseWriter, r *http.Request) []byte {
+	inbytes, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write(makeErrorResponse("can't read input"))
+		return nil
+	}
+	reqobj := bytesToJsonObject(inbytes)
+	if reqobj == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write(makeErrorResponse("can't parse input json"))
+		return nil
+	}
+	flatObj, ok := reqobj["flatFile"].(map[string]interface{})
+	if !ok {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write(makeErrorResponse("missing flatFile key"))
+		return nil
+	}
+	flatBytes := toJsonBytes(flatObj)
+	if flatBytes == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write(makeErrorResponse("invalid json for apply"))
+		return nil
+	}
+	return flatBytes
+}
+
+func applyNamespace(w http.ResponseWriter, r *http.Request) {
+	flatBytes := getFlatBytesFromPayload(w, r)
+	if flatBytes == nil {
+		return
+	}
+
+	nsbytes, errstr := doConvert("/f2k", flatBytes)
+	if errstr != "" {
+		log.WithFields(log.Fields{
+			"errstr": errstr,
+		}).Errorf("apply/f2k error")
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write(makeErrorResponse(errstr))
+		return
+	}
+	tmpname := mkTemp(nsbytes)
+	if tmpname == "" {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write(makeErrorResponse("error writing tempfile for apply"))
+		return
+	}
+	defer os.Remove(tmpname)
+
+	nsname := mux.Vars(r)["name"]
+	if hasQueryVal(r, "createNamespace", "true") {
+		_, err := exec.Command(kubectlPath, "create", "namespace", nsname).Output()
+		if err != nil {
+			errstr := getExecErrorMsg(err)
+			log.WithFields(log.Fields{
+				"nsname": nsname,
+				"stderr": errstr,
+				"err":    err.Error(),
+			}).Error("create ns error")
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(makeErrorResponse(errstr))
+			return
+		}
+	}
+
+	_, err := exec.Command(kubectlPath, "apply", "-f", tmpname).Output()
+	if err != nil {
+		errstr := getExecErrorMsg(err)
+		log.WithFields(log.Fields{
+			"data":   string(nsbytes),
+			"stderr": errstr,
+			"err":    err.Error(),
+		}).Error("apply error")
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write(makeErrorResponse(errstr))
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write(makeStringResp(true, "applied successfully"))
+}
+
+func deleteNamespace(w http.ResponseWriter, r *http.Request) {
+	nsname := mux.Vars(r)["name"]
+	_, err := exec.Command(kubectlPath, "delete", "namespace", nsname).Output()
+	if err != nil {
+		errstr := getExecErrorMsg(err)
+		log.WithFields(log.Fields{
+			"nsname": nsname,
+			"stderr": errstr,
+			"err":    err.Error(),
+		}).Error("delete namespace error")
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write(makeErrorResponse(errstr))
+		return
+	}
+	w.WriteHeader(http.StatusAccepted)
+	w.Write(makeStringResp(true, "namespace delete initiated successfully"))
 }

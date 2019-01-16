@@ -98,14 +98,6 @@ func doImport(w http.ResponseWriter, r *http.Request) {
 	w.Write(resp)
 }
 
-func hasQueryVal(r *http.Request, name string, val string) bool {
-	qvals := r.URL.Query()
-	if qv, ok := qvals[name]; ok {
-		return len(qv) > 0 && qv[0] == val
-	}
-	return false
-}
-
 func doImportGet(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
 	if cv := importCache.Remove(id); cv != nil {
