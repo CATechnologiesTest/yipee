@@ -1,0 +1,4 @@
+---
+# Source: sds2/templates/ServiceMongo.yaml
+{"apiVersion":"v1","kind":"Service","metadata":{"uid":"921f1b4f-fc8b-4f81-b330-d66a34991ab1","name":"mongo","labels":{"name":"mongo","app":"mongo"}},"spec":{"ports":[{"port":27017,"name":"web"}],"selector":{"name":"foo.bar-mongo","app":"mongo"},"type":"NodePort"}}
+

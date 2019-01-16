@@ -24,6 +24,7 @@
    (ANY "/f2hnerd" [] (kapi/f2hnerd "default"))
    (ANY "/f2hnerd/:wtp" [wtp] (kapi/f2hnerd wtp))
    (ANY "/m2d" [] kapi/m2d)
+   (ANY "/m2hbundle" [] kapi/m2hbundle)
    (ANY "/c2f" [] capi/c2f)
    (ANY "/f2kbundle" [] kapi/f2kbundle)
    (ANY "/f2hbundle" [] (kapi/f2hbundle "default"))

@@ -7,7 +7,6 @@ kind: Service
 metadata:
   name: joomla
   annotations:
-    yipee.io.lastModelUpdate: '2018-09-21T20:24:45.246Z'
     yipee.io.modelId: 10d4ebd2-5919-11e8-a3f9-db2dd23490ad
     yipee.io.contextId: 6e0a6206-1558-11e7-a0fe-e7a448f880d1
     yipee.io.modelURL: https://app.yipee.io/editor/10d4ebd2-5919-11e8-a3f9-db2dd23490ad/6e0a6206-1558-11e7-a0fe-e7a448f880d1
@@ -32,7 +31,6 @@ kind: Service
 metadata:
   name: mariadb
   annotations:
-    yipee.io.lastModelUpdate: '2018-09-21T20:24:45.246Z'
     yipee.io.modelId: 10d4ebd2-5919-11e8-a3f9-db2dd23490ad
     yipee.io.contextId: 6e0a6206-1558-11e7-a0fe-e7a448f880d1
     yipee.io.modelURL: https://app.yipee.io/editor/10d4ebd2-5919-11e8-a3f9-db2dd23490ad/6e0a6206-1558-11e7-a0fe-e7a448f880d1
@@ -54,7 +52,6 @@ metadata:
   name: joomla
   uid: 10d4ebd2-5919-11e8-a3f9-db2dd23490ae
   annotations:
-    yipee.io.lastModelUpdate: '2018-09-21T20:24:45.246Z'
     yipee.io.modelId: 10d4ebd2-5919-11e8-a3f9-db2dd23490ad
     yipee.io.contextId: 6e0a6206-1558-11e7-a0fe-e7a448f880d1
     yipee.io.modelURL: https://app.yipee.io/editor/10d4ebd2-5919-11e8-a3f9-db2dd23490ad/6e0a6206-1558-11e7-a0fe-e7a448f880d1
@@ -133,7 +130,6 @@ kind: Deployment
 metadata:
   name: mariadb
   annotations:
-    yipee.io.lastModelUpdate: '2018-09-21T20:24:45.246Z'
     yipee.io.modelId: 10d4ebd2-5919-11e8-a3f9-db2dd23490ad
     yipee.io.contextId: 6e0a6206-1558-11e7-a0fe-e7a448f880d1
     yipee.io.modelURL: https://app.yipee.io/editor/10d4ebd2-5919-11e8-a3f9-db2dd23490ad/6e0a6206-1558-11e7-a0fe-e7a448f880d1
@@ -189,7 +185,6 @@ kind: PersistentVolumeClaim
 metadata:
   name: apache-data-claim
   annotations:
-    yipee.io.lastModelUpdate: '2018-09-21T20:24:45.246Z'
     yipee.io.modelId: 10d4ebd2-5919-11e8-a3f9-db2dd23490ad
     yipee.io.contextId: 6e0a6206-1558-11e7-a0fe-e7a448f880d1
     yipee.io.modelURL: https://app.yipee.io/editor/10d4ebd2-5919-11e8-a3f9-db2dd23490ad/6e0a6206-1558-11e7-a0fe-e7a448f880d1
@@ -207,7 +202,6 @@ kind: PersistentVolumeClaim
 metadata:
   name: php-data-claim
   annotations:
-    yipee.io.lastModelUpdate: '2018-09-21T20:24:45.246Z'
     yipee.io.modelId: 10d4ebd2-5919-11e8-a3f9-db2dd23490ad
     yipee.io.contextId: 6e0a6206-1558-11e7-a0fe-e7a448f880d1
     yipee.io.modelURL: https://app.yipee.io/editor/10d4ebd2-5919-11e8-a3f9-db2dd23490ad/6e0a6206-1558-11e7-a0fe-e7a448f880d1
@@ -225,7 +219,6 @@ kind: PersistentVolumeClaim
 metadata:
   name: joomla-data-claim
   annotations:
-    yipee.io.lastModelUpdate: '2018-09-21T20:24:45.246Z'
     yipee.io.modelId: 10d4ebd2-5919-11e8-a3f9-db2dd23490ad
     yipee.io.contextId: 6e0a6206-1558-11e7-a0fe-e7a448f880d1
     yipee.io.modelURL: https://app.yipee.io/editor/10d4ebd2-5919-11e8-a3f9-db2dd23490ad/6e0a6206-1558-11e7-a0fe-e7a448f880d1
@@ -243,7 +236,6 @@ kind: PersistentVolumeClaim
 metadata:
   name: mariadb-data-claim
   annotations:
-    yipee.io.lastModelUpdate: '2018-09-21T20:24:45.246Z'
     yipee.io.modelId: 10d4ebd2-5919-11e8-a3f9-db2dd23490ad
     yipee.io.contextId: 6e0a6206-1558-11e7-a0fe-e7a448f880d1
     yipee.io.modelURL: https://app.yipee.io/editor/10d4ebd2-5919-11e8-a3f9-db2dd23490ad/6e0a6206-1558-11e7-a0fe-e7a448f880d1
