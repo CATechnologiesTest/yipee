@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 const DEFAULT_TIMEOUT = time.Second * 30
@@ -33,7 +34,8 @@ type ObjResp struct {
 func bytesToJsonObject(data []byte) JsonObject {
 	var flatFile JsonObject
 	if err := json.Unmarshal(data, &flatFile); err != nil {
-		log.Errorf("bytesToJsonObject: %v", err)
+		RaiseCatchable(http.StatusBadRequest, "can't unmarshal JSON",
+			log.Fields{"err": "bytesToJsonObject: " + err.Error()})
 	}
 	return flatFile
 }
@@ -41,9 +43,19 @@ func bytesToJsonObject(data []byte) JsonObject {
 func toJsonBytes(payload interface{}) []byte {
 	outbytes, err := json.Marshal(payload)
 	if err != nil {
-		log.Errorf("toJsonBytes: %v", err)
+		RaiseCatchable(http.StatusBadRequest, "can't marshal JSON",
+			log.Fields{"err": "toJsonBytes: " + err.Error()})
 	}
 	return outbytes
+}
+
+func getInputObject(r *http.Request) JsonObject {
+	inbytes, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		RaiseCatchable(http.StatusBadRequest, "can't read request body",
+			log.Fields{"err": "getInputObject: " + err.Error()})
+	}
+	return bytesToJsonObject(inbytes)
 }
 
 func makeStringResp(success bool, payload string) []byte {
@@ -116,15 +128,15 @@ func hasQueryVal(r *http.Request, name string, val string) bool {
 func mkTemp(data []byte) string {
 	tmp, err := ioutil.TempFile("", "yipee-kubectl-*.yml")
 	if err != nil {
-		log.Errorf("kubectl mktemp error %v", err)
-		return ""
+		RaiseCatchable(http.StatusInternalServerError,
+			"mktemp error", log.Fields{"err": err.Error()})
 	}
 	defer tmp.Close()
 	fname := tmp.Name()
 	if _, err = tmp.Write(data); err != nil {
-		log.Errorf("kubectl mktemp file write: %v", err)
 		os.Remove(fname)
-		return ""
+		RaiseCatchable(http.StatusInternalServerError,
+			"mktemp file write error", log.Fields{"err": err.Error()})
 	}
 	return fname
 }

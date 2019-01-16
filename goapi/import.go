@@ -1,11 +1,9 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
-	"io/ioutil"
 	"net/http"
 	"strings"
 	"sync"
@@ -42,19 +40,8 @@ const CACHE_LIMIT_ERR = "cache limit exceeded"
 const CACHE_FETCH_ERR = "no model for uuid"
 
 func doImport(w http.ResponseWriter, r *http.Request) {
-	inbytes, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(makeErrorResponse("can't read input"))
-		return
-	}
-	var reqobj JsonObject
-	err = json.Unmarshal(inbytes, &reqobj)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(makeErrorResponse("can't parse input json"))
-		return
-	}
+	defer HandleCatchableForRequest(w)
+	reqobj := getInputObject(r)
 	payload, ok := reqobj["importFile"].(string)
 	if !ok {
 		w.WriteHeader(http.StatusBadRequest)
