@@ -3,13 +3,14 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/mux"
-	"github.com/gorilla/websocket"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/gorilla/mux"
+	"github.com/gorilla/websocket"
+	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -33,7 +34,7 @@ func initStatus(router *mux.Router) {
 		}
 		listenersByNS = make(map[string][]chan updatemsg)
 		objectsByNS = NewCache(0, 0)
-		if envBoolean("LIVE_CLUSTER") {
+		if getFromEnv(INSTALL_TYPE, STATIC_INSTALL) == LIVE_INSTALL {
 			go startWatchers()
 		}
 	})

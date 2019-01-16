@@ -190,8 +190,8 @@ spec:
       containers:
       - name: yipee-api
         env:
-          - name: LIVE_CLUSTER
-            value: 'true'
+          - name: INSTALL_TYPE
+            value: 'cluster'
         image: yipeeio/api:experimental
         imagePullPolicy: Always
         ports:
