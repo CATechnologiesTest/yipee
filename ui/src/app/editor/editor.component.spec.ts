@@ -15,6 +15,7 @@ import { EditorEventService } from './editor-event.service';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../shared/services/api.service';
 import { UserService } from '../shared/services/user.service';
+import { UpdateService } from '../shared/services/update.service';
 import { balancePreviousStylesIntoKeyframes } from '@angular/animations/browser/src/util';
 
 describe('EditorComponent', () => {
@@ -25,6 +26,11 @@ describe('EditorComponent', () => {
   class MockDownloadService {
     constructor() { }
   }
+
+  class MockUpdateService {
+    constructor() { }
+  }
+
   class MockActivatedRoute {
     constructor() { }
     snapshot = { params: {} };
@@ -63,6 +69,7 @@ describe('EditorComponent', () => {
         ApiService,
         { provide: DownloadService, useClass: MockDownloadService },
         { provide: ActivatedRoute, useClass: MockActivatedRoute },
+        { provide: UpdateService, useClass: MockUpdateService },
         EditorService
       ]
     })

@@ -38,6 +38,7 @@ export class ContainerGroup extends ParsedObject {
 
   constructor() {
     super(ContainerGroup.OBJECT_NAME);
+    this._controller_type = ContainerGroup.TYPE_DEPLOYMENT;
   }
 
   /** is the object empty */
