@@ -9,11 +9,12 @@ import (
 )
 
 const (
-	YIPEE_PREFIX   = "YIPEE_"
-	INSTALL_TYPE   = "YIPEE_INSTALL_TYPE"
-	STATIC_INSTALL = "static"
-	LIVE_INSTALL   = "cluster"
-	NOT_FOUND      = "config not found"
+	YIPEE_PREFIX    = "YIPEE_"
+	INSTALL_TYPE    = "YIPEE_INSTALL_TYPE"
+	STATIC_INSTALL  = "static"
+	LIVE_INSTALL    = "cluster"
+	DEFAULT_INSTALL = STATIC_INSTALL
+	NOT_FOUND       = "config not found"
 )
 
 var VALID_INSTALL_TYPES = []string{STATIC_INSTALL, LIVE_INSTALL}
@@ -48,7 +49,7 @@ func getEnv(f filter, name string) JsonObject {
 		if f(k, name) {
 			// add in default install type rather than a bogus value from env
 			if k == INSTALL_TYPE && !validInstallValue(v) {
-				env_obj[INSTALL_TYPE] = STATIC_INSTALL
+				env_obj[INSTALL_TYPE] = DEFAULT_INSTALL
 				continue
 			}
 			env_obj[k] = v
@@ -72,7 +73,7 @@ func makeConfigResponse(cfg_obj JsonObject, w http.ResponseWriter) {
 }
 
 func addDefaultInstallType(cfg_obj *JsonObject) {
-	(*cfg_obj)[INSTALL_TYPE] = getFromEnv(INSTALL_TYPE, STATIC_INSTALL)
+	(*cfg_obj)[INSTALL_TYPE] = getFromEnv(INSTALL_TYPE, DEFAULT_INSTALL)
 }
 
 // doConfigGet fetches an exact match for the specified ENV name

@@ -38,6 +38,16 @@ var (
 	YipeeLiveInstallOnly    = environment{YipeeLiveInstall}
 )
 
+func add404TestConfigs(cfgtests []*configtest) []*configtest {
+	my404envs :=
+		[]environment{EmptyEnv, YipeesNoInstall, YipeesBadInstallValue,
+			YipeesWithStaticInstall, YipeesWithLiveInstall, YipeeLiveInstallOnly}
+	for _, e := range my404envs {
+		cfgtests = append(cfgtests, &configtest{"/configs/" + FOO, e, 404, []string{}})
+	}
+	return cfgtests
+}
+
 type configtest struct {
 	path            string
 	env             environment
@@ -81,15 +91,10 @@ func TestConfigRetrieval(t *testing.T) {
 			[]JsonObject{populateJsonObj(INSTALL_TYPE, LIVE_INSTALL)}},
 		&configtest{"/configs/" + INSTALL_TYPE, YipeeLiveInstallOnly, 200,
 			[]JsonObject{populateJsonObj(INSTALL_TYPE, LIVE_INSTALL)}},
-		&configtest{"/configs/" + FOO, EmptyEnv, 404, []string{}},
 		&configtest{"/configs/" + FOO, NoYipees, 200, []JsonObject{
 			populateJsonObj(FOO, BAR)}},
-		&configtest{"/configs/" + FOO, YipeesNoInstall, 404, []string{}},
-		&configtest{"/configs/" + FOO, YipeesBadInstallValue, 404, []string{}},
-		&configtest{"/configs/" + FOO, YipeesWithStaticInstall, 404, []string{}},
-		&configtest{"/configs/" + FOO, YipeesWithLiveInstall, 404, []string{}},
-		&configtest{"/configs/" + FOO, YipeeLiveInstallOnly, 404, []string{}},
 	}
+	add404TestConfigs(configtests)
 
 	for _, ct := range configtests {
 		path, exp_status, exp_cfgs := ct.path, ct.expStatus, ct.expectedConfigs
@@ -98,18 +103,19 @@ func TestConfigRetrieval(t *testing.T) {
 		if exp_status == 200 {
 			cfgs := exp_cfgs.([]JsonObject)
 			result := doSuccessRequest(t, req)
-			checkSuccessResult(t, cfgs, result)
+			checkSuccessResult(t, path, ct.env, cfgs, result)
 		} else {
 			doErrRequest(t, req)
 		}
 	}
 }
 
-func checkSuccessResult(t *testing.T, exp []JsonObject, r *ObjResp) {
+func checkSuccessResult(
+	t *testing.T, path string, e environment, exp []JsonObject, r *ObjResp) {
 	config := r.Data
 	if ok := reflect.DeepEqual(exp, config); !ok {
-		t.Errorf("Maps returned don't match, expected, %v, got %v\n",
-			exp, config)
+		t.Errorf("get %s = %v for environment %v, wants %v\n",
+			path, config, e, exp)
 	}
 }
 
