@@ -1,10 +1,11 @@
 package main
 
 import (
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"sync"
+
+	"github.com/gorilla/mux"
 )
 
 var (
@@ -19,6 +20,7 @@ func Router() *mux.Router {
 		initImports(router)
 		initConverts(router)
 		initNamespaces(router)
+		initConfigs(router)
 		initStatus(router)
 	})
 	return router
