@@ -252,7 +252,7 @@ func applyNamespace(w http.ResponseWriter, r *http.Request) {
 				"err":    err.Error(),
 			}).Error("create ns error")
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write(makeErrorResponse(err.Error()))
+			w.Write(makeErrorResponse(errstr))
 			return
 		}
 	}
