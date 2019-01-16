@@ -4,6 +4,7 @@ import { Annotation } from './Annotation';
 import { Container } from './Container';
 import { CronJobData } from '../k8s/CronJobData';
 import { DeploymentSpec } from './DeploymentSpec';
+import { DeploymentStatus } from './DeploymentStatus';
 import { ExtraHosts } from './ExtraHosts';
 import { FinderUtilities } from './FinderUtilities';
 import { Label } from './Label';
@@ -20,13 +21,12 @@ import { TopLabel } from '../k8s/TopLabel';
 export class ContainerGroup extends ParsedObject {
 
   public static OBJECT_NAME = 'container-group';
-  public static TYPE_DEPLOYMENT = 'Deployment';
 
-  _name: string;
+  private _name: string;
   pod: string;
   /** auto or k8s */
   source: string;
-  _controller_type: string;
+  private _controller_type: string;
   public onNameChange: EventEmitter<NameChangeEvent> = new EventEmitter<NameChangeEvent>();
   public onContainerCountChange: EventEmitter<ValueChangeEvent> = new EventEmitter<ValueChangeEvent>();
   public onContainerGroupDelete: EventEmitter<string> = new EventEmitter<string>();
@@ -37,7 +37,6 @@ export class ContainerGroup extends ParsedObject {
 
   constructor() {
     super(ContainerGroup.OBJECT_NAME);
-    this._controller_type = ContainerGroup.TYPE_DEPLOYMENT;
   }
 
   /** is the object empty */
@@ -75,17 +74,19 @@ export class ContainerGroup extends ParsedObject {
     for (const container of this.containers) {
       container.remove();
     }
+    this.getDeploymentSpec().remove();
+    this.getDeploymentStatus().remove();
+    FinderUtilities.getDescription(this.finder, this.id).remove();
     this.getExtraHosts().remove();
     for (const label of this.label) {
       label.remove();
     }
+    this.getReplication().remove();
     for (const label of this.top_label) {
       label.remove();
     }
-
+    FinderUtilities.getUi(this.finder, this.id).remove();
     this.onContainerGroupDelete.emit(this.id);
-    FinderUtilities.removeObjectReferences(this.finder, this.id, 'cgroup');
-    FinderUtilities.removeObjectAnnotations(this.finder, this.id);
   }
 
   get controller_type(): string {
@@ -146,6 +147,10 @@ export class ContainerGroup extends ParsedObject {
 
   get deployment_spec(): DeploymentSpec {
     return this.getDeploymentSpec();
+  }
+
+  get deployment_status(): DeploymentStatus {
+    return this.getDeploymentStatus();
   }
 
   get extra_hosts(): string[] {
@@ -244,6 +249,19 @@ export class ContainerGroup extends ParsedObject {
       this.finder.push(spec);
     }
     return spec;
+  }
+
+  private getDeploymentStatus(): DeploymentStatus {
+    let status = this.finder.objects
+      .filter((p) => p.type === DeploymentStatus.OBJECT_NAME)
+      .map((p: DeploymentStatus) => p as DeploymentStatus)
+      .find((p) => p.cgroup === this.id);
+    if (status === undefined) {
+      status = new DeploymentStatus();
+      status.cgroup = this.id;
+      this.finder.push(status);
+    }
+    return status;
   }
 
   private getExtraHosts(): ExtraHosts {

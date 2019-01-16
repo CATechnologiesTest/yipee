@@ -15,6 +15,7 @@ import { ApiService } from './services/api.service';
 import { DownloadService } from './services/download.service';
 import { ImportAppService } from './services/import-app.service';
 import { YipeeFileService } from './services/yipee-file.service';
+import { UpdateService } from './services/update.service';
 
 import { BulkNameValueEditComponent } from './modals/bulk-name-value-edit/bulk-name-value-edit.component';
 import { CloseAppModalComponent } from './modals/close-app-modal/close-app-modal.component';
@@ -132,7 +133,8 @@ export class SharedModule {
                     ApiService,
                     DownloadService,
                     ImportAppService,
-                    YipeeFileService
+                    YipeeFileService,
+                    UpdateService
                   ]
     };
   }

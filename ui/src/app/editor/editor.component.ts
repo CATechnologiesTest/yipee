@@ -8,6 +8,7 @@ import { SidebarComponent } from './sidebar/sidebar.component';
 import { DownloadService } from '../shared/services/download.service';
 import { EditorEventService, SelectionChangedEvent, EventSource } from './editor-event.service';
 import { YipeeFileService } from '../shared/services/yipee-file.service';
+import { UpdateService } from '../shared/services/update.service';
 
 @Component({
   templateUrl: './editor.component.html',
@@ -46,6 +47,7 @@ export class EditorComponent implements OnInit, AfterViewChecked {
     private editorEventService: EditorEventService,
     private yipeeFileService: YipeeFileService,
     private cd: ChangeDetectorRef,
+    private updateService: UpdateService
   ) {
     this.showWarningModal = false;
   }
@@ -59,11 +61,10 @@ export class EditorComponent implements OnInit, AfterViewChecked {
 
       this.yipeeFileService.read(deepLinkId, isNamespaceUrl).subscribe(
         (yipeeFile) => {
-          this.editorService.loadYipeeFile(yipeeFile).subscribe(
-            (response) => {
+          this.editorService.loadYipeeFile(yipeeFile).subscribe((response) => {
               this.ui.loading = false;
               this.yipeeFileID = this.editorService.yipeeFileID;
-
+              this.updateService.subscribeToK8sFile(this.editorService.k8sFile, deepLinkId);
             });
         },
         (error) => {
