@@ -187,7 +187,7 @@ describe('EditorComponent', () => {
         expect(component.editorService.infoText.length).toBe(0);
         service.metadata.flatFile.appInfo.createNs = createNs;
         component.onApplyManifestClicked();
-        backend.expectOne({method: 'POST', url: '/api/namespaces/apply/' + ns + ((createNs) ? '?createNamespace=true' : '' )})
+        backend.expectOne({method: 'POST', url: '/api/namespaces/' + ns + '/apply' +  ((createNs) ? '?createNamespace=true' : '' )})
           .flush({success: true, total: 1, data: ['applied successfully']});
         tick(50);
         expect(component.editorService.infoText.length).toBe(1);
@@ -205,7 +205,7 @@ describe('EditorComponent', () => {
       service.metadata.flatFile.appInfo.createNs = true;
       component.onApplyManifestClicked();
       expect(component.editorService.warningText.length).toBe(0);
-      backend.expectOne({method: 'POST', url: '/api/namespaces/apply/' + ns + '?createNamespace=true'})
+      backend.expectOne({method: 'POST', url: '/api/namespaces/' + ns + '/apply' + '?createNamespace=true'})
         .flush({success: false, total: 0, data: [err]}, {status: 500, statusText: 'badDev'});
       tick(50);
       expect(component.editorService.warningText.length).toBe(2);
@@ -226,7 +226,7 @@ describe('EditorComponent', () => {
       component.onApplyManifestClicked();
 
       expect(component.editorService.warningText.length).toBe(0);
-      backend.expectOne({method: 'POST', url: '/api/namespaces/apply/' + ns})
+      backend.expectOne({method: 'POST', url: '/api/namespaces/' + ns + '/apply'})
          .error(new ErrorEvent('Network issue'));
       tick(50);
       expect(component.editorService.warningText.length).toBe(2);

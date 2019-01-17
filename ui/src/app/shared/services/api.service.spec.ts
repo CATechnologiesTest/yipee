@@ -571,7 +571,7 @@ function callAndVerifySuccess(s: ApiService, b: HttpTestingController, ns: Strin
     expect(res.success).toBeTruthy();
   });
 
-  b.expectOne({method: 'POST', url: '/api/namespaces/apply/' + ns + ((createNS) ? '?createNamespace=true' : '') })
+  b.expectOne({method: 'POST', url: '/api/namespaces/' + ns + '/apply' + ((createNS) ? '?createNamespace=true' : '') })
     .flush({success: true, total: 0, data: ['did it']});
   tick(50);
 

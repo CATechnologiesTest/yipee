@@ -33,23 +33,26 @@ func TestNamespace(t *testing.T) {
 	kubectlPath = "/bin/echo"
 	doSuccessRequestString(t,
 		httptest.NewRequest(http.MethodPost,
-			"/namespaces/apply/fake",
+			"/namespaces/fake/apply",
 			bytes.NewBuffer(applyBytes)))
 	doSuccessRequestString(t,
 		httptest.NewRequest(http.MethodPost,
-			"/namespaces/apply/fake?createNamespace=true",
+			"/namespaces/fake/apply?createNamespace=true",
 			bytes.NewBuffer(applyBytes)))
 	doSuccessRequestString(t,
 		httptest.NewRequest(http.MethodDelete, "/namespaces/fake", nil))
-
+	// gettting data for a namespace named apply should work
+	doSuccessRequestString(t,
+		httptest.NewRequest(http.MethodDelete, "/namespaces/apply", nil))
+	
 	kubectlPath = "/none/ya"
 	doErrRequest(t,
 		httptest.NewRequest(http.MethodPost,
-			"/namespaces/apply/fake",
+			"/namespaces/fake/apply",
 			bytes.NewBuffer(applyBytes)))
 	doErrRequest(t,
 		httptest.NewRequest(http.MethodPost,
-			"/namespaces/apply/fake?createNamespace=true",
+			"/namespaces/fake/apply?createNamespace=true",
 			bytes.NewBuffer(applyBytes)))
 	doErrRequest(t,
 		httptest.NewRequest(http.MethodDelete, "/namespaces/fake", nil))

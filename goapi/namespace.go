@@ -15,7 +15,7 @@ import (
 var kubectlPath = "/usr/local/bin/kubectl"
 
 func initNamespaces(router *mux.Router) {
-	router.HandleFunc("/namespaces/apply/{name}",
+	router.HandleFunc("/namespaces/{name}/apply",
 		applyNamespace).Methods(http.MethodPost)
 	router.HandleFunc("/namespaces/{name}", getNamespace).Methods(http.MethodGet)
 	router.HandleFunc("/namespaces/{name}",

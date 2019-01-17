@@ -27,7 +27,7 @@ func doSuccessRequest(t *testing.T, req *http.Request) *ObjResp {
 	status := testRequest(t, req, &result)
 
 	if status != 200 || !result.Success {
-		t.Error("unexpected response code or success flag", status, result.Success)
+		t.Error("unexpected response code or success flag", req.URL, status, result.Success)
 	}
 	return &result
 }
@@ -37,7 +37,7 @@ func doSuccessRequestString(t *testing.T, req *http.Request) *StringResp {
 	status := testRequest(t, req, &result)
 
 	if status > 299 || !result.Success {
-		t.Error("unexpected response code or success flag", status, result.Success)
+		t.Error("unexpected response code or success flag", req.URL, status, result.Success)
 	}
 	return &result
 }
@@ -46,7 +46,7 @@ func doErrRequest(t *testing.T, req *http.Request) *StringResp {
 	var result StringResp
 	status := testRequest(t, req, &result)
 	if status < 400 || result.Success {
-		t.Error("unexpected error response code or flag", status, result.Success)
+		t.Error("unexpected error response code or flag", req.URL, status, result.Success)
 	}
 	return &result
 }
