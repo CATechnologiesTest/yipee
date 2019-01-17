@@ -210,6 +210,11 @@ export class ApiService {
   /* ******************* */
   /* DASHBOARD API CALLS */
   /* ******************* */
+  getConfig(): Observable<YipeeResponse> {
+    const api_endpoint = '/api/configs';
+    return this.http.get<YipeeFileResponse>(api_endpoint);
+  }
+
   applyManifest(metadataRaw: YipeeFileMetadataRaw, namespace: String, manifestIsNewNamespace: Boolean): Observable<YipeeResponse> {
     if (!namespace || namespace === '') {
       const res = {success: false, total: 0, data: [ApiService.MISSING_NAMESPACE]};

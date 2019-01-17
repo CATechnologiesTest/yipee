@@ -1,10 +1,11 @@
 package main
 
 import (
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"sync"
+
+	"github.com/gorilla/mux"
 )
 
 var (
@@ -15,9 +16,12 @@ var (
 func Router() *mux.Router {
 	once.Do(func() {
 		router = mux.NewRouter()
+		initLogger(router)
 		initImports(router)
 		initConverts(router)
 		initNamespaces(router)
+		initConfigs(router)
+		initStatus(router)
 	})
 	return router
 }

@@ -1,10 +1,10 @@
-import { Component, OnInit, OnDestroy} from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Router, Resolve, ActivatedRoute } from '@angular/router';
 import { YipeeFileMetadata } from '../models/YipeeFileMetadata';
 import { NamespaceService } from '../shared/services/namespace.service';
 import { DownloadService } from '../shared/services/download.service';
 import { NamespaceRaw } from '../models/YipeeFileRaw';
-import { Subscription } from 'rxjs';
+import { Subscription, Observable } from 'rxjs';
 
 
 @Component({
@@ -16,6 +16,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   showNewApplicationDialog = false;
   showImportApplicationDialog = false;
   showNamespaceDiffDialog = false;
+  isLive: boolean;
   isLoading = true;
   hasError = false;
   parentNamespace = '';
@@ -25,8 +26,9 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   constructor(
     private router: Router,
+    public route: ActivatedRoute,
     private namespaceService: NamespaceService,
-    private downloadService: DownloadService
+    private downloadService: DownloadService,
   ) { }
 
   handleCreateNewApplicationCreated(metadata: YipeeFileMetadata): void {
@@ -53,18 +55,26 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    // get initial set of namespaces
-    this.namespaceService.loadAndReturnNamespaces().subscribe((namespaces: NamespaceRaw[]) => {
-      this.namespaces = namespaces;
-      this.isLoading = false;
-    });
+    this.isLive = this.route.snapshot.data.isLive.value;
+    if (this.isLive) {
+      // get initial set of namespaces
+      this.namespaceService.loadAndReturnNamespaces().subscribe((namespaces: NamespaceRaw[]) => {
+        this.namespaces = namespaces;
+        this.isLoading = false;
+      });
 
-    // poll namespaces every 5 seconds to refresh namespaces on page
-    this.nsPollTimer = this.namespaceService.pollNamespaces().subscribe(() => {
-      this.namespaces = this.namespaceService.currentNamespaces;
-    });
+      // poll namespaces every 5 seconds to refresh namespaces on page
+      this.nsPollTimer = this.namespaceService.pollNamespaces().subscribe(() => {
+        this.namespaces = this.namespaceService.currentNamespaces;
+      });
+    } else {
+      this.isLoading = false;
+    }
+
   }
   ngOnDestroy() {
-    this.nsPollTimer.unsubscribe();
+    if (this.isLive) {
+      this.nsPollTimer.unsubscribe();
+    }
   }
 }

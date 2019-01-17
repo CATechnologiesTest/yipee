@@ -19,16 +19,17 @@ var k8sApiHost = liveApiHost
 
 // "static" vars
 var (
-	k8sClient *http.Client
-	k8sToken  string
-	k8sonce   sync.Once
+	k8sClient      *http.Client
+	k8sWatchClient *http.Client
+	k8sToken       string
+	k8sonce        sync.Once
 )
 
 func readSecret(name string) []byte {
 	var sbytes []byte
 	var err error
 
-	if envBoolean("LIVE_CLUSTER") {
+	if getFromEnv(INSTALL_TYPE, STATIC_INSTALL) == LIVE_INSTALL {
 		sbytes, err = ioutil.ReadFile(secretDir + name)
 		if err != nil {
 			// XXX: log
@@ -54,7 +55,7 @@ func k8sInit() {
 			ktrans = &http.Transport{TLSClientConfig: ktls}
 		}
 		k8sClient = &http.Client{Transport: ktrans, Timeout: DEFAULT_TIMEOUT}
-
+		k8sWatchClient = &http.Client{Transport: ktrans} // no timeout
 		k8sToken = ""
 		if tokbytes := readSecret("token"); tokbytes != nil {
 			k8sToken = string(tokbytes)
