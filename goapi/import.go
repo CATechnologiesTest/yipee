@@ -125,11 +125,16 @@ func processCvtResults(results []CvtResult) ([]byte, string) {
 		failure := results[i].error
 		if cvt != nil {
 			conversion = cvt
+			break
 		} else if !containsInvalids(failure) {
 			errmsg = failure
 		}
 	}
-	return conversion, errmsg
+	if conversion != nil {
+		return conversion, ""
+	} else {
+		return nil, errmsg
+	}
 }
 
 func tryAllImports(data string) (payload []byte, errstr string) {
