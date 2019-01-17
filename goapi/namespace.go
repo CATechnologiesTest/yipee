@@ -3,12 +3,12 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"github.com/gorilla/mux"
 	"net/http"
 	"os"
 	"os/exec"
 	"sync"
 
+	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -40,7 +40,7 @@ func getNamespaceObjects(nsname string) ([]byte, string) {
 	for i := 0; i < len(nsurls); i++ {
 		if resp := k8sGetAsyncListResult(resultchan); resp != nil {
 			for _, o := range resp {
-				allobjs.Write(toJsonBytes(o))
+				allobjs.Write(marshalJson(o))
 				allobjs.WriteString("\n---\n")
 			}
 		} else {
@@ -179,7 +179,7 @@ func getNamespaceList(w http.ResponseWriter, r *http.Request) {
 	resp["success"] = true
 	resp["total"] = len(retlist)
 	resp["data"] = retlist
-	w.Write(toJsonBytes(resp))
+	w.Write(marshalJson(resp))
 }
 
 func doKubectlExec(
@@ -210,7 +210,7 @@ func applyNamespace(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(makeErrorResponse("missing 'flatFile' key"))
 	}
-	flatBytes := toJsonBytes(flatObj)
+	flatBytes := marshalJson(flatObj)
 
 	nsbytes, errstr := doConvert("/f2k", flatBytes)
 	if errstr != "" {

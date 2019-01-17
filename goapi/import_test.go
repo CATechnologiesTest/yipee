@@ -23,7 +23,7 @@ func makeImportRequest(
 
 	fbytes := readTestData(fname)
 	payload := &ImportPayload{base64.StdEncoding.EncodeToString(fbytes), impname}
-	plbytes := toJsonBytes(payload)
+	plbytes := marshalJson(payload)
 	impurl := "/import"
 	if save {
 		impurl += "?save=true"

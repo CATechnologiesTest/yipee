@@ -28,7 +28,7 @@ func TestNamespace(t *testing.T) {
 	applyObj := make(JsonObject)
 	flatobj := bytesToJsonObject(flatBytes)
 	applyObj["flatFile"] = flatobj
-	applyBytes := toJsonBytes(applyObj)
+	applyBytes := marshalJson(applyObj)
 
 	kubectlPath = "/bin/echo"
 	doSuccessRequestString(t,
