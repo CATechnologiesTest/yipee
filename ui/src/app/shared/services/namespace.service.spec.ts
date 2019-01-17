@@ -3,11 +3,8 @@ import { TestBed, async, inject } from '@angular/core/testing';
 import { NamespaceService } from './namespace.service';
 import { ApiService } from './api.service';
 import { Observable } from 'rxjs';
-import { YipeeResponse } from '../../models/YipeeFileResponse';
 import { HttpTestingController, HttpClientTestingModule } from '@angular/common/http/testing';
-import { HttpClientModule, HttpClient } from '@angular/common/http';
-import { NamespaceRaw } from '../../models/YipeeFileRaw';
-import { Http } from '@angular/http';
+import { HttpClientModule } from '@angular/common/http';
 
 const response1 = {
   success: true,
@@ -23,18 +20,6 @@ const namespaces1 = {
     phase: 'active',
     status: 'green'
 };
-
-// class MockApiService {
-//   constructor() { }
-
-//   getConfig(): Observable<YipeeResponse> {
-//     return Observable.of(response1);
-//   }
-
-//   getNamespaceApps(): Observable<NamespaceRaw[]> {
-//       return Observable.of([namespaces1]);
-//   }
-// }
 
 describe('NamespaceService', () => {
   beforeEach(() => TestBed.configureTestingModule({
@@ -59,8 +44,6 @@ describe('NamespaceService', () => {
 
   it('should set _isLive to a boolean & return a boolean when loadAndReturnLiveStatus() is called', async(inject([NamespaceService, HttpTestingController], (namespaceService: NamespaceService, backend: HttpTestingController) => {
     namespaceService.loadAndReturnLiveStatus().subscribe(response => {
-      console.log('XXXXXX: ', response);
-      console.log('YYYYYY: ', Observable.of(true));
       expect(response.value).toEqual(true);
       expect(namespaceService._isLive).toEqual(true);
     });
@@ -69,8 +52,6 @@ describe('NamespaceService', () => {
 
   it('should set currentNamespaces to a list of namespaces & return a list of namespaces when loadAndReturnNamespaces() is called', async(inject([NamespaceService, HttpTestingController], (namespaceService: NamespaceService, backend: HttpTestingController) => {
     namespaceService.loadAndReturnNamespaces().subscribe(response => {
-      console.log('XXXXXX: ', response);
-      console.log('YYYYYY: ', namespaces1);
       expect(response).toEqual([namespaces1]);
       expect(namespaceService.currentNamespaces).toEqual([namespaces1]);
     });

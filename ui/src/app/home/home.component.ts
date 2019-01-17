@@ -26,7 +26,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   constructor(
     private router: Router,
-    private route: ActivatedRoute,
+    public route: ActivatedRoute,
     private namespaceService: NamespaceService,
     private downloadService: DownloadService,
   ) { }
