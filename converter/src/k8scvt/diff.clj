@@ -7,9 +7,7 @@
             [clj-yaml.core :as yaml]
             [engine.core :refer :all]
             [k8scvt.file-import :as fi]
-            [k8scvt.diff-rules]
-            [helm.core :as helm]
-            [helm.tar-util :as tar]))
+            [k8scvt.diff-rules]))
 
 ;; This file provides support for "diffing" kubernetes models and
 ;; generating shared helm charts that can be instantiated into
@@ -108,34 +106,6 @@
 ;; values files. The helm chart generator is used on each model as if it was
 ;; being turned into a chart by itself and the results are picked through to
 ;; produce the single overall helm chart.
-
-(defn num-from-string [str]
-  (try (let [num (edn/read-string str)]
-         (when (number? num) num))
-       (catch Exception _ nil)))
-
-;; Used to produce a text version of a diff path for text output
-(defn simple-path [path]
-  (str/join "." (map #((if (keyword %) name str) %) path)))
-
-;; Find a named object within an array
-(defn find-named [v namestr]
-  (let [name (subs namestr 1 (dec (count namestr)))
-        [field value] (str/split name #":")
-        keys (map keyword (str/split field #"/"))]
-    (first (filter #(= (get-in % keys) value) v))))
-
-;; Find the index of a named field in an array
-(defn find-named-index [v namestr]
-  (let [name (subs namestr 1 (dec (count namestr)))
-        [field valuestr] (str/split name #":")
-        value (or (num-from-string valuestr) valuestr)
-        keys (map keyword (str/split field #"/"))
-        num-items (count v)]
-    (loop [subs v idx 0]
-      (cond (>= idx num-items) nil
-            (= (get-in (first subs) keys) value) idx
-            :else (recur (rest subs) (inc idx))))))
 
 ;; Generate a path entry for an object in an array based on its contents and type
 (defn ident [x]
@@ -236,22 +206,6 @@
       (subs val 0 (dec (count val)))
       val)))
 
-;; Format diffs for a simple CLI
-(defn- simple-output [rec is-multi]
-  (let [role (:role rec)
-        translated (simple-path (:path rec))
-        user (if is-multi (str "Child " role) "Child")]
-    (case (:action rec)
-      (:remove) (printf "%s removed field: '%s'\n" user translated)
-      (:add) (printf "%s added field: '%s'\n" user translated)
-      (:modify) (let [tail [translated
-                            (decorate (:from rec)) (decorate (:to rec))]]
-                  (apply printf
-                         "%s modified field: '%s', from value: %s to: value: %s\n"
-                         user
-                         tail))
-      (pprint/pprint rec))))
-
 (defn format-path [path]
   (with-out-str
     (loop [items (map #((if (keyword %) name str) %) path)
@@ -312,162 +266,3 @@
     (formatted-diff (translate-input ancestor-model)
                     (mapv translate-input child-models))))
 
-(defn old-text-diff [files & {:keys [ancestor output-file]
-                          :or {ancestor (first files) output-file nil}}]
-  (let [doit (fn []
-                 (doseq [diff-rec (diff (fi/get-k8s-from-yaml ancestor)
-                                        (mapv fi/get-k8s-from-yaml files))]
-                   (simple-output diff-rec (not= ancestor (first files)))))]
-      (if output-file
-        (with-open [w (io/writer output-file)]
-          (binding [*out* w]
-            (doit)))
-        (doit))))
-
-;; Get models from files passed in
-(defn get-models [files]
-  (mapv fi/get-k8s-from-yaml files))
-
-;; Traverse an object given a path and return the value.
-(defn navigate [obj path]
-  (if (empty? path)
-    obj
-    (let [[head & tail] path]
-      (cond (keyword? head) (navigate (head obj) tail)
-            (string? head) (navigate (find-named obj head) tail)
-            :else (throw (RuntimeException.
-                          (str "Path: '"
-                               path
-                               "' does not match object: '"
-                               obj
-                               "'\n")))))))
-
-;; Using a special map key, create a recognizable value for the helm generator.
-(defn generate-value-string [value]
-  {helm/chunk-tag (json/write-str value)})
-
-;; Base 64 encode
-(defn diff-encode [value]
-  (if (try (number? (edn/read-string value)) (catch Exception _ false))
-    (helm/encode-bytes (.getBytes value))
-    (helm/encode value)))
-
-;; Create an encoded value for a diff that the helm generator will decode
-;; to create the actual result value.
-(defn create-helm-variable [identifier value]
-  (let [encoded (diff-encode (generate-value-string value))]
-    {helm/diff-tag encoded :identifier identifier}))
-
-;; A special tag for a map that is a path-ending value. Since any of the models
-;; that is missing the value is also missing the "key", we store the key in
-;; the magic structure so we can use it to create the field for the models
-;; with corresponding values.
-(defn make-editable-map [field val]
-  {helm/editable-map-tag (create-helm-variable field val)})
-
-(defn apply-key [key obj]
-  (cond (keyword? key) (key obj)
-        (string? key) (find-named obj key)
-        :else (throw (RuntimeException.
-                          (str "Key: '"
-                               key
-                               "' does not match object: '"
-                               obj
-                               "'\n")))))
-
-;; Navigate an object via a diff path and replace the endpoint value with
-;; 1) a helm variable for a path ending in a scalar
-;; 2) an "editable map" for a path ending in a map
-;; 3) a special helm variable for a path ending in an array
-(defn fill-in-helm-vars [obj [action path]]
-  (if (empty? (rest path))
-    ;; case 1
-    (if (= action :modify)
-      (let [key (first path)
-            rest-obj (apply-key key obj)]
-        (assoc obj key
-               (create-helm-variable key (if (seq? rest-obj)
-                                           (vec rest-obj)
-                                           rest-obj))))
-      (create-helm-variable (first path) (if (seq? obj) (vec obj) obj)))
-    (let [[head & tail] path]
-      ;; case 2
-      (cond (keyword? head) (if (head obj)
-                              (assoc obj head
-                                     (fill-in-helm-vars (head obj) [action tail]))
-                              (make-editable-map head ""))
-            ;; case 3
-            (string? head) (let [idx (find-named-index obj head)]
-                             (if idx
-                               (vec
-                                (concat
-                                 (take idx obj)
-                                 [(fill-in-helm-vars (nth obj idx) [action tail])]
-                                 (drop (inc idx) obj)))
-                               (conj obj (create-helm-variable head ""))))
-            :else (throw (RuntimeException.
-                          (str "Path: '"
-                               path
-                               "' does not match object: '"
-                               obj
-                               "'\n")))))))
-
-;; Replace all diff values with magic helm variables
-(defn apply-diffs-for-helm [model diffs]
-  (dissoc (reduce fill-in-helm-vars model (map (juxt :action :path) diffs))
-          :type))
-
-;; Make sure a set of names is unique. Start adding an index if the bare
-;; value has been seen and increment as necessary.
-(defn uniqify [names]
-  (first
-   ((fn u [names]
-      (if (empty? (rest names))
-        [names #{(first names)}]
-        (let [[nametail seen-set] (u (rest names))]
-          (loop [curname (first names) idx 2]
-            (if (not (seen-set curname))
-              [(cons curname nametail) (conj seen-set curname)]
-              (recur (str curname idx) (inc idx)))))))
-    names)))
-
-;; Replace a multi-entry yaml file with a vector of parsed entries.
-(defn combined-yaml-to-vec [combined-string]
-  (vec (map yaml/parse-string (str/split combined-string #"\n---\n"))))
-
-;; Translate a chart name and a set of models in yaml files into a helm chart
-;; with a distinct values file for each model.
-(defn models-to-helm [chart-name files]
-  (try
-    (let [models (get-models files)
-          app-names (uniqify (mapv :app-name models))
-          diffs (diff models)
-          results (mapv #(apply-diffs-for-helm % diffs) models)
-          ;; actually build a chart for each model
-          charts (vec (map-indexed
-                       (fn [idx val]
-                         (helm/build-chart (nth app-names idx)
-                                           "0.0.1"
-                                           (helm/build-chart-input val)
-                                           [:none]))
-                       results))
-          ;; merge the output from multiple charts
-          entries (vec
-                   (concat
-                    [[(helm/chart-file-path chart-name "Chart")
-                      (get-in charts [0 0 1])]]
-                    (map (fn [name chart]
-                           [(str chart-name "/" name "_values.yaml")
-                            (get-in chart [1 1])])
-                         app-names
-                         charts)
-                    (map (fn [[name chart]]
-                           [(helm/template-file-path
-                             chart-name
-                             (subs name
-                                   (inc (str/last-index-of name \/))
-                                   (str/last-index-of name ".")))
-                            chart])
-                         (nthnext (first charts) 2))))]
-      (helm/encode-bytes (tar/tarify entries)))
-    (catch Exception e (.printStackTrace e))))

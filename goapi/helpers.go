@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 const DEFAULT_TIMEOUT = time.Second * 30
@@ -30,34 +31,54 @@ type ObjResp struct {
 	Data    []JsonObject `json:"data"`
 }
 
-func bytesToJsonObject(data []byte) JsonObject {
-	var flatFile JsonObject
-	if err := json.Unmarshal(data, &flatFile); err != nil {
-		log.Errorf("bytesToJsonObject: %v", err)
+func unmarshalJson(data []byte, target interface{}) {
+	if err := json.Unmarshal(data, target); err != nil {
+		RaiseCatchable(http.StatusBadRequest, "can't unmarshal JSON",
+			log.Fields{"err": "unmarshalJson: " + err.Error()})
 	}
-	return flatFile
 }
 
-func toJsonBytes(payload interface{}) []byte {
+func marshalJson(payload interface{}) []byte {
 	outbytes, err := json.Marshal(payload)
 	if err != nil {
-		log.Errorf("toJsonBytes: %v", err)
+		RaiseCatchable(http.StatusBadRequest, "can't marshal JSON",
+			log.Fields{"err": "marshalJson: " + err.Error()})
 	}
 	return outbytes
+}
+
+func readRequestPayload(r *http.Request) []byte {
+	inbytes, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		RaiseCatchable(http.StatusBadRequest, "can't read request body",
+			log.Fields{"err": "getInputObject: " + err.Error()})
+	}
+	return inbytes
+}
+
+func getInputObject(r *http.Request) JsonObject {
+	inbytes := readRequestPayload(r)
+	return bytesToJsonObject(inbytes)
+}
+
+func bytesToJsonObject(data []byte) JsonObject {
+	var flatFile JsonObject
+	unmarshalJson(data, &flatFile)
+	return flatFile
 }
 
 func makeStringResp(success bool, payload string) []byte {
 	data := make([]string, 1)
 	data[0] = payload
 	response := &StringResp{success, 1, data}
-	return toJsonBytes(response)
+	return marshalJson(response)
 }
 
 func makeObjResp(success bool, payload JsonObject) []byte {
 	data := make([]JsonObject, 1)
 	data[0] = payload
 	response := &ObjResp{success, 1, data}
-	return toJsonBytes(response)
+	return marshalJson(response)
 }
 
 func makeErrorResponse(payload string) []byte {
@@ -116,15 +137,15 @@ func hasQueryVal(r *http.Request, name string, val string) bool {
 func mkTemp(data []byte) string {
 	tmp, err := ioutil.TempFile("", "yipee-kubectl-*.yml")
 	if err != nil {
-		log.Errorf("kubectl mktemp error %v", err)
-		return ""
+		RaiseCatchable(http.StatusInternalServerError,
+			"mktemp error", log.Fields{"err": err.Error()})
 	}
 	defer tmp.Close()
 	fname := tmp.Name()
 	if _, err = tmp.Write(data); err != nil {
-		log.Errorf("kubectl mktemp file write: %v", err)
 		os.Remove(fname)
-		return ""
+		RaiseCatchable(http.StatusInternalServerError,
+			"mktemp file write error", log.Fields{"err": err.Error()})
 	}
 	return fname
 }

@@ -1,0 +1,24 @@
+# Generated 2018-09-21T20:23:31.900Z by Yipee.io
+# Application: sds
+# Last Modified: 2018-09-21T20:23:31.900Z
+
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: "2018-06-14T22:47:13Z"
+  generation: 6
+  resourceVersion: foo
+  selfLink: bar
+  uid: 921f1b4f-fc8b-4f81-b330-d66a34991ab1
+  name: mongo
+  labels:
+    name: mongo
+    app: mongo
+spec:
+  ports:
+  - port: 27017
+    name: web
+  selector:
+    name: foo.bar-mongo
+    app: mongo
+  type: NodePort

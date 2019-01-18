@@ -3,6 +3,8 @@
             [clojure.pprint :as pprint]
             [clojure.data.json :as json]
             [clj-yaml.core :as yaml]
+            [k8scvt.file-import :as fi]
+            [k8scvt.diff :as diff]
             [helm.tar-util :as tar]
             [clojure.edn :as edn])
   (:import [java.util Base64]
@@ -26,6 +28,11 @@
 (defn ppwrap [tag val]
   (pprint/pprint (list tag val))
   val)
+
+;; Variables to manage diff-based chart generation for models missing
+;; entire categories of k8s objects
+(def ^:dynamic *missing-top-levels* nil)
+(def ^:dynamic *current-chart* nil)
 
 ;; Tag support for parameters
 (defn valueRef [x] (str ".Values." x))
@@ -238,7 +245,8 @@
 
           :else
           [{template-tag (encode (valueRef cstring))}
-           (format "%s: '%s'" cstring (json/write-str data))])))
+           (format "%s: '%s'" cstring (json/write-str data
+                                                      :escape-slash false))])))
 
 ;; Create a tagged entry for a primitive value that we will templatize.
 (defn create-template [data context]
@@ -317,7 +325,7 @@
                 data-seq)
           raw-vals (mapv first vals-and-strings)
           cstrings (mapcat #(let [val (second %)] (if (= val "") nil (list val)))
-                              vals-and-strings)]
+                           vals-and-strings)]
       [(mapv (fn [data contents]
                {:name (:name data)
                 :contents (replace-tags (yaml/generate-string contents))})
@@ -370,19 +378,257 @@
 ;; (make-chart <chart name> <chart version> [<manifest>...])
 ;; to get the bytes for a chart tgz file.
 (defn make-chart [name version templates what-to-parameterize]
-    (tar/tarify (build-chart name version templates what-to-parameterize)))
+  (tar/tarify (build-chart name version templates what-to-parameterize)))
+
+(defn template-input [item]
+  {:name (str (:kind item) (cap (:name (:metadata item)))) :contents item})
+
+;; Using a special map key, create a recognizable value for the helm generator.
+(defn generate-value-string [value]
+  {chunk-tag (json/write-str value :escape-slash false)})
+
+;; Base 64 encode
+(defn diff-encode [value]
+  (if (try (number? (edn/read-string value)) (catch Exception _ false))
+    (encode-bytes (.getBytes value))
+    (encode value)))
+
+;; Create an encoded value for a diff that the helm generator will decode
+;; to create the actual result value.
+(defn create-helm-variable [identifier value]
+  (let [encoded (diff-encode (generate-value-string value))]
+    {diff-tag encoded :identifier identifier}))
+
+(defn variablize [item]
+  (let [varname (str (:kind item) (cap (:name (:metadata item))))]
+    (swap! *missing-top-levels*
+           update *current-chart*
+           #(conj % (str (context-string [varname]) ": \"\"")))
+    {:name varname
+     :contents (create-helm-variable (diff/ident item) item)}))
+
+(defn possibly-unpack [values]
+  (if (diff-tag values)
+    (let [contents
+          (json/read-str (chunk-tag (edn/read-string (decode (diff-tag values))))
+                         :key-fn keyword)]
+      (mapv variablize contents))
+    values))
 
 (defn build-chart-input [k8s]
   (mapcat (fn [values]
             (vec
              (mapcat
               (fn [item]
-                (if (template-tag item)
-                  []
-                  [{:name (str (:kind item) (cap (:name (:metadata item))))
-                    :contents item}]))
-              values)))
+                (cond (template-tag item) []
+                      (:kind item) [(template-input item)]
+                      ;; if the entire kind is a variable, e.g. the model
+                      ;; has no deployments but another one does.
+                      :else [item]))
+
+              (possibly-unpack values))))
           (vals (dissoc k8s :app-name))))
+
+;;
+;; Code to generate model from diffs
+;;
+
+(defn num-from-string [str]
+  (try (let [num (edn/read-string str)]
+         (when (number? num) num))
+       (catch Exception _ nil)))
+
+;; Find a named object within an array
+(defn find-named [v namestr]
+  (let [name (subs namestr 1 (dec (count namestr)))
+        [field value] (str/split name #":")
+        keys (map keyword (str/split field #"/"))]
+    (first (filter #(= (get-in % keys) value) v))))
+
+;; Find the index of a named field in an array
+(defn find-named-index [v namestr]
+  (let [name (subs namestr 1 (dec (count namestr)))
+        [field valuestr] (str/split name #":")
+        value (or (num-from-string valuestr) valuestr)
+        keys (map keyword (str/split field #"/"))
+        num-items (count v)]
+    (loop [subs v idx 0]
+      (cond (>= idx num-items) nil
+            (= (get-in (first subs) keys) value) idx
+            :else (recur (rest subs) (inc idx))))))
+
+;; Get models from files passed in
+(defn get-models [files]
+  (mapv (comp fi/import-combined slurp) files))
+
+;; Traverse an object given a path and return the value.
+(defn navigate [obj path]
+  (if (empty? path)
+    obj
+    (let [[head & tail] path]
+      (cond (keyword? head) (navigate (head obj) tail)
+            (string? head) (navigate (find-named obj head) tail)
+            :else (throw (RuntimeException.
+                          (str "Path: '"
+                               path
+                               "' does not match object: '"
+                               obj
+                               "'\n")))))))
+
+;; Base 64 encode
+(defn diff-encode [value]
+  (if (try (number? (edn/read-string value)) (catch Exception _ false))
+    (encode-bytes (.getBytes value))
+    (encode value)))
+
+;; Create an encoded value for a diff that the helm generator will decode
+;; to create the actual result value.
+(defn create-helm-variable [identifier value]
+  (let [encoded (diff-encode (generate-value-string value))]
+    {diff-tag encoded :identifier identifier}))
+
+;; A special tag for a map that is a path-ending value. Since any of the models
+;; that is missing the value is also missing the "key", we store the key in
+;; the magic structure so we can use it to create the field for the models
+;; with corresponding values.
+(defn make-editable-map [field val]
+  {editable-map-tag (create-helm-variable field val)})
+
+(defn apply-key [key obj]
+  (cond (keyword? key) (key obj)
+        (string? key) (find-named obj key)
+        :else (throw (RuntimeException.
+                      (str "Key: '"
+                           key
+                           "' does not match object: '"
+                           obj
+                           "'\n")))))
+
+;; Navigate an object via a diff path and replace the endpoint value with
+;; 1) a helm variable for a path ending in a scalar
+;; 2) an "editable map" for a path ending in a map
+;; 3) a special helm variable for a path ending in an array
+(defn fill-in-helm-vars [obj [action path]]
+  (if (empty? (rest path))
+    (let [key (first path)]
+      ;; case 1
+      (if (= action :modify)
+        (let [rest-obj (apply-key key obj)]
+          (assoc obj key
+                 (create-helm-variable key (if (seq? rest-obj)
+                                             (vec rest-obj)
+                                             rest-obj))))
+        (if (or (seq? obj) (vector? obj))
+          (create-helm-variable key obj)
+          (let [rest-obj (apply-key key obj)]
+            (assoc obj key (create-helm-variable key rest-obj))))))
+    (let [[head & tail] path]
+      ;; case 2
+      (cond (keyword? head) (if (head obj)
+                              (assoc obj head
+                                     (fill-in-helm-vars
+                                      (head obj) [action tail]))
+                              (make-editable-map head ""))
+            ;; case 3
+            (string? head) (let [idx (find-named-index obj head)]
+                             (if idx
+                               (vec
+                                (concat
+                                 (take idx obj)
+                                 [(fill-in-helm-vars (nth obj idx) [action tail])]
+                                 (drop (inc idx) obj)))
+                               (conj obj (create-helm-variable head ""))))
+            :else (throw (RuntimeException.
+                          (str "Path: '"
+                               path
+                               "' does not match object: '"
+                               obj
+                               "'\n")))))))
+
+;; Replace all diff values with magic helm variables
+(defn apply-diffs-for-helm [model diffs]
+  (dissoc (reduce fill-in-helm-vars model (map (juxt :action :path) diffs))
+          :type))
+
+;; Make sure a set of names is unique. Start adding an index if the bare
+;; value has been seen and increment as necessary.
+(defn uniqify [names]
+  (first
+   ((fn u [names]
+      (if (empty? (rest names))
+        [names #{(first names)}]
+        (let [[nametail seen-set] (u (rest names))]
+          (loop [curname (first names) idx 2]
+            (if (not (seen-set curname))
+              [(cons curname nametail) (conj seen-set curname)]
+              (recur (str curname idx) (inc idx)))))))
+    names)))
+
+;; Replace a multi-entry yaml file with a vector of parsed entries.
+(defn combined-yaml-to-vec [combined-string]
+  (vec (map yaml/parse-string (str/split combined-string #"\n---\n"))))
+
+;; Collect one of each template file (since not all models will have
+;; contents for each top level object).
+(defn collect-all-templates [names-and-charts]
+  (sort-by first
+           (vals (reduce (fn [m [name chart]] (assoc m name [name chart]))
+                         {}
+                         names-and-charts))))
+
+(defn update-with-missing [chart-name vfile]
+  (reduce str
+          vfile
+          (str/join
+           "\n"
+           (apply concat (vals (dissoc @*missing-top-levels* chart-name))))))
+
+;; Translate a chart name and a set of models in yaml files into a helm chart
+;; with a distinct values file for each model.
+(defn models-to-helm [chart-name raw-models]
+  (try
+    (binding [*missing-top-levels* (atom {})]
+      (let [models (map fi/prepare-yipee raw-models)
+            app-names (uniqify (mapv :app-name models))
+            diffs (diff/diff models)
+            results (mapv #(apply-diffs-for-helm % diffs) models)
+            ;; actually build a chart for each model
+            charts (vec (map-indexed
+                         (fn [idx val]
+                           (binding [*current-chart* (nth app-names idx)]
+                             (build-chart *current-chart*
+                                          "0.0.1"
+                                          (build-chart-input val)
+                                          [:none])))
+                         results))
+            ;; merge the output from multiple charts
+            entries (vec
+                     (concat
+                      [[(chart-file-path chart-name "Chart")
+                        (get-in charts [0 0 1])]]
+                      (map (fn [name chart]
+                             [(str chart-name "/" name "_values.yaml")
+                              (update-with-missing name (get-in chart [1 1]))])
+                           app-names
+                           charts)
+                      ;; We need to collect across charts because a top level
+                      ;; object may only be found in one chart.
+                      (collect-all-templates
+                       (mapcat
+                        #(map (fn [[name chart]]
+                                [(template-file-path
+                                  chart-name
+                                  (subs name
+                                        (inc (str/last-index-of name \/))
+                                        (str/last-index-of name ".")))
+                                 chart])
+                              (nthnext % 2))
+                        charts))))]
+        (encode-bytes (tar/tarify entries))))
+    (catch Exception e (.printStackTrace e))))
+
+(defn model-files-to-helm [chart-name files]
+    (models-to-helm chart-name (get-models files)))
 
 (defn chartify [k8s-output what-to-parameterize]
   (make-chart (:app-name k8s-output) "0.0.1" (build-chart-input k8s-output)

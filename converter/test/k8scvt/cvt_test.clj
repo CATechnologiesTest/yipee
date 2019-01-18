@@ -17,7 +17,6 @@
             [k8scvt.k8s-to-flat]
             [k8scvt.flat-validator :as fv]
             [helm.core :as helm]
-            [k8scvt.diff :as diff]
             [composecvt.compose-to-flat]
             [clojure.data.json :as json])
   (:import java.nio.file.FileSystems java.io.File))
@@ -290,13 +289,12 @@
                     (contains? @o :storageClass)
                     (contains? @o :selector)))
       (swap! o dissoc :accessModes :storageClass :selector))
+    (when (and (= (:kind @i) "PersistentVolumeClaim")
+               (= (:kind @o) "PersistentVolumeClaim")
+               (= (:accessModes (:spec @o)) ["ReadWriteOnce"])
+               (not (contains? (:spec @i) :accessModes)))
+      (swap! o update :spec dissoc :accessModes))
     ;; If the input contains the default value, it's okay that the output doesn't
-    (when (and (:volumeName @i)
-               (:volumeName @o)
-               (contains? @i :accessModes)
-               (= (:accessModes @i) ["ReadWriteOnce"])
-               (not (contains? @o :accessModes)))
-      (swap! i dissoc :accessModes))
     (when (and (:volumeName @i)
                (:volumeName @o)
                (contains? @i :volumeMode)
@@ -595,43 +593,70 @@
 (defn unpack [entries]
   (map #(update % :contents combined-yaml-to-vec) entries))
 
+(defn equal-to-line-ordering [str1 str2]
+  (= (sort (str/split str1 #"[\n]"))
+     (sort (str/split str2 #"[\n]"))))
+
+(defn test-models-to-helm [helm-name template-name model-data]
+  (let [tarfile (helm/model-files-to-helm helm-name
+                                          (mapv (comp test-file-name :model)
+                                                model-data))
+        pwd (System/getProperty "user.dir")
+        entries (get-tar-entries (helm/decode-bytes tarfile))
+        testdir (str pwd "/" (test-file-name "_temp_dir_"))
+        tfile #(str testdir "/" %)
+        tfile64 #(str (tfile %) ".tgz64")
+        tfilegz #(str (tfile %) ".tgz")
+        _ (.mkdirs (File. testdir))
+        tarfile-name (tfile64 helm-name)
+        decoded-name (tfilegz helm-name)
+        _ (spit tarfile-name tarfile)
+        _ (spit decoded-name
+                (:out (sh (str pwd "/" (test-file-name "unpack"))
+                          tarfile-name
+                          :dir testdir)))
+        search (fn [name] (first (filter #(= (:name %) name) entries)))
+        tname (str helm-name "/templates/" template-name ".yaml")
+        template (search tname)
+        value-file-name #(str helm-name "/" (:app-name %) "_values.yaml")
+        vals (map (comp search value-file-name) model-data)
+        inst-template #(:out (sh "helm" "template" (tfile helm-name)
+                                 "-x" (tfile tname)
+                                 "-f" (tfile %)))
+        insts (map (comp inst-template value-file-name) model-data)
+        entry-match #(equal-to-line-ordering (:contents %1) (test-slurp %2))
+        ;; "helm template" adds an extra blank line...
+        inst-match #(equal-to-line-ordering (str/replace %1 #"[\n][\n]" "\n")
+                                            (test-slurp %2))]
+    (is (entry-match template (str template-name ".yaml")))
+    (doseq [[v fname] (map vector vals (map #(str (:app-name %) "_values.yaml")
+                                            model-data))]
+      (is (entry-match v fname)))
+
+    (doseq [[i fname] (map vector insts (map #(str "Instantiated"
+                                                   (helm/cap (:app-name %))
+                                                   ".yaml")
+                                             model-data))]
+      (is (inst-match i fname)))
+    (sh "rm" "-rf" testdir)))
+
 (deftest diffing
-  (testing "generate a shared helm chart from multiple models"
-    (let [tarfile (diff/models-to-helm "kavanope"
-                                       [(test-file-name "helm_model_1.yaml")
-                                        (test-file-name "helm_model_2.yaml")])
-          pwd (System/getProperty "user.dir")
-          entries (get-tar-entries (helm/decode-bytes tarfile))
-          testdir (str pwd "/" (test-file-name "_temp_dir_"))
-          tfile #(str testdir "/" %)
-          _ (.mkdirs (File. testdir))
-          tarfile-name (tfile "kavanope.tgz64")
-          decoded-name (tfile "kavanope.tgz")
-          _ (spit tarfile-name tarfile)
-          _ (spit decoded-name
-                  (:out (sh (str pwd "/" (test-file-name "unpack"))
-                            tarfile-name
-                            :dir testdir)))
-          search (fn [name] (first (filter #(= (:name %) name) entries)))
-          depname "kavanope/templates/DeploymentJoomla.yaml"
-          dep (search depname)
-          vals1 (search "kavanope/joomla_values.yaml")
-          vals2 (search "kavanope/joomla2_values.yaml")
-          inst-template #(:out (sh "helm" "template" (tfile "kavanope")
-                                   "-x" (tfile depname)
-                                   "-f" (tfile %)))
-          inst1 (inst-template "kavanope/joomla_values.yaml")
-          inst2 (inst-template "kavanope/joomla2_values.yaml")
-          entry-match #(= (:contents %1) (test-slurp %2))
-          ;; "helm template" adds an extra blank line...
-          inst-match #(= (str/replace %1 #"[\n][\n]" "\n")
-                             (test-slurp %2))]
-      (is (entry-match dep "DeploymentJoomla.yaml"))
-      (is (entry-match vals1 "joomla_values.yaml"))
-      (is (entry-match vals2 "joomla2_values.yaml"))
-      (is (inst-match inst1 "InstantiatedJoomla.yaml"))
-      (is (inst-match inst2 "InstantiatedJoomla2.yaml"))
-      (sh "rm" "-rf" testdir))))
+  (testing "generating shared helm charts from multiple models"
+    (test-models-to-helm "kavanope" "DeploymentJoomla"
+                         [{:model "helm_model_1.yaml"
+                           :app-name "joomla"}
+                          {:model "helm_model_2.yaml"
+                           :app-name "joomla2"}])
+    (test-models-to-helm "no_overlap" "DeploymentRacket"
+                         [{:model "sd.yaml"
+                           :app-name "sd"}
+                          {:model "sd2.yaml"
+                           :app-name "sd"}])
+    (test-models-to-helm "no_overlap" "ServiceMongo"
+                         [{:model "sds.yaml"
+                           :app-name "sds"}
+                          {:model "sds2.yaml"
+                           :app-name "sds"}])))
 
 (deftest compose-generates-secrets
   (testing "secrets come through to k8s"
