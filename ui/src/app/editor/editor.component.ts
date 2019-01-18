@@ -131,7 +131,7 @@ export class EditorComponent implements OnInit, AfterViewChecked {
       console.log('unsubscribe');
       this.updateService.unsubscribeFromK8sFile(this.editorService.k8sFile, this.yipeeFileID);
     }
-    
+
     this.router.navigate(['/']);
   }
 
@@ -183,12 +183,12 @@ export class EditorComponent implements OnInit, AfterViewChecked {
   }
 
   exitEditor(): void {
-   
+
     if (this.isLive) {
       console.log('unsubscribe');
       this.updateService.unsubscribeFromK8sFile(this.editorService.k8sFile, this.yipeeFileID);
     }
-    
+
     this.router.navigate(['']);
   }
 
