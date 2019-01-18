@@ -21,6 +21,7 @@ import { UnknownKind } from '../models/k8s/UnknownKind';
 import { EmptyDirVolume } from '../models/common/EmptyDirVolume';
 import { HostPathVolume } from '../models/common/HostPathVolume';
 import { NameStringValue } from '../models/common/Generic';
+import { NamespaceService } from '../shared/services/namespace.service';
 
 
 @Injectable()
@@ -42,6 +43,7 @@ export class EditorService {
   invalidKeys: string[];
   nerdModeType: string;
   showReadmeDialog = new Subject<any>();
+  isLive: boolean;
 
   @Output() onContainerAdd = new EventEmitter<Container>();
 
@@ -56,7 +58,8 @@ export class EditorService {
   constructor(
     private editorEventService: EditorEventService,
     private yipeeFileService: YipeeFileService,
-    public downloadService: DownloadService
+    public downloadService: DownloadService,
+    private namespaceService: NamespaceService
   ) {
     this._dirty = false;
     this.editMode = 'k8s';
@@ -68,6 +71,7 @@ export class EditorService {
     this.infoText = [];
     this.invalidKeys = [];
     this.nerdModeType = undefined;
+    this.isLive = namespaceService.isLive;
 
     /** Editor Event Service Subscribers
      * these live in the constructor, the only lifecycle method for services really

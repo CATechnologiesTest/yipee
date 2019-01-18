@@ -132,6 +132,7 @@ describe('K8sInfoContainerComponent (k8sFile.appInfo)', () => {
   }
 
   class MockEditorService {
+    isLive = true;
     // i didnt type this cus that would mean we would have to add a bunch of mock parser stuff that doesnt relate to this component
     k8sFile = {
       appInfo: {
@@ -177,6 +178,12 @@ describe('K8sInfoContainerComponent (k8sFile.appInfo)', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should set isLive correctly', inject([EditorService], (editorService: EditorService) => {
+    expect(component.isLive).toBeTruthy();
+    component.isLive = false;
+    expect(component.isLive).toBeFalsy();
+  }));
 
   // appInfo.name
   it(`name should autofill with value from editorService`, inject([EditorService], (editorService: EditorService) => {

@@ -61,7 +61,7 @@
                 </label>
               </div>
             </div>
-            <button type="button" class="btn btn-icon" title="Apply" (click)='onApplyManifestClicked()' [disabled]="this.editorService.invalidKeys.length > 0">
+            <button *ngIf="isLive" type="button" class="btn btn-icon" title="Apply" (click)='onApplyManifestClicked()' [disabled]="this.editorService.invalidKeys.length > 0">
               <clr-icon *ngIf="!isApplyingManifest" shape="upload-cloud" class="is-solid"></clr-icon>
               <span *ngIf="isApplyingManifest" class="spinner spinner-inline">
               </span>

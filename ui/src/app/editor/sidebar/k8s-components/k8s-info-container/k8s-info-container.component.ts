@@ -26,13 +26,16 @@ export class K8sInfoContainerComponent implements OnInit {
   form: FormGroup;
   isReadOnly = false;
   sharingEmail: String;
+  isLive: boolean;
 
   constructor(
     private formBuilder: FormBuilder,
     private editorService: EditorService,
     private editorEventService: EditorEventService,
     private userService: UserService
-  ) { }
+  ) {
+    this.isLive = this.editorService.isLive;
+  }
 
   /* ******************* */
   /* SECRET VOLUME ARRAY */
@@ -248,10 +251,10 @@ export class K8sInfoContainerComponent implements OnInit {
       createNs: [{ value: this.k8sFile.appInfo.createNs, disabled: this.isReadOnly }, []],
       description: [{ value: this.k8sFile.appInfo.description, disabled: this.isReadOnly }, [ /* add validations here */]],
       readme: [{ value: this.k8sFile.appInfo.readme, disabled: this.isReadOnly }, [ /* add validations here */]],
-      helmSettingsAll: [{ value: this.k8sFile.appInfo.helmSettingsAll, disabled: this.isReadOnly }, [ /* no validations */ ]],
-      helmSettingsPorts: [{ value: this.k8sFile.appInfo.helmSettingsPorts, disabled: this.isReadOnly }, [ /* no validations */ ]],
-      helmSettingsLabels: [{ value: this.k8sFile.appInfo.helmSettingsLabels, disabled: this.isReadOnly }, [ /* no validations */ ]],
-      helmSettingsEnvironment: [{ value: this.k8sFile.appInfo.helmSettingsEnv, disabled: this.isReadOnly }, [ /* no validations */ ]],
+      helmSettingsAll: [{ value: this.k8sFile.appInfo.helmSettingsAll, disabled: this.isReadOnly }, [ /* no validations */]],
+      helmSettingsPorts: [{ value: this.k8sFile.appInfo.helmSettingsPorts, disabled: this.isReadOnly }, [ /* no validations */]],
+      helmSettingsLabels: [{ value: this.k8sFile.appInfo.helmSettingsLabels, disabled: this.isReadOnly }, [ /* no validations */]],
+      helmSettingsEnvironment: [{ value: this.k8sFile.appInfo.helmSettingsEnv, disabled: this.isReadOnly }, [ /* no validations */]],
       id: [{ value: this.k8sFile.appInfo.model_id, disabled: true }],
       secrets: this.formBuilder.array([]),
       configs: this.formBuilder.array([])
