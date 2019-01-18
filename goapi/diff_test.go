@@ -81,7 +81,7 @@ func testFlatInput(t *testing.T) {
 	doSuccessRequestString(t, req)
 }
 
-func testTar(t *testing.T) {
+func testImport(t *testing.T) {
 	tarbytes := readTestData("bday.tgz")
 	tarstr := base64.StdEncoding.EncodeToString(tarbytes)
 	inbuf := buildDiffTestInput("parent", tarstr, "child", tarstr)
@@ -113,6 +113,6 @@ func TestDiffs(t *testing.T) {
 	testInvalids(t)
 	testNamespaces(t)
 	testFlatInput(t)
-	testTar(t)
+	testImport(t)
 	testCache(t)
 }
