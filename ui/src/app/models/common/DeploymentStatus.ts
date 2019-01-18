@@ -31,7 +31,6 @@ export class DeploymentStatus extends ParsedObject {
 
   /** convert from a flat object */
   fromFlat(flat: any): void {
-    console.log(flat);
     super.fromFlat(flat);
     this.status = flat['status'];
     this.cgroup = flat['cgroup'];

@@ -68,7 +68,11 @@ export class EditorComponent implements OnInit, AfterViewChecked {
           this.editorService.loadYipeeFile(yipeeFile).subscribe((response) => {
               this.ui.loading = false;
               this.yipeeFileID = this.editorService.yipeeFileID;
-              this.updateService.subscribeToK8sFile(this.editorService.k8sFile, deepLinkId);
+
+              if (isNamespaceUrl && this.isLive) {
+                this.updateService.subscribeToK8sFile(this.editorService.k8sFile, deepLinkId);
+              }
+
             });
         },
         (error) => {
