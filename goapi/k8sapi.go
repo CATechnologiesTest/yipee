@@ -142,6 +142,7 @@ func k8sGetAsyncListResult(reschan chan []JsonObject) []JsonObject {
 	case resp := <-reschan:
 		return resp
 	case <-time.After(time.Second * 5):
+		log.Error("timed out after 5 seconds waiting for k8s getlist result")
 		return nil
 	}
 }

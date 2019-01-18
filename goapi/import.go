@@ -9,6 +9,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
+	log "github.com/sirupsen/logrus"
 )
 
 func initImports(router *mux.Router) {
@@ -145,6 +146,9 @@ func tryAllImports(data string) (payload []byte, errstr string) {
 		case resp := <-resultchan:
 			results = append(results, resp)
 		case <-time.After(time.Second * 30):
+			log.WithFields(log.Fields{
+				"payload": string(payload),
+			}).Error("tryAllImports timeout waiting for converter results")
 			return nil, "import attempts timed out after 30 seconds"
 		}
 	}
