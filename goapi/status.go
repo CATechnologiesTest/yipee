@@ -109,8 +109,11 @@ func makeStatusMessages(nsname string) []*updatemsg {
 		active := getActiveCount(c)
 		cid := meta["uid"].(string)
 		cpods := getPodsForController(nsobjs, pods, cid)
+		// XXX: coordinate with UI on "type".  The old UI only
+		// handled a type of "deployment-status" so we used that for
+		// all controllers...
 		udata := updatedata{
-			"deployment-status", // xxx
+			"deployment-status",
 			calculateStatus(replicas, active),
 			replicas,
 			active,

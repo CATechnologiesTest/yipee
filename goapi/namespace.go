@@ -52,6 +52,7 @@ func getNamespaceObjects(nsname string) ([]byte, string) {
 }
 
 func getNamespace(w http.ResponseWriter, r *http.Request) {
+	defer HandleCatchableForRequest(w)
 	nsname := mux.Vars(r)["name"]
 	nsBytes, errstr := getNamespaceObjects(nsname)
 	if errstr != "" {
@@ -119,9 +120,6 @@ func rollupNamespace(nsobj *Nsobj) {
 	for i := 0; i < len(cntlrUrls); i++ {
 		if cntlrs := k8sGetAsyncListResult(cntlrResult); cntlrs != nil {
 			cntlrList = append(cntlrList, cntlrs...)
-		} else {
-			// xxx: log timeout
-			break
 		}
 	}
 	nsobj.Status = "green"
@@ -154,6 +152,7 @@ func rollupNamespace(nsobj *Nsobj) {
 }
 
 func getNamespaceList(w http.ResponseWriter, r *http.Request) {
+	defer HandleCatchableForRequest(w)
 	nslist := k8sGetList("/api/v1/namespaces")
 	retlist := make([]*Nsobj, len(nslist))
 	var wg sync.WaitGroup
@@ -174,7 +173,6 @@ func getNamespaceList(w http.ResponseWriter, r *http.Request) {
 	}
 	wg.Wait()
 	w.WriteHeader(http.StatusOK)
-	// XXX: paying the price for straying from []JsonObject return...
 	resp := make(map[string]interface{})
 	resp["success"] = true
 	resp["total"] = len(retlist)

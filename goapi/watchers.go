@@ -4,9 +4,10 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 	"sync"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type Notification struct {
@@ -60,7 +61,6 @@ func watchAll(result chan Notification, kinds ...string) {
 func startWatcher(kind, nsname string) chan Notification {
 	template, ok := watchUrlByKind[kind]
 	if !ok {
-		// xxx: panic
 		log.Errorf("unknown startWatcher kind: '%s'", kind)
 		return nil
 	}

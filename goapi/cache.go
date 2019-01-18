@@ -2,6 +2,8 @@ package main
 
 import (
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func runServer(mbox <-chan *cacheRequest) {
@@ -86,6 +88,10 @@ func (client *CacheClient) Add(key string, obj interface{}) bool {
 	return runOnServer(
 		func() interface{} {
 			if !client.hasSpace() {
+				log.WithFields(log.Fields{
+					"key":        key,
+					"cache size": client.maxSize,
+				}).Warn("rejected cache add due to space constraint")
 				return false
 			}
 			t := client.getTimeoutFun(key)
@@ -116,6 +122,10 @@ func (client *CacheClient) getTimeoutFun(key string) *time.Timer {
 		return time.AfterFunc(time.Duration(client.timeoutSecs)*time.Second,
 			func() {
 				client.Remove(key)
+				log.WithFields(log.Fields{
+					"key":          key,
+					"timeout secs": client.timeoutSecs,
+				}).Warn("cache entry removed due to timeout")
 			})
 	}
 	return nil
