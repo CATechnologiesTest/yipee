@@ -12,7 +12,7 @@ import { OpenShiftFile } from '../../models/OpenShiftFile';
 import { KubernetesFile } from '../../models/KubernetesFile';
 import { OpenShiftFileResponse } from '../../models/OpenShiftFileResponse';
 import { KubernetesFileResponse } from '../../models/KubernetesFileResponse';
-import { YipeeFileResponse, NamespaceResponse } from '../../models/YipeeFileResponse';
+import { YipeeFileResponse, NamespaceResponse, YipeeResponse } from '../../models/YipeeFileResponse';
 import { ApiService } from './api.service';
 import { stringify } from '@angular/core/src/render3/util';
 
@@ -233,6 +233,13 @@ describe('ApiService', () => {
       downloadKubernetesFiles: false
     }
   };
+
+  const namespaceDiffResponse: YipeeResponse = {
+    success: true,
+    total: 1,
+    data: ['default']
+  };
+
   /* ----------------------------- */
   /* BEGIN METHOD RESPONSE OBJECTS */
   /* ----------------------------- */
@@ -583,6 +590,13 @@ describe('ApiService', () => {
         }
       );
     });
+  })));
+
+  it('should return diff of parent namespace and child namespace when getNamespaceDiff() is called', async(inject([ApiService, HttpTestingController], (service: ApiService, backend: HttpTestingController) => {
+    service.getNamespaceDiff('parent', 'child').subscribe(data => {
+      expect(data).toEqual(namespaceDiffResponse);
+    });
+    backend.expectOne('/api/diff').flush(namespaceDiffResponse);
   })));
 
 });
