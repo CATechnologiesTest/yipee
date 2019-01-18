@@ -12,6 +12,7 @@ export class ParsedObject {
   finder: Finder;
   base_type: string;
   public onRefresh: EventEmitter<boolean> = new EventEmitter();
+  public onAttributeChange: EventEmitter<string> = new EventEmitter();
 
   public static construct(type: string): ParsedObject {
     return new ParsedObject(type);

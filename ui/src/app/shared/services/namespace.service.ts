@@ -17,6 +17,10 @@ export class NamespaceService {
     private apiService: ApiService,
   ) { }
 
+  get isLive(): boolean {
+    return this._isLive;
+  }
+
   loadAndReturnLiveStatus(): Observable<any> {
     return this.apiService.getConfig().map((response: any) => {
       this._isLive = (response.data[0].YIPEE_INSTALL_TYPE === 'cluster');
