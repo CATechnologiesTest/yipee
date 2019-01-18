@@ -10,6 +10,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 const liveApiHost = "https://kubernetes.default.svc"
@@ -32,7 +34,11 @@ func readSecret(name string) []byte {
 	if getFromEnv(INSTALL_TYPE, STATIC_INSTALL) == LIVE_INSTALL {
 		sbytes, err = ioutil.ReadFile(secretDir + name)
 		if err != nil {
-			// XXX: log
+			log.WithFields(log.Fields{
+				"err":         err,
+				"secretDir":   secretDir,
+				"secret name": name,
+			}).Error("read k8s secret error")
 			return nil
 		}
 	}
@@ -78,28 +84,45 @@ func k8sGetList(path string) []JsonObject {
 	k8sInit()
 	req, err := http.NewRequest(http.MethodGet, k8sApiHost+path, nil)
 	if err != nil {
-		// xxx: log
+		log.WithFields(log.Fields{
+			"err":  err,
+			"path": path,
+		}).Error("k8sGetList request create failure")
 		return nil
 	}
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", k8sToken))
 	resp, err := k8sClient.Do(req)
 	if err != nil {
-		// xxx: log
+		log.WithFields(log.Fields{
+			"err":  err,
+			"path": path,
+		}).Error("k8sGetList request execute failure")
 		return nil
 	}
 	body, err := ioutil.ReadAll(resp.Body)
 	resp.Body.Close()
 	if err != nil {
-		// xxx: log
+		log.WithFields(log.Fields{
+			"err":  err,
+			"path": path,
+		}).Error("k8sGetList read response body failure")
 		return nil
 	}
 	if resp.StatusCode >= 300 {
-		// xxx: log
+		log.WithFields(log.Fields{
+			"code": resp.StatusCode,
+			"path": path,
+		}).Error("k8sGetList non-success status")
 		return nil
 	}
 	var retobj k8slist
 	if err := json.Unmarshal(body, &retobj); err != nil {
-		panic("json unmarshal")
+		log.WithFields(log.Fields{
+			"err":       err,
+			"path":      path,
+			"body data": string(body),
+		}).Error("k8sGetList json unmarshal")
+		return nil
 	}
 	kindstr := strings.TrimSuffix(retobj.Kind, "List")
 	for _, o := range retobj.Items {

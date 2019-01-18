@@ -107,7 +107,7 @@ func TestImportCache(t *testing.T) {
 }
 
 func TestImportCacheBoundaries(t *testing.T) {
-	importCache = NewCache(1, 2) // XXX
+	importCache = NewCache(1, 2)
 
 	// do an import/save
 	req := makeImportRequest(t, "bday4.yml", "cached-import", true)

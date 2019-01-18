@@ -48,7 +48,7 @@ func downloadHelm(w http.ResponseWriter, r *http.Request) {
 }
 
 func apiConvert(p *cvtparams, w http.ResponseWriter, r *http.Request) {
-
+	defer HandleCatchableForRequest(w)
 	inbytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)

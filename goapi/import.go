@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/google/uuid"
-	"github.com/gorilla/mux"
 	"net/http"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 )
 
 func initImports(router *mux.Router) {
@@ -86,6 +87,7 @@ func doImport(w http.ResponseWriter, r *http.Request) {
 }
 
 func doImportGet(w http.ResponseWriter, r *http.Request) {
+	defer HandleCatchableForRequest(w)
 	id := mux.Vars(r)["id"]
 	if cv := importCache.Remove(id); cv != nil {
 		flatFile := cv.(JsonObject)
@@ -119,22 +121,16 @@ func processCvtResults(results []CvtResult) ([]byte, string) {
 	errmsg := "Input can't be processed.  " +
 		"It must be a parseable YAML file or a " +
 		"compressed tar (.tgz, .tar.gz) of parseable YAML files"
-	var conversion []byte
 	for i := 0; i < len(results); i++ {
 		cvt := results[i].converted
 		failure := results[i].error
 		if cvt != nil {
-			conversion = cvt
-			break
+			return cvt, ""
 		} else if !containsInvalids(failure) {
 			errmsg = failure
 		}
 	}
-	if conversion != nil {
-		return conversion, ""
-	} else {
-		return nil, errmsg
-	}
+	return nil, errmsg
 }
 
 func tryAllImports(data string) (payload []byte, errstr string) {
