@@ -31,7 +31,6 @@ export class EditorComponent implements OnInit, AfterViewChecked {
   disregardChanges = false;
   resizing = false;
   viewType = 'app';
-  isDashboard: boolean;
   isApplyingManifest = false;
   isLive: boolean;
 
