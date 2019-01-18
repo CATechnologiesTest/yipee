@@ -40,6 +40,32 @@ func isGuid(instr string) bool {
 	return match
 }
 
+func getDiffStringInput(comp string, instr string) (string, string) {
+	if isGuid(instr) {
+		if cached := importCache.Lookup(instr); cached != nil {
+			flatFile := cached.(JsonObject)
+			k8sfile, errstr := doConvert("/f2k", marshalJson(flatFile))
+			if errstr != "" {
+				return "", fmt.Sprintf("%s: convert flat to k8s error %s", comp, errstr)
+			}
+			return string(k8sfile), ""
+		} else {
+			return "", fmt.Sprintf("%s: No stored import for guid '%s'", comp, instr)
+		}
+	} else {
+		// if non-guid string, assume it's an external file ala import
+		flatbytes, errstr := tryAllImports(instr)
+		if errstr != "" {
+			return "", fmt.Sprintf("%s: tryAllImports error '%s'", comp, errstr)
+		}
+		k8sfile, errstr := doConvert("/f2k", flatbytes)
+		if errstr != "" {
+			return "", fmt.Sprintf("%s: convert flat to k8s error %s", comp, errstr)
+		}
+		return string(k8sfile), ""
+	}
+}
+
 func getDiffData(inobj *diffobj, comp string, errchan chan<- string) {
 	if inobj.Name == "" {
 		errchan <- fmt.Sprintf("%s: invalid diff input -- name is required", comp)
@@ -54,38 +80,13 @@ func getDiffData(inobj *diffobj, comp string, errchan chan<- string) {
 		inobj.Yaml = string(k8sfile)
 		inobj.Data = ""
 	} else if instr, ok := inobj.Data.(string); ok {
-		if isGuid(instr) {
-			if cached := importCache.Lookup(instr); cached != nil {
-				flatFile := cached.(JsonObject)
-				k8sfile, errstr := doConvert("/f2k", marshalJson(flatFile))
-				if errstr != "" {
-					errchan <- fmt.Sprintf("%s: convert flat to k8s error %s",
-						comp, errstr)
-					return
-				}
-				inobj.Yaml = string(k8sfile)
-				inobj.Data = ""
-			} else {
-				errchan <- fmt.Sprintf("%s: No stored import for guid '%s'",
-					comp, instr)
-				return
-			}
-		} else {
-			// if non-guid string, assume it's an external file ala import
-			flatbytes, errstr := tryAllImports(instr)
-			if errstr != "" {
-				errchan <- fmt.Sprintf("%s: tryAllImports error '%s'",
-					comp, errstr)
-				return
-			}
-			k8sfile, errstr := doConvert("/f2k", flatbytes)
-			if errstr != "" {
-				errchan <- fmt.Sprintf("%s: convert flat to k8s error %s", comp, errstr)
-				return
-			}
-			inobj.Yaml = string(k8sfile)
-			inobj.Data = ""
+		yamlstr, errstr := getDiffStringInput(comp, instr)
+		if errstr != "" {
+			errchan <- errstr
+			return
 		}
+		inobj.Yaml = yamlstr
+		inobj.Data = ""
 	} else if inobj.Data == nil {
 		// assume this is a namespace diff
 		nsbytes, errstr := getNamespaceObjects(inobj.Name)
