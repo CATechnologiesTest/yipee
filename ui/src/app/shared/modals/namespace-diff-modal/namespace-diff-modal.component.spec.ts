@@ -49,7 +49,7 @@ describe('NamespaceDiffModalComponent', () => {
     component.parentNamespace = 'foo';
     component.childNamespace = 'bar';
     component.compare();
-    backend.expectOne('/api/namespaces/diff').flush({
+    backend.expectOne('/api/diff').flush({
       success: true,
       total: 1,
       data: ['foo, bar']
@@ -63,7 +63,7 @@ describe('NamespaceDiffModalComponent', () => {
     component.diffForm.controls.childNamespace.markAsDirty();
     const err = 'Bad yaml';
     component.compare();
-    backend.expectOne({ method: 'POST', url: '/api/namespaces/diff' })
+    backend.expectOne({ method: 'POST', url: '/api/diff' })
       .flush({
         success: false,
         total: 0,
@@ -80,7 +80,7 @@ describe('NamespaceDiffModalComponent', () => {
     component.childNamespace = null;
     const err = 'bad child namespace';
     component.compare();
-    backend.expectOne({ method: 'POST', url: '/api/namespaces/diff' })
+    backend.expectOne({ method: 'POST', url: '/api/diff' })
       .flush({
         success: false,
         total: 0,
