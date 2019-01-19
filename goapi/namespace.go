@@ -203,6 +203,7 @@ func doKubectlExec(
 }
 
 func applyNamespace(w http.ResponseWriter, r *http.Request) {
+
 	defer HandleCatchableForRequest(w)
 	reqobj := getInputObject(r)
 	flatObj, ok := reqobj["flatFile"].(map[string]interface{})

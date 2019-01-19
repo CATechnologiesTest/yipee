@@ -14,10 +14,12 @@ import (
 func testRequest(t *testing.T, req *http.Request, payload interface{}) int {
 	recorder := httptest.NewRecorder()
 	Router().ServeHTTP(recorder, req)
-
+	if recorder.Code == 405 {
+		return recorder.Code
+	}
 	err := json.Unmarshal(recorder.Body.Bytes(), payload)
-	if err != nil {
-		t.Errorf("json unmarshal: %v", err)
+	if err != nil && recorder.Code != 404 { // 404 response can be just a string
+		t.Errorf("%v %v - json unmarshal: %v, Response code: %v", req.Method, req.URL, err, recorder.Code)
 	}
 	return recorder.Code
 }
