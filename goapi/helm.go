@@ -5,12 +5,15 @@ import (
 	"bytes"
 	"compress/gzip"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"regexp"
 	"strings"
+
+	yaml "gopkg.in/yaml.v2"
 
 	"k8s.io/helm/pkg/proto/hapi/chart"
 
@@ -21,43 +24,54 @@ import (
 // Create a combined k8s manifest file from a helm chart contained in
 // a base64-encoded, gzipped, tar archive; the values file to use for
 // instantiating the templates is specified by name.
-func Instantiate(chartBytes []byte, valueFileName string) string {
-	chart := extractChartData(chartBytes, valueFileName)
+func Instantiate(chartBytes []byte, valueFileName string) (string, string) {
+	name, chart := extractChartData(chartBytes, valueFileName)
 	instantiated := renderTemplates(chart)
-	return strings.Join(instantiated, "\n---\n")
+	return name, strings.Join(instantiated, "\n---\n")
 }
 
 // Create a "chart" object in the format expected by helm's rendering
 // code from a bundle.
-func extractChartData(chart []byte, valuefileName string) *chart.Chart {
+func extractChartData(chart []byte, valuefileName string) (string, *chart.Chart) {
 	entries := extractChartFiles(chart)
+	name := getChartName(entries)
 	templates := findTemplateFiles(entries)
-	valueFile := findValueFile(entries, valuefileName)
-	return createChart(templates, valueFile)
+	valueFile := findValuesFile(entries, valuefileName)
+	return name, createChart(templates, valueFile)
+}
+
+func makeFailureFunc(activityName string) func(error, ...string) {
+	return func(err error, errstrs ...string) {
+		var outstr string
+		if len(errstrs) > 0 {
+			outstr = strings.Join(errstrs, "")
+		} else {
+			outstr = err.Error()
+		}
+		RaiseCatchable(http.StatusBadRequest, outstr,
+			log.Fields{"err": activityName + ": " + err.Error()})
+	}
 }
 
 // Create a map of tar file contents keyed by tar entry names after
 // decoding and gunzipping
 func extractChartFiles(chartData []byte) map[string]string {
-	errFunc := func(err error, errstr string) {
-		RaiseCatchable(http.StatusBadRequest, errstr,
-			log.Fields{"err": "extractChartFiles: " + err.Error()})
-	}
+	failRequest := makeFailureFunc("extractChartFiles")
 
 	// Base 64 decode
 	decoded, err := base64.StdEncoding.DecodeString(string(chartData))
 	if err != nil {
-		errFunc(err, "can't base64 decode input")
+		failRequest(err, "can't base64 decode input")
 	}
-
 	// Gunzip
 	gzipReader, err := gzip.NewReader(bytes.NewBuffer(decoded))
 	if err != nil {
-		errFunc(err, "can't create gunzip reader for decoded input")
+		failRequest(err, "can't create gunzip reader for decoded input")
 	}
+	defer gzipReader.Close()
 	uncompressed, err := ioutil.ReadAll(gzipReader)
 	if err != nil {
-		errFunc(err, "can't gunzip decoded input")
+		failRequest(err, "can't gunzip decoded input")
 	}
 
 	// Untar
@@ -69,17 +83,41 @@ func extractChartFiles(chartData []byte) map[string]string {
 			break
 		}
 		if err != nil {
-			errFunc(err, "error reading tar entry")
+			failRequest(err, "error reading tar file")
 		}
 
 		bval, err := ioutil.ReadAll(treader)
 		if err != nil {
-			errFunc(err, fmt.Sprintf("error reading '%s' tar entry", hdr.Name))
+			failRequest(err, fmt.Sprintf("error reading '%s' tar entry", hdr.Name))
 		}
 		results[hdr.Name] = string(bval)
 	}
 
 	return results
+}
+
+// Retrieve the name of a chart from the Chart.yaml file
+type chartName struct {
+	Name string `yaml: "name"`
+}
+
+func getChartName(entries map[string]string) string {
+	chartExp, _ := regexp.Compile("^[^/]+/Chart.yaml$")
+	failRequest := makeFailureFunc("getChartName")
+
+	for name, data := range entries {
+		if chartExp.MatchString(name) {
+			var cname chartName
+			err := yaml.Unmarshal([]byte(data), &cname)
+			if err != nil {
+				failRequest(err, "can't unmarshal Chart.yaml")
+			}
+			return cname.Name
+		}
+	}
+
+	failRequest(errors.New("Chart.yaml not found"))
+	return "" // notreached
 }
 
 func findTemplateFiles(entries map[string]string) map[string]string {
@@ -93,15 +131,17 @@ func findTemplateFiles(entries map[string]string) map[string]string {
 	return results
 }
 
-func findValueFile(entries map[string]string, fileName string) string {
+func findValuesFile(entries map[string]string, fileName string) string {
+	failRequest := makeFailureFunc("findValuesFile")
+
 	for name, data := range entries {
-		if name == fileName {
+		slashidx := strings.Index(name, "/")
+		if slashidx != -1 && name[slashidx+1:] == fileName {
 			return data
 		}
 	}
 
-	RaiseCatchable(http.StatusBadRequest, "no matching value file",
-		log.Fields{"err": "findValueFile: '" + fileName + "' not found"})
+	failRequest(errors.New("values file: '" + fileName + "' not found"))
 	return "" // notreached
 }
 
@@ -122,10 +162,10 @@ func createChart(templateData map[string]string, values string) *chart.Chart {
 }
 
 func renderTemplates(chart *chart.Chart) []string {
+	failRequest := makeFailureFunc("renderTemplates")
 	output, err := render.Render(chart, nil, render.Options{})
 	if err != nil {
-		RaiseCatchable(http.StatusBadRequest, "could not instantiate templates",
-			log.Fields{"err": "renderTemplates: '" + err.Error()})
+		failRequest(err, "could not instantiate templates")
 	}
 	results := make([]string, 0)
 	for _, val := range output {

@@ -14,6 +14,7 @@ func initImports(router *mux.Router) {
 	importInit()
 	router.HandleFunc("/import/{id}", doImportGet).Methods(http.MethodGet)
 	router.HandleFunc("/import", doImport).Methods(http.MethodPost)
+	router.HandleFunc("/importhelm", doHelmImport).Methods(http.MethodPost)
 }
 
 // "static" vars
@@ -48,9 +49,34 @@ func doImport(w http.ResponseWriter, r *http.Request) {
 		w.Write(makeErrorResponse("missing importFile key"))
 		return
 	}
-
 	name, hasName := reqobj["name"].(string)
+	doImportImpl(w, r, payload, name, hasName)
+}
 
+func doHelmImport(w http.ResponseWriter, r *http.Request) {
+	defer HandleCatchableForRequest(w)
+	reqobj := getInputObject(r)
+	vfilename, ok := reqobj["valuesFilename"].(string)
+	if !ok {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write(makeErrorResponse("missing valueFilename key"))
+		return
+	}
+	chart, ok := reqobj["chart"].(string)
+	if !ok {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write(makeErrorResponse("missing chart key"))
+		return
+	}
+	name, model := Instantiate([]byte(chart), vfilename)
+	doImportImpl(w, r, model, name, true)
+}
+
+func doImportImpl(
+	w http.ResponseWriter,
+	r *http.Request,
+	payload, name string,
+	hasName bool) {
 	result, errstr := tryAllImports(payload)
 
 	var resp []byte

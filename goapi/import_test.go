@@ -136,3 +136,93 @@ func TestImportCacheBoundaries(t *testing.T) {
 		t.Errorf("cache fetch error expected '%s', got '%s'", expectMsg, emsg)
 	}
 }
+
+type helmImportTest struct {
+	appname    string
+	filename   string
+	valuesname string
+}
+
+type helmImportFailTest struct {
+	appname    string
+	filename   string
+	valuesname string
+	errmsg     string
+}
+
+type HelmImportPayload struct {
+	Chart          string `json:"chart"`
+	Name           string `json:"name"`
+	ValuesFilename string `json:"valuesFilename"`
+}
+
+func makeImportHelmRequest(
+	t *testing.T,
+	fname, impname, vname string,
+	save bool) *http.Request {
+	fbytes := readTestData(fname)
+	payload := &HelmImportPayload{base64.StdEncoding.EncodeToString(fbytes),
+		impname, vname}
+	plbytes := toJsonBytes(payload)
+	impurl := "/importhelm"
+	if save {
+		impurl += "?save=true"
+	}
+	return httptest.NewRequest(http.MethodPost, impurl, bytes.NewReader(plbytes))
+}
+
+func runImportHelmSuccessTests(t *testing.T, tests []*helmImportTest) {
+	for _, td := range tests {
+		fmt.Printf("Importing: %s\n", td.appname)
+		// no cache
+		req := makeImportHelmRequest(t, td.filename, td.appname, td.valuesname,
+			false)
+		result := doSuccessRequest(t, req)
+		assertImportSuccess(t, result, td.appname)
+		// cache
+		req = makeImportHelmRequest(t, td.filename, td.appname, td.valuesname,
+			true)
+		result = doSuccessRequest(t, req)
+		guid := result.Data[0]["guid"].(string)
+		req = httptest.NewRequest(http.MethodGet, "/import/"+guid, nil)
+		result = doSuccessRequest(t, req)
+		assertImportSuccess(t, result, td.appname)
+		// one shot - fail next time
+		eresult := doErrRequest(t, req)
+		emsg := eresult.Data[0]
+		expectMsg := fmt.Sprintf("%s: %s", CACHE_FETCH_ERR, guid)
+		if expectMsg != emsg {
+			t.Errorf("cache fetch error expected '%s', got '%s'", expectMsg, emsg)
+		}
+	}
+}
+
+func runImportHelmFailureTests(t *testing.T, tests []*helmImportFailTest) {
+	for _, td := range tests {
+		req := makeImportHelmRequest(t, td.filename, td.appname, td.valuesname,
+			false)
+		eresult := doErrRequest(t, req)
+		emsg := eresult.Data[0]
+		if strings.Index(emsg, td.errmsg) == -1 {
+			t.Error("missing expected error", emsg)
+		}
+	}
+}
+
+func TestImportHelm(t *testing.T) {
+	successTests := []*helmImportTest{
+		&helmImportTest{"sd", "m2hbundle-api-output.tgz", "sd_values.yaml"},
+		&helmImportTest{"sd", "m2hbundle-api-output.tgz", "sd2_values.yaml"},
+	}
+	failTests := []*helmImportFailTest{
+		&helmImportFailTest{"bad-values-file", "m2hbundle-api-output.tgz",
+			"wrongvalues",
+			"values file: 'wrongvalues' not found"},
+		&helmImportFailTest{"bad-compression", "bday4.yml", "dummy",
+			"can't gunzip decoded input"},
+		&helmImportFailTest{"bad-tar-file", "bday4.gzip", "dummy",
+			"error reading tar file"},
+	}
+	runImportHelmSuccessTests(t, successTests)
+	runImportHelmFailureTests(t, failTests)
+}
