@@ -15,7 +15,8 @@ describe('UpdateService', () => {
     ]
   }));
 
-  xit('should be created', () => {
+  it('should be created', () => {
+
     const service: UpdateService = TestBed.get(UpdateService);
     expect(service).toBeTruthy();
   });
