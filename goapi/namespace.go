@@ -15,7 +15,7 @@ import (
 var kubectlPath = "/usr/local/bin/kubectl"
 
 func initNamespaces(router *mux.Router) {
-	router.HandleFunc("/namespaces/apply/{name}",
+	router.HandleFunc("/namespaces/{name}/apply",
 		applyNamespace).Methods(http.MethodPost)
 	router.HandleFunc("/namespaces/{name}", getNamespace).Methods(http.MethodGet)
 	router.HandleFunc("/namespaces/{name}",
@@ -201,6 +201,7 @@ func doKubectlExec(
 }
 
 func applyNamespace(w http.ResponseWriter, r *http.Request) {
+
 	defer HandleCatchableForRequest(w)
 	reqobj := getInputObject(r)
 	flatObj, ok := reqobj["flatFile"].(map[string]interface{})

@@ -12,13 +12,22 @@ import (
 	"github.com/gorilla/mux"
 )
 
+
+func expectStatusCode(t *testing.T, req *http.Request, expectedCode int) {
+    recorder := httptest.NewRecorder()
+    Router().ServeHTTP(recorder, req)
+    if recorder.Code != expectedCode {
+        t.Errorf("%v %v - Response code: %v, Expected Response code: %v", req.Method, req.URL, recorder.Code, expectedCode)
+	}
+	return; 
+}
+
 func testRequest(t *testing.T, req *http.Request, payload interface{}) int {
 	recorder := httptest.NewRecorder()
 	Router().ServeHTTP(recorder, req)
-
 	err := json.Unmarshal(recorder.Body.Bytes(), payload)
-	if err != nil {
-		t.Errorf("json unmarshal: %v", err)
+	if err != nil  { 
+		t.Errorf("%v %v - json unmarshal: %v, Response code: %v", req.Method, req.URL, err, recorder.Code)
 	}
 	return recorder.Code
 }
@@ -28,7 +37,7 @@ func doSuccessRequest(t *testing.T, req *http.Request) *ObjResp {
 	status := testRequest(t, req, &result)
 
 	if status != 200 || !result.Success {
-		t.Error("unexpected response code or success flag", status, result.Success)
+		t.Error("unexpected response code or success flag", req.URL, status, result.Success)
 	}
 	return &result
 }
@@ -38,7 +47,7 @@ func doSuccessRequestString(t *testing.T, req *http.Request) *StringResp {
 	status := testRequest(t, req, &result)
 
 	if status > 299 || !result.Success {
-		t.Error("unexpected response code or success flag", status, result.Success)
+		t.Error("unexpected response code or success flag", req.URL, status, result.Success)
 	}
 	return &result
 }
@@ -47,7 +56,7 @@ func doErrRequest(t *testing.T, req *http.Request) *StringResp {
 	var result StringResp
 	status := testRequest(t, req, &result)
 	if status < 400 || result.Success {
-		t.Error("unexpected error response code or flag", status, result.Success)
+		t.Error("unexpected error response code or flag", req.URL, status, result.Success)
 	}
 	return &result
 }

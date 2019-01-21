@@ -187,7 +187,7 @@ export class ApiService {
       });
 
     }
-    const endpoint = manifestIsNewNamespace ? `/api/namespaces/apply/${namespace}?createNamespace=true` : `/api/namespaces/apply/${namespace}`;
+    const endpoint = manifestIsNewNamespace ? `/api/namespaces/${namespace}/apply?createNamespace=true` : `/api/namespaces/${namespace}/apply`;
     const body = {
       flatFile: metadataRaw.flatFile
     };
