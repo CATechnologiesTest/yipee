@@ -50,7 +50,7 @@ export class ImportAppModalComponent implements OnInit {
       });
 
     }, (error) => {
-      const response = JSON.parse(error._body) as YipeeFileErrorResponse;
+      const response = error.error as YipeeFileErrorResponse;
       this.alertText = response.data[0].split('\n');
       while (this.alertText[this.alertText.length - 1] === '') {
         this.alertText.pop();
