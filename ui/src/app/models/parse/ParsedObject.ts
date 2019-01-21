@@ -48,6 +48,7 @@ export class ParsedObject {
         object.attributeChanged(this, attribute);
       }
     }
+    this.onAttributeChange.emit(attribute);
   }
 
   /** is the object empty */

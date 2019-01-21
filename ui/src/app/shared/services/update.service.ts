@@ -55,6 +55,7 @@ export class UpdateService {
   }
 
   subscribeToK8sFile(k8sFile: K8sFile, namespace: string): void {
+    console.log('subscribe');
     if (this.k8sFile !== undefined) {
       this.unsubscribeFromK8sFile(this.k8sFile, this.namespace);
     }
@@ -79,11 +80,5 @@ export class UpdateService {
   watchMetadata(metadata: YipeeFileMetadata[]): void {
     this.metadata = metadata;
   }
-
-  // saveLayout(k8sFile: YipeeFileMetadata) {
-  //   this.yipeeFileService.updateNamespace(k8sFile, this.storeInfo ? this.storeInfo : null).subscribe((response: any) => {
-  //     this.storeInfo = response.data[0].storeInfo;
-  //   });
-  // }
 
 }
