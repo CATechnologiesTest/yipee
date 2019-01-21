@@ -11,14 +11,21 @@ import (
 	"testing"
 )
 
+
+func expectStatusCode(t *testing.T, req *http.Request, expectedCode int) {
+    recorder := httptest.NewRecorder()
+    Router().ServeHTTP(recorder, req)
+    if recorder.Code != expectedCode {
+        t.Errorf("%v %v - Response code: %v, Expected Response code: %v", req.Method, req.URL, recorder.Code, expectedCode)
+	}
+	return; 
+}
+
 func testRequest(t *testing.T, req *http.Request, payload interface{}) int {
 	recorder := httptest.NewRecorder()
 	Router().ServeHTTP(recorder, req)
-	if recorder.Code == 405 {
-		return recorder.Code
-	}
 	err := json.Unmarshal(recorder.Body.Bytes(), payload)
-	if err != nil && recorder.Code != 404 { // 404 response can be just a string
+	if err != nil  { 
 		t.Errorf("%v %v - json unmarshal: %v, Response code: %v", req.Method, req.URL, err, recorder.Code)
 	}
 	return recorder.Code

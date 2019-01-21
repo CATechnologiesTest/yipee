@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 )
-func TestNamespace405Methods(t *testing.T) {
+func TestNamespace4XXMethods(t *testing.T) {
 	var tests = []struct {
 		url string
 		method string
@@ -21,17 +21,13 @@ func TestNamespace405Methods(t *testing.T) {
 		{"/namespaces/foo/apply", http.MethodGet, 405},
 		{"/namespaces/foo/apply", http.MethodPut, 405},
 		{"/namespaces/foo/apply", http.MethodDelete, 405},
+		{"/namespaces/apply/foo/bar", http.MethodGet, 404},
+		{"/namespaces/fake/apply/foo", http.MethodPost, 404},
+		{"/namespaces/fake/apply/foo?createNamespace=true", http.MethodPost, 404},
 
 	}
-	svr := NewK8sTestServer()
-	defer svr.Close()
 	for _, test := range tests {
-		var res interface {};
-		
-		if code := testRequest(t, httptest.NewRequest(test.method, test.url, nil), &res); 
-			code != test.expected {
-			t.Errorf("%v %v received: %v expected:%v", test.method, test.url, code, test.expected)
-		}
+		expectStatusCode(t, httptest.NewRequest(test.method, test.url, nil), test.expected); 
 	}
 }
 func TestNamespace(t *testing.T) {
@@ -67,16 +63,11 @@ func TestNamespace(t *testing.T) {
 			bytes.NewBuffer(applyBytes)))
 	doSuccessRequestString(t,
 		httptest.NewRequest(http.MethodDelete, "/namespaces/fake", nil))
-	// gettting data for a namespace named apply should work
+	// getting data for a namespace named apply should work
 	doSuccessRequestString(t,
 		httptest.NewRequest(http.MethodDelete, "/namespaces/apply", nil))
-	// getting extra items after namespace not supported and should error
-	doErrRequest(t,
-		httptest.NewRequest(http.MethodGet, "/namespaces/apply/foo/bar", nil))	
 
-	doErrRequest(t,
-		httptest.NewRequest(http.MethodGet, "/namespaces/foo/apply", nil))	
-	// fail post without data
+		// fail post without data
 	doErrRequest(t,
 		httptest.NewRequest(http.MethodPost, "/namespaces/foo/apply", nil))	
 	
@@ -89,13 +80,5 @@ func TestNamespace(t *testing.T) {
 		httptest.NewRequest(http.MethodPost,
 			"/namespaces/fake/apply?createNamespace=true",
 			bytes.NewBuffer(applyBytes)))
-	// Fail, can't perform a post to URL with values after apply
-	doErrRequest(t,
-		httptest.NewRequest(http.MethodPost, 
-			"/namespaces/fake/apply/foo", bytes.NewBuffer(applyBytes)))
 
-	// Fail, can't perform a post to URL with values after apply
-	doErrRequest(t,
-		httptest.NewRequest(http.MethodPost, 
-			"/namespaces/fake/apply/foo?createNamespace=true", bytes.NewBuffer(applyBytes)))
 }
