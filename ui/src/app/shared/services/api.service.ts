@@ -232,6 +232,11 @@ export class ApiService {
     return this.http.post<YipeeResponse>(endpoint, body);
   }
 
+  deleteNamespace(namespace): Observable<YipeeResponse> {
+    const api_endpoint = `/api/namespaces/${namespace.name}`;
+    return this.http.delete<YipeeResponse>(api_endpoint);
+  }
+
   /* ******************* */
   /* END DASHBOARD API CALLS */
   /* ******************* */
