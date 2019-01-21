@@ -27,12 +27,12 @@ export class EditorComponent implements OnInit, AfterViewChecked {
   @ViewChild(SidebarComponent)
   private sidebarComponent: SidebarComponent;
 
-  yipeeFileID: string;
   disregardChanges = false;
   resizing = false;
   viewType = 'app';
   isApplyingManifest = false;
   isLive: boolean;
+  namespace: string;
 
   ui = {
     loading: true,
@@ -56,20 +56,19 @@ export class EditorComponent implements OnInit, AfterViewChecked {
 
   ngOnInit() {
     // Are we "deep linking" into a model that is saved on the backend?
-    const deepLinkId = this.activatedRoute.snapshot.params['id'];
+    this.namespace = this.activatedRoute.snapshot.params['id'];
     this.isLive = this.namespaceService.isLive;
 
-    if (deepLinkId) {
+    if (this.namespace) {
       const isNamespaceUrl = this.activatedRoute.snapshot.url && this.activatedRoute.snapshot.url[0].path === 'namespace';
 
-      this.yipeeFileService.read(deepLinkId, isNamespaceUrl).subscribe(
+      this.yipeeFileService.read(this.namespace, isNamespaceUrl).subscribe(
         (yipeeFile) => {
           this.editorService.loadYipeeFile(yipeeFile).subscribe((response) => {
               this.ui.loading = false;
-              this.yipeeFileID = this.editorService.yipeeFileID;
 
               if (isNamespaceUrl && this.isLive) {
-                this.updateService.subscribeToK8sFile(this.editorService.k8sFile, deepLinkId);
+                this.updateService.subscribeToK8sFile(this.editorService.k8sFile, this.namespace);
               }
 
             });
@@ -132,7 +131,7 @@ export class EditorComponent implements OnInit, AfterViewChecked {
 
     if (this.isLive) {
       console.log('unsubscribe');
-      this.updateService.unsubscribeFromK8sFile(this.editorService.k8sFile, this.yipeeFileID);
+      this.updateService.unsubscribeFromK8sFile(this.editorService.k8sFile, this.namespace);
     }
 
     this.router.navigate(['/']);
@@ -189,7 +188,7 @@ export class EditorComponent implements OnInit, AfterViewChecked {
 
     if (this.isLive) {
       console.log('unsubscribe');
-      this.updateService.unsubscribeFromK8sFile(this.editorService.k8sFile, this.yipeeFileID);
+      this.updateService.unsubscribeFromK8sFile(this.editorService.k8sFile, this.namespace);
     }
 
     this.router.navigate(['']);

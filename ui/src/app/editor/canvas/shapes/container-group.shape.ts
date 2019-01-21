@@ -123,16 +123,21 @@ export class ContainerGroupShape extends BaseShape {
     return `<g>
     <rect class="background" rx="10" ry="10"/>
     <rect class="border" rx="10" ry="10"/>
-    <rect class="restart-badge" rx="5" ry="5" x="28" y="5" width="30" height="16"/>
-    <text class="restart" x="43" y="16" alignment-baseline="central" text-anchor="middle"/>
-    <rect class="active-badge" rx="5" ry="5" x="64" y="5" width="45" height="16"/>
-    <text class="active" x="86" y="16" alignment-baseline="central" text-anchor="middle"/>
-    <image class="green" height="20" width="20" x="4" y="4" xlink:href="./assets/images/green-status.svg"/>
-    <image class="yellow" height="20" width="20" x="4" y="4" xlink:href="./assets/images/yellow-status.svg"/>
-    <image class="red" height="20" width="20" x="4" y="4" xlink:href="./assets/images/red-status.svg"/>
+    <image class="deleteCanvasObject" height="20" width="20" x="4" y="4" xlink:href="./assets/images/times-circle-line.svg"/>
+
+    <text class="type" x="28" y="18" alignment-baseline="top" text-anchor="left"/>
+
+    <rect class="restart-badge" rx="5" ry="5" x="45" y="5" width="30" height="16"/>
+    <text class="restart" x="60" y="17" alignment-baseline="central" text-anchor="middle"/>
+
+    <rect class="active-badge" rx="5" ry="5" x="84" y="5" width="45" height="16"/>
+    <text class="active" x="106" y="17" alignment-baseline="central" text-anchor="middle"/>
+
     <image class="error" height="24" width="24" x="76" y="2" xlink:href="./assets/images/exclamation-circle-line.svg"/>
+
     <text class="title" x="50" y="92" alignment-baseline="central" text-anchor="middle"/>
-    <text class="type" x="8" y="18" alignment-baseline="top" text-anchor="left"/>
+
+
     </g>`;
   }
 

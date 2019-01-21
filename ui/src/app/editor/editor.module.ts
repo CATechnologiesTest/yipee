@@ -14,6 +14,7 @@ import { SidebarGroupComponent } from './sidebar/sidebar-group.component';
 import { SidebarPanelComponent } from './sidebar/sidebar-panel.component';
 import { EditorService } from './editor.service';
 import { EditorEventService } from './editor-event.service';
+import { HomeResolverService } from '../home/home.resolver.service';
 
 // Nerdmode Components
 import { NerdmodeContainerComponent } from './sidebar/components/nerdmode-container/nerdmode-container.component';
@@ -64,9 +65,9 @@ import { CanDeactivateGuard } from '../can-deactivate.guard';
 
 // if this const gets too large, export it from a routs.ts file in this dir
 export const editorRoutes: Routes = [
-  {path: 'editor', component: EditorComponent, canDeactivate: [CanDeactivateGuard] },
-  {path: 'editor/:id', component: EditorComponent, canDeactivate: [CanDeactivateGuard] },
-  {path: 'namespace/:id', component: EditorComponent, canDeactivate: [CanDeactivateGuard] }
+  {path: 'editor', component: EditorComponent, canDeactivate: [CanDeactivateGuard], resolve: { isLive: HomeResolverService }},
+  {path: 'editor/:id', component: EditorComponent, canDeactivate: [CanDeactivateGuard], resolve: { isLive: HomeResolverService } },
+  {path: 'namespace/:id', component: EditorComponent, canDeactivate: [CanDeactivateGuard], resolve: { isLive: HomeResolverService } }
 ];
 
 @NgModule({
