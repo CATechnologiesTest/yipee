@@ -41,6 +41,10 @@ describe('NamespaceDiffModalComponent', () => {
     fixture.detectChanges();
   });
 
+  afterEach(inject([HttpTestingController], (backend: HttpTestingController) => {
+    backend.verify();
+  }));
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });
