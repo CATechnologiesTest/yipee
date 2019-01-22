@@ -120,8 +120,8 @@ export class YipeeFileService {
     return yipeeFile;
   }
 
-  read(yipeeFile_id: string): Observable<YipeeFileMetadata> {
-    return this.apiService.getApp(yipeeFile_id).map((response) => {
+  read(yipeeFile_id: string, isNamespace?: boolean): Observable<YipeeFileMetadata> {
+    return this.apiService.getApp(yipeeFile_id, isNamespace).map((response) => {
       if (typeof response.data[0] === 'string') {
         throw new Error(response.data[0].toString());
       } else {
@@ -129,6 +129,7 @@ export class YipeeFileService {
       }
     });
   }
+
 
   update(metadata: YipeeFileMetadata): Observable<YipeeFileMetadata> {
     const clone = metadata.toRaw();

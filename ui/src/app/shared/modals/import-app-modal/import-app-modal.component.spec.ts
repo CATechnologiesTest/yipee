@@ -1,7 +1,8 @@
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { CUSTOM_ELEMENTS_SCHEMA, NgZone } from '@angular/core';
+import { async, ComponentFixture, TestBed, inject } from '@angular/core/testing';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { Observable } from 'rxjs/Observable';
 import { of } from 'rxjs';
 
@@ -142,15 +143,6 @@ describe('ImportAppModalComponent', () => {
     permissions: any = mockPermissions;
   }
 
-  class MockApiService {
-    constructor() { }
-
-    importApp(yipeeFile: any): Observable<YipeeFileResponse> {
-      return of(yipeeFileResponse);
-    }
-
-  }
-
   class MockOrgService {
     availableOrgs = [];
 
@@ -163,9 +155,10 @@ describe('ImportAppModalComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ImportAppModalComponent ],
+      declarations: [ImportAppModalComponent],
       imports: [
         HttpModule,
+        HttpClientTestingModule,
         ReactiveFormsModule,
         FormsModule
       ],
@@ -178,11 +171,11 @@ describe('ImportAppModalComponent', () => {
         EditorEventService,
         YipeeFileService,
         DownloadService,
-        {provide: UserService, useClass: MockUserService},
-        {provide: ApiService, useClass: MockApiService}
+        ApiService,
+        { provide: UserService, useClass: MockUserService }
       ]
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {
@@ -190,6 +183,10 @@ describe('ImportAppModalComponent', () => {
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
+
+  afterEach(inject([HttpTestingController], (backend: HttpTestingController) => {
+    backend.verify();
+  }));
 
   it('should be created', () => {
     expect(component).toBeTruthy();
@@ -199,16 +196,24 @@ describe('ImportAppModalComponent', () => {
     expect(component.importApplicationForm.valid).toBeFalsy();
   });
 
-  it('create application should finish successfully when the form has a valid application name, clear the form, and close the modal', () => {
-    const applicationName = component.importApplicationForm.controls['applicationName'];
-    applicationName.setValue('GoodNameTest');
-    component.importApplicationForm.controls['applicationName'].markAsDirty();
-    expect(component.importApplicationForm.controls['applicationName'].dirty).toBeTruthy();
-    component.onCreate.subscribe(value => {
-    });
-    component.importApplication(true, false, yipeeFileRaw1);
-    expect(component.show).toBeFalsy();
-  });
+  it('create application should finish successfully when the form has a valid application name, clear the form, and close the modal', async(inject([EditorService, HttpTestingController],
+    (service: EditorService, backend: HttpTestingController) => {
+      const applicationName = component.importApplicationForm.controls['applicationName'];
+      applicationName.setValue('GoodNameTest');
+      component.importApplicationForm.controls['applicationName'].markAsDirty();
+      expect(component.importApplicationForm.controls['applicationName'].dirty).toBeTruthy();
+      component.onCreate.subscribe(value => {
+      });
+      component.importApplication(true, false, yipeeFileRaw1);
+
+      backend.expectOne({ method: 'POST', url: '/api/import' }).flush({
+        success: true,
+        total: 1,
+        data: [yipeeFileRaw1]
+      });
+
+      expect(component.show).toBeFalsy();
+    })));
 
   it('cancel application should finish successfully by clearing the form, and closing the modal', () => {
     component.importApplicationForm.controls['applicationName'].setValue('hello');
@@ -296,4 +301,53 @@ describe('ImportAppModalComponent', () => {
     errors = applicationName.errors || {};
     expect(errors['firstCharAlphaNumeric']).toBeFalsy();
   });
+
+  it('should handle invalid model error, where 400 is returned', async(inject([EditorService, HttpTestingController],
+    (service: EditorService, backend: HttpTestingController) => {
+      fixture.detectChanges();
+      component.importApplication(true, false, yipeeFileRaw1);
+
+      backend.expectOne({ method: 'POST', url: '/api/import' }).flush({
+        success: false,
+        total: 1,
+        data: ['test error']
+      }, { status: 400, statusText: 'badDev' });
+
+      expect(component.alertText).toEqual(['test error']);
+    })));
+
+  it('should handle invalid model error, where 200 is returned', async(inject([EditorService, HttpTestingController],
+    (service: EditorService, backend: HttpTestingController) => {
+      fixture.detectChanges();
+      component.importApplication(true, false, yipeeFileRaw1);
+
+      backend.expectOne({ method: 'POST', url: '/api/import' }).flush({
+        success: false,
+        total: 1,
+        data: ['test error']
+      });
+
+      expect(component.alertText).toEqual(['test error']);
+    })));
+
+  it('should handle a network error', async(inject([EditorService, HttpTestingController, NgZone],
+    (service: EditorService, backend: HttpTestingController, ngZone: NgZone) => {
+      fixture.detectChanges();
+
+      component.importApplication(true, false, yipeeFileRaw1);
+
+      const err = 'bad req';
+      backend.expectOne({ method: 'POST', url: '/api/import' })
+        .flush({
+          success: false,
+          total: 0,
+          data: [err]
+        },
+          {
+            status: 500, statusText: 'badDev'
+          });
+
+      expect(component.error).toBeTruthy();
+    })));
+
 });

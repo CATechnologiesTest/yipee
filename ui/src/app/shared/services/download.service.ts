@@ -72,6 +72,15 @@ export class DownloadService {
     return this.download(file, 'getKubernetesArchiveFileData', 'kubernetesarchive', true, 'kubernetesFile');
   }
 
+  downloadKubernetesFileByNamespace(namespace: string): void {
+    this.apiService.getKubernetesNamespaceData(namespace).subscribe((data) => {
+      const kubernetesFile = data.kubernetesFile;
+      const fileName = this.generateName(data.name, 'kubernetes');
+      const blob = new Blob([kubernetesFile], { type: 'text/plain' });
+      FileSaver.saveAs(blob, fileName);
+    });
+  }
+
   convertB64(b64Data) {
     const sliceSize = 512;
     const byteCharacters = atob(b64Data);
@@ -96,5 +105,7 @@ export class DownloadService {
     const blob = new Blob(data, { type: 'text/plain' });
     FileSaver.saveAs(blob, fileName);
   }
+
+
 
 }

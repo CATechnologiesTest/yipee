@@ -1,0 +1,213 @@
+img {
+    height: 25px;
+    width: 25px;
+  }
+  
+  .dropdown .dropdown-toggle.btn {
+    padding-right: 0px;
+  }
+  
+  .card {
+    width: 250px;
+    margin-top: 16px;
+    margin-bottom: 0px;
+    margin-left: 0px;
+    margin-right: 16px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: auto;
+  }
+  
+  .card-header {
+    background-color: #b5b9bb;
+  }
+  
+  .card-block {
+    padding-top: 4px;
+    padding-bottom: 4px;
+  }
+  
+  .card-footer {
+    padding-top: 4px;
+    padding-bottom: 4px;
+  }
+  
+  .editor-link {
+    display: inline-block;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: top;
+  }
+  
+  .services {
+    display: block;
+    max-width: 210px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .username {
+    display: inline-block;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .editor-link:visited {
+    color: black;
+  }
+  
+  .editor-link:link {
+    color: black;
+  }
+  
+  .owner {
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: row;
+    flex-direction: row;
+  }
+
+  .list-logo {
+    height: 20px;
+    width: 20px;
+}
+
+.dd-header {
+  margin-left: 8px;
+  margin-top: 4px;
+  font-size: .5rem;
+  font-weight: 600;
+}
+
+.catalog-page {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+}
+
+.catalog-container {
+    display: flex;
+    flex: auto;
+    flex-direction: column;
+    max-height: 100%;
+}
+
+.spinner-container {
+    padding-top: 150px;
+    text-align: center;
+    flex: auto;
+}
+
+.fixed-top {
+    flex: none;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+}
+
+.scrolling {
+    display: flex;
+    flex: auto;
+    overflow-y: auto;
+}
+
+.top {
+    align-self: flex-start;
+    width: 100%;
+}
+
+.bottom {
+    align-self: flex-end;
+    width: 100%;
+}
+
+.scrolling .scrolled {
+    width: 100%;
+}
+
+.bar {
+    padding: 20px 20px 20px 20px;
+}
+
+form {
+    width: 100%;
+}
+
+input {
+    width: 100%;
+}
+
+.flex-grid {
+    padding: 0px 0px 20px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: left;
+}
+
+.data-grid {
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 40px;
+    height: 100%;
+}
+
+.toolbar-button-group {
+    margin: 6px 12px 6px 0;
+}
+
+.clear-search {
+    height: 100%;
+    display: flex;
+    flex: auto;
+    flex-direction: column;
+}
+
+.clear-search-item {
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    -webkit-align-items: center;
+    align-items: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+}
+
+.search-form {
+    padding-top: 0px;
+    padding-left: 18px;
+}
+
+.context-label {
+    padding-right: 9px;
+}
+
+.flex-left {
+    justify-content: flex-start;
+    display: flex;
+    flex: auto;
+    flex-direction: row;
+}
+
+.flex-center {
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    flex: auto;
+    flex-direction: row;
+}
+
+.flex-right {
+    justify-content: flex-end;
+    display: flex;
+    flex: auto;
+    flex-direction: row;
+}

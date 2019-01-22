@@ -1,4 +1,5 @@
 import { YipeeFileMetadataRaw } from './YipeeFileMetadataRaw';
+import { NamespaceRaw } from './YipeeFileRaw';
 
 /**
 
@@ -17,6 +18,12 @@ export interface YipeeFileErrorResponse {
   success: boolean;
   total: number;
   data: string[];
+}
+
+export interface NamespaceResponse {
+  success: boolean;
+  total: number;
+  data: NamespaceRaw[];
 }
 
 export interface YipeeResponse {

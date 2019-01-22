@@ -135,3 +135,12 @@ export interface YipeeFileRaw {
   secrets?: SecretRaw[];
   [others: string]: any;
 }
+
+export interface NamespaceRaw {
+  name: string;
+  dateCreated: string;
+  containerCount?: number;
+  podCount?: number;
+  phase?: string;
+  status?: string;
+}

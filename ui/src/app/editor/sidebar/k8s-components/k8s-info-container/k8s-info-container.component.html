@@ -55,7 +55,7 @@
         </span>
       </label>
     </div>
-    <div style="padding-left: 4rem;" class="form-group">
+    <div *ngIf="isLive" style="padding-left: 4rem;" class="form-group">
       <label></label>
       <div class="toggle-switch">
         <!-- <input type="checkbox" formControlName="createNs" (click)="createNsClick()"> -->

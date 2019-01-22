@@ -34,6 +34,10 @@ export class ContainerGroupShape extends BaseShape {
     this.set('markup', this.markup);
     this.canConnect = false;
     this.canClone = false;
+    this.setStatus(this.cgroup.deployment_status.status);
+    this.setRestartCount(this.cgroup.deployment_status.restart_count);
+    this.setRequestActiveCounts(this.cgroup.deployment_status.requested_replicas, this.cgroup.deployment_status.active_replicas);
+
 
     // get the position from annotations and then update that position when it changes
 
@@ -66,6 +70,21 @@ export class ContainerGroupShape extends BaseShape {
       this.layout();
     });
 
+    cgroup.deployment_status.onAttributeChange.subscribe((attribute: string) => {
+      switch (attribute) {
+        case 'status':
+          this.setStatus(this.cgroup.deployment_status.status);
+          break;
+        case 'restart_count':
+          this.setRestartCount(this.cgroup.deployment_status.restart_count);
+          break;
+        case 'requested_replicas':
+        case 'active_replicas':
+          this.setRequestActiveCounts(this.cgroup.deployment_status.requested_replicas, this.cgroup.deployment_status.active_replicas);
+          break;
+      }
+    });
+
   }
 
   set hasError(value: boolean) {
@@ -77,14 +96,48 @@ export class ContainerGroupShape extends BaseShape {
     }
   }
 
+  setStatus(value: string): void {
+    this.attr('.green/display', (value === 'green' ? 'inline' : 'none'));
+    this.attr('.yellow/display', (value === 'yellow' ? 'inline' : 'none'));
+    this.attr('.red/display', (value === 'red' ? 'inline' : 'none'));
+  }
+
+  setRestartCount(value: number): void {
+    this.attr('.restart/text', CanvasUtility.getStringForSize(value + '', 28, '10px', CanvasUtility.fontFamily, 'normal'));
+  }
+
+  setRequestActiveCounts(request: number, active: number): void {
+    if (active === 0) {
+      this.attr('.active-badge/fill', 'red');
+    } else if (active < request) {
+      this.attr('.active-badge/fill', 'yellow');
+    } else if (active >= request) {
+      this.attr('.active-badge/fill', 'green');
+    } else {
+      this.attr('.active-badge/fill', 'white');
+    }
+    this.attr('.active/text', CanvasUtility.getStringForSize(active + '/' + request, 28, '10px', CanvasUtility.fontFamily, 'normal'));
+  }
+
   get markup(): string {
     return `<g>
     <rect class="background" rx="10" ry="10"/>
     <rect class="border" rx="10" ry="10"/>
-    <image class="error" height="24" width="24" x="76" y="2" xlink:href="./assets/images/exclamation-circle-line.svg"/>
     <image class="deleteCanvasObject" height="20" width="20" x="4" y="4" xlink:href="./assets/images/times-circle-line.svg"/>
-    <text class="title" x="50" y="92" alignment-baseline="central" text-anchor="middle"/>
+
     <text class="type" x="28" y="18" alignment-baseline="top" text-anchor="left"/>
+
+    <rect class="restart-badge" rx="5" ry="5" x="45" y="5" width="30" height="16"/>
+    <text class="restart" x="60" y="17" alignment-baseline="central" text-anchor="middle"/>
+
+    <rect class="active-badge" rx="5" ry="5" x="84" y="5" width="45" height="16"/>
+    <text class="active" x="106" y="17" alignment-baseline="central" text-anchor="middle"/>
+
+    <image class="error" height="24" width="24" x="76" y="2" xlink:href="./assets/images/exclamation-circle-line.svg"/>
+
+    <text class="title" x="50" y="92" alignment-baseline="central" text-anchor="middle"/>
+
+
     </g>`;
   }
 

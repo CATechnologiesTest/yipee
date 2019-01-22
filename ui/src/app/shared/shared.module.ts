@@ -15,6 +15,7 @@ import { ApiService } from './services/api.service';
 import { DownloadService } from './services/download.service';
 import { ImportAppService } from './services/import-app.service';
 import { YipeeFileService } from './services/yipee-file.service';
+import { UpdateService } from './services/update.service';
 
 import { BulkNameValueEditComponent } from './modals/bulk-name-value-edit/bulk-name-value-edit.component';
 import { CloseAppModalComponent } from './modals/close-app-modal/close-app-modal.component';
@@ -38,6 +39,7 @@ import { NewK8sCronJobModalComponent } from './modals/new-k8s-cron-job-modal/new
 import { NewK8sInitContainerModalComponent } from './modals/new-k8s-init-container-modal/new-k8s-init-container-modal.component';
 import { NewK8sIngressModalComponent } from './modals/new-k8s-ingress-modal/new-k8s-ingress-modal.component';
 import { WarnChangesModalComponent } from './modals/warn-changes-modal/warn-changes-modal.component';
+import { NamespaceDiffModalComponent } from './modals/namespace-diff-modal/namespace-diff-modal.component';
 
 // removed components
 // import { SaveAppModalComponent } from './modals/save-app-modal/save-app-modal.component';
@@ -85,7 +87,8 @@ import { WarnChangesModalComponent } from './modals/warn-changes-modal/warn-chan
     NewK8sDaemonSetModalComponent,
     NewK8sCronJobModalComponent,
     NewK8sInitContainerModalComponent,
-    WarnChangesModalComponent
+    WarnChangesModalComponent,
+    NamespaceDiffModalComponent
   ],
   providers: [ /* leave empty, read notes below */ ContainerSearchService],
   exports: [
@@ -111,7 +114,8 @@ import { WarnChangesModalComponent } from './modals/warn-changes-modal/warn-chan
     ToolbarComponent,
     NewK8sDaemonSetModalComponent,
     NewK8sCronJobModalComponent,
-    WarnChangesModalComponent
+    WarnChangesModalComponent,
+    NamespaceDiffModalComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
@@ -129,7 +133,8 @@ export class SharedModule {
                     ApiService,
                     DownloadService,
                     ImportAppService,
-                    YipeeFileService
+                    YipeeFileService,
+                    UpdateService
                   ]
     };
   }

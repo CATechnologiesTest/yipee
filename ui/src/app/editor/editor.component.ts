@@ -8,6 +8,8 @@ import { SidebarComponent } from './sidebar/sidebar.component';
 import { DownloadService } from '../shared/services/download.service';
 import { EditorEventService, SelectionChangedEvent, EventSource } from './editor-event.service';
 import { YipeeFileService } from '../shared/services/yipee-file.service';
+import { UpdateService } from '../shared/services/update.service';
+import { NamespaceService } from '../shared/services/namespace.service';
 
 @Component({
   templateUrl: './editor.component.html',
@@ -25,12 +27,12 @@ export class EditorComponent implements OnInit, AfterViewChecked {
   @ViewChild(SidebarComponent)
   private sidebarComponent: SidebarComponent;
 
-  yipeeFileID: string;
   disregardChanges = false;
   resizing = false;
   viewType = 'app';
-  isDashboard: boolean;
   isApplyingManifest = false;
+  isLive: boolean;
+  namespace: string;
 
   ui = {
     loading: true,
@@ -46,20 +48,28 @@ export class EditorComponent implements OnInit, AfterViewChecked {
     private editorEventService: EditorEventService,
     private yipeeFileService: YipeeFileService,
     private cd: ChangeDetectorRef,
+    private updateService: UpdateService,
+    private namespaceService: NamespaceService
   ) {
     this.showWarningModal = false;
   }
 
   ngOnInit() {
     // Are we "deep linking" into a model that is saved on the backend?
-    const deepLinkId = this.activatedRoute.snapshot.params['id'];
-    if (deepLinkId) {
-      this.yipeeFileService.read(deepLinkId).subscribe(
+    this.namespace = this.activatedRoute.snapshot.params['id'];
+    this.isLive = this.namespaceService.isLive;
+
+    if (this.namespace) {
+      const isNamespaceUrl = this.activatedRoute.snapshot.url && this.activatedRoute.snapshot.url[0].path === 'namespace';
+
+      this.yipeeFileService.read(this.namespace, isNamespaceUrl).subscribe(
         (yipeeFile) => {
-          this.editorService.loadYipeeFile(yipeeFile).subscribe(
-            (response) => {
+          this.editorService.loadYipeeFile(yipeeFile).subscribe((response) => {
               this.ui.loading = false;
-              this.yipeeFileID = this.editorService.yipeeFileID;
+
+              if (isNamespaceUrl && this.isLive) {
+                this.updateService.subscribeToK8sFile(this.editorService.k8sFile, this.namespace);
+              }
 
             });
         },
@@ -118,6 +128,11 @@ export class EditorComponent implements OnInit, AfterViewChecked {
   }
 
   fatalExit() {
+
+    if (this.isLive) {
+      this.updateService.unsubscribeFromK8sFile(this.editorService.k8sFile, this.namespace);
+    }
+
     this.router.navigate(['/']);
   }
 
@@ -169,6 +184,11 @@ export class EditorComponent implements OnInit, AfterViewChecked {
   }
 
   exitEditor(): void {
+
+    if (this.isLive) {
+      this.updateService.unsubscribeFromK8sFile(this.editorService.k8sFile, this.namespace);
+    }
+
     this.router.navigate(['']);
   }
 

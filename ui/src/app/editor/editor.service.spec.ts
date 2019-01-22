@@ -10,6 +10,7 @@ import { YipeeFileService } from '../shared/services/yipee-file.service';
 import { YipeeFileMetadata } from '../models/YipeeFileMetadata';
 import { DownloadService } from '../shared/services/download.service';
 import { ApiService } from '../shared/services/api.service';
+import { NamespaceService } from '../shared/services/namespace.service';
 
 describe('EditorService', () => {
 
@@ -49,6 +50,11 @@ describe('EditorService', () => {
     }
   }
 
+  class MockNamespaceService {
+    isLive = true;
+    constructor() { }
+
+  }
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -63,7 +69,8 @@ describe('EditorService', () => {
         EditorService,
         { provide: ApiService, useClass: MockApiService },
         { provide: DownloadService, useClass: MockDownloadService },
-        { provide: YipeeFileService, useClass: MockYipeeFileService }
+        { provide: YipeeFileService, useClass: MockYipeeFileService },
+        { provide: NamespaceService, useClass: MockNamespaceService }
       ]
     }).compileComponents();
   });
@@ -82,6 +89,12 @@ describe('EditorService', () => {
     expect(service.dirty).toBeFalsy();
     service.dirty = true;
     expect(service.dirty).toBeTruthy();
+  }));
+
+  it('should set isLive correctly', inject([EditorService], (service: EditorService) => {
+    expect(service.isLive).toBeTruthy();
+    service.isLive = false;
+    expect(service.isLive).toBeFalsy();
   }));
 
   describe(`should check when downloads are successful that it resets the dirty flag to false (download methods)`, () => {

@@ -7,9 +7,9 @@ import 'rxjs/add/operator/map';
 import { YipeeFileMetadataRaw } from '../../models/YipeeFileMetadataRaw';
 import { KubernetesFile } from '../../models/KubernetesFile';
 import { HelmFile } from '../../models/HelmFile';
-import { YipeeFileResponse, YipeeResponse } from '../../models/YipeeFileResponse';
+import { YipeeFileResponse, NamespaceResponse, YipeeResponse } from '../../models/YipeeFileResponse';
 import { UserInfoResponse } from '../../models/UserInfo';
-import { YipeeFileRaw } from '../../models/YipeeFileRaw';
+import { YipeeFileRaw, NamespaceRaw } from '../../models/YipeeFileRaw';
 
 @Injectable()
 export class ApiService {
@@ -61,9 +61,36 @@ export class ApiService {
   /* END USER ENDPOINTS */
   /* ------------------ */
 
+  /* ----------------------- */
+  /* BEGIN CATALOG ENDPOINTS */
+  /* ----------------------- */
+
   importApp(yipeeFile: any): Observable<YipeeFileResponse> {
     const api_endpoint = '/api/import';
     return this.http.post<YipeeFileResponse>(api_endpoint, yipeeFile);
+  }
+
+  getNamespaceApps(): Observable<NamespaceRaw[]> {
+    const api_endpoint = '/api/namespaces';
+    return this.http.get(api_endpoint).map((response: NamespaceResponse) => {
+      return <NamespaceRaw[]>response.data;
+    });
+
+  }
+
+  getKubernetesNamespaceData(namespace: string): Observable<KubernetesFile> {
+    const api_endpoint = '/api/namespaces/' + namespace + '/kubernetes';
+    return this.http.get(api_endpoint).map((response: any) => {
+      return <KubernetesFile>response.data[0];
+    });
+  }
+
+  getNamespaceDiff(ns1: string, ns2: string): Observable<any> {
+    const parentObject = { name: ns1 };
+    const childObject = { name: ns2 };
+    const api_endpoint = '/api/diff';
+    const diffPayload = { parent: parentObject, children: [ childObject ]};
+    return this.http.post(api_endpoint, diffPayload);
   }
 
   /* --------------------- */
@@ -138,8 +165,14 @@ export class ApiService {
   /* ************************ */
   /* YIPEEFILE CRUD ENDPOINTS */
   /* ************************ */
-  getApp(appId: string): Observable<YipeeFileResponse> {
-    const api_endpoint = '/api/import/' + appId;
+  getApp(appId: string, isNamespace?: boolean): Observable<YipeeFileResponse> {
+    // if isNamespace is true then use the namespace endpoint otherwise use import endpoint
+    const api_endpoint = `/api/${ isNamespace ? 'namespaces' : 'import'}/${appId}`;
+    return this.http.get<YipeeFileResponse>(api_endpoint);
+  }
+
+  getNamespace(namespaceName: string): Observable<YipeeFileResponse> {
+    const api_endpoint = '/api/namespaces/' + namespaceName;
     return this.http.get<YipeeFileResponse>(api_endpoint);
   }
 
@@ -179,6 +212,11 @@ export class ApiService {
   /* ******************* */
   /* DASHBOARD API CALLS */
   /* ******************* */
+  getConfig(): Observable<YipeeResponse> {
+    const api_endpoint = '/api/configs';
+    return this.http.get<YipeeFileResponse>(api_endpoint);
+  }
+
   applyManifest(metadataRaw: YipeeFileMetadataRaw, namespace: String, manifestIsNewNamespace: Boolean): Observable<YipeeResponse> {
     if (!namespace || namespace === '') {
       const res = {success: false, total: 0, data: [ApiService.MISSING_NAMESPACE]};
@@ -192,6 +230,11 @@ export class ApiService {
       flatFile: metadataRaw.flatFile
     };
     return this.http.post<YipeeResponse>(endpoint, body);
+  }
+
+  deleteNamespace(namespace): Observable<YipeeResponse> {
+    const api_endpoint = `/api/namespaces/${namespace.name}`;
+    return this.http.delete<YipeeResponse>(api_endpoint);
   }
 
   /* ******************* */
