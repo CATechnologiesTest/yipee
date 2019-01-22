@@ -1,4 +1,4 @@
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgZone } from '@angular/core';
 import { async, ComponentFixture, TestBed, inject } from '@angular/core/testing';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
@@ -198,22 +198,22 @@ describe('ImportAppModalComponent', () => {
 
   it('create application should finish successfully when the form has a valid application name, clear the form, and close the modal', async(inject([EditorService, HttpTestingController],
     (service: EditorService, backend: HttpTestingController) => {
-    const applicationName = component.importApplicationForm.controls['applicationName'];
-    applicationName.setValue('GoodNameTest');
-    component.importApplicationForm.controls['applicationName'].markAsDirty();
-    expect(component.importApplicationForm.controls['applicationName'].dirty).toBeTruthy();
-    component.onCreate.subscribe(value => {
-    });
-    component.importApplication(true, false, yipeeFileRaw1);
+      const applicationName = component.importApplicationForm.controls['applicationName'];
+      applicationName.setValue('GoodNameTest');
+      component.importApplicationForm.controls['applicationName'].markAsDirty();
+      expect(component.importApplicationForm.controls['applicationName'].dirty).toBeTruthy();
+      component.onCreate.subscribe(value => {
+      });
+      component.importApplication(true, false, yipeeFileRaw1);
 
-    backend.expectOne({ method: 'POST', url: '/api/import' }).flush({
-      success: true,
-      total: 1,
-      data: [ yipeeFileRaw1 ]
-    });
+      backend.expectOne({ method: 'POST', url: '/api/import' }).flush({
+        success: true,
+        total: 1,
+        data: [yipeeFileRaw1]
+      });
 
-    expect(component.show).toBeFalsy();
-  })));
+      expect(component.show).toBeFalsy();
+    })));
 
   it('cancel application should finish successfully by clearing the form, and closing the modal', () => {
     component.importApplicationForm.controls['applicationName'].setValue('hello');
@@ -305,45 +305,47 @@ describe('ImportAppModalComponent', () => {
   it('should handle invalid model error, where 400 is returned', async(inject([EditorService, HttpTestingController],
     (service: EditorService, backend: HttpTestingController) => {
       fixture.detectChanges();
-      component.importApplication(true, false, null);
+      component.importApplication(true, false, yipeeFileRaw1);
 
       backend.expectOne({ method: 'POST', url: '/api/import' }).flush({
         success: false,
         total: 1,
-        data: [ "test error" ]
-      }, { status: 400, statusText: 'badDev'});
+        data: ["test error"]
+      }, { status: 400, statusText: 'badDev' });
 
-      expect(component.alertText).toEqual([ "test error" ]);
-      //expect(service.fatalText[0]).toBe(EditorService.UNEXPECTED_RESPONSE + MockApiService.BAD_MODEL_ERROR);
+      expect(component.alertText).toEqual(["test error"]);
     })));
 
-  // xit('should handle invalid model error, where 4xx is returned', async(inject([EditorService, HttpTestingController],
-  //   (service: EditorService, backend: HttpTestingController) => {
-  //     fixture.detectChanges();
+  it('should handle invalid model error, where 200 is returned', async(inject([EditorService, HttpTestingController],
+    (service: EditorService, backend: HttpTestingController) => {
+      fixture.detectChanges();
+      component.importApplication(true, false, yipeeFileRaw1);
 
-  //     backend.expectOne('/api/import/foo')
-  //       .flush({ success: false, total: 1, data: [MockApiService.BAD_MODEL_ERROR] }, { status: 404, statusText: 'Not found' });
+      backend.expectOne({ method: 'POST', url: '/api/import' }).flush({
+        success: false,
+        total: 1,
+        data: ["test error"]
+      });
 
-  //     expect(component.ui.error).toBeTruthy();
-  //     expect(service.fatalText[0].indexOf('404') > 0).toBeTruthy('no 404 in the error message');
-  //     expect(service.fatalText[0].indexOf('Not found') > 0).toBeTruthy('Not found - not in the error message');
-  //   })));
+      expect(component.alertText).toEqual(["test error"]);
+    })));
 
-  // xit('should handle a network error', async(inject([EditorService, HttpTestingController, NgZone],
-  //   (service: EditorService, backend: HttpTestingController, ngZone: NgZone) => {
-  //     fixture.detectChanges();
-  //     const req = ngZone.run(() => backend.expectOne('/api/import/foo'));
-  //     const emsg = 'simulated network error';
+  it('should handle a network error', async(inject([EditorService, HttpTestingController, NgZone],
+    (service: EditorService, backend: HttpTestingController, ngZone: NgZone) => {
+      fixture.detectChanges();
 
-  //     const mockError = new ErrorEvent('Network error', {
-  //       message: emsg,
-  //     });
+      component.importApplication(true, false, yipeeFileRaw1);
 
-  //     // Respond with mock error
-  //     req.error(mockError);
+      const req = ngZone.run(() => backend.expectOne('/api/import'));
+      const emsg = 'simulated network error';
 
-  //     expect(component.ui.error).toBeTruthy();
-  //     expect(service.fatalText[0].indexOf(EditorService.UNEXPECTED_RESPONSE) >= 0).toBeTruthy();
-  //   })));
+      const mockError = new ErrorEvent('Network error', {
+        message: emsg,
+      });
+
+      req.error(mockError);
+
+      expect(component.error).toBeTruthy;
+    })));
 
 });

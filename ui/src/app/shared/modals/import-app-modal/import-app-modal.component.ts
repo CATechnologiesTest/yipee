@@ -23,6 +23,7 @@ export class ImportAppModalComponent implements OnInit {
   alertText: string[];
 
   importApplicationForm: FormGroup;
+  error: boolean;
 
   constructor(
     private importAppService: ImportAppService,
@@ -39,6 +40,16 @@ export class ImportAppModalComponent implements OnInit {
     const applicationName = this.importApplicationForm.get('applicationName').value;
 
     this.importAppService.importFile(applicationName, data, isK8s, isTgz).subscribe((response) => {
+      
+      if (response.success === false ) {
+        this.alertText = response.data[0].split('\n');
+        while (this.alertText[this.alertText.length - 1] === '') {
+          this.alertText.pop();
+        }
+
+        return;
+      }
+
       const importedYipeeFile = this.yipeeFileService.convertServerResponse(response.data[0]);
       importedYipeeFile.flatFile.appInfo.name = applicationName;
       importedYipeeFile.name = applicationName;
@@ -50,11 +61,17 @@ export class ImportAppModalComponent implements OnInit {
       });
 
     }, (error) => {
-      const response = error.error as YipeeFileErrorResponse;
-      this.alertText = response.data[0].split('\n');
-      while (this.alertText[this.alertText.length - 1] === '') {
-        this.alertText.pop();
+
+      if (error.error.data) {
+        const response = error.error as YipeeFileErrorResponse;
+        this.alertText = response.data[0].split('\n');
+        while (this.alertText[this.alertText.length - 1] === '') {
+          this.alertText.pop();
+        }
       }
+
+      this.error = true;
+
     });
   }
 
