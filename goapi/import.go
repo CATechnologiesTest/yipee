@@ -2,12 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/google/uuid"
-	"github.com/gorilla/mux"
 	"net/http"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/google/uuid"
+	"github.com/gorilla/mux"
+	log "github.com/sirupsen/logrus"
 )
 
 func initImports(router *mux.Router) {
@@ -94,6 +96,7 @@ func doImport(w http.ResponseWriter, r *http.Request) {
 }
 
 func doImportGet(w http.ResponseWriter, r *http.Request) {
+	defer HandleCatchableForRequest(w)
 	id := mux.Vars(r)["id"]
 	if cv := importCache.Remove(id); cv != nil {
 		flatFile := cv.(JsonObject)
@@ -127,17 +130,16 @@ func processCvtResults(results []CvtResult) ([]byte, string) {
 	errmsg := "Input can't be processed.  " +
 		"It must be a parseable YAML file or a " +
 		"compressed tar (.tgz, .tar.gz) of parseable YAML files"
-	var conversion []byte
 	for i := 0; i < len(results); i++ {
 		cvt := results[i].converted
 		failure := results[i].error
 		if cvt != nil {
-			conversion = cvt
+			return cvt, ""
 		} else if !containsInvalids(failure) {
 			errmsg = failure
 		}
 	}
-	return conversion, errmsg
+	return nil, errmsg
 }
 
 func tryAllImports(data string) (payload []byte, errstr string) {
@@ -152,6 +154,9 @@ func tryAllImports(data string) (payload []byte, errstr string) {
 		case resp := <-resultchan:
 			results = append(results, resp)
 		case <-time.After(time.Second * 30):
+			log.WithFields(log.Fields{
+				"payload": string(payload),
+			}).Error("tryAllImports timeout waiting for converter results")
 			return nil, "import attempts timed out after 30 seconds"
 		}
 	}

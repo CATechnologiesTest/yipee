@@ -72,7 +72,6 @@ func extractChartData(chart []byte) (string, *chart.Chart, string) {
 	entries := extractChartFiles(chart)
 	name := getChartName(entries)
 	templates := findTemplateFiles(entries)
-	fmt.Printf("T: %v\n", templates)
 	valueFile := findValuesFile(entries)
 	return name, createChart(name, templates), valueFile
 }

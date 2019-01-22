@@ -48,7 +48,7 @@ func downloadHelm(w http.ResponseWriter, r *http.Request) {
 }
 
 func apiConvert(p *cvtparams, w http.ResponseWriter, r *http.Request) {
-
+	defer HandleCatchableForRequest(w)
 	inbytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -59,7 +59,7 @@ func apiConvert(p *cvtparams, w http.ResponseWriter, r *http.Request) {
 	flatFile := bytesToJsonObject(inbytes)
 	addAnnotationInfoToFlatFile(flatFile, nowstr)
 
-	payload, errstr := doConvert(p.path, toJsonBytes(flatFile))
+	payload, errstr := doConvert(p.path, marshalJson(flatFile))
 	if errstr != "" {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(makeErrorResponse(errstr))
