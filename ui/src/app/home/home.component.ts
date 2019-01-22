@@ -16,6 +16,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   showNewApplicationDialog = false;
   showImportApplicationDialog = false;
   showNamespaceDiffDialog = false;
+  deleteNamespaceError: string;
   isLive: boolean;
   isLoading = true;
   hasError = false;
@@ -29,7 +30,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     public route: ActivatedRoute,
     private namespaceService: NamespaceService,
     private downloadService: DownloadService,
-  ) { }
+  ) {
+    this.deleteNamespaceError = '';
+  }
 
   handleCreateNewApplicationCreated(metadata: YipeeFileMetadata): void {
     this.showNewApplicationDialog = false;
@@ -52,6 +55,25 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   onOpen(namespace): void {
     this.router.navigate(['namespace', namespace.name]);
+  }
+
+  onDelete(namespace): void {
+    this.namespaceService.deleteNamespace(namespace).subscribe(
+      (response) => {
+        if (response.success) {
+          this.namespaceService.loadAndReturnNamespaces();
+        } else {
+          this.deleteNamespaceError = response.data[0];
+        }
+      }, (err) => {
+        if (err.error.data) {
+          this.deleteNamespaceError = err.error.data[0];
+        }
+      });
+  }
+
+  onDeleteNamespaceErrorClose() {
+    this.deleteNamespaceError = '';
   }
 
   ngOnInit() {

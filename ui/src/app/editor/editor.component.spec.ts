@@ -184,6 +184,55 @@ describe('EditorComponent', () => {
     expect(component.ui.loading).toBeFalsy();
   }
 
+  it('should handle an error from a namespace apply', fakeAsync(inject([HttpTestingController, EditorService], (backend: HttpTestingController, service: EditorService) => {
+
+    const ns = 'foo';
+    const err = 'bad apply';
+    service.metadata = new YipeeFileMetadata();
+    service.metadata.name = ns;
+    service.metadata.flatFile.appInfo.namespace = ns;
+    service.metadata.flatFile.appInfo.createNs = true;
+    component.onApplyManifestClicked();
+    expect(component.editorService.warningText.length).toBe(0);
+    backend.expectOne({ method: 'POST', url: '/api/namespaces/' + ns + '/apply' + '?createNamespace=true' })
+      .flush({ success: false, total: 0, data: [err] }, { status: 500, statusText: 'badDev' });
+    tick(50);
+    expect(component.editorService.warningText.length).toBe(2);
+    expect(component.editorService.warningText[1]).toBe(err);
+  })));
+
+  it('should handle an network error from a namespace apply',
+    fakeAsync(
+      inject([HttpTestingController],
+        (backend: HttpTestingController) => {
+          const ns = 'foo';
+          const md = new YipeeFileMetadata();
+          md.name = ns;
+          md.flatFile.appInfo.namespace = ns;
+
+          component.editorService.metadata = md;
+
+          component.onApplyManifestClicked();
+
+          expect(component.editorService.warningText.length).toBe(0);
+          backend.expectOne({ method: 'POST', url: '/api/namespaces/' + ns + '/apply' })
+            .error(new ErrorEvent('Network issue'));
+          tick(50);
+          expect(component.editorService.warningText.length).toBe(2);
+        })));
+
+  it('should throw an error if namespace is empty', fakeAsync(inject([HttpTestingController, EditorService], (backend: HttpTestingController, service: EditorService) => {
+    const ns = 'namespace';
+    service.metadata = new YipeeFileMetadata();
+    service.metadata.name = ns;
+    expect(component.editorService.warningText.length).toBe(0);
+    component.onApplyManifestClicked();
+    tick(50);
+    expect(component.editorService.warningText.length).toBe(2);
+    expect(component.editorService.warningText[1]).toBe(ApiService.MISSING_NAMESPACE);
+
+  })));
+
   it('should set dirty flag and route to home when exitEditor is called with disregardChanges set to true', fakeAsync(inject([EditorService, NgZone], (service: EditorService, ngZone: NgZone) => {
     expect(component).toBeTruthy();
     expect(location.path() === '').toBeTruthy();
@@ -222,7 +271,7 @@ describe('EditorComponent', () => {
       expect(component.editorService.infoText.length).toBe(0);
       service.metadata.flatFile.appInfo.createNs = createNs;
       component.onApplyManifestClicked();
-      backend.expectOne({ method: 'POST', url: '/api/namespaces/apply/' + ns + ((createNs) ? '?createNamespace=true' : '') })
+      backend.expectOne({ method: 'POST', url: '/api/namespaces/' + ns + '/apply' + ((createNs) ? '?createNamespace=true' : '') })
         .flush({ success: true, total: 1, data: ['applied successfully'] });
       tick(50);
       expect(component.editorService.infoText.length).toBe(1);
@@ -240,7 +289,7 @@ describe('EditorComponent', () => {
     service.metadata.flatFile.appInfo.createNs = true;
     component.onApplyManifestClicked();
     expect(component.editorService.warningText.length).toBe(0);
-    backend.expectOne({ method: 'POST', url: '/api/namespaces/apply/' + ns + '?createNamespace=true' })
+    backend.expectOne({ method: 'POST', url: '/api/namespaces/' + ns + '/apply?createNamespace=true' })
       .flush({ success: false, total: 0, data: [err] }, { status: 500, statusText: 'badDev' });
     tick(50);
     expect(component.editorService.warningText.length).toBe(2);
@@ -261,7 +310,7 @@ describe('EditorComponent', () => {
           component.onApplyManifestClicked();
 
           expect(component.editorService.warningText.length).toBe(0);
-          backend.expectOne({ method: 'POST', url: '/api/namespaces/apply/' + ns })
+          backend.expectOne({ method: 'POST', url: '/api/namespaces/' + ns + '/apply'})
             .error(new ErrorEvent('Network issue'));
           tick(50);
           expect(component.editorService.warningText.length).toBe(2);

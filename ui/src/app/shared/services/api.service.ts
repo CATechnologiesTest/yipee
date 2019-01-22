@@ -225,11 +225,16 @@ export class ApiService {
       });
 
     }
-    const endpoint = manifestIsNewNamespace ? `/api/namespaces/apply/${namespace}?createNamespace=true` : `/api/namespaces/apply/${namespace}`;
+    const endpoint = manifestIsNewNamespace ? `/api/namespaces/${namespace}/apply?createNamespace=true` : `/api/namespaces/${namespace}/apply`;
     const body = {
       flatFile: metadataRaw.flatFile
     };
     return this.http.post<YipeeResponse>(endpoint, body);
+  }
+
+  deleteNamespace(namespace): Observable<YipeeResponse> {
+    const api_endpoint = `/api/namespaces/${namespace.name}`;
+    return this.http.delete<YipeeResponse>(api_endpoint);
   }
 
   /* ******************* */

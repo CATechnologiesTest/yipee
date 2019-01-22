@@ -42,4 +42,10 @@ export class NamespaceService {
       }))));
   }
 
+  deleteNamespace(namespace): Observable<any> {
+    return this.apiService.deleteNamespace(namespace).map((response: any) => {
+      return response;
+    });
+  }
+
 }

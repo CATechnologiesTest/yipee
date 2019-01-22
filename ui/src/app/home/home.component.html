@@ -1,4 +1,20 @@
 <div class="catalog-page">
+
+    <div *ngIf="deleteNamespaceError!==''">
+        <clr-alerts>
+            <clr-alert [clrAlertType]="'danger'" [clrAlertAppLevel]="true" [clrAlertClosable]="false">
+                <div class="alert-item">
+                    <span class="alert-text">
+                        {{deleteNamespaceError}}
+                    </span>
+                    <div class="alert-actions">
+                        <button class="btn alert-action" (click)="onDeleteNamespaceErrorClose();">OK</button>
+                    </div>
+                </div>
+            </clr-alert>
+        </clr-alerts>
+    </div>
+
     <div class="catalog-container">
 
         <!-- catalog toolbar -->
@@ -60,6 +76,8 @@
                                             <button clrDropdownItem type="button" (click)="diffNamespace(namespace.name)">Diff
                                                 with...</button>
                                             <button clrDropdownItem type="button" (click)="onOpen(namespace)">Open</button>
+                                            <button clrDropdownItem type="button" (click)="onDelete(namespace)">Delete
+                                                Namespace</button>
                                         </clr-dropdown>
                                     </clr-dropdown-menu>
                                 </clr-dropdown>
