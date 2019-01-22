@@ -130,7 +130,6 @@ export class EditorComponent implements OnInit, AfterViewChecked {
   fatalExit() {
 
     if (this.isLive) {
-      console.log('unsubscribe');
       this.updateService.unsubscribeFromK8sFile(this.editorService.k8sFile, this.namespace);
     }
 
@@ -187,7 +186,6 @@ export class EditorComponent implements OnInit, AfterViewChecked {
   exitEditor(): void {
 
     if (this.isLive) {
-      console.log('unsubscribe');
       this.updateService.unsubscribeFromK8sFile(this.editorService.k8sFile, this.namespace);
     }
 

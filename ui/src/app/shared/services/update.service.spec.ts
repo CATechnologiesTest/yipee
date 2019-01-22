@@ -15,8 +15,8 @@ describe('UpdateService', () => {
     ]
   }));
 
+  // tests are omitted for the update service due to the import strategy for primus js
   xit('should be created', () => {
-
     const service: UpdateService = TestBed.get(UpdateService);
     expect(service).toBeTruthy();
   });
