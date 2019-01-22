@@ -27,7 +27,6 @@ export class UpdateService {
   }
 
   handlePushUpdate(event: any): void {
-    console.log('update', event);
     if (event['update'] !== undefined) {
       const update = event['update'];
       if (update['type'] === DeploymentStatus.OBJECT_NAME && this.k8sFile !== undefined) {
@@ -55,7 +54,6 @@ export class UpdateService {
   }
 
   subscribeToK8sFile(k8sFile: K8sFile, namespace: string): void {
-    console.log('subscribe');
     if (this.k8sFile !== undefined) {
       this.unsubscribeFromK8sFile(this.k8sFile, this.namespace);
     }

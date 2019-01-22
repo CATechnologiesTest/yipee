@@ -336,14 +336,16 @@ describe('ImportAppModalComponent', () => {
 
       component.importApplication(true, false, yipeeFileRaw1);
 
-      const req = ngZone.run(() => backend.expectOne('/api/import'));
-      const emsg = 'simulated network error';
-
-      const mockError = new ErrorEvent('Network error', {
-        message: emsg,
-      });
-
-      req.error(mockError);
+      const err = 'bad req';
+      backend.expectOne({ method: 'POST', url: '/api/import' })
+        .flush({
+          success: false,
+          total: 0,
+          data: [err]
+        },
+          {
+            status: 500, statusText: 'badDev'
+          });
 
       expect(component.error).toBeTruthy();
     })));
