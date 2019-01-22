@@ -90,7 +90,6 @@ describe('HomeComponent', () => {
   it('should return success when deleteNamespace() is called with a valid namespace and deleteNamespaceError should be blank', async(inject([HttpTestingController], (backend: HttpTestingController) => {
     expect(component.deleteNamespaceError).toEqual('');
     component.onDelete(namespaceObject);
-    expect(component.deleteNamespaceError).toEqual('');
     backend.expectOne('/api/namespaces/namespace')
       .flush({
         success: true,
@@ -98,6 +97,7 @@ describe('HomeComponent', () => {
         data: ['namespace delete initiated successfully']
       }, { status: 200, statusText: 'badDev' }
       );
+      expect(component.deleteNamespaceError).toEqual('');
   })));
 
   it('should return network error when deleteNamespace() is called with an invalid namespace and deleteNamespaceError should be set to the error', async(inject([HttpTestingController], (backend: HttpTestingController) => {
