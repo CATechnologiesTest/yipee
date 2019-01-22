@@ -50,8 +50,16 @@ func doImport(w http.ResponseWriter, r *http.Request) {
 		w.Write(makeErrorResponse("missing importFile key"))
 		return
 	}
-
 	name, hasName := reqobj["name"].(string)
+	// Instantiate model payload from helm chart if possible
+	isHelm, chartname, chartpayload := helmInstantiate(payload)
+	if isHelm {
+		payload = chartpayload
+		if !hasName {
+			hasName = true
+			name = chartname
+		}
+	}
 
 	result, errstr := tryAllImports(payload)
 

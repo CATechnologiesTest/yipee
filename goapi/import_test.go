@@ -16,14 +16,24 @@ type ImportPayload struct {
 	Name       string `json:"name"`
 }
 
+type NoNameImportPayload struct {
+	ImportFile string `json:"importFile"`
+}
+
 func makeImportRequest(
 	t *testing.T,
 	fname, impname string,
 	save bool) *http.Request {
 
 	fbytes := readTestData(fname)
-	payload := &ImportPayload{base64.StdEncoding.EncodeToString(fbytes), impname}
-	plbytes := marshalJson(payload)
+	var plbytes []byte
+	if impname == "" {
+		plbytes = marshalJson(
+			&NoNameImportPayload{base64.StdEncoding.EncodeToString(fbytes)})
+	} else {
+		plbytes = marshalJson(
+			&ImportPayload{base64.StdEncoding.EncodeToString(fbytes), impname})
+	}
 	impurl := "/import"
 	if save {
 		impurl += "?save=true"
@@ -58,12 +68,18 @@ func TestImports(t *testing.T) {
 		&importTest{"bday-from-yaml", "bday4.yml"},
 		&importTest{"testbday-tar", "bday.tgz"},
 		// &importTest{"from-compose", "compose.yml"},
+		&importTest{"test-chart", "chart.tgz"},
 	}
 	for _, td := range successTests {
 		req := makeImportRequest(t, td.filename, td.appname, false)
 		result := doSuccessRequest(t, req)
 		assertImportSuccess(t, result, td.appname)
 	}
+
+	// Also make sure we can derive a name from a helm chart
+	helmreq := makeImportRequest(t, "chart.tgz", "", false)
+	helmresult := doSuccessRequest(t, helmreq)
+	assertImportSuccess(t, helmresult, "chart")
 
 	failTests := []*importTest{
 		&importTest{"badbday-from-yaml", "badbday.yml"},
