@@ -16,14 +16,24 @@ type ImportPayload struct {
 	Name       string `json:"name"`
 }
 
+type NoNameImportPayload struct {
+	ImportFile string `json:"importFile"`
+}
+
 func makeImportRequest(
 	t *testing.T,
 	fname, impname string,
 	save bool) *http.Request {
 
 	fbytes := readTestData(fname)
-	payload := &ImportPayload{base64.StdEncoding.EncodeToString(fbytes), impname}
-	plbytes := toJsonBytes(payload)
+	var plbytes []byte
+	if impname == "" {
+		plbytes = toJsonBytes(
+			&NoNameImportPayload{base64.StdEncoding.EncodeToString(fbytes)})
+	} else {
+		plbytes = toJsonBytes(
+			&ImportPayload{base64.StdEncoding.EncodeToString(fbytes), impname})
+	}
 	impurl := "/import"
 	if save {
 		impurl += "?save=true"
@@ -58,12 +68,18 @@ func TestImports(t *testing.T) {
 		&importTest{"bday-from-yaml", "bday4.yml"},
 		&importTest{"testbday-tar", "bday.tgz"},
 		// &importTest{"from-compose", "compose.yml"},
+		&importTest{"test-chart", "chart.tgz"},
 	}
 	for _, td := range successTests {
 		req := makeImportRequest(t, td.filename, td.appname, false)
 		result := doSuccessRequest(t, req)
 		assertImportSuccess(t, result, td.appname)
 	}
+
+	// Also make sure we can derive a name from a helm chart
+	helmreq := makeImportRequest(t, "chart.tgz", "", false)
+	helmresult := doSuccessRequest(t, helmreq)
+	assertImportSuccess(t, helmresult, "chart")
 
 	failTests := []*importTest{
 		&importTest{"badbday-from-yaml", "badbday.yml"},
@@ -135,94 +151,4 @@ func TestImportCacheBoundaries(t *testing.T) {
 	if expectMsg != emsg {
 		t.Errorf("cache fetch error expected '%s', got '%s'", expectMsg, emsg)
 	}
-}
-
-type helmImportTest struct {
-	appname    string
-	filename   string
-	valuesname string
-}
-
-type helmImportFailTest struct {
-	appname    string
-	filename   string
-	valuesname string
-	errmsg     string
-}
-
-type HelmImportPayload struct {
-	Chart          string `json:"chart"`
-	Name           string `json:"name"`
-	ValuesFilename string `json:"valuesFilename"`
-}
-
-func makeImportHelmRequest(
-	t *testing.T,
-	fname, impname, vname string,
-	save bool) *http.Request {
-	fbytes := readTestData(fname)
-	payload := &HelmImportPayload{base64.StdEncoding.EncodeToString(fbytes),
-		impname, vname}
-	plbytes := toJsonBytes(payload)
-	impurl := "/importhelm"
-	if save {
-		impurl += "?save=true"
-	}
-	return httptest.NewRequest(http.MethodPost, impurl, bytes.NewReader(plbytes))
-}
-
-func runImportHelmSuccessTests(t *testing.T, tests []*helmImportTest) {
-	for _, td := range tests {
-		fmt.Printf("Importing: %s\n", td.appname)
-		// no cache
-		req := makeImportHelmRequest(t, td.filename, td.appname, td.valuesname,
-			false)
-		result := doSuccessRequest(t, req)
-		assertImportSuccess(t, result, td.appname)
-		// cache
-		req = makeImportHelmRequest(t, td.filename, td.appname, td.valuesname,
-			true)
-		result = doSuccessRequest(t, req)
-		guid := result.Data[0]["guid"].(string)
-		req = httptest.NewRequest(http.MethodGet, "/import/"+guid, nil)
-		result = doSuccessRequest(t, req)
-		assertImportSuccess(t, result, td.appname)
-		// one shot - fail next time
-		eresult := doErrRequest(t, req)
-		emsg := eresult.Data[0]
-		expectMsg := fmt.Sprintf("%s: %s", CACHE_FETCH_ERR, guid)
-		if expectMsg != emsg {
-			t.Errorf("cache fetch error expected '%s', got '%s'", expectMsg, emsg)
-		}
-	}
-}
-
-func runImportHelmFailureTests(t *testing.T, tests []*helmImportFailTest) {
-	for _, td := range tests {
-		req := makeImportHelmRequest(t, td.filename, td.appname, td.valuesname,
-			false)
-		eresult := doErrRequest(t, req)
-		emsg := eresult.Data[0]
-		if strings.Index(emsg, td.errmsg) == -1 {
-			t.Error("missing expected error", emsg)
-		}
-	}
-}
-
-func TestImportHelm(t *testing.T) {
-	successTests := []*helmImportTest{
-		&helmImportTest{"sd", "m2hbundle-api-output.tgz", "sd_values.yaml"},
-		&helmImportTest{"sd", "m2hbundle-api-output.tgz", "sd2_values.yaml"},
-	}
-	failTests := []*helmImportFailTest{
-		&helmImportFailTest{"bad-values-file", "m2hbundle-api-output.tgz",
-			"wrongvalues",
-			"values file: 'wrongvalues' not found"},
-		&helmImportFailTest{"bad-compression", "bday4.yml", "dummy",
-			"can't gunzip decoded input"},
-		&helmImportFailTest{"bad-tar-file", "bday4.gzip", "dummy",
-			"error reading tar file"},
-	}
-	runImportHelmSuccessTests(t, successTests)
-	runImportHelmFailureTests(t, failTests)
 }
