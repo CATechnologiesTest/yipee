@@ -1,13 +1,5 @@
-# Generated 2018-11-05T17:16:39.609Z by Yipee editor
-# Application: yipee
-
-# A version of yipee that can access data from a live k8s cluster.
-# Note that the UI for this is not (yet) opensource.
-#
-# Other changes to "stock" yipee include:
-# - kubectl included in API image (see api/Dockerfile.experimental)
-# - serviceaccount and roles as defined here
-# - api container environment as defined here
+# Generated 2019-01-21T23:46:55.772Z by Yipee editor
+# Application: live
 
 apiVersion: v1
 kind: ServiceAccount
@@ -103,7 +95,11 @@ subjects:
 apiVersion: v1
 kind: Service
 metadata:
-  name: backend
+  name: yipee-backend
+  labels:
+    yipee.io/yipee-backend: generated
+  annotations:
+    yipee.generatedAt: '2019-01-21T23:46:55.772Z'
 spec:
   selector:
     yipee.io/yipee-backend: generated
@@ -120,6 +116,10 @@ apiVersion: v1
 kind: Service
 metadata:
   name: yipee-ui
+  labels:
+    yipee.io/yipee-ui: generated
+  annotations:
+    yipee.generatedAt: '2019-01-21T23:46:55.772Z'
 spec:
   selector:
     yipee.io/yipee-ui: generated
@@ -137,23 +137,19 @@ kind: Deployment
 metadata:
   name: yipee-ui
   annotations:
-    yipee.generatedAt: '2018-11-05T17:16:39.573Z'
+    yipee.generatedAt: '2019-01-21T23:46:55.772Z'
 spec:
   selector:
     matchLabels:
       name: yipee
       component: yipee-ui
       yipee.io/yipee-ui: generated
-  rollbackTo:
-    revision: 0
   template:
     spec:
       imagePullSecrets: []
       containers:
       - name: yipee-ui
-        # image: yipeeio/ui
-        # imagePullPolicy: Always
-        image: yipee-tools-spoke-cos.ca.com:5000/korn-dashboard
+        image: yipeeio/ui:2.0
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
@@ -168,6 +164,20 @@ spec:
     type: RollingUpdate
     rollingUpdate: {}
   replicas: 1
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: yipee-layout-data
+data:
+  636f6e7461696e65722179697065652d636f6e766572746572: '33373521313235'
+  636f6e7461696e65722179697065652d617069: '32353021313235'
+  636f6e7461696e65722179697065652d7569: '32353021333030'
+  636f6e7461696e65722d67726f75702179697065652d7569: '32323521323735'
+  636f6e7461696e65722d67726f75702179697065652d6261636b656e64: '32323521313030'
+  6b38732d736572766963652179697065652d7569: '31303021323735'
+  6b38732d73657276696365216261636b656e64: '31303021313030'
 
 ---
 apiVersion: extensions/v1beta1
@@ -175,30 +185,28 @@ kind: Deployment
 metadata:
   name: yipee-backend
   annotations:
-    yipee.generatedAt: '2018-11-05T17:16:39.573Z'
+    yipee.generatedAt: '2019-01-21T23:46:55.772Z'
 spec:
   selector:
     matchLabels:
       name: yipee
       component: yipee-backend
       yipee.io/yipee-backend: generated
-  rollbackTo:
-    revision: 0
   template:
     spec:
       imagePullSecrets: []
       containers:
       - name: yipee-api
         env:
-          - name: INSTALL_TYPE
+          - name: YIPEE_INSTALL_TYPE
             value: 'cluster'
-        image: yipeeio/api:experimental
+        image: yipeeio/api:2.0
         imagePullPolicy: Always
         ports:
         - containerPort: 5000
           protocol: TCP
       - name: yipee-converter
-        image: yipeeio/converter
+        image: yipeeio/converter:2.0
         imagePullPolicy: Always
       restartPolicy: Always
       serviceAccountName: yipee-service-account

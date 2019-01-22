@@ -1,10 +1,14 @@
-# Generated 2018-11-05T17:16:39.609Z by Yipee editor
+# Generated 2019-01-21T23:32:18.730Z by Yipee editor
 # Application: yipee
 
 apiVersion: v1
 kind: Service
 metadata:
   name: yipee-backend
+  labels:
+    yipee.io/yipee-backend: generated
+  annotations:
+    yipee.generatedAt: '2019-01-21T23:32:18.730Z'
 spec:
   selector:
     yipee.io/yipee-backend: generated
@@ -21,6 +25,10 @@ apiVersion: v1
 kind: Service
 metadata:
   name: yipee-ui
+  labels:
+    yipee.io/yipee-ui: generated
+  annotations:
+    yipee.generatedAt: '2019-01-21T23:32:18.730Z'
 spec:
   selector:
     yipee.io/yipee-ui: generated
@@ -38,7 +46,7 @@ kind: Deployment
 metadata:
   name: yipee-ui
   annotations:
-    yipee.generatedAt: '2018-11-05T17:16:39.573Z'
+    yipee.generatedAt: '2019-01-21T23:32:18.730Z'
 spec:
   selector:
     matchLabels:
@@ -52,7 +60,7 @@ spec:
       imagePullSecrets: []
       containers:
       - name: yipee-ui
-        image: yipeeio/yipee-ui:1.2
+        image: yipeeio/ui:2.0
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
@@ -74,7 +82,7 @@ kind: Deployment
 metadata:
   name: yipee-backend
   annotations:
-    yipee.generatedAt: '2018-11-05T17:16:39.573Z'
+    yipee.generatedAt: '2019-01-21T23:32:18.730Z'
 spec:
   selector:
     matchLabels:
@@ -88,13 +96,13 @@ spec:
       imagePullSecrets: []
       containers:
       - name: yipee-api
-        image: yipeeio/yipee-api:1.2
+        image: yipeeio/api:2.0
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 5000
           protocol: TCP
       - name: yipee-converter
-        image: yipeeio/yipee-converter:1.2
+        image: yipeeio/converter:2.0
         imagePullPolicy: IfNotPresent
       restartPolicy: Always
     metadata:
@@ -106,3 +114,17 @@ spec:
     type: RollingUpdate
     rollingUpdate: {}
   replicas: 1
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: yipee-layout-data
+data:
+  636f6e7461696e65722179697065652d7569: '32353021333030'
+  636f6e7461696e65722179697065652d617069: '33373521313235'
+  636f6e7461696e65722179697065652d636f6e766572746572: '32353021313235'
+  636f6e7461696e65722d67726f75702179697065652d7569: '32323521323735'
+  636f6e7461696e65722d67726f75702179697065652d6261636b656e64: '32323521313030'
+  6b38732d736572766963652179697065652d7569: '31303021323735'
+  6b38732d736572766963652179697065652d6261636b656e64: '31303021313030'
