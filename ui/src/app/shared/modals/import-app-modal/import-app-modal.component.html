@@ -23,7 +23,7 @@
       <div class="form-group">
         <label for="applicationName">Application Name</label>
         <input name="applicationName" class="text-field form-control" placeholder="Application Name" formControlName="applicationName"
-          type="text" id="applicationName" required autofocus/>
+          type="text" id="applicationName" required autofocus />
         <div *ngIf="importApplicationForm.controls.applicationName.invalid && (importApplicationForm.controls.applicationName.dirty || importApplicationForm.controls.applicationName.touched)"
           class="alert alert-danger">
           <div *ngIf="importApplicationForm.controls.applicationName.errors.required">
@@ -49,15 +49,15 @@
       <label style="font-size: .54167rem;">Accepted File Types:</label>
     </div>
     <div class="pl20">
-      <label class="pl5 bold" >Docker Compose/Swarm</label>
+      <label class="pl5 bold">Docker Compose/Swarm</label>
       <p class="pl20 mt0 mb10 fs13">
         Yipee.io supports importing a Docker Compose/Swarm file and converts it into a Kubernetes application.
       </p>
     </div>
     <div class="pl20">
-      <label class="pl5 bold" >Kubernetes
+      <label class="pl5 bold">Kubernetes
       </label>
-      <br/>
+      <br />
       <label class="pl20 mt0 mb10 fs13">File Format:</label>
       <label class="pl20 mt0 mb10 fs13">
         <clr-icon shape="check" style="color:#48960C"></clr-icon>
@@ -68,19 +68,25 @@
         Compressed Tar Archive (.tgz, .tar.gz, etc.)
       </label>
       <p class="pl20 mt0 mb10 fs13">
-        Yipee.io imports a Kubernetes configuration file as a Kubernetes mode application, which allows use of Kubernetes-specific
-        objects and settings. Kubernetes mode applications can be exported as Kubernetes, OpenShift, or Helm. A Kubernetes
+        Yipee.io imports a Kubernetes configuration file as a Kubernetes mode application, which allows use of
+        Kubernetes-specific
+        objects and settings. Kubernetes mode applications can be exported as Kubernetes, OpenShift, or Helm. A
+        Kubernetes
         mode application cannot be converted to a Compatible mode application.
       </p>
     </div>
     <div class="pl20">
-      <label class="pl5 bold" >Helm</label>
+      <label class="pl5 bold">Helm </label>
+      <clr-icon shape="new" size="36" class="is-info">
+      </clr-icon>
       <p class="pl20 mt0 mb10 fs13">
-        Yipee.io supports importing a helm .tgz file, and converts it into a Kubernetes application. The values file will be taken from the .tgz file that is imported and must be included in the .tgz file.      </p>
+        Yipee.io now supports importing Helm .tgz files. We use the Values.yaml file contained within the .tgz file to
+        generate a complete visual model of your Helm chart. </p>
     </div>
 
     <p class="notice">
-      An imported file should not contain passwords or other sensitive data. Yipee.io does not currently encrypt or otherwise mask
+      An imported file should not contain passwords or other sensitive data. Yipee.io does not currently encrypt or
+      otherwise mask
       sensitive data in Yipee apps or in exported files.
     </p>
   </div>
@@ -90,8 +96,10 @@
       <div class="row">
         <div class="col-sm-12 ta-r">
           <button type="button" class="btn btn-primary" (click)="cancelImportApp()">Cancel</button>
-          <button type="button" [disabled]="importApplicationForm.controls.applicationName.invalid" class="btn btn-primary" (click)="selectFile()">
-            <clr-icon shape="upload"></clr-icon>Choose a file</button>
+          <button type="button" [disabled]="importApplicationForm.controls.applicationName.invalid" class="btn btn-primary"
+            (click)="selectFile()">
+            <clr-icon shape="upload"></clr-icon>Choose a file
+          </button>
           <input type="file" id="uploadFile" style="display: none;" (change)="fileSelected($event)">
         </div>
       </div>
