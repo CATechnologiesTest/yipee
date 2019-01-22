@@ -310,10 +310,10 @@ describe('ImportAppModalComponent', () => {
       backend.expectOne({ method: 'POST', url: '/api/import' }).flush({
         success: false,
         total: 1,
-        data: ["test error"]
+        data: ['test error']
       }, { status: 400, statusText: 'badDev' });
 
-      expect(component.alertText).toEqual(["test error"]);
+      expect(component.alertText).toEqual(['test error']);
     })));
 
   it('should handle invalid model error, where 200 is returned', async(inject([EditorService, HttpTestingController],
@@ -324,10 +324,10 @@ describe('ImportAppModalComponent', () => {
       backend.expectOne({ method: 'POST', url: '/api/import' }).flush({
         success: false,
         total: 1,
-        data: ["test error"]
+        data: ['test error']
       });
 
-      expect(component.alertText).toEqual(["test error"]);
+      expect(component.alertText).toEqual(['test error']);
     })));
 
   it('should handle a network error', async(inject([EditorService, HttpTestingController, NgZone],
@@ -345,7 +345,7 @@ describe('ImportAppModalComponent', () => {
 
       req.error(mockError);
 
-      expect(component.error).toBeTruthy;
+      expect(component.error).toBeTruthy();
     })));
 
 });

@@ -40,7 +40,7 @@ export class ImportAppModalComponent implements OnInit {
     const applicationName = this.importApplicationForm.get('applicationName').value;
 
     this.importAppService.importFile(applicationName, data, isK8s, isTgz).subscribe((response) => {
-      
+
       if (response.success === false ) {
         this.alertText = response.data[0].split('\n');
         while (this.alertText[this.alertText.length - 1] === '') {
