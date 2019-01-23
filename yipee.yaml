@@ -95,7 +95,7 @@ spec:
       imagePullSecrets: []
       containers:
       - name: yipee-ui
-        image: yipeio/ui:2.0
+        image: yipeeio/ui:2.0
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
@@ -133,13 +133,13 @@ spec:
         env:
           - name: YIPEE_INSTALL_TYPE
             value: cluster
-        image: yipeio/api:2.0
+        image: yipeeio/api:2.0
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 5000
           protocol: TCP
       - name: yipee-converter
-        image: yipeio/converter:2.0
+        image: yipeeio/converter:2.0
         imagePullPolicy: IfNotPresent
       restartPolicy: Always
       serviceAccountName: yipee-service-account
