@@ -252,16 +252,27 @@ collaborators and contributors. If you have an idea or opinion as to
 future directions, we're listening.
 
 # Installation
-The yipee editor is ready to run as a kubernetes application.  Public
+Yipee is ready to run as a kubernetes application.  Public
 images built from the master branch of this repo are available in
 dockerhub.  The _yipee.yaml_ file in this repo defines the kubernetes
-objects needed to deploy the app.
+objects needed to deploy the app.  The full version of yipee will
+read the kubernetes cluster and allow modification and update of
+deployed applications.  You can also import yaml files, make
+modifications in the editor and deploy the results to your cluster.
 
-Running in a local minikube should be as simple as:
+To run yipee in a local minikube, simply:
 
 ```
 kubectl apply -f yipee.yaml
 minikube -n yipee service yipee-ui
+```
+
+To run just the yipee editor (without support for reading from or
+deploying to kubernetes), do this instead:
+
+```
+kubectl apply -f editor.yaml
+minikube -n yipeeed service yipee-ui
 ```
 
 To deploy in a cloud-based cluster, you will want to change the type of
