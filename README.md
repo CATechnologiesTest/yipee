@@ -1,8 +1,8 @@
-| Component | Status |  
-| --- | --- |  
-| API | [![Codefresh build status]( https://g.codefresh.io/api/badges/pipeline/dannchurch/yipeeio%2Fyipee%2Fyipee-api?branch=master&key=eyJhbGciOiJIUzI1NiJ9.NWJjZjcxNDg2ODc3OGJkNDQ3NDBhZDVh.o4OwqjYWa_07eCvduz3HEdJ6cIruj2yagf8inOU_CmE&type=cf-1)]( https://g.codefresh.io/pipelines/yipee-api/builds?repoOwner=yipeeio&repoName=yipee&serviceName=yipeeio%2Fyipee&filter=trigger:build~Build;branch:master;pipeline:5c17da456ecec36a696fc9d9~yipee-api) |  
-| Converter | [![Codefresh build status]( https://g.codefresh.io/api/badges/pipeline/dannchurch/yipeeio%2Fyipee%2Fyipee-converter?branch=master&key=eyJhbGciOiJIUzI1NiJ9.NWJjZjcxNDg2ODc3OGJkNDQ3NDBhZDVh.o4OwqjYWa_07eCvduz3HEdJ6cIruj2yagf8inOU_CmE&type=cf-1)]( https://g.codefresh.io/pipelines/yipee-converter/builds?repoOwner=yipeeio&repoName=yipee&serviceName=yipeeio%2Fyipee&filter=trigger:build~Build;branch:master;pipeline:5bef457d6c5eee3723a18ead~yipee-converter) |  
-| UI | [![Codefresh build status]( https://g.codefresh.io/api/badges/pipeline/dannchurch/yipeeio%2Fyipee%2Fyipee-ui?branch=master&key=eyJhbGciOiJIUzI1NiJ9.NWJjZjcxNDg2ODc3OGJkNDQ3NDBhZDVh.o4OwqjYWa_07eCvduz3HEdJ6cIruj2yagf8inOU_CmE&type=cf-1)]( https://g.codefresh.io/pipelines/yipee-ui/builds?repoOwner=yipeeio&repoName=yipee&serviceName=yipeeio%2Fyipee&filter=trigger:build~Build;branch:master;pipeline:5c197e2fc3fb12fd170b62a2~yipee-ui) |  
+| Component | Status |
+| --- | --- |
+| API | [![Codefresh build status]( https://g.codefresh.io/api/badges/pipeline/dannchurch/yipeeio%2Fyipee%2Fyipee-api?branch=master&key=eyJhbGciOiJIUzI1NiJ9.NWJjZjcxNDg2ODc3OGJkNDQ3NDBhZDVh.o4OwqjYWa_07eCvduz3HEdJ6cIruj2yagf8inOU_CmE&type=cf-1)]( https://g.codefresh.io/pipelines/yipee-api/builds?repoOwner=yipeeio&repoName=yipee&serviceName=yipeeio%2Fyipee&filter=trigger:build~Build;branch:master;pipeline:5c17da456ecec36a696fc9d9~yipee-api) |
+| Converter | [![Codefresh build status]( https://g.codefresh.io/api/badges/pipeline/dannchurch/yipeeio%2Fyipee%2Fyipee-converter?branch=master&key=eyJhbGciOiJIUzI1NiJ9.NWJjZjcxNDg2ODc3OGJkNDQ3NDBhZDVh.o4OwqjYWa_07eCvduz3HEdJ6cIruj2yagf8inOU_CmE&type=cf-1)]( https://g.codefresh.io/pipelines/yipee-converter/builds?repoOwner=yipeeio&repoName=yipee&serviceName=yipeeio%2Fyipee&filter=trigger:build~Build;branch:master;pipeline:5bef457d6c5eee3723a18ead~yipee-converter) |
+| UI | [![Codefresh build status]( https://g.codefresh.io/api/badges/pipeline/dannchurch/yipeeio%2Fyipee%2Fyipee-ui?branch=master&key=eyJhbGciOiJIUzI1NiJ9.NWJjZjcxNDg2ODc3OGJkNDQ3NDBhZDVh.o4OwqjYWa_07eCvduz3HEdJ6cIruj2yagf8inOU_CmE&type=cf-1)]( https://g.codefresh.io/pipelines/yipee-ui/builds?repoOwner=yipeeio&repoName=yipee&serviceName=yipeeio%2Fyipee&filter=trigger:build~Build;branch:master;pipeline:5c197e2fc3fb12fd170b62a2~yipee-ui) |
 
 # Yipee - Graphical Kubernetes Editing
 Working with Kubernetes doesn't _necessarily_ imply spending quality
@@ -55,7 +55,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: mariadb
-spec:  
+spec:
   selector:
     name: joomla-kubernetes
     component: mariadb
@@ -261,7 +261,7 @@ Running in a local minikube should be as simple as:
 
 ```
 kubectl apply -f yipee.yaml
-minikube service yipee-ui
+minikube -n yipee service yipee-ui
 ```
 
 To deploy in a cloud-based cluster, you will want to change the type of

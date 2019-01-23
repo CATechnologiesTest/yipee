@@ -1,53 +1,13 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: yipee
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: yipee-service-account
-  namespace: yipee
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: yipee-cluster-actor
-  labels:
-    aggregate-to-admin: 'true'
-    aggregate-to-edit: 'true'
-rules:
-- apiGroups:
-  - '*'
-  resources:
-  - '*'
-  verbs:
-  - get
-  - list
-  - watch
-  - create
-  - update
-  - patch
-  - delete
----
-apiVersion: rbac.authorization.k8s.io/v1beta1
-kind: ClusterRoleBinding
-metadata:
-  name: yipee-cluster-actions
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: yipee-cluster-actor
-subjects:
-- kind: ServiceAccount
-  name: yipee-service-account
-  namespace: yipee
+  name: yipeeed
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: yipee-backend
-  namespace: yipee
+  namespace: yipeeed
 spec:
   selector:
     yipee.io/yipee-backend: generated
@@ -56,7 +16,7 @@ spec:
     targetPort: 5000
     name: backend-5000
     protocol: TCP
-    nodePort: 32005
+    nodePort: 32006
   type: NodePort
 
 ---
@@ -64,7 +24,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: yipee-ui
-  namespace: yipee
+  namespace: yipeeed
 spec:
   selector:
     yipee.io/yipee-ui: generated
@@ -73,7 +33,7 @@ spec:
     targetPort: 80
     name: yipee-ui-8080
     protocol: TCP
-    nodePort: 32080
+    nodePort: 32081
   type: NodePort
 
 ---
@@ -81,7 +41,7 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: yipee-ui
-  namespace: yipee
+  namespace: yipeeed
 spec:
   selector:
     matchLabels:
@@ -116,7 +76,7 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: yipee-backend
-  namespace: yipee
+  namespace: yipeeed
 spec:
   selector:
     matchLabels:
@@ -130,9 +90,9 @@ spec:
       imagePullSecrets: []
       containers:
       - name: yipee-api
-        env:
-          - name: YIPEE_INSTALL_TYPE
-            value: cluster
+        # env:
+        #   - name: YIPEE_INSTALL_TYPE
+        #     value: static
         image: yipeio/api:2.0
         imagePullPolicy: IfNotPresent
         ports:
@@ -142,7 +102,6 @@ spec:
         image: yipeio/converter:2.0
         imagePullPolicy: IfNotPresent
       restartPolicy: Always
-      serviceAccountName: yipee-service-account
     metadata:
       labels:
         name: yipee
