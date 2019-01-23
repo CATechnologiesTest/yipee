@@ -83,7 +83,7 @@ func getNamespace(w http.ResponseWriter, r *http.Request) {
 	w.Write(makeSuccessResponse(result))
 }
 
-type Nsobj struct {
+type NsStatus struct {
 	Name           string `json:"name"`
 	DateCreated    string `json:"dateCreated"`
 	Phase          string `json:"phase"`
@@ -92,7 +92,7 @@ type Nsobj struct {
 	Status         string `json:"status"`
 }
 
-func rollupNamespace(nsobj *Nsobj) {
+func rollupNamespace(nsobj *NsStatus) {
 	podUrl := fmt.Sprintf("/api/v1/namespaces/%s/pods", nsobj.Name)
 	podResult := make(chan []JsonObject)
 	go k8sAsyncGetList(podUrl, podResult)
@@ -154,19 +154,19 @@ func rollupNamespace(nsobj *Nsobj) {
 func getNamespaceList(w http.ResponseWriter, r *http.Request) {
 	defer HandleCatchableForRequest(w)
 	nslist := k8sGetList("/api/v1/namespaces")
-	retlist := make([]*Nsobj, len(nslist))
+	retlist := make([]*NsStatus, len(nslist))
 	var wg sync.WaitGroup
 	for i, ns := range nslist {
 		metadata := ns["metadata"].(map[string]interface{})
 		status := ns["status"].(map[string]interface{})
 		nsname := metadata["name"].(string)
-		nsobj := Nsobj{}
+		nsobj := NsStatus{}
 		nsobj.Name = nsname
 		nsobj.DateCreated = metadata["creationTimestamp"].(string)
 		nsobj.Phase = status["phase"].(string)
 		retlist[i] = &nsobj
 		wg.Add(1)
-		go func(nso *Nsobj) {
+		go func(nso *NsStatus) {
 			defer wg.Done()
 			rollupNamespace(nso)
 		}(&nsobj)
