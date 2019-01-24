@@ -472,7 +472,10 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 			action := jobj["msg"].(string)
 			switch action {
 			case "subscribe":
-				nsname := jobj["namespace"].(string)
+				nsname, ok := jobj["namespace"].(string)
+				if !ok {
+					continue
+				}
 				log.Debugf("subscribe for ns '%s'", nsname)
 				if subscribed != "" {
 					log.Warnf(
@@ -485,7 +488,10 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 				subscribed = nsname
 			case "unsubscribe":
 				// remove my channel from listeners
-				nsname := jobj["namespace"].(string)
+				nsname, ok := jobj["namespace"].(string)
+				if !ok {
+					continue
+				}
 				log.Debugf("unsubscribe for ns '%s'", nsname)
 				removeListener(nsname, statusChan)
 				if subscribed != "" && nsname != subscribed {
