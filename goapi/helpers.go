@@ -13,9 +13,11 @@ import (
 )
 
 const DEFAULT_TIMEOUT = time.Second * 30
-const CVT_URL = "http://localhost:3000"
 
-var cvtClient = &http.Client{Timeout: DEFAULT_TIMEOUT}
+var (
+	CVT_URL   = getFromEnv("CVT_URL", "http://localhost:3000")
+	cvtClient = &http.Client{Timeout: DEFAULT_TIMEOUT}
+)
 
 type JsonObject map[string]interface{}
 
