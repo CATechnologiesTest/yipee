@@ -1,4 +1,4 @@
-fooDY:
+foo.d.y:
   ports:
   - baz: {{int .Values.foo0FooDY1Ports2Baz3Baz4}}
   - quux: {{.Values.foo0FooDY1Ports2Quux3Quux4}}

@@ -142,6 +142,10 @@
 ;; Special case for array entries to pick up the '-' in YAML
 (def array-tag-pattern (re-pattern (str "[-][ ][{]" tag-name "[:][ ][^}]*[}]")))
 
+(defn string-boolean? [x]
+  (and (string? x)
+       (#{"Y" "TRUE" "YES" "ON" "N" "FALSE" "NO" "OFF"} (.toUpperCase x))))
+
 (defn encode [to-encode]
   (if (not (string? to-encode))
     (.encodeToString (Base64/getEncoder) (.getBytes (str tag-name to-encode)))
@@ -185,7 +189,10 @@
 (defn fixup-key [x]
   (cond (keyword? x) (keyword (fixup-key (name x)))
         (or (number? x) (re-matches #"\d+\.\d+" x)) x ;; leave decimals alone
-        :else (str/replace x #"\.(.)" #(.toUpperCase (%1 1)))))
+        :else (str/replace
+               (str/replace x #"\.(.)" #(.toUpperCase (%1 1)))
+               #"[/]"
+               "")))
 
 (defn canonicalize-name [item]
   (fixup-key
@@ -241,7 +248,12 @@
 
           (string? data)
           [{template-tag (encode (valueRef cstring))}
-           (format "%s: \"%s\"" cstring data)]
+           (if (or (try (number? (edn/read-string data))
+                        (catch Exception _ false))
+                   (string-boolean? data)
+                   (str/index-of data " "))
+             (format "%s: \"'%s'\"" cstring data)
+             (format "%s: \"%s\"" cstring data))]
 
           :else
           [{template-tag (encode (valueRef cstring))}
@@ -282,7 +294,7 @@
             [(into {} result-array) (str/join "\n" result-values)]
             (let [[k v] (first vals)
                   [r rv] (templatize-in-context v (conj context k))]
-              (recur (rest vals) (conj result-array [(fixup-key k) r])
+              (recur (rest vals) (conj result-array [k r])
                      (conj-if result-values rv)))))))
 
 (defn templatize-in-context [data context]
@@ -305,7 +317,7 @@
                           decoded
                           "}}"
                           "{{end}}")
-                     decoded)))
+                     (str "- " decoded))))
    tag-pattern
    #(let [decoded
           (decode (subs %
@@ -393,7 +405,6 @@
     (encode-bytes (.getBytes value))
     (encode value)))
 
-;; Create an encoded value for a diff that the helm generator will decode
 ;; to create the actual result value.
 (defn create-helm-variable [identifier value]
   (let [encoded (diff-encode (generate-value-string value))]
@@ -474,18 +485,6 @@
                                "' does not match object: '"
                                obj
                                "'\n")))))))
-
-;; Base 64 encode
-(defn diff-encode [value]
-  (if (try (number? (edn/read-string value)) (catch Exception _ false))
-    (encode-bytes (.getBytes value))
-    (encode value)))
-
-;; Create an encoded value for a diff that the helm generator will decode
-;; to create the actual result value.
-(defn create-helm-variable [identifier value]
-  (let [encoded (diff-encode (generate-value-string value))]
-    {diff-tag encoded :identifier identifier}))
 
 ;; A special tag for a map that is a path-ending value. Since any of the models
 ;; that is missing the value is also missing the "key", we store the key in

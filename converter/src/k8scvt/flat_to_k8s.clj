@@ -51,7 +51,6 @@
               :deployment
               :pod
               :ingress
-              :unknown-k8s-kind
               :layout-annotations]
   :namespaced)
 

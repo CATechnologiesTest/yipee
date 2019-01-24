@@ -1,4 +1,4 @@
-fooDY:
+foo.d.y:
   bar:
   - baz: {{int .Values.foo0FooDY1Bar2Baz3Baz4}}
   - quux: {{.Values.foo0FooDY1Bar2Quux3Quux4}}

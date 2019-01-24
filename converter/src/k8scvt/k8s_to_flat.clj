@@ -37,6 +37,11 @@
 
 (defn unknown-keys [m] (into #{} (filter #(not (known-types %)) (keys m))))
 
+(def known-kind (comp #{"PersistentVolumeClaim" "StatefulSet" "DaemonSet"
+                        "CronJob" "Service" "Deployment" "Pod" "Ingress"
+                        "ConfigMap"}
+                      :kind))
+
 (defn trim-left-dashes [s]
   (loop [c s]
     (if (not (str/starts-with? c "-"))
@@ -249,11 +254,13 @@
   {:priority *validation*}
   "Ensure there are 0 or 1 namespaces referenced in the model."
   [?k8s :k8s
-   (> (count (group-by #(or (get-namespace %)
-                            (and (= (:kind %) "Namespace") (:name (:metadata %)))
-                            "default")
-                       (apply concat
-                              (vals (dissoc ?k8s :id :__id :type :app-name)))))
+   (> (count (group-by
+              #(or (get-namespace %)
+                   (and (= (:kind %) "Namespace") (:name (:metadata %)))
+                   "default")
+              (filter known-kind
+                      (apply concat
+                             (vals (dissoc ?k8s :id :__id :type :app-name))))))
       1)]
   =>
   (generate-constraint-error "Only one namespace may be included in a model")

@@ -845,7 +845,7 @@
 (defflat k8s-namespace
   "Kubernetes supports explicit namespaces"
   [:name :string]
-  [:label-name :string])
+  [:label-name :string :optional])
 
 (defflat k8s-service
   "Stores the selector and metadata derived from a top level Kubernetes service"
