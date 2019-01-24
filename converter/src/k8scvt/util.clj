@@ -29,7 +29,8 @@
 ;;
 ;; Note the mix of camelCase (or, perhaps more properly, "PascalCase")
 ;; and lower-case kinds.  This seems to be mostly related to "unknown kinds"
-(def kind-output-order {:ServiceAccount 1
+(def kind-output-order {:namespace 0
+                        :ServiceAccount 1
                         :CustomResourceDefinition 1
                         :ConfigMap 1
                         :Secret 1

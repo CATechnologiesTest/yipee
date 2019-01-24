@@ -191,7 +191,7 @@
         (or (number? x) (re-matches #"\d+\.\d+" x)) x ;; leave decimals alone
         :else (str/replace
                (str/replace x #"\.(.)" #(.toUpperCase (%1 1)))
-               #"[/]"
+               #"[^a-zA-Z0-9_]"
                "")))
 
 (defn canonicalize-name [item]
@@ -251,7 +251,7 @@
            (if (or (try (number? (edn/read-string data))
                         (catch Exception _ false))
                    (string-boolean? data)
-                   (str/index-of data " "))
+                   (re-matches #".*[^-a-zA-Z0-9_.:%/].*" data))
              (format "%s: \"'%s'\"" cstring data)
              (format "%s: \"%s\"" cstring data))]
 

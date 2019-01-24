@@ -489,6 +489,9 @@
                                       results)))
                   (is (empty? (filter #(fi/output-only-toplevel (keys %))
                                       results)))
+                  ;; Test that namespaces sort first in output
+                  (is (or (not (some #(= (:kind %) "Namespace") results))
+                          (= (:kind (first results)) "Namespace")))
                   (assert-match @index
                                 (apply concat (vals (dissoc k8s :type :app-name)))
                                 results))))
