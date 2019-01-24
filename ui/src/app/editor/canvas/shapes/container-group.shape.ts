@@ -124,7 +124,7 @@ export class ContainerGroupShape extends BaseShape {
 
   get markup(): string {
 
-    if (this.isLive == true) {
+    if (this.isLive === true) {
       return `<g>
         <rect class="background" rx="10" ry="10"/>
         <rect class="border" rx="10" ry="10"/>
