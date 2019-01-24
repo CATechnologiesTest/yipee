@@ -155,7 +155,7 @@ func findTemplateFiles(entries map[string]string) map[string]string {
 func findValuesFile(entries map[string]string) string {
 	for name, data := range entries {
 		slashidx := strings.Index(name, "/")
-		if slashidx != -1 && name[slashidx+1:] == "Values.yaml" {
+		if slashidx != -1 && name[slashidx+1:] == "values.yaml" {
 			return data
 		}
 	}

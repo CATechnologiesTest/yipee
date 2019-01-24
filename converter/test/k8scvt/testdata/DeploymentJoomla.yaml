@@ -4,9 +4,9 @@ metadata:
   name: joomla
   uid: {{.Values.deploymentJoomla0Metadata1Uid2}}
   annotations:
-    yipeeIoModelId: 10d4ebd2-5919-11e8-a3f9-db2dd23490ad
-    yipeeIoContextId: 6e0a6206-1558-11e7-a0fe-e7a448f880d1
-    yipeeIoModelURL: https://app.yipee.io/editor/10d4ebd2-5919-11e8-a3f9-db2dd23490ad/6e0a6206-1558-11e7-a0fe-e7a448f880d1
+    yipee.io.modelId: 10d4ebd2-5919-11e8-a3f9-db2dd23490ad
+    yipee.io.contextId: 6e0a6206-1558-11e7-a0fe-e7a448f880d1
+    yipee.io.modelURL: https://app.yipee.io/editor/10d4ebd2-5919-11e8-a3f9-db2dd23490ad/6e0a6206-1558-11e7-a0fe-e7a448f880d1
 spec:
   selector:
     matchLabels:

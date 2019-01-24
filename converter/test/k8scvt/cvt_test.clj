@@ -489,6 +489,9 @@
                                       results)))
                   (is (empty? (filter #(fi/output-only-toplevel (keys %))
                                       results)))
+                  ;; Test that namespaces sort first in output
+                  (is (or (not (some #(= (:kind %) "Namespace") results))
+                          (= (:kind (first results)) "Namespace")))
                   (assert-match @index
                                 (apply concat (vals (dissoc k8s :type :app-name)))
                                 results))))
@@ -606,15 +609,10 @@
         testdir (str pwd "/" (test-file-name "_temp_dir_"))
         tfile #(str testdir "/" %)
         tfile64 #(str (tfile %) ".tgz64")
-        tfilegz #(str (tfile %) ".tgz")
         _ (.mkdirs (File. testdir))
         tarfile-name (tfile64 helm-name)
-        decoded-name (tfilegz helm-name)
         _ (spit tarfile-name tarfile)
-        _ (spit decoded-name
-                (:out (sh (str pwd "/" (test-file-name "unpack"))
-                          tarfile-name
-                          :dir testdir)))
+        _ (sh (str pwd "/" (test-file-name "unpack")) tarfile-name :dir testdir)
         search (fn [name] (first (filter #(= (:name %) name) entries)))
         tname (str helm-name "/templates/" template-name ".yaml")
         template (search tname)
@@ -628,16 +626,19 @@
         ;; "helm template" adds an extra blank line...
         inst-match #(equal-to-line-ordering (str/replace %1 #"[\n][\n]" "\n")
                                             (test-slurp %2))]
-    (is (entry-match template (str template-name ".yaml")))
+    (or (is (entry-match template (str template-name ".yaml")))
+        (do (println template)
+            (println (test-slurp (str template-name ".yaml")))))
     (doseq [[v fname] (map vector vals (map #(str (:app-name %) "_values.yaml")
                                             model-data))]
       (is (entry-match v fname)))
-
     (doseq [[i fname] (map vector insts (map #(str "Instantiated"
                                                    (helm/cap (:app-name %))
                                                    ".yaml")
                                              model-data))]
-      (is (inst-match i fname)))
+      (or (is (inst-match i fname))
+          (do (println i)
+              (println (test-slurp fname)))))
     (sh "rm" "-rf" testdir)))
 
 (deftest diffing

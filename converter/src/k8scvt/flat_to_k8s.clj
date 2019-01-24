@@ -51,7 +51,6 @@
               :deployment
               :pod
               :ingress
-              :unknown-k8s-kind
               :layout-annotations]
   :namespaced)
 
@@ -297,8 +296,10 @@
   (insert! {:type :namespace
             :apiVersion "v1"
             :kind "Namespace"
-            :metadata {:name (:name ?ns)
-                       :labels {:name (:label-name ?ns)}}}))
+            :metadata (let [mbase {:name (:name ?ns)}]
+                       (if-let [lname (:label-name ?ns)]
+                         (assoc mbase :labels {:name lname})
+                         mbase))}))
 
 (defrule insert-persistent-volume-claim
   {:priority 75}

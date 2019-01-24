@@ -78,7 +78,7 @@
                         {:bar [{:baz 5} {:quux true}]
                          :ports "xyz"
                          :env [{:name "anumber" :value "1.23"}]
-                         :labels {:x "6" :y "28"}}}}
+                         :labels {"x/z" "6" :y "28"}}}}
             {:name "goo"
              :contents {:goo.d.y
                         {:metadata {:annotations {"yowza" "urp"}}
@@ -97,7 +97,7 @@
                         {:bar [{:baz 5} {:quux true}]
                          :ports "xyz"
                          :env [{:name "anumber" :value "1.23"}]
-                         :labels {:x "6" :y "28"}}}}
+                         :labels {:x "6" :y "something with a space"}}}}
             {:name "goo"
              :contents {:goo.d.y
                         {:metadata {:annotations {"yowza" "urp"}}
