@@ -5,6 +5,7 @@ import { EditorService } from '../../editor.service';
 import { ContainerGroup } from '../../../models/common/ContainerGroup';
 import { ContainerShape } from './container.shape';
 import { NameChangeEvent } from '../../../models/Events';
+import { NamespaceService } from '../../../shared/services/namespace.service';
 
 class LayoutInformation {
   x: number;
@@ -26,11 +27,13 @@ export class ContainerGroupShape extends BaseShape {
 
   cgroup: ContainerGroup;
   editorService: EditorService;
+  isLive: boolean;
 
-  constructor(editorService: EditorService, cgroup: ContainerGroup, attributes?: any, options?: any) {
+  constructor(editorService: EditorService, cgroup: ContainerGroup, namespaceService: NamespaceService, attributes?: any, options?: any) {
     super(cgroup.id, ContainerGroupShape.TYPE, attributes, options);
     this.cgroup = cgroup;
     this.editorService = editorService;
+    this.isLive = namespaceService.isLive;
     this.set('markup', this.markup);
     this.canConnect = false;
     this.canClone = false;
@@ -120,25 +123,23 @@ export class ContainerGroupShape extends BaseShape {
   }
 
   get markup(): string {
+    let liveStatusMarkdown = `<text class="type" x="28" y="18" alignment-baseline="top" text-anchor="left"/>`;
+
+    if (this.isLive === true) {
+      liveStatusMarkdown += `<rect class="restart-badge" rx="5" ry="5" x="45" y="5" width="30" height="16"/>
+        <text class="restart" x="60" y="17" alignment-baseline="central" text-anchor="middle"/>
+        <rect class="active-badge" rx="5" ry="5" x="84" y="5" width="45" height="16"/>
+        <text class="active" x="106" y="17" alignment-baseline="central" text-anchor="middle"/>`;
+    }
+
     return `<g>
-    <rect class="background" rx="10" ry="10"/>
-    <rect class="border" rx="10" ry="10"/>
-    <image class="deleteCanvasObject" height="20" width="20" x="4" y="4" xlink:href="./assets/images/times-circle-line.svg"/>
-
-    <text class="type" x="28" y="18" alignment-baseline="top" text-anchor="left"/>
-
-    <rect class="restart-badge" rx="5" ry="5" x="45" y="5" width="30" height="16"/>
-    <text class="restart" x="60" y="17" alignment-baseline="central" text-anchor="middle"/>
-
-    <rect class="active-badge" rx="5" ry="5" x="84" y="5" width="45" height="16"/>
-    <text class="active" x="106" y="17" alignment-baseline="central" text-anchor="middle"/>
-
-    <image class="error" height="24" width="24" x="76" y="2" xlink:href="./assets/images/exclamation-circle-line.svg"/>
-
-    <text class="title" x="50" y="92" alignment-baseline="central" text-anchor="middle"/>
-
-
-    </g>`;
+      <rect class="background" rx="10" ry="10"/>
+      <rect class="border" rx="10" ry="10"/>
+      <image class="deleteCanvasObject" height="20" width="20" x="4" y="4" xlink:href="./assets/images/times-circle-line.svg"/>
+      ${liveStatusMarkdown}
+      <image class="error" height="24" width="24" x="76" y="2" xlink:href="./assets/images/exclamation-circle-line.svg"/>
+      <text class="title" x="50" y="92" alignment-baseline="central" text-anchor="middle"/>
+      </g>`;
   }
 
   willAcceptChildType(type: string): boolean {
