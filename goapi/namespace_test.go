@@ -7,12 +7,13 @@ import (
 	"net/http/httptest"
 	"testing"
 )
+
 func TestNamespace4XXMethods(t *testing.T) {
 	var tests = []struct {
-		url string
-		method string
+		url      string
+		method   string
 		expected int
-	} {
+	}{
 		{"/namespaces", http.MethodPut, 405},
 		{"/namespaces", http.MethodPost, 405},
 		{"/namespaces", http.MethodDelete, 405},
@@ -24,10 +25,9 @@ func TestNamespace4XXMethods(t *testing.T) {
 		{"/namespaces/apply/foo/bar", http.MethodGet, 404},
 		{"/namespaces/fake/apply/foo", http.MethodPost, 404},
 		{"/namespaces/fake/apply/foo?createNamespace=true", http.MethodPost, 404},
-
 	}
 	for _, test := range tests {
-		expectStatusCode(t, httptest.NewRequest(test.method, test.url, nil), test.expected); 
+		expectStatusCode(t, httptest.NewRequest(test.method, test.url, nil), test.expected)
 	}
 }
 func TestNamespace(t *testing.T) {
@@ -67,10 +67,10 @@ func TestNamespace(t *testing.T) {
 	doSuccessRequestString(t,
 		httptest.NewRequest(http.MethodDelete, "/namespaces/apply", nil))
 
-		// fail post without data
+	// fail post without data
 	doErrRequest(t,
-		httptest.NewRequest(http.MethodPost, "/namespaces/foo/apply", nil))	
-	
+		httptest.NewRequest(http.MethodPost, "/namespaces/foo/apply", nil))
+
 	kubectlPath = "/none/ya"
 	doErrRequest(t,
 		httptest.NewRequest(http.MethodPost,
@@ -81,4 +81,28 @@ func TestNamespace(t *testing.T) {
 			"/namespaces/fake/apply?createNamespace=true",
 			bytes.NewBuffer(applyBytes)))
 
+}
+
+func TestNsDownload(t *testing.T) {
+	svr := NewK8sTestServer()
+	defer svr.Close()
+
+	k8s := doSuccessRequest(t,
+		httptest.NewRequest(http.MethodGet, "/namespaces/fake/kubernetes", nil))
+	k8sobj := k8s.Data[0]
+	if _, ok := k8sobj["kubernetesFile"]; !ok {
+		t.Errorf("missing 'kubernetesFile' key in ns download result")
+	}
+	k8sbundle := doSuccessRequest(t,
+		httptest.NewRequest(http.MethodGet, "/namespaces/fake/k8sbundle", nil))
+	k8sbundleobj := k8sbundle.Data[0]
+	if _, ok := k8sbundleobj["kubernetesFile"]; !ok {
+		t.Errorf("missing 'kubernetesFile' key in ns download result")
+	}
+	helm := doSuccessRequest(t,
+		httptest.NewRequest(http.MethodGet, "/namespaces/fake/helm", nil))
+	helmobj := helm.Data[0]
+	if _, ok := helmobj["helmFile"]; !ok {
+		t.Errorf("missing 'helmFile' key in ns download result")
+	}
 }

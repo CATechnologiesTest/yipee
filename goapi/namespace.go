@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"sync"
+	"time"
 
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
@@ -15,6 +16,13 @@ import (
 var kubectlPath = "/usr/local/bin/kubectl"
 
 func initNamespaces(router *mux.Router) {
+	router.HandleFunc("/namespaces/{name}/kubernetes",
+		nsDownloadK8s).Methods(http.MethodGet)
+	router.HandleFunc("/namespaces/{name}/k8sbundle",
+		nsDownloadK8sBundle).Methods(http.MethodGet)
+	router.HandleFunc("/namespaces/{name}/helm",
+		nsDownloadHelm).Methods(http.MethodGet)
+
 	router.HandleFunc("/namespaces/{name}/apply",
 		applyNamespace).Methods(http.MethodPost)
 	router.HandleFunc("/namespaces/{name}", getNamespace).Methods(http.MethodGet)
@@ -51,22 +59,24 @@ func getNamespaceObjects(nsname string) ([]byte, string) {
 	return allobjs.Bytes(), ""
 }
 
-func getNamespace(w http.ResponseWriter, r *http.Request) {
-	defer HandleCatchableForRequest(w)
-	nsname := mux.Vars(r)["name"]
+func getFlatFileForNamespace(nsname string) JsonObject {
+	logfields := log.Fields{"func": "getFlatFileForNamespace"}
 	nsBytes, errstr := getNamespaceObjects(nsname)
 	if errstr != "" {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(makeErrorResponse(errstr))
-		return
+		RaiseCatchable(http.StatusBadRequest, errstr, logfields)
 	}
 	flatBytes, errstr := doConvert("/k2f", nsBytes)
 	if errstr != "" {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(makeErrorResponse(errstr))
-		return
+		RaiseCatchable(http.StatusBadRequest, errstr, logfields)
 	}
-	flatObj := bytesToJsonObject(flatBytes)
+	obj := bytesToJsonObject(flatBytes)
+	return obj
+}
+
+func getNamespace(w http.ResponseWriter, r *http.Request) {
+	defer HandleCatchableForRequest(w)
+	nsname := mux.Vars(r)["name"]
+	flatObj := getFlatFileForNamespace(nsname)
 	if _, ok := flatObj["model-namespace"]; !ok {
 		nsobj := make(JsonObject)
 		nsobj["type"] = "model-namespace"
@@ -245,4 +255,47 @@ func deleteNamespace(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusAccepted)
 	w.Write(makeStringResp(true, "namespace delete initiated successfully"))
+}
+
+func doNsDownload(
+	w http.ResponseWriter,
+	r *http.Request,
+	cvtpath string,
+	comment bool,
+	filekey string,
+) {
+	defer HandleCatchableForRequest(w)
+	nsname := mux.Vars(r)["name"]
+	flatObj := getFlatFileForNamespace(nsname)
+	nowstr := time.Now().UTC().String()
+	addAnnotationInfoToFlatFile(flatObj, nowstr)
+	payload, errstr := doConvert(cvtpath, marshalJson(flatObj))
+	if errstr != "" {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write(makeErrorResponse(errstr))
+		return
+	}
+	var buf bytes.Buffer
+	if comment {
+		buf.Write([]byte(downloadComment(nowstr)))
+	}
+	buf.Write(payload)
+	resp := make(JsonObject)
+	resp["name"] = nsname
+	resp["version"] = 0
+	resp[filekey] = buf.String()
+	w.WriteHeader(http.StatusOK)
+	w.Write(makeSuccessResponse(resp))
+}
+
+func nsDownloadK8s(w http.ResponseWriter, r *http.Request) {
+	doNsDownload(w, r, "/f2k", true, "kubernetesFile")
+}
+
+func nsDownloadK8sBundle(w http.ResponseWriter, r *http.Request) {
+	doNsDownload(w, r, "/f2kbundle", false, "kubernetesFile")
+}
+
+func nsDownloadHelm(w http.ResponseWriter, r *http.Request) {
+	doNsDownload(w, r, "/f2hbundle", false, "helmFile")
 }
