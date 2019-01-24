@@ -19,6 +19,7 @@ import { K8sHostPathShape } from './shapes/k8s-hostpath.shape';
 import { K8sServiceLinkShape } from './shapes/k8s-service-link.shape';
 import { K8sUnknownKindShape } from './shapes/k8s-unknown-kind.shape';
 import { environment } from '../../../environments/environment';
+import { NamespaceService } from '../../shared/services/namespace.service';
 
 const properties = {
   paper: {
@@ -66,7 +67,8 @@ export class CanvasComponent extends joint.mvc.View<undefined> implements OnInit
 
   constructor(
     public editorService: EditorService,
-    public editorEventService: EditorEventService
+    public editorEventService: EditorEventService,
+    private namespaceService: NamespaceService
   ) {
     super();
     this.showNewNetworkDialog = false;
@@ -117,7 +119,7 @@ export class CanvasComponent extends joint.mvc.View<undefined> implements OnInit
 
     // for each container-group item, create the k8s shape and add it to the shapes array and groupMap
     for (const group of this.editorService.k8sFile.containerGroups) {
-      const shape = new ContainerGroupShape(this.editorService, group);
+      const shape = new ContainerGroupShape(this.editorService, group, this.namespaceService);
       shapes.push(shape);
       groupMap[group.id] = shape;
     }
@@ -520,7 +522,7 @@ export class CanvasComponent extends joint.mvc.View<undefined> implements OnInit
 
   newContainerGroup(cg?: ContainerGroup): void {
     const cgroup = this.editorService.newContainerGroup(cg);
-    const shape = new ContainerGroupShape(this.editorService, cgroup);
+    const shape = new ContainerGroupShape(this.editorService, cgroup, this.namespaceService);
     shape.canConnect = false;
     shape.hasError = (cgroup.container_count === 0);
     shape.layout();
