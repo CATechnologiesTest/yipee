@@ -40,6 +40,10 @@ const deleteNamespaceResponseNetworkFailure = {
   data: ['network error']
 };
 
+class MockUpdateService {
+  constructor() { }
+}
+
 describe('HomeComponent', () => {
   let component: HomeComponent;
   let fixture: ComponentFixture<HomeComponent>;
@@ -60,9 +64,7 @@ describe('HomeComponent', () => {
         NamespaceService,
         ApiService,
         DownloadService,
-        UpdateService,
-        YipeeFileService,
-        UserService
+        { provide: UpdateService, useClass: MockUpdateService }
       ]
     })
       .compileComponents();
