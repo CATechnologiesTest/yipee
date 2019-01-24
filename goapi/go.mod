@@ -16,10 +16,9 @@ require (
 	github.com/helm/helm v2.12.2+incompatible
 	github.com/huandu/xstrings v1.2.0 // indirect
 	github.com/imdario/mergo v0.3.6 // indirect
-	github.com/klauspost/compress v1.4.1
-	github.com/klauspost/cpuid v1.2.0 // indirect
 	github.com/pkg/errors v0.8.1 // indirect
 	github.com/sirupsen/logrus v1.3.0
+	golang.org/x/sync v0.0.0-20181221193216-37e7f081c4d4 // indirect
 	gopkg.in/yaml.v2 v2.2.2
 	k8s.io/apimachinery v0.0.0-20190111195121-fa6ddc151d63 // indirect
 	k8s.io/helm v2.12.2+incompatible

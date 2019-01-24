@@ -1,11 +1,11 @@
 #!/bin/bash
 
 IMG="$1"
-if [ -z $IMG ]; 
+if [ -z $IMG ];
 then
    IMG="api"
 fi
 
-sh ./elf_build.sh
+sh -x ./elf_build.sh
 
-docker build -t $IMG .
+docker build -f Dockerfile.local_build -t $IMG .
