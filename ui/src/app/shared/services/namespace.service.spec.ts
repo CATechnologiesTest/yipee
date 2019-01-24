@@ -5,6 +5,7 @@ import { ApiService } from './api.service';
 import { Observable } from 'rxjs';
 import { HttpTestingController, HttpClientTestingModule } from '@angular/common/http/testing';
 import { HttpClientModule } from '@angular/common/http';
+import { NamespaceRaw } from '../../models/YipeeFileRaw';
 
 const response1 = {
   success: true,
@@ -57,5 +58,14 @@ describe('NamespaceService', () => {
     });
     backend.expectOne('/api/namespaces').flush({data: [namespaces1]});
   })));
+
+  it('should emit a namespace array when updateNamespaces() is called', inject([NamespaceService, HttpTestingController], (namespaceService: NamespaceService, backend: HttpTestingController) => {
+    namespaceService.namespacesUpdate.subscribe((value: [NamespaceRaw]) => {
+      expect(value).toBeDefined();
+      expect(value).toEqual([namespaces1]);
+    });
+    namespaceService.updateNamespaces();
+    backend.expectOne('/api/namespaces').flush({data: [namespaces1]});
+  }));
 
 });

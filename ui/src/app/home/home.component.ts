@@ -4,14 +4,14 @@ import { YipeeFileMetadata } from '../models/YipeeFileMetadata';
 import { NamespaceService } from '../shared/services/namespace.service';
 import { DownloadService } from '../shared/services/download.service';
 import { NamespaceRaw } from '../models/YipeeFileRaw';
-import { Subscription, Observable } from 'rxjs';
+import { UpdateService } from '../shared/services/update.service';
 
 
 @Component({
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
-export class HomeComponent implements OnInit, OnDestroy {
+export class HomeComponent implements OnInit {
 
   showNewApplicationDialog = false;
   showImportApplicationDialog = false;
@@ -21,7 +21,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   isLoading = true;
   hasError = false;
   parentNamespace = '';
-  private nsPollTimer: Subscription;
 
   namespaces: NamespaceRaw[];
 
@@ -30,6 +29,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     public route: ActivatedRoute,
     private namespaceService: NamespaceService,
     private downloadService: DownloadService,
+    private updateService: UpdateService,
   ) {
     this.deleteNamespaceError = '';
   }
@@ -78,6 +78,9 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.isLive = this.route.snapshot.data.isLive.value;
+    this.namespaceService.namespacesUpdate.subscribe((value: NamespaceRaw[]) => {
+      this.namespaces = value;
+    });
     if (this.isLive) {
       // get initial set of namespaces
       this.namespaceService.loadAndReturnNamespaces().subscribe((namespaces: NamespaceRaw[]) => {
@@ -85,18 +88,8 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.isLoading = false;
       });
 
-      // poll namespaces every 5 seconds to refresh namespaces on page
-      this.nsPollTimer = this.namespaceService.pollNamespaces().subscribe(() => {
-        this.namespaces = this.namespaceService.currentNamespaces;
-      });
     } else {
       this.isLoading = false;
-    }
-
-  }
-  ngOnDestroy() {
-    if (this.isLive) {
-      this.nsPollTimer.unsubscribe();
     }
   }
 }
