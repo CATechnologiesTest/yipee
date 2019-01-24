@@ -19,7 +19,8 @@
 
         <!-- catalog toolbar -->
         <div class="top">
-            <app-header title="Namespace Catalog"></app-header>
+            <app-header *ngIf="isLive" title="Namespace Catalog"></app-header>
+            <app-header *ngIf="!isLive" title="Yipee"></app-header>
             <app-toolbar>
                 <div class="flex-left">
                     <button class="btn btn-primary" (click)="showNewApplicationDialog = true">
