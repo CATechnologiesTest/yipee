@@ -1,5 +1,5 @@
 # Repository Status
-**This repository exists here for historical purposes.  The active yipeeio repo is now hosted at: https://github.com/yipeeio/yipee**
+**This repository exists here for historical purposes.  The active repo is now hosted at: https://github.com/yipeeio/yipee**
 # Build Status
 | Component | Status |
 | --- | --- |
