@@ -57,6 +57,7 @@ export class EditorComponent implements OnInit, AfterViewChecked {
   ngOnInit() {
     // Are we "deep linking" into a model that is saved on the backend?
     this.namespace = this.activatedRoute.snapshot.params['id'];
+    console.log('NAMESPACE: ', this.namespace);
     this.isLive = this.namespaceService.isLive;
 
     if (this.namespace) {
@@ -65,13 +66,13 @@ export class EditorComponent implements OnInit, AfterViewChecked {
       this.yipeeFileService.read(this.namespace, isNamespaceUrl).subscribe(
         (yipeeFile) => {
           this.editorService.loadYipeeFile(yipeeFile).subscribe((response) => {
-              this.ui.loading = false;
+            this.ui.loading = false;
 
-              if (isNamespaceUrl && this.isLive) {
-                this.updateService.subscribeToK8sFile(this.editorService.k8sFile, this.namespace);
-              }
+            if (isNamespaceUrl && this.isLive) {
+              this.updateService.subscribeToK8sFile(this.editorService.k8sFile, this.namespace);
+            }
 
-            });
+          });
         },
         (error) => {
           this.ui.error = true;
@@ -204,6 +205,11 @@ export class EditorComponent implements OnInit, AfterViewChecked {
 
 
   onApplyManifestClicked() {
+    // If this is a new app we need to subscribe to the namespace entered before the apply
+    if (this.namespace === undefined) {
+      this.namespace = this.editorService.k8sFile.appInfo.namespace;
+      this.updateService.subscribeToK8sFile(this.editorService.k8sFile, this.namespace);
+    }
     this.isApplyingManifest = true;
     this.editorService.applyManifest()
       .subscribe((response: Response) => {
