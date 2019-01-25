@@ -57,7 +57,6 @@ export class EditorComponent implements OnInit, AfterViewChecked {
   ngOnInit() {
     // Are we "deep linking" into a model that is saved on the backend?
     this.namespace = this.activatedRoute.snapshot.params['id'];
-    console.log('NAMESPACE: ', this.namespace);
     this.isLive = this.namespaceService.isLive;
 
     if (this.namespace) {
