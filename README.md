@@ -1,3 +1,6 @@
+# Repository Status
+**This repository exists here for historical purposes.  The active yipeeio repo is now hosted at: https://github.com/yipeeio**
+# Build Status
 | Component | Status |
 | --- | --- |
 | API | [![Codefresh build status]( https://g.codefresh.io/api/badges/pipeline/dannchurch/yipeeio%2Fyipee%2Fyipee-api?branch=master&key=eyJhbGciOiJIUzI1NiJ9.NWJjZjcxNDg2ODc3OGJkNDQ3NDBhZDVh.o4OwqjYWa_07eCvduz3HEdJ6cIruj2yagf8inOU_CmE&type=cf-1)]( https://g.codefresh.io/pipelines/yipee-api/builds?repoOwner=yipeeio&repoName=yipee&serviceName=yipeeio%2Fyipee&filter=trigger:build~Build;branch:master;pipeline:5c17da456ecec36a696fc9d9~yipee-api) |
