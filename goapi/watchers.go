@@ -29,6 +29,7 @@ var (
 		"ReplicaSet":  "/apis/apps/v1/watch/%sreplicasets?watch=true",
 		"StatefulSet": "/apis/apps/v1/watch/%sstatefulsets?watch=true",
 		"DaemonSet":   "/apis/apps/v1/watch/%sdaemonsets?watch=true",
+		"Namespace":   "/api/v1/namespaces%s?watch=true",
 	}
 )
 

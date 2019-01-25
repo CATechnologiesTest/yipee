@@ -14,11 +14,13 @@ import (
 )
 
 var (
-	statusOnce    sync.Once
-	upgrader      *websocket.Upgrader
-	listenersByNS map[string][]chan updatemsg
-	listenerLock  sync.Mutex
-	objectsByNS   *CacheClient
+	statusOnce     sync.Once
+	upgrader       *websocket.Upgrader
+	wslisteners    []chan JsonObject
+	wslistenerLock sync.Mutex
+	listenersByNS  map[string][]chan JsonObject
+	listenerLock   sync.Mutex
+	objectsByNS    *CacheClient
 )
 
 func initStatus(router *mux.Router) {
@@ -32,7 +34,7 @@ func initStatus(router *mux.Router) {
 				return true
 			},
 		}
-		listenersByNS = make(map[string][]chan updatemsg)
+		listenersByNS = make(map[string][]chan JsonObject)
 		objectsByNS = NewCache(0, 0)
 		if getFromEnv(INSTALL_TYPE, STATIC_INSTALL) == LIVE_INSTALL {
 			go startWatchers()
@@ -43,13 +45,18 @@ func initStatus(router *mux.Router) {
 func startWatchers() {
 	notifs := make(chan Notification)
 	watchAll(notifs, "Pod", "ReplicaSet", "Deployment",
-		"StatefulSet", "DaemonSet")
+		"StatefulSet", "DaemonSet", "Namespace")
 	log.Debug("started all watchers")
 	for {
 		n := <-notifs
 		obj := n.Object
+		nsnamekey := "namespace"
+		if obj["kind"].(string) == "Namespace" {
+			nsnamekey = "name"
+		}
+		nsnotif := make(JsonObject)
 		meta := obj["metadata"].(map[string]interface{})
-		nsname := meta["namespace"].(string)
+		nsname := meta[nsnamekey].(string)
 		id := meta["uid"].(string)
 		if n.Type == "ADDED" || n.Type == "MODIFIED" {
 			var nscache *CacheClient
@@ -60,12 +67,27 @@ func startWatchers() {
 				objectsByNS.Add(nsname, nscache)
 			}
 			nscache.Add(id, obj)
+			nsstatus := makeNamespaceStatus(nscache)
+			notifobj := make(JsonObject)
+			notifobj["namespace"] = nsname
+			notifobj["status"] = nsstatus
+			nsnotif["namespaceUpdate"] = notifobj
 		} else if n.Type == "DELETED" {
 			if oc := objectsByNS.Lookup(nsname); oc != nil {
 				nscache := oc.(*CacheClient)
 				nscache.Remove(id)
 			}
+			nsobj := make(JsonObject)
+			nsobj["namespace"] = nsname
+			nsnotif["namespaceDelete"] = nsobj
 		}
+
+		wslistenerLock.Lock()
+		for _, c := range wslisteners {
+			c <- nsnotif
+		}
+		wslistenerLock.Unlock()
+
 		listenerLock.Lock()
 		if llist, ok := listenersByNS[nsname]; ok {
 			updlist := makeStatusMessages(nsname)
@@ -82,6 +104,57 @@ func startWatchers() {
 	}
 }
 
+func makeNamespaceStatus(nscache *CacheClient) *NsStatus {
+	nsstatus := NsStatus{}
+	nsstatus.Status = "green"
+	podcnt := 0
+	containercnt := 0
+	nscache.ForEach(
+		func(key string, data interface{}) {
+			obj := data.(JsonObject)
+			kind := obj["kind"].(string)
+			meta := obj["metadata"].(map[string]interface{})
+			spec := obj["spec"].(map[string]interface{})
+			status := obj["status"].(map[string]interface{})
+			if kind == "Pod" {
+				podcnt++
+				containers := spec["containers"].([]interface{})
+				containercnt += len(containers)
+			} else if kind == "Namespace" {
+				nsstatus.Name = meta["name"].(string)
+				nsstatus.DateCreated = meta["creationTimestamp"].(string)
+				nsstatus.Phase = status["phase"].(string)
+			} else if isController(kind) {
+				// controller -- get configured and ready counts and
+				// use to rollup overall status
+				specReplicas := 0
+				readyReplicas := 0
+				if kind == "DaemonSet" {
+					specReplicas = 1
+					if rr, ok := status["numberReady"]; ok {
+						readyReplicas = int(rr.(float64))
+					}
+				} else {
+					if sr, ok := spec["replicas"]; ok {
+						specReplicas = int(sr.(float64))
+					}
+					if rr, ok := status["readyReplicas"]; ok {
+						readyReplicas = int(rr.(float64))
+					}
+				}
+				if nsstatus.Status != "red" &&
+					readyReplicas > 0 && readyReplicas < specReplicas {
+					nsstatus.Status = "yellow"
+				} else if specReplicas > 0 && readyReplicas == 0 {
+					nsstatus.Status = "red"
+				}
+			}
+		})
+	nsstatus.PodCount = podcnt
+	nsstatus.ContainerCount = containercnt
+	return &nsstatus
+}
+
 type updatedata struct {
 	Type              string `json:"type"`
 	Status            string `json:"status"`
@@ -95,13 +168,13 @@ type updatemsg struct {
 	Update updatedata `json:"update"`
 }
 
-func makeStatusMessages(nsname string) []*updatemsg {
+func makeStatusMessages(nsname string) []*JsonObject {
 	cv := objectsByNS.Lookup(nsname)
 	if cv == nil {
 		return nil
 	}
 	nsobjs := cv.(*CacheClient)
-	var allmsgs []*updatemsg
+	var allmsgs []*JsonObject
 	controllers, pods := getNSControllersAndPods(nsobjs)
 	for _, c := range controllers {
 		meta := c["metadata"].(map[string]interface{})
@@ -120,8 +193,9 @@ func makeStatusMessages(nsname string) []*updatemsg {
 			getRestartCount(cpods),
 			cid,
 		}
-		msg := &updatemsg{udata}
-		allmsgs = append(allmsgs, msg)
+		msg := make(JsonObject)
+		msg["update"] = udata
+		allmsgs = append(allmsgs, &msg)
 	}
 	return allmsgs
 }
@@ -250,9 +324,30 @@ func getPodsForController(
 	return psForC
 }
 
-func addListener(nsname string, lchan chan updatemsg) {
+func addWsListener(lchan chan JsonObject) {
+	wslistenerLock.Lock()
+	wslisteners = append(wslisteners, lchan)
+	wslistenerLock.Unlock()
+}
+
+func removeWsListener(lchan chan JsonObject) {
+	wslistenerLock.Lock()
+	idx := -1
+	for i, c := range wslisteners {
+		if c == lchan {
+			idx = i
+			break
+		}
+	}
+	if idx > -1 {
+		wslisteners = append(wslisteners[:idx], wslisteners[idx+1:]...)
+	}
+	wslistenerLock.Unlock()
+}
+
+func addListener(nsname string, lchan chan JsonObject) {
 	listenerLock.Lock()
-	var listeners []chan updatemsg
+	var listeners []chan JsonObject
 	if l, ok := listenersByNS[nsname]; ok {
 		listeners = l
 	}
@@ -261,7 +356,7 @@ func addListener(nsname string, lchan chan updatemsg) {
 	listenerLock.Unlock()
 }
 
-func removeListener(nsname string, lchan chan updatemsg) {
+func removeListener(nsname string, lchan chan JsonObject) {
 	listenerLock.Lock()
 	if listeners, ok := listenersByNS[nsname]; ok {
 		idx := -1
@@ -283,7 +378,7 @@ func removeListener(nsname string, lchan chan updatemsg) {
 	listenerLock.Unlock()
 }
 
-func statusWriter(conn *websocket.Conn, updates <-chan updatemsg) {
+func statusWriter(conn *websocket.Conn, updates <-chan JsonObject) {
 	log.Debug("websocket statusWriter running")
 	for {
 		var msg interface{}
@@ -312,17 +407,24 @@ func statusWriter(conn *websocket.Conn, updates <-chan updatemsg) {
 	}
 }
 
-func sendInitialStatus(nsname string, statusChan chan updatemsg) {
+func sendInitialStatus(nsname string, statusChan chan JsonObject) {
 	msglist := makeStatusMessages(nsname)
 	for _, m := range msglist {
 		statusChan <- *m
 	}
 }
 
-func makeStatusWriter(conn *websocket.Conn) chan updatemsg {
-	updateChan := make(chan updatemsg)
+func makeStatusWriter(conn *websocket.Conn) chan JsonObject {
+	updateChan := make(chan JsonObject)
+	addWsListener(updateChan)
 	go statusWriter(conn, updateChan)
 	return updateChan
+}
+
+func deleteStatusWriter(updatechan chan JsonObject) {
+	// channel close will terminate the statusWriter goroutine
+	removeWsListener(updatechan)
+	close(updatechan)
 }
 
 func websocketHandler(w http.ResponseWriter, r *http.Request) {
@@ -345,7 +447,7 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 			removeListener(subscribed, statusChan)
 		}
 		log.Debug("closing statusChan for closed websocket")
-		close(statusChan)
+		deleteStatusWriter(statusChan)
 	}()
 
 	for {
@@ -370,7 +472,10 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 			action := jobj["msg"].(string)
 			switch action {
 			case "subscribe":
-				nsname := jobj["namespace"].(string)
+				nsname, ok := jobj["namespace"].(string)
+				if !ok {
+					continue
+				}
 				log.Debugf("subscribe for ns '%s'", nsname)
 				if subscribed != "" {
 					log.Warnf(
@@ -383,7 +488,10 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 				subscribed = nsname
 			case "unsubscribe":
 				// remove my channel from listeners
-				nsname := jobj["namespace"].(string)
+				nsname, ok := jobj["namespace"].(string)
+				if !ok {
+					continue
+				}
 				log.Debugf("unsubscribe for ns '%s'", nsname)
 				removeListener(nsname, statusChan)
 				if subscribed != "" && nsname != subscribed {

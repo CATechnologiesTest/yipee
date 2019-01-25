@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, EventEmitter } from '@angular/core';
 import { ApiService } from './api.service';
 import { NamespaceRaw } from '../../models/YipeeFileRaw';
 import 'rxjs/add/operator/map';
@@ -12,6 +12,8 @@ import { timer, pipe, from, Observable } from 'rxjs';
 export class NamespaceService {
   currentNamespaces: NamespaceRaw[];
   _isLive: boolean;
+
+  namespacesUpdate: EventEmitter<NamespaceRaw[]> = new EventEmitter();
 
   constructor(
     private apiService: ApiService,
@@ -32,6 +34,12 @@ export class NamespaceService {
     return this.apiService.getNamespaceApps().map((response: NamespaceRaw[]) => {
       this.currentNamespaces = response;
       return this.currentNamespaces;
+    });
+  }
+
+  updateNamespaces() {
+    this.loadAndReturnNamespaces().subscribe((value) => {
+      this.namespacesUpdate.emit(value);
     });
   }
 

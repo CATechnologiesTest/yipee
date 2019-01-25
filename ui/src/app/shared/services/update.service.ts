@@ -4,6 +4,7 @@ import { DeploymentStatus } from '../../models/common/DeploymentStatus';
 import { K8sFile } from '../../models/k8s/K8sFile';
 import { YipeeFileMetadata } from '../../models/YipeeFileMetadata';
 import { YipeeFileService } from './yipee-file.service';
+import { NamespaceService } from './namespace.service';
 
 declare var Primus: any;
 
@@ -17,7 +18,8 @@ export class UpdateService {
   private storeInfo: any;
 
   constructor(
-    private yipeeFileService: YipeeFileService
+    private yipeeFileService: YipeeFileService,
+    private namespaceService: NamespaceService
   ) {
     this.primus = new Primus();
     this.primus.on('data', function (data) {
@@ -28,6 +30,7 @@ export class UpdateService {
 
   handlePushUpdate(event: any): void {
     if (event['update'] !== undefined) {
+      this.namespaceService.updateNamespaces();
       const update = event['update'];
       if (update['type'] === DeploymentStatus.OBJECT_NAME && this.k8sFile !== undefined) {
         const cgroup = this.k8sFile.containerGroups.find((cg) => cg.id === update['cgroup']);
@@ -38,6 +41,7 @@ export class UpdateService {
         }
       }
     } else if (event['namespaceUpdate'] !== undefined) {
+      this.namespaceService.updateNamespaces();
       const namespace = event['namespace'];
       const status = event['status'];
       if (status !== undefined && this.metadata !== undefined) {
@@ -48,8 +52,11 @@ export class UpdateService {
           console.error('unknown namespace for update', event);
         }
       }
+    } else if (event['namespaceDelete'] !== undefined) {
+      this.namespaceService.updateNamespaces();
     } else {
       console.error('unknown event', event);
+      this.namespaceService.updateNamespaces();
     }
   }
 

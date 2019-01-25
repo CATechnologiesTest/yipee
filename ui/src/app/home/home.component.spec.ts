@@ -8,6 +8,9 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { NamespaceService } from '../shared/services/namespace.service';
 import { ApiService } from '../shared/services/api.service';
 import { DownloadService } from '../shared/services/download.service';
+import { UpdateService } from '../shared/services/update.service';
+import { YipeeFileService } from '../shared/services/yipee-file.service';
+import { UserService } from '../shared/services/user.service';
 
 const response1 = {
   success: true,
@@ -37,6 +40,10 @@ const deleteNamespaceResponseNetworkFailure = {
   data: ['network error']
 };
 
+class MockUpdateService {
+  constructor() { }
+}
+
 describe('HomeComponent', () => {
   let component: HomeComponent;
   let fixture: ComponentFixture<HomeComponent>;
@@ -56,7 +63,8 @@ describe('HomeComponent', () => {
       providers: [
         NamespaceService,
         ApiService,
-        DownloadService
+        DownloadService,
+        { provide: UpdateService, useClass: MockUpdateService }
       ]
     })
       .compileComponents();

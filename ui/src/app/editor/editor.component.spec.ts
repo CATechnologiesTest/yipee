@@ -29,6 +29,9 @@ describe('EditorComponent', () => {
 
   class MockUpdateService {
     constructor() { }
+    subscribeToK8sFile(file: any, namespace: any) {
+
+    }
   }
 
   class MockActivatedRoute {
