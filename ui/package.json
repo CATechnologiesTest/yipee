@@ -47,7 +47,7 @@
     "dagre": "0.8.2",
     "file-saver": "2.0.0-rc.4",
     "graphlib": "2.1.5",
-    "jointjs": "^2.2.1",
+    "jointjs": "^3.3.0",
     "jquery": "3.3.1",
     "js-yaml": "^3.12.0",
     "lodash": "^4.17.11",
