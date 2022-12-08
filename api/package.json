@@ -11,7 +11,7 @@
         "bunyan": "1.8.12",
         "byline": "5.0.0",
         "cors": "2.8.4",
-        "express": "4.16.3",
+        "express": "4.17.3",
         "primus": "7.2.3",
         "request": "2.88.0",
         "uuid": "3.3.2",
